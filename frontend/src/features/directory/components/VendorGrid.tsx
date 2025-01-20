@@ -1,8 +1,9 @@
 import { Box, Grid as SystemGrid } from '@mui/system';
 import Grid from '@mui/material/Grid2';
 import { VendorCard } from './VendorCard';
+import { fetchVendors } from '../api/get-vendors';
 
-export const VendorGrid = ({
+export async function VendorGrid ({
   handleFocus,
   handleBlur,
   focusedCardIndex,
@@ -18,10 +19,13 @@ export const VendorGrid = ({
     description: string;
     authors: { name: string; avatar: string; }[];
   }[]
-}) => {
+}) {
+  const { count } = await fetchVendors();
 
   return (
     <Box sx={{ overflowY: 'auto', maxHeight: '100vh' }}>
+      <p>Number of Vendors: {count}</p>
+
       <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
         {cardData.map((card, index) => (
           <Grid key={index} size={{ xs: 12, md: 4 }}>

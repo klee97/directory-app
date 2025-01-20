@@ -6,6 +6,8 @@ import IconButton from '@mui/material/IconButton';
 import RssFeedRoundedIcon from '@mui/icons-material/RssFeedRounded';
 import { SearchBar } from './SearchBar';
 import { VendorGrid } from './VendorGrid';
+import { fetchVendors } from '../api/get-vendors';
+import { Typography } from '@mui/material';
 
 const cardData = [
   {
@@ -120,9 +122,11 @@ const cardData = [
 ];
 
 export default function FilterableVendorTable() {
+
   const [focusedCardIndex, setFocusedCardIndex] = React.useState<number | null>(
     null,
   );
+
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
