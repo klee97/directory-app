@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
-import "./globals.css";
+import "./index.css";
 import theme from "@/components/ui/theme/theme";
 
 export const metadata: Metadata = {

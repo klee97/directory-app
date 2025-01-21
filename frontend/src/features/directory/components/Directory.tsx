@@ -2,7 +2,7 @@ import Container from '@mui/material/Container';
 import FilterableVendorTable from './FilterableVendorTable';
 import { Typography } from '@mui/material';
 
-export default function Directory(props: { disableCustomTheme?: boolean }) {
+export default function Directory() {
   return (
     <Container
       maxWidth="lg"

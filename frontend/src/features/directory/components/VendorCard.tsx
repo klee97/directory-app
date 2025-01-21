@@ -1,27 +1,27 @@
+import { PaperPropsVariantOverrides } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
+import { OverridableStringUnion } from '@mui/types';
 
 export const VendorCard = ({
-  cardData: { img, tag, title, description },
+  cardData: { business_name, instagram, website },
   variant,
   onFocus,
   onBlur,
   tabIndex,
   className,
 }: {
-  variant: any;
+  variant: OverridableStringUnion<'elevation' | 'outlined', PaperPropsVariantOverrides>
   onFocus: () => void;
   onBlur: () => void;
   tabIndex: number;
   className: string;
   cardData: {
-    img: string;
-    tag: string;
-    title: string;
-    description: string;
-    authors: { name: string; avatar: string }[];
+    business_name: string;
+    instagram: string;
+    website: string | null;
   };
 }) => {
   return (
@@ -51,7 +51,7 @@ export const VendorCard = ({
       <CardMedia
         component="img"
         alt="green iguana"
-        image={img}
+        // image={img}
         sx={{
           aspectRatio: '16 / 9',
           borderBottom: '1px solid',
@@ -70,14 +70,14 @@ export const VendorCard = ({
           },
         }}
       >
-        <Typography gutterBottom variant="caption" component="div">
-          {tag}
-        </Typography>
         <Typography gutterBottom variant="h6" component="div">
-          {title}
+          {business_name}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {description}
+          {instagram}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {website}
         </Typography>
       </CardContent>
     </Card>
