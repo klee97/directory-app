@@ -63,7 +63,7 @@ export const VendorCard = ({
           display: 'flex',
           flexDirection: 'column',
           gap: 4,
-          padding: 16,
+          padding: 8,
           flexGrow: 1,
           '&:last-child': {
             paddingBottom: 16,
