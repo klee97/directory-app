@@ -1,8 +1,11 @@
 import Container from '@mui/material/Container';
-import FilterableVendorTable from './FilterableVendorTable';
 import { Typography } from '@mui/material';
+import { Vendor } from '@/types/vendor';
+import FilterableVendorTable from './FilterableVendorTable';
 
-export default function Directory() {
+
+export function Directory({ vendors }: { vendors: Vendor[] }) {
+
   return (
     <Container
       maxWidth="lg"
@@ -15,7 +18,7 @@ export default function Directory() {
         </Typography>
         <Typography>Stay in the loop with the latest about our vendors</Typography>
       </div>
-      <FilterableVendorTable />
+      <FilterableVendorTable vendors={vendors} />
     </Container>
   );
 }
