@@ -6,12 +6,54 @@ import IconButton from '@mui/material/IconButton';
 import RssFeedRoundedIcon from '@mui/icons-material/RssFeedRounded';
 import { SearchBar } from './SearchBar';
 import { VendorGrid } from './VendorGrid';
+import { Vendor } from '@/types/vendor';
+import CircularProgress from '@mui/material/CircularProgress';
 
-export default function FilterableVendorTable() {
+const PAGE_SIZE = 12;
+
+export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }) {
 
   const [focusedCardIndex, setFocusedCardIndex] = React.useState<number | null>(
     null,
   );
+  const [visibleVendors, setVisibleVendors] = React.useState(vendors.slice(0, PAGE_SIZE)); // Start with the first 20 vendors
+  const [loading, setLoading] = React.useState(false);
+  const observerRef = React.useRef<HTMLDivElement | null>(null);
+
+  const loadMoreVendors = () => {
+    if (loading) return;
+    setLoading(true);
+
+    setTimeout(() => {
+      const currentLength = visibleVendors.length;
+      const nextVendors = vendors.slice(
+        currentLength,
+        currentLength + PAGE_SIZE // Load more vendors
+      );
+
+      setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
+      setLoading(false);
+    }, 500); // Simulate loading time
+  };
+
+  // Intersection Observer to detect scrolling near the end
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreVendors();
+        }
+      },
+      { threshold: 1.0 }
+    );
+
+    if (observerRef.current) observer.observe(observerRef.current);
+
+    return () => {
+      if (observerRef.current) observer.unobserve(observerRef.current);
+    };
+  }, [visibleVendors]);
+
 
 
   const handleFocus = (index: number) => {
@@ -118,7 +160,17 @@ export default function FilterableVendorTable() {
         handleFocus={handleFocus}
         handleBlur={handleBlur}
         focusedCardIndex={focusedCardIndex}
+        vendors={visibleVendors}
       />
+      {/* Loading Spinner */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
+          <CircularProgress />
+        </Box>
+      )}
+      {/* Intersection observer target */}
+      <div ref={observerRef} style={{ height: 1 }} />
+
     </Box >
   );
 }

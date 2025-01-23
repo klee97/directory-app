@@ -1,3 +1,4 @@
+import { Vendor } from '@/types/vendor';
 import { PaperPropsVariantOverrides } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -18,11 +19,7 @@ export const VendorCard = ({
   onBlur: () => void;
   tabIndex: number;
   className: string;
-  cardData: {
-    business_name: string;
-    instagram: string;
-    website: string | null;
-  };
+  cardData: Vendor;
 }) => {
   return (
     <Card
