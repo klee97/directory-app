@@ -87,10 +87,6 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
     setFocusedCardIndex(null);
   };
 
-  const handleClick = () => {
-    console.info('You clicked the filter chip.');
-  };
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <Box
