@@ -1,61 +1,69 @@
-"use client";
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import IconButton from '@mui/material/IconButton';
-import RssFeedRoundedIcon from '@mui/icons-material/RssFeedRounded';
-import { SearchBar } from './SearchBar';
+"use client"
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  Box,
+  FormControl,
+  Select,
+  MenuItem,
+  FormControlLabel,
+  Switch,
+  Typography,
+  CircularProgress,
+} from '@mui/material';
 import { VendorGrid } from './VendorGrid';
+import { SearchBar } from './SearchBar';
 import { Vendor } from '@/types/vendor';
-import CircularProgress from '@mui/material/CircularProgress';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 
 const PAGE_SIZE = 12;
 
 export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }) {
+  const [travelsWorldwide, setTravelsWorldwide] = useState(false);
+  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
+  const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
+  const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(false);
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const [selectedRegion, setSelectedRegion] = React.useState<string | null>(null);
+  // Get unique regions from the vendor data
+  const uniqueRegions = useMemo(() => {
+    return Array.from(
+      new Set(
+        vendors
+          .map((vendor) => vendor.region)
+          .filter((region): region is string => region !== null && region !== undefined)
+      )
+    );
+  }, [vendors]);
 
-  const [focusedCardIndex, setFocusedCardIndex] = React.useState<number | null>(
-    null,
-  );
-  const [visibleVendors, setVisibleVendors] = React.useState(vendors.slice(0, PAGE_SIZE)); // Start with the first 20 vendors
-  const [loading, setLoading] = React.useState(false);
-  const observerRef = React.useRef<HTMLDivElement | null>(null);
+  // Memoize the filtered vendors based on the selected filters
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((vendor) => {
+      const matchesRegion = selectedRegion ? vendor.region === selectedRegion : true;
+      const matchesTravel = travelsWorldwide ? vendor.travels_world_wide === 'Yes' : true;
+      return matchesRegion && matchesTravel;
+    });
+  }, [vendors, selectedRegion, travelsWorldwide]);
 
-  const uniqueRegions: string[] = Array.from(
-    new Set(vendors
-      .map((vendor) => vendor.region)
-      .filter((region): region is string => region !== null && region !== undefined) // Filter out null and undefined
-    )
-  );
-
-  const getFilteredVendors = () => {
-    if (!selectedRegion) return vendors;
-    return vendors.filter((vendor) => vendor.region === selectedRegion);
-  };
-
+  // Load more vendors when scrolling
   const loadMoreVendors = () => {
     if (loading) return;
     setLoading(true);
 
-    setTimeout(() => {
-      const currentLength = visibleVendors.length;
-      const filteredVendors = getFilteredVendors();
-      const nextVendors = filteredVendors.slice(
-        currentLength,
-        currentLength + PAGE_SIZE // Load more vendors
-      );
+    const currentLength = visibleVendors.length;
+    const nextVendors = filteredVendors.slice(currentLength, currentLength + PAGE_SIZE);
 
-      setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
-      setLoading(false);
-    }, 500); // Simulate loading time
+    setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
+    setLoading(false);
   };
 
+  // Reset visible vendors whenever the filters change
+  useEffect(() => {
+    setVisibleVendors(filteredVendors.slice(0, PAGE_SIZE));
+  }, [filteredVendors]);
+
   // Intersection Observer to detect scrolling near the end
-  React.useEffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -70,14 +78,11 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
     return () => {
       if (observerRef.current) observer.unobserve(observerRef.current);
     };
-  }, [visibleVendors]);
+  }, [visibleVendors, filteredVendors]);
 
-  React.useEffect(() => {
-    const filteredVendors = getFilteredVendors();
-    setVisibleVendors(filteredVendors.slice(0, PAGE_SIZE)); // Reset to first PAGE_SIZE of filtered data
-  }, [selectedRegion]);
-
-
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTravelsWorldwide(event.target.checked);
+  };
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
@@ -89,38 +94,21 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <Box
-        sx={{
-          display: { xs: 'flex', sm: 'none' },
-          flexDirection: 'row',
-          gap: 1,
-          width: { xs: '100%', md: 'fit-content' },
-          overflow: 'auto',
-        }}
-      >
-        <SearchBar />
-        <IconButton size="small" aria-label="RSS feed">
-          <RssFeedRoundedIcon />
-        </IconButton>
-      </Box>
+      {/* Filters Section */}
       <Box
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column-reverse', md: 'row' },
-          width: '100%',
           justifyContent: 'space-between',
-          alignItems: { xs: 'start', md: 'center' },
+          alignItems: 'center',
           gap: 4,
-          overflow: 'auto',
         }}
       >
-        {/* Dropdown filter */}
-        <FormControl sx={{ minWidth: 200, marginBottom: 2 }}>
+        {/* Region Filter */}
+        <FormControl sx={{ minWidth: 200 }}>
           <Select
-            labelId="region-select-label"
             value={selectedRegion || ''}
             onChange={(e) => setSelectedRegion(e.target.value || null)}
-            label="Region"
             displayEmpty
           >
             <MenuItem value="">
@@ -133,36 +121,43 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
             ))}
           </Select>
         </FormControl>
-        <Box
-          sx={{
-            display: { xs: 'none', sm: 'flex' },
-            flexDirection: 'row',
-            gap: 1,
-            width: { xs: '100%', md: 'fit-content' },
-            overflow: 'auto',
-          }}
-        >
-          <SearchBar />
-          <IconButton size="small" aria-label="RSS feed">
-            <RssFeedRoundedIcon />
-          </IconButton>
-        </Box>
+
+        {/* Travels Worldwide Filter */}
+        <FormControlLabel
+          control={
+            <Switch
+              checked={travelsWorldwide}
+              onChange={handleSwitchChange}
+              color="primary"
+            />
+          }
+          label="Travels Worldwide"
+        />
+        <SearchBar />
       </Box>
+
+      {/* Filtered Vendors Count */}
+      <Typography variant="h6">
+        {filteredVendors.length} artist{filteredVendors.length === 1 ? '' : 's'} matched
+      </Typography>
+
+      {/* Vendor Grid */}
       <VendorGrid
         handleFocus={handleFocus}
         handleBlur={handleBlur}
         focusedCardIndex={focusedCardIndex}
         vendors={visibleVendors}
       />
+
       {/* Loading Spinner */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
           <CircularProgress />
         </Box>
       )}
+
       {/* Intersection observer target */}
       <div ref={observerRef} style={{ height: 1 }} />
-
-    </Box >
+    </Box>
   );
 }
