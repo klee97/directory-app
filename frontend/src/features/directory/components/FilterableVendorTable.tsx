@@ -1,17 +1,22 @@
 "use client";
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import RssFeedRoundedIcon from '@mui/icons-material/RssFeedRounded';
 import { SearchBar } from './SearchBar';
 import { VendorGrid } from './VendorGrid';
 import { Vendor } from '@/types/vendor';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const PAGE_SIZE = 12;
 
 export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }) {
+
+
+  const [selectedRegion, setSelectedRegion] = React.useState<string | null>(null);
 
   const [focusedCardIndex, setFocusedCardIndex] = React.useState<number | null>(
     null,
@@ -20,13 +25,26 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
   const [loading, setLoading] = React.useState(false);
   const observerRef = React.useRef<HTMLDivElement | null>(null);
 
+  const uniqueRegions: string[] = Array.from(
+    new Set(vendors
+      .map((vendor) => vendor.region)
+      .filter((region): region is string => region !== null && region !== undefined) // Filter out null and undefined
+    )
+  );
+
+  const getFilteredVendors = () => {
+    if (!selectedRegion) return vendors;
+    return vendors.filter((vendor) => vendor.region === selectedRegion);
+  };
+
   const loadMoreVendors = () => {
     if (loading) return;
     setLoading(true);
 
     setTimeout(() => {
       const currentLength = visibleVendors.length;
-      const nextVendors = vendors.slice(
+      const filteredVendors = getFilteredVendors();
+      const nextVendors = filteredVendors.slice(
         currentLength,
         currentLength + PAGE_SIZE // Load more vendors
       );
@@ -54,6 +72,11 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
     };
   }, [visibleVendors]);
 
+  React.useEffect(() => {
+    const filteredVendors = getFilteredVendors();
+    setVisibleVendors(filteredVendors.slice(0, PAGE_SIZE)); // Reset to first PAGE_SIZE of filtered data
+  }, [selectedRegion]);
+
 
 
   const handleFocus = (index: number) => {
@@ -62,10 +85,6 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
 
   const handleBlur = () => {
     setFocusedCardIndex(null);
-  };
-
-  const handleClick = () => {
-    console.info('You clicked the filter chip.');
   };
 
   return (
@@ -95,52 +114,25 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
           overflow: 'auto',
         }}
       >
-        <Box
-          sx={{
-            display: 'inline-flex',
-            flexDirection: 'row',
-            gap: 3,
-            overflow: 'auto',
-          }}
-        >
-          <Chip onClick={handleClick} size="medium" label="All categories" />
-          <Chip
-            onClick={handleClick}
-            size="medium"
-            label="Company"
-            sx={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-          />
-          <Chip
-            onClick={handleClick}
-            size="medium"
-            label="Product"
-            sx={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-          />
-          <Chip
-            onClick={handleClick}
-            size="medium"
-            label="Design"
-            sx={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-          />
-          <Chip
-            onClick={handleClick}
-            size="medium"
-            label="Engineering"
-            sx={{
-              backgroundColor: 'transparent',
-              border: 'none',
-            }}
-          />
-        </Box>
+        {/* Dropdown filter */}
+        <FormControl sx={{ minWidth: 200, marginBottom: 2 }}>
+          <Select
+            labelId="region-select-label"
+            value={selectedRegion || ''}
+            onChange={(e) => setSelectedRegion(e.target.value || null)}
+            label="Region"
+            displayEmpty
+          >
+            <MenuItem value="">
+              <em>All Regions</em>
+            </MenuItem>
+            {uniqueRegions.map((region) => (
+              <MenuItem key={region} value={region}>
+                {region}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <Box
           sx={{
             display: { xs: 'none', sm: 'flex' },
