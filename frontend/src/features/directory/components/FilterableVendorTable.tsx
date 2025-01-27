@@ -13,10 +13,11 @@ import {
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
 import { Vendor } from '@/types/vendor';
+import { searchVendors } from '../api/searchVendors';
 
 const PAGE_SIZE = 12;
 
-export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }) {
+export default function FilterableVendorTable({ uniqueRegions, vendors, searchQuery }: { uniqueRegions: string[], vendors: Vendor[], searchQuery: string }) {
   const [travelsWorldwide, setTravelsWorldwide] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
 
@@ -24,17 +25,6 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
   const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
-
-  // Get unique regions from the vendor data
-  const uniqueRegions = useMemo(() => {
-    return Array.from(
-      new Set(
-        vendors
-          .map((vendor) => vendor.region)
-          .filter((region): region is string => region !== null && region !== undefined)
-      )
-    );
-  }, [vendors]);
 
   // Memoize the filtered vendors based on the selected filters
   const filteredVendors = useMemo(() => {
@@ -45,22 +35,24 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
     });
   }, [vendors, selectedRegion, travelsWorldwide]);
 
+  const searchedVendors = useMemo(() => searchVendors(searchQuery, filteredVendors), [searchQuery, filteredVendors]);
+
   // Load more vendors when scrolling
   const loadMoreVendors = () => {
     if (loading) return;
     setLoading(true);
 
     const currentLength = visibleVendors.length;
-    const nextVendors = filteredVendors.slice(currentLength, currentLength + PAGE_SIZE);
+    const nextVendors = searchedVendors.slice(currentLength, currentLength + PAGE_SIZE);
 
     setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
     setLoading(false);
   };
 
-  // Reset visible vendors whenever the filters change
+  // Reset visible vendors whenever the filtered & searched vendor list changes
   useEffect(() => {
-    setVisibleVendors(filteredVendors.slice(0, PAGE_SIZE));
-  }, [filteredVendors]);
+    setVisibleVendors(searchedVendors.slice(0, PAGE_SIZE));
+  }, [searchedVendors]);
 
   // Intersection Observer to detect scrolling near the end
   useEffect(() => {
@@ -78,7 +70,7 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
     return () => {
       if (observerRef.current) observer.unobserve(observerRef.current);
     };
-  }, [visibleVendors, filteredVendors]);
+  }, [searchedVendors]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTravelsWorldwide(event.target.checked);
@@ -138,7 +130,7 @@ export default function FilterableVendorTable({ vendors }: { vendors: Vendor[] }
 
       {/* Filtered Vendors Count */}
       <Typography variant="h6">
-        {filteredVendors.length} artist{filteredVendors.length === 1 ? '' : 's'} matched
+        {searchedVendors.length} artist{searchedVendors.length === 1 ? '' : 's'} matched
       </Typography>
 
       {/* Vendor Grid */}
