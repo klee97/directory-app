@@ -23,7 +23,7 @@ export function Directory({ vendors, searchQuery }: { vendors: Vendor[], searchQ
         <Typography variant="h1" gutterBottom>
           Directory
         </Typography>
-        <Typography>Stay in the loop with the latest about our vendors</Typography>
+        <Typography>Find a makeup artist!</Typography>
       </div>
       <FilterableVendorTable uniqueRegions={uniqueRegions} vendors={vendors} searchQuery={searchQuery} />
     </Container>

@@ -9,4 +9,5 @@ export type VendorProfile = Pick<Vendor, 'id'
   | 'instagram'
   | 'region'
   | 'travels_world_wide'
+  | 'slug'
 >;

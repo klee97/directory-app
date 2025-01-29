@@ -49,6 +49,7 @@ export type Database = {
           lists_prices: string | null
           logo: string | null
           region: string | null
+          slug: string | null
           specialization: string | null
           "travel_bridal_prices_h&m_unless_indicated": string | null
           travels_world_wide: string | null
@@ -69,6 +70,7 @@ export type Database = {
           lists_prices?: string | null
           logo?: string | null
           region?: string | null
+          slug?: string | null
           specialization?: string | null
           "travel_bridal_prices_h&m_unless_indicated"?: string | null
           travels_world_wide?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           lists_prices?: string | null
           logo?: string | null
           region?: string | null
+          slug?: string | null
           specialization?: string | null
           "travel_bridal_prices_h&m_unless_indicated"?: string | null
           travels_world_wide?: string | null

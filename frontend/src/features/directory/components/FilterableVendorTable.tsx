@@ -20,6 +20,7 @@ const PAGE_SIZE = 12;
 export default function FilterableVendorTable({ uniqueRegions, vendors, searchQuery }: { uniqueRegions: string[], vendors: Vendor[], searchQuery: string }) {
   const [travelsWorldwide, setTravelsWorldwide] = useState(false);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
+  const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
 
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
@@ -35,24 +36,47 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
     });
   }, [vendors, selectedRegion, travelsWorldwide]);
 
-  const searchedVendors = useMemo(() => searchVendors(searchQuery, filteredVendors), [searchQuery, filteredVendors]);
+  // Apply search and sorting
+  const searchedAndSortedVendors = useMemo(() => {
+    const result = searchVendors(searchQuery, filteredVendors);
+
+    // if (sortOption === 'priceLowToHigh') {
+    //   result.sort((a, b) => {
+    //     if (a['bridal_hair_&_makeup_price'] === null) return 1; // Null prices go to the end
+    //     if (b['bridal_hair_&_makeup_price'] === null) return -1;
+    //     console.log("Comparing prices");
+    //     return a['bridal_hair_&_makeup_price'] - b['bridal_hair_&_makeup_price'];
+    //   });
+    // } else if (sortOption === 'priceHighToLow') {
+    //   result.sort((a, b) => {
+    //     if (a['bridal_hair_&_makeup_price'] === null) return 1; // Null prices go to the end
+    //     if (b['bridal_hair_&_makeup_price'] === null) return -1;
+    //     return b['bridal_hair_&_makeup_price'] - a['bridal_hair_&_makeup_price'];
+    //   });
+    // }
+
+    return result;
+  }, [searchQuery, filteredVendors, sortOption]);
 
   // Load more vendors when scrolling
   const loadMoreVendors = () => {
     if (loading) return;
     setLoading(true);
 
-    const currentLength = visibleVendors.length;
-    const nextVendors = searchedVendors.slice(currentLength, currentLength + PAGE_SIZE);
-
-    setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
-    setLoading(false);
+    setTimeout(() => {
+      const currentLength = visibleVendors.length;
+      const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
+  
+      setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
+      setLoading(false);
+    }, 500); // Simulate loading time
   };
+  
 
   // Reset visible vendors whenever the filtered & searched vendor list changes
   useEffect(() => {
-    setVisibleVendors(searchedVendors.slice(0, PAGE_SIZE));
-  }, [searchedVendors]);
+    setVisibleVendors(searchedAndSortedVendors.slice(0, PAGE_SIZE));
+  }, [searchedAndSortedVendors]);
 
   // Intersection Observer to detect scrolling near the end
   useEffect(() => {
@@ -70,7 +94,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
     return () => {
       if (observerRef.current) observer.unobserve(observerRef.current);
     };
-  }, [searchedVendors]);
+  }, [searchedAndSortedVendors]);
 
   const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTravelsWorldwide(event.target.checked);
@@ -86,7 +110,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      {/* Filters Section */}
+      {/* Filters and Sorting Section */}
       <Box
         sx={{
           display: 'flex',
@@ -125,12 +149,32 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
           }
           label="Travels Worldwide"
         />
+
+        {/* Sorting Section */}
+        <FormControl sx={{ minWidth: 200 }}>
+          <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
+            Sort By
+          </Typography>
+          <Select
+            value={sortOption || 'default'}
+            onChange={(e) => setSortOption(e.target.value)}
+            displayEmpty
+          >
+            <MenuItem value="default">
+              <em>Default</em>
+            </MenuItem>
+            <MenuItem value="priceLowToHigh">Price: Low to High</MenuItem>
+            <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* Search */}
         <SearchBar />
       </Box>
 
       {/* Filtered Vendors Count */}
       <Typography variant="h6">
-        {searchedVendors.length} artist{searchedVendors.length === 1 ? '' : 's'} matched
+        {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
       </Typography>
 
       {/* Vendor Grid */}
@@ -151,5 +195,6 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
       {/* Intersection observer target */}
       <div ref={observerRef} style={{ height: 1 }} />
     </Box>
+
   );
 }
