@@ -31,8 +31,8 @@ export default async function VendorPage({ params }: PageProps) {
   }
 
   return (
-    <main>
+    <div>
       <VendorDetails vendor={vendor} />
-    </main>
+    </div>
   );
 }
