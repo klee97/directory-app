@@ -5,8 +5,6 @@ import {
   FormControl,
   Select,
   MenuItem,
-  FormControlLabel,
-  Switch,
   Typography,
   CircularProgress,
 } from '@mui/material';
@@ -14,14 +12,24 @@ import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
 import { Vendor } from '@/types/vendor';
 import { searchVendors } from '../api/searchVendors';
+import { LocationFilter } from './LocationFilter';
+import TravelFilter from './TravelFilter';
+import { useSearchParams } from 'next/navigation';
+import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 const PAGE_SIZE = 12;
 
-export default function FilterableVendorTable({ uniqueRegions, vendors, searchQuery }: { uniqueRegions: string[], vendors: Vendor[], searchQuery: string }) {
-  const [travelsWorldwide, setTravelsWorldwide] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
+export default function FilterableVendorTable({ uniqueRegions, vendors }: {
+  uniqueRegions: string[],
+  vendors: Vendor[],
+  // searchParams: SearchParam
+}) {
+  const searchParams = useSearchParams();
+  const selectedRegion = searchParams.get(LOCATION_PARAM) || ""; //searchParams.region || "";
+  const searchQuery = searchParams.get(SEARCH_PARAM) || "";
+  const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
 
+  const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,12 +74,12 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
     setTimeout(() => {
       const currentLength = visibleVendors.length;
       const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
-  
+
       setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
       setLoading(false);
     }, 500); // Simulate loading time
   };
-  
+
 
   // Reset visible vendors whenever the filtered & searched vendor list changes
   useEffect(() => {
@@ -96,10 +104,6 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
     };
   }, [searchedAndSortedVendors]);
 
-  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTravelsWorldwide(event.target.checked);
-  };
-
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
   };
@@ -121,34 +125,10 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
         }}
       >
         {/* Region Filter */}
-        <FormControl sx={{ minWidth: 200 }}>
-          <Select
-            value={selectedRegion || ''}
-            onChange={(e) => setSelectedRegion(e.target.value || null)}
-            displayEmpty
-          >
-            <MenuItem value="">
-              <em>All Regions</em>
-            </MenuItem>
-            {uniqueRegions.map((region) => (
-              <MenuItem key={region} value={region}>
-                {region}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
 
         {/* Travels Worldwide Filter */}
-        <FormControlLabel
-          control={
-            <Switch
-              checked={travelsWorldwide}
-              onChange={handleSwitchChange}
-              color="primary"
-            />
-          }
-          label="Travels Worldwide"
-        />
+        <TravelFilter searchParams={searchParams}/>
 
         {/* Sorting Section */}
         <FormControl sx={{ minWidth: 200 }}>
@@ -169,7 +149,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
         </FormControl>
 
         {/* Search */}
-        <SearchBar />
+        <SearchBar searchParams={searchParams} />
       </Box>
 
       {/* Filtered Vendors Count */}
@@ -183,6 +163,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, searchQu
         handleBlur={handleBlur}
         focusedCardIndex={focusedCardIndex}
         vendors={visibleVendors}
+        searchParams={searchParams.toString()}
       />
 
       {/* Loading Spinner */}

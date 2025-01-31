@@ -6,20 +6,20 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import IconButton from '@mui/material/IconButton';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
+import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
+import { SEARCH_PARAM } from '@/lib/constants';
 
-export function SearchBar() {
-  const searchParams = useSearchParams();
+export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [searchTerm, setSearchTerm] = React.useState(searchParams.get('query') || '');
+  const [searchTerm, setSearchTerm] = React.useState(searchParams.get(SEARCH_PARAM) || '');
 
   function handleSearch(term: string) {
     const params = new URLSearchParams(searchParams);
     if (term) {
-      params.set('query', term);
+      params.set(SEARCH_PARAM, term);
     } else {
-      params.delete('query');
+      params.delete(SEARCH_PARAM);
     }
     replace(`${pathname}?${params.toString()}`);
     console.log(term);

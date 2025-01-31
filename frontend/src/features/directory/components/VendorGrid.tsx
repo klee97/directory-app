@@ -9,12 +9,14 @@ export function VendorGrid({
   handleFocus,
   handleBlur,
   focusedCardIndex,
-  vendors
+  vendors,
+  searchParams
 }: {
   handleFocus: (index: number) => void,
   handleBlur: () => void,
   focusedCardIndex: number | null,
-  vendors: Vendor[]
+  vendors: Vendor[],
+  searchParams: string
 }) {
 
   return (
@@ -23,7 +25,7 @@ export function VendorGrid({
         <Grid key={index} size={{ xs: 12, md: 4 }}>
           <Link
             key={vendor.slug}
-            href={`/vendors/${vendor.slug}`}
+            href={`/vendors/${vendor.slug}?${searchParams}`}
             passHref
             style={{ textDecoration: 'none' }}
           >

@@ -2,9 +2,12 @@ import Container from '@mui/material/Container';
 import { Typography } from '@mui/material';
 import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
+import { Suspense } from 'react';
 
 
-export function Directory({ vendors, searchQuery }: { vendors: Vendor[], searchQuery: string }) {
+export function Directory({ vendors }: {
+  vendors: Vendor[]
+}) {
   // Get unique regions from the vendor data
   const uniqueRegions = Array.from(
     new Set(
@@ -25,7 +28,12 @@ export function Directory({ vendors, searchQuery }: { vendors: Vendor[], searchQ
         </Typography>
         <Typography>Find a makeup artist!</Typography>
       </div>
-      <FilterableVendorTable uniqueRegions={uniqueRegions} vendors={vendors} searchQuery={searchQuery} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <FilterableVendorTable
+          uniqueRegions={uniqueRegions}
+          vendors={vendors}
+        />
+      </Suspense>
     </Container>
   );
 }

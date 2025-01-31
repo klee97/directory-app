@@ -3,6 +3,7 @@ import { VendorDetails } from '@/features/business/components/VendorDetails';
 import { fetchVendorBySlug } from '@/features/business/api/fetchVendor';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
+import BackButton from '@/components/ui/BackButton';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -10,7 +11,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const slug = (await params).slug;
-  const vendor : Vendor | null = await fetchVendorBySlug(slug);
+  const vendor: Vendor | null = await fetchVendorBySlug(slug);
 
   if (!vendor) {
     return { title: 'Vendor Not Found' };
@@ -32,6 +33,7 @@ export default async function VendorPage({ params }: PageProps) {
 
   return (
     <div>
+      <BackButton />
       <VendorDetails vendor={vendor} />
     </div>
   );
