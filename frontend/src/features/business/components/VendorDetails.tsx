@@ -99,7 +99,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   About
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                  {vendor.description || "This talented vendor brings years of experience and passion to make your special day unforgettable. Contact them to learn more about their services and availability."}
+                  { "More info coming soon. Contact the artist to learn more about their services and availability."}
                 </Typography>
               </Paper>
 
