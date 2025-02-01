@@ -30,7 +30,7 @@ export function VendorGrid({
             style={{ textDecoration: 'none' }}
           >
             <VendorCard
-              cardData={vendor}
+              vendor={vendor}
               variant="outlined"
               onFocus={() => handleFocus(0)}
               onBlur={handleBlur}

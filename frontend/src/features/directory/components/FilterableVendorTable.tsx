@@ -21,11 +21,10 @@ const PAGE_SIZE = 12;
 
 export default function FilterableVendorTable({ uniqueRegions, vendors }: {
   uniqueRegions: string[],
-  vendors: Vendor[],
-  // searchParams: SearchParam
+  vendors: Vendor[]
 }) {
   const searchParams = useSearchParams();
-  const selectedRegion = searchParams.get(LOCATION_PARAM) || ""; //searchParams.region || "";
+  const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
 
