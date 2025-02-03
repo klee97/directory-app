@@ -9,6 +9,7 @@ import Chip from '@mui/material/Chip';
 import { OverridableStringUnion } from '@mui/types';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import PublicIcon from '@mui/icons-material/Public';
+import defaultImage from '@/assets/default.jpeg';
 
 export const VendorCard = ({
   vendor,
@@ -53,7 +54,7 @@ export const VendorCard = ({
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
-          image={vendor.cover_image ?? ''}
+          src={vendor.cover_image ?? defaultImage.src}
           alt={`${vendor.business_name} preview`}
           sx={{
             aspectRatio: '16 / 9',
