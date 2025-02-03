@@ -10,4 +10,5 @@ export type VendorProfile = Pick<Vendor, 'id'
   | 'region'
   | 'travels_world_wide'
   | 'slug'
+  | 'cover_image'
 >;

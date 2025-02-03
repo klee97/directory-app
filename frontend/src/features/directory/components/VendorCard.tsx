@@ -53,9 +53,11 @@ export const VendorCard = ({
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
+          image={vendor.cover_image ?? ''}
           alt={`${vendor.business_name} preview`}
           sx={{
             aspectRatio: '16 / 9',
+            // objectFit: 'contain',
             borderBottom: '1px solid',
             borderColor: 'divider',
           }}

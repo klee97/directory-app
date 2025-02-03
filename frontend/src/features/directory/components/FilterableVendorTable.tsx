@@ -67,16 +67,23 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
 
   // Load more vendors when scrolling
   const loadMoreVendors = () => {
-    if (loading) return;
+    if (loading) return; // Prevent multiple calls while loading
     setLoading(true);
-
-    setTimeout(() => {
-      const currentLength = visibleVendors.length;
+  
+    setVisibleVendors((prevVendors) => {
+      const currentLength = prevVendors.length;
       const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
-
-      setVisibleVendors((prevVendors) => [...prevVendors, ...nextVendors]);
-      setLoading(false);
-    }, 500); // Simulate loading time
+      
+      // Prevent duplicate append
+      if (nextVendors.length === 0) {
+        setLoading(false);
+        return prevVendors;
+      }
+  
+      return [...prevVendors, ...nextVendors];
+    });
+  
+    setLoading(false);
   };
 
 
@@ -127,7 +134,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
         <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
 
         {/* Travels Worldwide Filter */}
-        <TravelFilter searchParams={searchParams}/>
+        <TravelFilter searchParams={searchParams} />
 
         {/* Sorting Section */}
         <FormControl sx={{ minWidth: 200 }}>
