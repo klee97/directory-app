@@ -43,7 +43,7 @@ export default function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <MuiThemeProvider theme={theme}>
-      <CssBaseline />
+      {/* <CssBaseline /> */}
       {children}
     </MuiThemeProvider>
   );

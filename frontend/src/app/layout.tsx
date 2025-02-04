@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
-import "./index.css";
 import Navbar from "@/components/layouts/Navbar";
 
 export const metadata: Metadata = {
