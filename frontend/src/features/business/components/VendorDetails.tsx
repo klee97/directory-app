@@ -74,7 +74,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
               {vendor.travels_world_wide === 'Yes' && (
                 <Chip
                   icon={<Public />}
-                  label="Available Worldwide"
+                  label="Travels Worldwide"
                   size="small"
                   sx={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
                 />
