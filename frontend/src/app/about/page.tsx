@@ -21,15 +21,15 @@ export default function About() {
           About Us
         </Typography>
         <Typography variant="body1" component="p">
-        As two Asian American women, we understand how overwhelming wedding planning can be—especially when you're straddling the line between different cultures. 
+        As two Asian American women, we understand how overwhelming wedding planning can be—especially when you&apos;re straddling the line between different cultures. 
         </Typography>
         <Typography variant="body1" component="p">
-        We're building this directory to help Asian couples find artists who are recommended within their local communities.
-        We're asking our friends and family, scouring the web, and looking through Reddit and Facebook, so you don't have to.
-        The artists here are people who other couples have recommended, and we're excited to share their knowledge with you.
+        We&apos;re building this directory to help Asian couples find artists who are recommended within their local communities.
+        We&apos;re asking our friends and family, scouring the web, and looking through Reddit and Facebook, so you don&apos;t have to.
+        The artists here are people who other couples have recommended, and we&apos;re excited to share their knowledge with you.
         </Typography>
         <Typography variant="body1" component="p">
-          Whether you’re a vendor looking to showcase your work or a couple planning your big day, we’re here to help.
+          Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
         </Typography>
         <Box sx={{ maxWidth: 'sm' }}>
           <Button variant="contained" component={NextLink} href="/">

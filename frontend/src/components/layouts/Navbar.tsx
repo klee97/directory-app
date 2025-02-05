@@ -23,7 +23,6 @@ const pages = ['About'];
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const { mode, setMode } = useColorScheme();
   if (!mode) {
     return null;

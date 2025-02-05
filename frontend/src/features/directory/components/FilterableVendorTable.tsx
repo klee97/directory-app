@@ -108,7 +108,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
     return () => {
       if (observerRef.current) observer.unobserve(observerRef.current);
     };
-  }, [searchedAndSortedVendors]);
+  }, [searchedAndSortedVendors, loadMoreVendors]);
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
