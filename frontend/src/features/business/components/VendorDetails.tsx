@@ -76,7 +76,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   icon={<Public />}
                   label="Travels Worldwide"
                   size="small"
-                  sx={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white' }}
+                  sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)', color: 'white' }}
                 />
               )}
             </Box>
