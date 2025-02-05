@@ -2,8 +2,6 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import NextLink from 'next/link';
 
 export default function About() {
   return (
@@ -15,6 +13,8 @@ export default function About() {
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
+          textAlign: 'center',
+          '& > p': { marginBottom: 2 },
         }}
       >
         <Typography variant="h3" component="h1" gutterBottom>
@@ -29,13 +29,8 @@ export default function About() {
         The artists here are people who other couples have recommended, and we&apos;re excited to share their knowledge with you.
         </Typography>
         <Typography variant="body1" component="p">
-          Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
+        Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
         </Typography>
-        <Box sx={{ maxWidth: 'sm' }}>
-          <Button variant="contained" component={NextLink} href="/">
-            Go to the directory
-          </Button>
-        </Box>
       </Box>
     </Container>
   );
