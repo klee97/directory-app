@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { TextField, MenuItem, Button, Box, Alert } from "@mui/material";
+import { submitForm } from "../api/submitForm";
 
 export function EmailForm() {
   const [formData, setFormData] = useState({
@@ -30,11 +31,7 @@ export function EmailForm() {
     setError("");
     setSubmitted(false);
 
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    const response = await submitForm(formData);
 
     if (response.ok) {
       setSubmitted(true);
