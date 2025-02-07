@@ -57,8 +57,10 @@ export const VendorCard = ({
           src={vendor.cover_image ?? defaultImage.src}
           alt={`${vendor.business_name} preview`}
           sx={{
-            aspectRatio: '16 / 9',
-            // objectFit: 'contain',
+            height: 300, // Adjust as needed for uniform height
+            width: '100%',
+            objectFit: 'cover', // Ensures the image covers the space without stretching
+            objectPosition: 'top', // Adjust to prioritize faces (try 'center' if needed)
             borderBottom: '1px solid',
             borderColor: 'divider',
           }}

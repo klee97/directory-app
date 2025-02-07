@@ -43,6 +43,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   src={vendor.cover_image}
                   alt={vendor.business_name ?? ''}
                   sx={{
+                    display: 'block',
                     width: '100%',
                     height: 300,
                     objectFit: 'cover', // Ensures it doesn’t stretch
