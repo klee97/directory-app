@@ -113,8 +113,8 @@ export default function Navbar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Link key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
-                <Button sx={{ my: 2, color: 'white', display: 'block' }}>
+              <Link color="inherit" key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
+                <Button sx={{ my: 2, color: 'white', display: 'block'}}>
                   {page}
                 </Button>
               </Link>
