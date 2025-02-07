@@ -19,7 +19,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { useColorScheme } from '@mui/material/styles';
 import Link from 'next/link';
 
-const pages = ['About', "Contact"];
+const pages = ["About", "Contact", "FAQ"];
 
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);

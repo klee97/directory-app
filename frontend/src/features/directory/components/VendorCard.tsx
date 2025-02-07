@@ -77,57 +77,56 @@ export const VendorCard = ({
           />
         )}
       </Box>
-      
+
       <CardContent
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          gap: 2,
+          gap: 1,
           p: 3,
           flexGrow: 1,
           '&:last-child': { pb: 3 },
         }}
       >
         {/* Business Name */}
-        <Typography 
-          variant="h6" 
+        <Typography
+          variant="h6"
           component="div"
-          sx={{ 
+          sx={{
             fontWeight: 'medium',
             mb: 1
           }}
         >
           {vendor.business_name}
         </Typography>
-
-        {/* Specialty */}
-        {vendor.specialization && (
-          <Typography 
-            variant="body2" 
-            color="text.secondary"
-            sx={{ mb: 2 }}
-          >
-            {vendor.specialization}
-          </Typography>
-        )}
+        <Typography
+          variant="body1"
+        >
+          <LocationOnIcon fontSize='small' /> {vendor.region}
+        </Typography>
 
         {/* Location Tags */}
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-          <Chip
-            icon={<LocationOnIcon />}
-            label={vendor.region}
-            size="small"
-            sx={{ borderRadius: '4px' }}
-          />
-          {vendor.travels_world_wide === 'Yes' && (
+        {vendor.travels_world_wide === 'Yes' && (
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
               icon={<PublicIcon />}
               label="Travels Worldwide"
               size="small"
-              sx={{ borderRadius: '4px' }}
             />
-          )}
-        </Box>
+          </Box>
+        )}
+        {/* Specialty. TODO: separate out the specializations into separate chips */} 
+        {vendor.specialization && (
+          <Box sx={{ display: 'flex', justifyContent: 'left', mt: 'auto' }}>
+            <Chip
+              label={vendor.specialization}
+              variant="outlined"
+              sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+            />
+          </Box>
+        )}
+
+
       </CardContent>
     </Card>
   );
