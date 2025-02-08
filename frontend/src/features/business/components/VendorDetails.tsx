@@ -136,8 +136,8 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Typography>
                   </Box>
                   <Typography variant="body1">
-                    {vendor['bridal_hair_&_makeup_price']
-                      ? `$${vendor['bridal_hair_&_makeup_price']}`
+                    {vendor.bridal_hair_makeup_price
+                      ? `$${vendor.bridal_hair_makeup_price}`
                       : 'Custom Quote'}
                   </Typography>
                 </Box>
@@ -155,8 +155,8 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Typography>
                   </Box>
                   <Typography variant="body1">
-                    {vendor['bridesmaid_hair_&_makeup_price']
-                      ? `$${vendor['bridesmaid_hair_&_makeup_price']}`
+                    {vendor.bridal_hair_makeup_price
+                      ? `$${vendor.bridesmaid_hair_makeup_price}`
                       : 'Custom Quote'}
                   </Typography>
                 </Box>

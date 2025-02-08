@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/api-client';
+import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchAllVendors() {
   try {
@@ -10,7 +11,7 @@ export async function fetchAllVendors() {
     if (data === null) {
       return [];
     }
-    return data;
+    return data.map(transformBackendVendorToFrontend);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch card data.');

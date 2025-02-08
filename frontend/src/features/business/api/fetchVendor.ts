@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/api-client';
+import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchVendorById(id: string) {
   console.log("Fetching vendor with ID: %s", id);
@@ -11,7 +12,7 @@ export async function fetchVendorById(id: string) {
     console.error('Error fetching vendor: %s', error);
     return null;
   }
-  return vendor;
+  return transformBackendVendorToFrontend(vendor);
 }
 
 export async function fetchVendorBySlug(slug: string) {
@@ -25,5 +26,5 @@ export async function fetchVendorBySlug(slug: string) {
     console.error('Error fetching vendor: %s', error);
     return null;
   }
-  return vendor;
+  return transformBackendVendorToFrontend(vendor);
 }

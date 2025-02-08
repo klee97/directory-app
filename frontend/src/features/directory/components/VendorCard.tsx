@@ -26,6 +26,7 @@ export const VendorCard = ({
   tabIndex: number;
   className: string;
 }) => {
+
   return (
     <Card
       variant={variant}
@@ -66,9 +67,9 @@ export const VendorCard = ({
           }}
         />
         {/* Price Badge */}
-        {vendor['bridal_hair_&_makeup_price'] && (
+        {vendor.bridal_hair_makeup_price && (
           <Chip
-            label={`From $${vendor['bridal_hair_&_makeup_price']}`}
+            label={`From $${vendor.bridal_hair_makeup_price}`}
             sx={{
               position: 'absolute',
               bottom: 12,
@@ -117,17 +118,19 @@ export const VendorCard = ({
             />
           </Box>
         )}
-        {/* Specialty. TODO: separate out the specializations into separate chips */} 
-        {vendor.specialization && (
-          <Box sx={{ display: 'flex', justifyContent: 'left', mt: 'auto' }}>
-            <Chip
-              label={vendor.specialization}
-              variant="outlined"
-              sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
-            />
-          </Box>
-        )}
-
+        {/* Specialty Tags */}
+        <Box sx={{ display: 'flex', justifyContent: 'left', mt: 'auto', gap: 1 }}>
+          {vendor.specialties.map((specialty, index) => {
+            return (
+              <Chip
+                key={index}
+                label={specialty}
+                variant="outlined"
+                sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+              />
+            );
+          })}
+        </Box>
 
       </CardContent>
     </Card>

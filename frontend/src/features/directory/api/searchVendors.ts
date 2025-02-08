@@ -1,6 +1,6 @@
 import { Vendor } from "@/types/vendor";
 
-export function searchVendors(searchQuery: string, vendors: Vendor[]) {
+export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] {
   const regex = new RegExp(searchQuery, "i"); // "i" makes it case-insensitive
   const results = vendors.filter(vendor =>
     regex.test(vendor.business_name?.toString() ?? '') ||

@@ -45,22 +45,22 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
 
   // Apply search and sorting
   const searchedAndSortedVendors = useMemo(() => {
-    const result = searchVendors(searchQuery, filteredVendors);
+    const result: Vendor[] = searchVendors(searchQuery, filteredVendors);
 
-    // if (sortOption === 'priceLowToHigh') {
-    //   result.sort((a, b) => {
-    //     if (a['bridal_hair_&_makeup_price'] === null) return 1; // Null prices go to the end
-    //     if (b['bridal_hair_&_makeup_price'] === null) return -1;
-    //     console.log("Comparing prices");
-    //     return a['bridal_hair_&_makeup_price'] - b['bridal_hair_&_makeup_price'];
-    //   });
-    // } else if (sortOption === 'priceHighToLow') {
-    //   result.sort((a, b) => {
-    //     if (a['bridal_hair_&_makeup_price'] === null) return 1; // Null prices go to the end
-    //     if (b['bridal_hair_&_makeup_price'] === null) return -1;
-    //     return b['bridal_hair_&_makeup_price'] - a['bridal_hair_&_makeup_price'];
-    //   });
-    // }
+    if (sortOption === 'priceLowToHigh') {
+      result.sort((a, b) => {
+        if (a.bridal_hair_makeup_price === null) return 1; // Null prices go to the end
+        if (b.bridal_hair_makeup_price === null) return -1;
+        console.log("Comparing prices");
+        return a.bridal_hair_makeup_price - b.bridal_hair_makeup_price;
+      });
+    } else if (sortOption === 'priceHighToLow') {
+      result.sort((a, b) => {
+        if (a.bridal_hair_makeup_price === null) return 1; // Null prices go to the end
+        if (b.bridal_hair_makeup_price === null) return -1;
+        return b.bridal_hair_makeup_price- a.bridal_hair_makeup_price;
+      });
+    }
 
     return result;
   }, [searchQuery, filteredVendors, sortOption]);
@@ -69,20 +69,20 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
   const loadMoreVendors = () => {
     if (loading) return; // Prevent multiple calls while loading
     setLoading(true);
-  
+
     setVisibleVendors((prevVendors) => {
       const currentLength = prevVendors.length;
       const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
-      
+
       // Prevent duplicate append
       if (nextVendors.length === 0) {
         setLoading(false);
         return prevVendors;
       }
-  
+
       return [...prevVendors, ...nextVendors];
     });
-  
+
     setLoading(false);
   };
 
