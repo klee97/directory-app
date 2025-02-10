@@ -5,7 +5,7 @@ export async function fetchAllVendors() {
   try {
     console.log("Fetching vendors");
     const { data } = await supabase
-      .from('vendors_test')
+      .from('vendors_full')
       .select('*');
 
     if (data === null) {

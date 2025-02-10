@@ -100,66 +100,144 @@ export type Database = {
         }
         Relationships: []
       }
-      vendors_small: {
+      vendors_full: {
         Row: {
-          "Bridal Hair & Makeup Price": number | null
-          "bridal_price_H&M_unless_indicated": number | null
-          "Bridesmaid Hair & Makeup Price": number | null
-          "Bridesmaid price (H&M unless indicated)": string | null
+          "bridal_hair_&_makeup_price": number | null
+          bridal_hair_price: number | null
+          bridal_makeup_price: number | null
+          "bridesmaid_hair_&_makeup_price": number | null
+          bridesmaid_hair_price: number | null
+          bridesmaid_makeup_price: number | null
           business_name: string | null
-          "Cover Image": string | null
+          cover_image: string | null
           email: string | null
+          gis: unknown | null
           id: string
-          "IG Handle": string | null
+          ig_handle: string | null
           instagram: string | null
-          "Lists prices": string | null
+          lists_prices: boolean | null
           logo: string | null
           region: string | null
-          Specialization: string | null
-          "Travel bridal prices (H&M unless indicated)": string | null
-          travels_world_wide: string | null
+          slug: string | null
+          specialization: string | null
+          "travel_bridal_prices_h&m_unless_indicated": string | null
+          travels_world_wide: boolean | null
           website: string | null
-          "What is your minimum spend": string | null
+          what_is_your_minimum_spend: string | null
         }
         Insert: {
-          "Bridal Hair & Makeup Price"?: number | null
-          "bridal_price_H&M_unless_indicated"?: number | null
-          "Bridesmaid Hair & Makeup Price"?: number | null
-          "Bridesmaid price (H&M unless indicated)"?: string | null
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
           business_name?: string | null
-          "Cover Image"?: string | null
+          cover_image?: string | null
           email?: string | null
-          id?: string
-          "IG Handle"?: string | null
+          gis?: unknown | null
+          id: string
+          ig_handle?: string | null
           instagram?: string | null
-          "Lists prices"?: string | null
+          lists_prices?: boolean | null
           logo?: string | null
           region?: string | null
-          Specialization?: string | null
-          "Travel bridal prices (H&M unless indicated)"?: string | null
-          travels_world_wide?: string | null
+          slug?: string | null
+          specialization?: string | null
+          "travel_bridal_prices_h&m_unless_indicated"?: string | null
+          travels_world_wide?: boolean | null
           website?: string | null
-          "What is your minimum spend"?: string | null
+          what_is_your_minimum_spend?: string | null
         }
         Update: {
-          "Bridal Hair & Makeup Price"?: number | null
-          "bridal_price_H&M_unless_indicated"?: number | null
-          "Bridesmaid Hair & Makeup Price"?: number | null
-          "Bridesmaid price (H&M unless indicated)"?: string | null
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
           business_name?: string | null
-          "Cover Image"?: string | null
+          cover_image?: string | null
           email?: string | null
+          gis?: unknown | null
           id?: string
-          "IG Handle"?: string | null
+          ig_handle?: string | null
           instagram?: string | null
-          "Lists prices"?: string | null
+          lists_prices?: boolean | null
           logo?: string | null
           region?: string | null
-          Specialization?: string | null
-          "Travel bridal prices (H&M unless indicated)"?: string | null
+          slug?: string | null
+          specialization?: string | null
+          "travel_bridal_prices_h&m_unless_indicated"?: string | null
+          travels_world_wide?: boolean | null
+          website?: string | null
+          what_is_your_minimum_spend?: string | null
+        }
+        Relationships: []
+      }
+      vendors_test: {
+        Row: {
+          "bridal_hair_&_makeup_price": string | null
+          "bridal_price_h&m_unless_indicated": string | null
+          "bridesmaid_hair_&_makeup_price": string | null
+          "bridesmaid_price_h&m_unless_indicated": string | null
+          business_name: string | null
+          cover_image: string | null
+          email: string | null
+          id: string
+          ig_handle: string | null
+          instagram: string | null
+          lists_prices: string | null
+          logo: string | null
+          region: string | null
+          slug: string | null
+          specialization: string | null
+          "travel_bridal_prices_h&m_unless_indicated": string | null
+          travels_world_wide: string | null
+          website: string | null
+          what_is_your_minimum_spend: string | null
+        }
+        Insert: {
+          "bridal_hair_&_makeup_price"?: string | null
+          "bridal_price_h&m_unless_indicated"?: string | null
+          "bridesmaid_hair_&_makeup_price"?: string | null
+          "bridesmaid_price_h&m_unless_indicated"?: string | null
+          business_name?: string | null
+          cover_image?: string | null
+          email?: string | null
+          id?: string
+          ig_handle?: string | null
+          instagram?: string | null
+          lists_prices?: string | null
+          logo?: string | null
+          region?: string | null
+          slug?: string | null
+          specialization?: string | null
+          "travel_bridal_prices_h&m_unless_indicated"?: string | null
           travels_world_wide?: string | null
           website?: string | null
-          "What is your minimum spend"?: string | null
+          what_is_your_minimum_spend?: string | null
+        }
+        Update: {
+          "bridal_hair_&_makeup_price"?: string | null
+          "bridal_price_h&m_unless_indicated"?: string | null
+          "bridesmaid_hair_&_makeup_price"?: string | null
+          "bridesmaid_price_h&m_unless_indicated"?: string | null
+          business_name?: string | null
+          cover_image?: string | null
+          email?: string | null
+          id?: string
+          ig_handle?: string | null
+          instagram?: string | null
+          lists_prices?: string | null
+          logo?: string | null
+          region?: string | null
+          slug?: string | null
+          specialization?: string | null
+          "travel_bridal_prices_h&m_unless_indicated"?: string | null
+          travels_world_wide?: string | null
+          website?: string | null
+          what_is_your_minimum_spend?: string | null
         }
         Relationships: []
       }

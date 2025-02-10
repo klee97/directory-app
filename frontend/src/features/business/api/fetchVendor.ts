@@ -4,7 +4,7 @@ import { transformBackendVendorToFrontend } from '@/types/vendor';
 export async function fetchVendorById(id: string) {
   console.log("Fetching vendor with ID: %s", id);
   const { data: vendor, error } = await supabase
-    .from('vendors')
+    .from('vendors_full')
     .select('*')
     .eq('id', id)
     .single();

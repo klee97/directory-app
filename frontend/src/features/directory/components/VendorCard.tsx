@@ -66,19 +66,41 @@ export const VendorCard = ({
             borderColor: 'divider',
           }}
         />
-        {/* Price Badge */}
-        {vendor.bridal_hair_makeup_price && (
-          <Chip
-            label={`From $${vendor.bridal_hair_makeup_price}`}
-            sx={{
-              position: 'absolute',
-              bottom: 12,
-              right: 12,
-              backgroundColor: 'white',
-              fontWeight: 'medium',
-            }}
-          />
-        )}
+        {/* Price Badges Container */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 12,
+            right: 12,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.5, // Adjust spacing between chips
+            alignItems: 'flex-end',
+          }}
+        >
+          {vendor.bridal_hair_price && (
+            <Chip
+              label={`Hair from $${vendor.bridal_hair_price}`}
+              sx={{
+                backgroundColor: 'white',
+                fontWeight: 'medium',
+                textAlign: 'right',
+              }}
+            />
+          )}
+          {vendor.bridal_makeup_price && (
+            <Chip
+              label={`Makeup from $${vendor.bridal_makeup_price}`}
+              sx={{
+                backgroundColor: 'white',
+                fontWeight: 'medium',
+                textAlign: 'right'
+              }}
+            />
+          )}
+
+
+        </Box>
       </Box>
 
       <CardContent
@@ -109,7 +131,7 @@ export const VendorCard = ({
         </Typography>
 
         {/* Location Tags */}
-        {vendor.travels_world_wide === 'Yes' && (
+        {vendor.travels_world_wide && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
               icon={<PublicIcon />}
@@ -120,7 +142,7 @@ export const VendorCard = ({
         )}
         {/* Specialty Tags */}
         <Box sx={{ display: 'flex', justifyContent: 'left', mt: 'auto', gap: 1 }}>
-          {vendor.specialties.map((specialty, index) => {
+          {Array.from(vendor.specialties).map((specialty, index) => {
             return (
               <Chip
                 key={index}

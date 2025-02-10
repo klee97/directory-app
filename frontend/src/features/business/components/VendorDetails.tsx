@@ -26,6 +26,8 @@ interface VendorDetailsProps {
   vendor: Vendor;
 }
 
+const DEFAULT_PRICE = "Contact for Pricing";
+
 export function VendorDetails({ vendor }: VendorDetailsProps) {
   const theme = useTheme();
 
@@ -63,7 +65,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 <LocationOn fontSize="small" />
                 <Typography variant="subtitle1">{vendor.region}</Typography>
               </Box>
-              {vendor.travels_world_wide === 'Yes' && (
+              {vendor.travels_world_wide && (
                 <Chip
                   icon={<Public />}
                   label="Travels Worldwide"
@@ -97,8 +99,8 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
               )}
               {vendor.instagram && (
                 <Button
-                href={`https://instagram.com/${vendor.instagram.replace('@', '')}`}
-                target="_blank"
+                  href={`https://instagram.com/${vendor.instagram.replace('@', '')}`}
+                  target="_blank"
                   rel="noopener noreferrer"
                   startIcon={<Instagram />}
                   sx={{ textTransform: 'none' }}
@@ -123,43 +125,88 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 <Typography variant="body1" component="h3">
                   Please note, these are estimates only. Contact the artist directly for the most up-to-date information.
                 </Typography>
-                <Box sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  py: 2,
-                  borderBottom: `1px solid ${theme.palette.divider}`
-                }}>
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="medium">
-                      Bridal Hair & Makeup
+                {vendor.specialties.has('Hair') && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridal Hair
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      {vendor.bridal_hair_price
+                        ? `$${vendor.bridal_hair_price}`
+                        : DEFAULT_PRICE}
                     </Typography>
                   </Box>
-                  <Typography variant="body1">
-                    {vendor.bridal_hair_makeup_price
-                      ? `$${vendor.bridal_hair_makeup_price}`
-                      : 'Custom Quote'}
-                  </Typography>
-                </Box>
-                <Box sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  py: 2,
-                  borderBottom: `1px solid ${theme.palette.divider}`
-                }}>
+                )}
 
-                  <Box>
-                    <Typography variant="subtitle1" fontWeight="medium">
-                      Bridesmaid Hair & Makeup
+                {vendor.specialties.has('Makeup') && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridal Makeup
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      {vendor.bridal_makeup_price
+                        ? `$${vendor.bridal_makeup_price}`
+                        : DEFAULT_PRICE}
                     </Typography>
                   </Box>
-                  <Typography variant="body1">
-                    {vendor.bridal_hair_makeup_price
-                      ? `$${vendor.bridesmaid_hair_makeup_price}`
-                      : 'Custom Quote'}
-                  </Typography>
-                </Box>
+                )}
+                {vendor.specialties.has('Hair') && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridesmaid Hair
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      {vendor.bridesmaid_hair_price
+                        ? `$${vendor.bridesmaid_hair_price}`
+                        : DEFAULT_PRICE}
+                    </Typography>
+                  </Box>
+                )}
+                {vendor.specialties.has('Makeup') && (
+
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridesmaid Makeup
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      {vendor.bridesmaid_makeup_price
+                        ? `$${vendor.bridesmaid_makeup_price}`
+                        : DEFAULT_PRICE}
+                    </Typography>
+                  </Box>
+                )}
               </Paper>
             </Box>
           </Grid>
@@ -188,6 +235,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           </Grid>
         </Grid>
       </Container>
-    </Box>
+    </Box >
   );
 }

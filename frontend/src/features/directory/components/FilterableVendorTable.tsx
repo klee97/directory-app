@@ -38,7 +38,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.region === selectedRegion : true;
-      const matchesTravel = travelsWorldwide ? vendor.travels_world_wide === 'Yes' : true;
+      const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       return matchesRegion && matchesTravel;
     });
   }, [vendors, selectedRegion, travelsWorldwide]);
@@ -49,16 +49,16 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
 
     if (sortOption === 'priceLowToHigh') {
       result.sort((a, b) => {
-        if (a.bridal_hair_makeup_price === null) return 1; // Null prices go to the end
-        if (b.bridal_hair_makeup_price === null) return -1;
+        if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
+        if (b.bridal_makeup_price === null) return -1;
         console.log("Comparing prices");
-        return a.bridal_hair_makeup_price - b.bridal_hair_makeup_price;
+        return a.bridal_makeup_price - b.bridal_makeup_price;
       });
     } else if (sortOption === 'priceHighToLow') {
       result.sort((a, b) => {
-        if (a.bridal_hair_makeup_price === null) return 1; // Null prices go to the end
-        if (b.bridal_hair_makeup_price === null) return -1;
-        return b.bridal_hair_makeup_price- a.bridal_hair_makeup_price;
+        if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
+        if (b.bridal_makeup_price === null) return -1;
+        return b.bridal_makeup_price- a.bridal_makeup_price;
       });
     }
 

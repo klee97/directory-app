@@ -1,7 +1,7 @@
 import type { Database } from "@/types/supabase";
 
 export const IMAGE_PREFIX = 'https://format.creatorcdn.com';
-export type BackendVendor = Database['public']['Tables']['vendors']['Row'];
+export type BackendVendor = Database['public']['Tables']['vendors_full']['Row'];
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
@@ -12,10 +12,13 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'travels_world_wide'
   | 'slug'
   | 'cover_image'
+  | 'bridal_hair_price'
+  | 'bridal_makeup_price'
+  | 'bridesmaid_hair_price'
+  | 'bridesmaid_makeup_price'
+  | 'gis'
 > & {
-  'bridal_hair_makeup_price': number | null;
-  'bridesmaid_hair_makeup_price': number | null;
-  'specialties': string[];
+  'specialties': Set<string>
 }
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
@@ -29,13 +32,11 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
     cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
-    specialties: (vendor.specialization ?? '').split(','),
-    bridal_hair_makeup_price: vendor['bridal_hair_&_makeup_price'] !== null
-      ? Number.parseInt(vendor['bridal_hair_&_makeup_price'])
-      : null
-    ,
-    bridesmaid_hair_makeup_price: vendor['bridesmaid_hair_&_makeup_price'] !== null
-      ? Number.parseInt(vendor['bridesmaid_hair_&_makeup_price'])
-      : null
+    bridal_hair_price: vendor.bridal_hair_price,
+    bridal_makeup_price: vendor.bridal_makeup_price,
+    bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
+    bridesmaid_hair_price: vendor.bridesmaid_hair_price,
+    gis: vendor.gis,
+    specialties: new Set((vendor.specialization ?? '').split(',')),
   };
 }
