@@ -4,13 +4,13 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const faqs = [
   {
-    category: "DIRECTORY QUESTIONS",
+    category: "Directory Questions",
     items: [
       {
         question: "One of your listings has inaccurate information!",
         answer: (
           <>
-            We’re sorry about that! Please <Link href="https://www.notion.so/Contact-us-15a91483ddc18033b50bceaa05d11b20?pvs=21">reach out to us</Link> so we can update it. Our listings are based on vendor websites and social media. While we strive for accuracy, mistakes happen. Let us know, and we’ll make it right!
+            We’re sorry about that! Please <Link href="/contact">reach out to us</Link> so we can update it. Our listings are based on vendor websites and social media. While we strive for accuracy, mistakes happen. Let us know, and we’ll make it right!
           </>
         ),
       },
@@ -27,14 +27,14 @@ const faqs = [
         question: "Who runs this site?",
         answer: (
           <>
-            Katrina and Ivy! Two Asian-American women who think it’s too hard to find vendors for Asian-specific needs. <Link href="https://www.notion.so/Hair-and-Makeup-Artist-Directory-for-Asian-Brides-15991483ddc180c7b0b6dda26848263c?pvs=21">Sign up for updates!</Link>
+            Katrina and Ivy! Two Asian-American women who think it’s too hard to find vendors for Asian-specific needs.
           </>
         ),
       },
     ],
   },
   {
-    category: "GENERAL QUESTIONS",
+    category: "General Questions",
     items: [
       {
         question: "What does MUA and HMUA stand for?",
@@ -55,11 +55,11 @@ const faqs = [
     ],
   },
   {
-    category: "WEDDING PLANNING FOR ASIAN BRIDES",
+    category: "Wedding Planning for Asian Brides",
     items: [
       {
         question: "How do I incorporate cultural elements into a Western wedding?",
-        answer: "Consider ceremonies, attire, and decor that reflect your culture.",
+        answer: "Consider ceremonies, attire, food, and decor that reflect your culture.",
       },
       {
         question: "How do I find makeup artists who are familiar with Asian features?",
@@ -76,7 +76,8 @@ const faqs = [
 const FAQPage = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
+      <br />
+      <Typography variant="h2" gutterBottom>
         Frequently Asked Questions
       </Typography>
       {faqs.map((section, index) => (
@@ -87,7 +88,7 @@ const FAQPage = () => {
           {section.items.map((faq, i) => (
             <Accordion key={i}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography>{faq.question}</Typography>
+                <Typography variant="h6">{faq.question}</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Typography>{faq.answer}</Typography>

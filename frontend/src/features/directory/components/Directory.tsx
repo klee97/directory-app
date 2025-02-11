@@ -27,7 +27,7 @@ export function Directory({ vendors }: {
         <Typography variant="h1" gutterBottom>
           Hair and Makeup Artists for Asian Brides
         </Typography>
-        <Typography>Welcome to the Hair and Makeup Artist (HMUA) Directory for Asian Brides! Our online directory features talented artists who have experience with Asian features.
+        <Typography>Welcome to the Hair and Makeup Artist Directory for Asian Brides! Our online directory features talented artists who have experience with Asian features.
 
 Search by location, see who travels, and find the perfect artist in your price range.</Typography>
       </div>

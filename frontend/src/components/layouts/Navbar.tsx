@@ -20,6 +20,8 @@ import Link from 'next/link';
 
 const pages = ["About", "Contact", "FAQ"];
 
+const Title = 'HAIR AND MAKEUP';
+
 export default function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const { mode, setMode } = useColorScheme();
@@ -45,17 +47,15 @@ export default function Navbar() {
             href="/"
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
-              fontWeight: 700,
+              fontWeight: 550,
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
+              display: { xs: 'none', md: 'flex' },
             }}
           >
-            HAIR AND MAKEUP
+            {Title}
           </Typography>
-
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -85,32 +85,31 @@ export default function Navbar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography component="a" sx={{ textAlign: 'center' }} href={`/${page.toLowerCase()}`}>{page}</Typography>
+                  <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none' }} href={`/${page.toLowerCase()}`}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
             component="a"
             href="/"
             sx={{
               mr: 2,
-              display: { xs: 'flex', md: 'none' },
-              flexGrow: 1,
-              fontFamily: 'monospace',
-              fontWeight: 700,
+              fontWeight: 550,
               letterSpacing: '.3rem',
               color: 'inherit',
               textDecoration: 'none',
+              display: { xs: 'flex', md: 'none' },
+              flexGrow: 1,
             }}
           >
-            HAIR AND MAKEUP
+            {Title}
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Link color="inherit" key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
+              <Link style={{ textDecoration: 'none' }} color="inherit" key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
                 <Button sx={{ my: 2, color: 'white', display: 'block' }}>
                   {page}
                 </Button>

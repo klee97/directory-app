@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { OverridableStringUnion } from '@mui/types';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import defaultImage from '@/assets/default.jpeg';
 
@@ -62,8 +62,6 @@ export const VendorCard = ({
             width: '100%',
             objectFit: 'cover', // Ensures the image covers the space without stretching
             objectPosition: 'top', // Adjust to prioritize faces (try 'center' if needed)
-            borderBottom: '1px solid',
-            borderColor: 'divider',
           }}
         />
         {/* Price Badges Container */}
@@ -115,26 +113,22 @@ export const VendorCard = ({
       >
         {/* Business Name */}
         <Typography
-          variant="h6"
+          variant="h4"
           component="div"
-          sx={{
-            fontWeight: 'medium',
-            mb: 1
-          }}
         >
           {vendor.business_name}
         </Typography>
         <Typography
           variant="body1"
         >
-          <LocationOnIcon fontSize='small' /> {vendor.region}
+          <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.region}
         </Typography>
 
         {/* Location Tags */}
         {vendor.travels_world_wide && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
-              icon={<PublicIcon />}
+              icon={<PublicIcon color='primary' />}
               label="Travels Worldwide"
               size="small"
             />

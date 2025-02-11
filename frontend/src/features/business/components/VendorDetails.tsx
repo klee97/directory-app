@@ -92,6 +92,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   rel="noopener noreferrer"
                   startIcon={<Link />}
                   sx={{ textTransform: 'none' }}
+                  color='secondary'
                 >
                   Website
                 </Button>
@@ -103,6 +104,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   rel="noopener noreferrer"
                   startIcon={<Instagram />}
                   sx={{ textTransform: 'none' }}
+                  color='secondary'
                 >
                   Instagram
                 </Button>
@@ -117,7 +119,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {/* Services & Pricing */}
-              <Paper elevation={0} sx={{ p: 4, borderRadius: 2 }}>
+              <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: 1, borderColor: 'divider' }}>
                 <Typography variant="h5" component="h2">
                   Services & Pricing
                 </Typography>
@@ -251,8 +253,8 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           {/* Right Column - Contact Card */}
           {vendor.email && (
             <Grid size={{ xs: 12, md: 4 }}>
-              <StickyCard elevation={0}>
-                <CardContent sx={{ p: 4 }}>
+              <StickyCard elevation={0} >
+                <CardContent sx={{ p: 4, border: 1, borderColor: 'divider' }}>
                   <Typography variant="h5" component="h2" sx={{
                     mb: 3,
                     textAlign: 'center'
