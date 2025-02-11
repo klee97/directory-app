@@ -18,7 +18,7 @@ export async function fetchVendorById(id: string) {
 export async function fetchVendorBySlug(slug: string) {
   console.log("Fetching vendor with slug: %s", slug);
   const { data: vendor, error } = await supabase
-    .from('vendors_test')
+    .from('vendors_full')
     .select('*')
     .eq('slug', slug)
     .single();

@@ -18,6 +18,8 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'bridesmaid_makeup_price'
   | 'gis'
 > & {
+  'bridal_hair_makeup_price': number | null,
+  'bridesmaid_hair_makeup_price': number | null,
   'specialties': Set<string>
 }
 
@@ -32,11 +34,13 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
     cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
+    bridal_hair_makeup_price: vendor['bridal_hair_&_makeup_price'],
     bridal_hair_price: vendor.bridal_hair_price,
     bridal_makeup_price: vendor.bridal_makeup_price,
+    bridesmaid_hair_makeup_price: vendor['bridesmaid_hair_&_makeup_price'],
     bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
-    specialties: new Set((vendor.specialization ?? '').split(',')),
+    specialties: new Set((vendor.specialization ?? '').split(',').map(s => s.trim())),
   };
 }

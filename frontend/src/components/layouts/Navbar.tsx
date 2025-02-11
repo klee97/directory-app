@@ -10,7 +10,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import RadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
 import FormControl from '@mui/material/FormControl';
@@ -39,7 +38,6 @@ export default function Navbar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
             noWrap
@@ -55,7 +53,7 @@ export default function Navbar() {
               textDecoration: 'none',
             }}
           >
-            DIRECTORY
+            HAIR AND MAKEUP
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -92,7 +90,6 @@ export default function Navbar() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -109,12 +106,12 @@ export default function Navbar() {
               textDecoration: 'none',
             }}
           >
-            DIRECTORY
+            HAIR AND MAKEUP
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Link color="inherit" key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
-                <Button sx={{ my: 2, color: 'white', display: 'block'}}>
+                <Button sx={{ my: 2, color: 'white', display: 'block' }}>
                   {page}
                 </Button>
               </Link>

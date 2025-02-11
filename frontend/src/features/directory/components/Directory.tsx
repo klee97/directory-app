@@ -25,9 +25,11 @@ export function Directory({ vendors }: {
     >
       <div>
         <Typography variant="h1" gutterBottom>
-          Directory
+          Hair and Makeup Artists for Asian Brides
         </Typography>
-        <Typography>Find a makeup artist!</Typography>
+        <Typography>Welcome to the Hair and Makeup Artist (HMUA) Directory for Asian Brides! Our online directory features talented artists who have experience with Asian features.
+
+Search by location, see who travels, and find the perfect artist in your price range.</Typography>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable

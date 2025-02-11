@@ -76,7 +76,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
             <Box
               sx={{
                 pt: 3,
-                mt: 8,
+                mt: 6,
                 borderTop: `1px solid ${theme.palette.divider}`,
                 display: 'flex',
                 flexDirection: 'column',
@@ -85,7 +85,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
             />
             {/* Links Section */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="h6">Links:</Typography>
               {vendor.website && (
                 <Button
                   href={vendor.website}
@@ -125,6 +124,25 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 <Typography variant="body1" component="h3">
                   Please note, these are estimates only. Contact the artist directly for the most up-to-date information.
                 </Typography>
+                {vendor.bridal_hair_makeup_price && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridal Hair & Makeup
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      ${vendor.bridal_hair_makeup_price}
+                    </Typography>
+                  </Box>
+                )}
+
                 {vendor.specialties.has('Hair') && (
                   <Box sx={{
                     display: 'flex',
@@ -166,6 +184,26 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Typography>
                   </Box>
                 )}
+
+                {vendor.bridesmaid_hair_makeup_price && (
+                  <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    py: 2,
+                    borderBottom: `1px solid ${theme.palette.divider}`
+                  }}>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        Bridesmaid Hair & Makeup
+                      </Typography>
+                    </Box>
+                    <Typography variant="body1">
+                      ${vendor.bridesmaid_hair_makeup_price}
+                    </Typography>
+                  </Box>
+                )}
+
                 {vendor.specialties.has('Hair') && (
                   <Box sx={{
                     display: 'flex',
@@ -193,7 +231,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     py: 2,
-                    borderBottom: `1px solid ${theme.palette.divider}`
                   }}>
                     <Box>
                       <Typography variant="subtitle1" fontWeight="medium">
@@ -212,27 +249,30 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           </Grid>
 
           {/* Right Column - Contact Card */}
-          <Grid size={{ xs: 12, md: 4 }}>
-            <StickyCard elevation={0}>
-              <CardContent sx={{ p: 4 }}>
-                <Typography variant="h5" component="h2" sx={{
-                  mb: 3,
-                  textAlign: 'center'
-                }}>
-                  Get in Touch
-                </Typography>
-                <Button
-                  variant="contained"
-                  size="large"
-                  fullWidth
-                  startIcon={<Mail />}
-                  sx={{ mb: 3 }}
-                >
-                  Contact Vendor
-                </Button>
-              </CardContent>
-            </StickyCard>
-          </Grid>
+          {vendor.email && (
+            <Grid size={{ xs: 12, md: 4 }}>
+              <StickyCard elevation={0}>
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h5" component="h2" sx={{
+                    mb: 3,
+                    textAlign: 'center'
+                  }}>
+                    Get in Touch
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    startIcon={<Mail />}
+                    sx={{ mb: 3 }}
+                    href={`mailto:${vendor.email}`}
+                  >
+                    Contact Vendor
+                  </Button>
+                </CardContent>
+              </StickyCard>
+            </Grid>
+          )}
         </Grid>
       </Container>
     </Box >
