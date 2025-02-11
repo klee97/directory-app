@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 export default function About() {
   return (
     <Container maxWidth="lg">
+      <br />
       <Box
         sx={{
           my: 4,
@@ -17,7 +18,7 @@ export default function About() {
           '& > p': { marginBottom: 2 },
         }}
       >
-        <Typography variant="h3" component="h1" gutterBottom>
+        <Typography variant="h2" component="h1" gutterBottom>
           About Us
         </Typography>
         <Typography variant="body1" component="p">

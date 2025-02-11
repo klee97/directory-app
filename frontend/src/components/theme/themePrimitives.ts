@@ -1,12 +1,43 @@
+const typography = {
+  fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+  h1: {
+    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '3rem',
+    fontWeight: 500,
+    color: 'primary'
+  },
+  h2: {
+    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '2rem',
+    fontWeight: 500,
+  },
+  h4: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.2rem',
+    fontWeight: 500,
+    mb: 1,
+  },
+  h6: {
+    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1rem',
+    fontWeight: 400,
+    mb: 1,
+  },
+  body1: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1rem',
+    fontWeight: 300,
+  }
+}
 
 export const colorSchemes = {
   light: {
     palette: {
       primary: {
-        main: '#e6a39a',
+        main: '#fdc6ea',
       },
       secondary: {
-        main: '#64c6d5',
+        main: '#ff6bbd',
       },
       success: {
         main: '#30c74d',
@@ -16,16 +47,14 @@ export const colorSchemes = {
       },
       background: {
         default: '#FFFFFF',
-        paper: '#F5EAD6',
+        paper: '#fffefa',
       },
-      divider: "#db8073",
-    },
-    typography: {
-      fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-      h1: {
-        fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+      divider: '#fdc6ea',
+      text: {
+        primary: '#000000',
       },
     },
+    typography: typography,
   },
   dark: {
     palette: {
@@ -33,7 +62,7 @@ export const colorSchemes = {
         main: '#e6a39a',
       },
       secondary: {
-        main: '#64c6d5',
+        main: '#ffffff',
       },
       success: {
         main: '#30c74d',
@@ -46,13 +75,11 @@ export const colorSchemes = {
         paper: '#714040',
       },
       divider: "#db8073",
+      text: {
+        primary: '#ffffff',
+      }
     },
-    typography: {
-      fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-      h1: {
-        fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-      },
-    },
+    typography: typography,
   }
 
 }

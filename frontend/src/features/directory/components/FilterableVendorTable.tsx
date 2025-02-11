@@ -138,16 +138,14 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
 
         {/* Sorting Section */}
         <FormControl sx={{ minWidth: 200 }}>
-          <Typography variant="subtitle2" sx={{ marginBottom: 1 }}>
-            Sort By
-          </Typography>
           <Select
             value={sortOption || 'default'}
             onChange={(e) => setSortOption(e.target.value)}
             displayEmpty
+            size='small'
           >
             <MenuItem value="default">
-              <em>Default</em>
+              <em>Sort: Default</em>
             </MenuItem>
             <MenuItem value="priceLowToHigh">Price: Low to High</MenuItem>
             <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>

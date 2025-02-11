@@ -37,9 +37,9 @@ export function LocationFilter({ uniqueRegions, searchParams }:
   
   return (
     <FormControl sx={{ minWidth: 200 }}>
-      <Select value={selectedRegion} onChange={handleChange} displayEmpty>
+      <Select size='small' value={selectedRegion} onChange={handleChange} displayEmpty>
         <MenuItem value="">
-          <em>All Regions</em>
+          <em>Filter: All Regions</em>
         </MenuItem>
         {uniqueRegions.map((region) => (
           <MenuItem key={region} value={region}>
