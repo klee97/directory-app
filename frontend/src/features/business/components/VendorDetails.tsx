@@ -60,7 +60,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
             <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif', mb: 2 }}>
               {vendor.business_name}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <LocationOn fontSize="small" />
                 <Typography variant="subtitle1">{vendor.region}</Typography>
@@ -253,8 +253,8 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           {/* Right Column - Contact Card */}
           {vendor.email && (
             <Grid size={{ xs: 12, md: 4 }}>
-              <StickyCard elevation={0}>
-                <CardContent sx={{ p: 4 }}>
+              <StickyCard elevation={0} >
+                <CardContent sx={{ p: 4, border: 1, borderColor: 'divider' }}>
                   <Typography variant="h5" component="h2" sx={{
                     mb: 3,
                     textAlign: 'center'

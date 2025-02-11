@@ -121,14 +121,14 @@ export const VendorCard = ({
         <Typography
           variant="body1"
         >
-          <LocationOnIconOutlined fontSize='small' color='primary'/> {vendor.region}
+          <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.region}
         </Typography>
 
         {/* Location Tags */}
         {vendor.travels_world_wide && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
-              icon={<PublicIcon color='primary'/>}
+              icon={<PublicIcon color='primary' />}
               label="Travels Worldwide"
               size="small"
             />
