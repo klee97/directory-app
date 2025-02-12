@@ -1,6 +1,6 @@
 import type { Database } from "@/types/supabase";
 
-export const IMAGE_PREFIX = 'https://format.creatorcdn.com';
+export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
 export type BackendVendor = Database['public']['Tables']['vendors_full']['Row'];
 
 export type Vendor = Pick<BackendVendor, 'id'
