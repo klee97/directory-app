@@ -9,7 +9,7 @@ import Chip from '@mui/material/Chip';
 import { OverridableStringUnion } from '@mui/types';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
-import defaultImage from '@/assets/default.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img.jpeg';
 
 export const VendorCard = ({
   vendor,
