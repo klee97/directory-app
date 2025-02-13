@@ -127,7 +127,7 @@ export const VendorCard = ({
         <Typography
           variant="body1"
         >
-          <LocationOnIcon fontSize='small' /> {vendor.region}
+          <LocationOnIcon fontSize='small' /> {vendor.metroRegion ?? vendor.state ?? vendor.region}
         </Typography>
 
         {/* Location Tags */}
