@@ -1,13 +1,18 @@
 import type { Database } from "@/types/supabase";
 
+
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
-export type BackendVendor = Database['public']['Tables']['vendors_full']['Row'];
+export type BackendVendor = Database['public']['Tables']['vendors']['Row']
+  & {
+    usmetro: { name: string } | null // Metro region name (can be null if no metro region found)
+    usstates: { name: string } | null      // State name (can be null if no state found)
+  };
+;
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
   | 'email'
   | 'website'
-  | 'instagram'
   | 'region'
   | 'travels_world_wide'
   | 'slug'
@@ -20,7 +25,10 @@ export type Vendor = Pick<BackendVendor, 'id'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
-  'specialties': Set<string>
+  'specialties': Set<string>,
+  'metroRegion': string | null,
+  'state': string | null,
+  'instagram': string | null,
 }
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
@@ -29,7 +37,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     business_name: vendor.business_name,
     email: vendor.email,
     website: vendor.website,
-    instagram: `https://instagram.com/${(vendor.instagram ?? '').replace('@', '')}`,
+    instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
     region: vendor.region,
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
@@ -42,5 +50,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
     specialties: new Set((vendor.specialization ?? '').split(',').map(s => s.trim())),
+    metroRegion: vendor.usmetro?.name ?? null, // Safely access metro region name
+    state: vendor.usstates?.name ?? null, // Safely access state name
   };
 }
