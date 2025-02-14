@@ -8,7 +8,7 @@ export async function fetchVendorById(id: string) {
     .select(`
       *, 
       usmetro!metro_id(display_name), 
-      usmetro_regions!metro_region_id(name) 
+      regions!metro_region_id(name) 
     `)
     .eq('id', id)
     .single();
@@ -26,7 +26,7 @@ export async function fetchVendorBySlug(slug: string) {
     .select(`
       *, 
       usmetro!metro_id(display_name), 
-      usmetro_regions!metro_region_id(name) 
+      regions!metro_region_id(name) 
     `)
     .eq('slug', slug)
     .single();
