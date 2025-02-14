@@ -9,7 +9,7 @@ export default function BackButton() {
   console.log("queryParams: %s", queryParams);
 
   return (
-    <Button variant="text" href={backUrl}>
+    <Button variant="text" href={backUrl} color='secondary'>
       ← Back to Directory
     </Button>
   );

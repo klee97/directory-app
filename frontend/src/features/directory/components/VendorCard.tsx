@@ -7,9 +7,9 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { OverridableStringUnion } from '@mui/types';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
-import defaultImage from '@/assets/default.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 export const VendorCard = ({
   vendor,
@@ -62,8 +62,6 @@ export const VendorCard = ({
             width: '100%',
             objectFit: 'cover', // Ensures the image covers the space without stretching
             objectPosition: 'top', // Adjust to prioritize faces (try 'center' if needed)
-            borderBottom: '1px solid',
-            borderColor: 'divider',
           }}
         />
         {/* Price Badges Container */}
@@ -74,14 +72,16 @@ export const VendorCard = ({
             right: 12,
             display: 'flex',
             flexDirection: 'column',
-            gap: 0.5, // Adjust spacing between chips
+            gap: 1, // Adjust spacing between chips
             alignItems: 'flex-end',
           }}
         >
           {vendor.bridal_hair_price && (
             <Chip
-              label={`Hair from $${vendor.bridal_hair_price}`}
+              label={`✂️ from $${vendor.bridal_hair_price}`}
               sx={{
+                outline: '2px solid',
+                outlineColor: 'primary.main',
                 backgroundColor: 'white',
                 fontWeight: 'medium',
                 textAlign: 'right',
@@ -90,8 +90,10 @@ export const VendorCard = ({
           )}
           {vendor.bridal_makeup_price && (
             <Chip
-              label={`Makeup from $${vendor.bridal_makeup_price}`}
+              label={`💄 from $${vendor.bridal_makeup_price}`}
               sx={{
+                outline: '2px solid',
+                outlineColor: 'primary.main',
                 backgroundColor: 'white',
                 fontWeight: 'medium',
                 textAlign: 'right'
@@ -115,26 +117,22 @@ export const VendorCard = ({
       >
         {/* Business Name */}
         <Typography
-          variant="h6"
+          variant="h4"
           component="div"
-          sx={{
-            fontWeight: 'medium',
-            mb: 1
-          }}
         >
           {vendor.business_name}
         </Typography>
         <Typography
           variant="body1"
         >
-          <LocationOnIcon fontSize='small' /> {vendor.metroRegion ?? vendor.state ?? vendor.region}
+          <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.metroRegion ?? vendor.state ?? vendor.region}
         </Typography>
 
         {/* Location Tags */}
         {vendor.travels_world_wide && (
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             <Chip
-              icon={<PublicIcon />}
+              icon={<PublicIcon color='primary' />}
               label="Travels Worldwide"
               size="small"
             />
