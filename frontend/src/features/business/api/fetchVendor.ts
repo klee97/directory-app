@@ -12,7 +12,6 @@ export async function fetchVendorById(id: string) {
     console.error('Error fetching vendor: %s', error);
     return null;
   }
-  console.log(vendor.data)
   return transformBackendVendorToFrontend(vendor);
 }
 
