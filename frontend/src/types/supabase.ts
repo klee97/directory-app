@@ -36,19 +36,19 @@ export type Database = {
     Tables: {
       regions: {
         Row: {
+          geom: unknown | null
           id: number
           name: string | null
-          type: string | null
         }
         Insert: {
+          geom?: unknown | null
           id?: number
           name?: string | null
-          type?: string | null
         }
         Update: {
+          geom?: unknown | null
           id?: number
           name?: string | null
-          type?: string | null
         }
         Relationships: []
       }
@@ -82,6 +82,7 @@ export type Database = {
           awater: number | null
           cbsafp: string | null
           csafp: string | null
+          display_name: string | null
           geoid: string | null
           geoidfq: string | null
           geom: unknown | null
@@ -96,6 +97,7 @@ export type Database = {
           awater?: number | null
           cbsafp?: string | null
           csafp?: string | null
+          display_name?: string | null
           geoid?: string | null
           geoidfq?: string | null
           geom?: unknown | null
@@ -110,6 +112,7 @@ export type Database = {
           awater?: number | null
           cbsafp?: string | null
           csafp?: string | null
+          display_name?: string | null
           geoid?: string | null
           geoidfq?: string | null
           geom?: unknown | null
@@ -118,45 +121,6 @@ export type Database = {
           metdivfp?: string | null
           name?: string | null
           namelsad?: string | null
-        }
-        Relationships: []
-      }
-      usregions: {
-        Row: {
-          aland: number | null
-          awater: number | null
-          geoid: string | null
-          geoidfq: string | null
-          geom: unknown | null
-          gid: number
-          lsad: string | null
-          name: string | null
-          namelsad: string | null
-          regionce: string | null
-        }
-        Insert: {
-          aland?: number | null
-          awater?: number | null
-          geoid?: string | null
-          geoidfq?: string | null
-          geom?: unknown | null
-          gid?: number
-          lsad?: string | null
-          name?: string | null
-          namelsad?: string | null
-          regionce?: string | null
-        }
-        Update: {
-          aland?: number | null
-          awater?: number | null
-          geoid?: string | null
-          geoidfq?: string | null
-          geom?: unknown | null
-          gid?: number
-          lsad?: string | null
-          name?: string | null
-          namelsad?: string | null
-          regionce?: string | null
         }
         Relationships: []
       }
@@ -222,10 +186,13 @@ export type Database = {
           lists_prices: boolean | null
           location_coordinates: string | null
           logo: string | null
+          metro_id: number | null
+          metro_region_id: number | null
           region: string | null
           slug: string | null
           specialization: string | null
           state: string | null
+          state_id: number | null
           travels_world_wide: boolean | null
           website: string | null
         }
@@ -248,10 +215,13 @@ export type Database = {
           lists_prices?: boolean | null
           location_coordinates?: string | null
           logo?: string | null
+          metro_id?: number | null
+          metro_region_id?: number | null
           region?: string | null
           slug?: string | null
           specialization?: string | null
           state?: string | null
+          state_id?: number | null
           travels_world_wide?: boolean | null
           website?: string | null
         }
@@ -274,14 +244,39 @@ export type Database = {
           lists_prices?: boolean | null
           location_coordinates?: string | null
           logo?: string | null
+          metro_id?: number | null
+          metro_region_id?: number | null
           region?: string | null
           slug?: string | null
           specialization?: string | null
           state?: string | null
+          state_id?: number | null
           travels_world_wide?: boolean | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_vendors_metro_region"
+            columns: ["metro_region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendors_metro_id_fkey"
+            columns: ["metro_id"]
+            isOneToOne: false
+            referencedRelation: "usmetro"
+            referencedColumns: ["gid"]
+          },
+          {
+            foreignKeyName: "vendors_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "usstates"
+            referencedColumns: ["gid"]
+          },
+        ]
       }
       vendors_full: {
         Row: {

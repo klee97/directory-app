@@ -4,7 +4,8 @@ import type { Database } from "@/types/supabase";
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   & {
-    usmetro: { name: string } | null // Metro region name (can be null if no metro region found)
+    usmetro: { display_name: string } | null // Metro name (can be null if no metro region found)
+    regions: { name: string } | null // Metro region name (can be null if no metro region found)
     usstates: { name: string } | null      // State name (can be null if no state found)
   };
 ;
@@ -26,7 +27,8 @@ export type Vendor = Pick<BackendVendor, 'id'
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
   'specialties': Set<string>,
-  'metroRegion': string | null,
+  'metro': string | null,
+  'metro_region': string | null,
   'state': string | null,
   'instagram': string | null,
 }
@@ -50,7 +52,8 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
     specialties: new Set((vendor.specialization ?? '').split(',').map(s => s.trim())),
-    metroRegion: vendor.usmetro?.name ?? null, // Safely access metro region name
+    metro: vendor.usmetro?.display_name ?? null, // Safely access metro region name
+    metro_region: vendor.regions?.name ?? null, // Safely access region name
     state: vendor.usstates?.name ?? null, // Safely access state name
   };
 }

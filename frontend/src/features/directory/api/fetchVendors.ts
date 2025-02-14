@@ -4,10 +4,12 @@ import { transformBackendVendorToFrontend } from '@/types/vendor';
 export async function fetchAllVendors() {
   try {
     console.log("Fetching vendors");
-    const { data } = await supabase
-      .from('vendors')
-      .select('*, usstates:usstates(name), usmetro:usmetro(name)');
-
+    const { data } = await supabase.from('vendors')
+    .select(`
+      *, 
+      usmetro!metro_id(display_name), 
+      usmetro_regions!metro_region_id(name) 
+    `);
     if (data === null) {
       return [];
     }

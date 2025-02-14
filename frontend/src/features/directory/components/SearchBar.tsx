@@ -35,7 +35,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
       <OutlinedInput
         size="small"
         id="search"
-        placeholder="Search artists…"
+        placeholder="Search locations or artists…"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);

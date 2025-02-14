@@ -10,7 +10,6 @@ import { OverridableStringUnion } from '@mui/types';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
-
 export const VendorCard = ({
   vendor,
   variant,
@@ -61,7 +60,7 @@ export const VendorCard = ({
             height: 300, // Adjust as needed for uniform height
             width: '100%',
             objectFit: 'cover', // Ensures the image covers the space without stretching
-            objectPosition: 'top', // Adjust to prioritize faces (try 'center' if needed)
+            objectPosition: 'center', // Adjust to prioritize faces (try 'center' if needed)
           }}
         />
         {/* Price Badges Container */}
@@ -125,7 +124,7 @@ export const VendorCard = ({
         <Typography
           variant="body1"
         >
-          <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.metroRegion ?? vendor.state ?? vendor.region}
+          <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}
         </Typography>
 
         {/* Location Tags */}

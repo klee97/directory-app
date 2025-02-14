@@ -6,17 +6,12 @@ import FilterableVendorTable from './FilterableVendorTable';
 import { Suspense } from 'react';
 
 
-export function Directory({ vendors }: {
-  vendors: Vendor[]
+export function Directory({ vendors, uniqueMetroRegions }: {
+  vendors: Vendor[],
+  uniqueMetroRegions: string[]
 }) {
-  // Get unique regions from the vendor data
-  const uniqueRegions = Array.from(
-    new Set(
-      vendors
-        .map((vendor) => vendor.region)
-        .filter((region): region is string => region !== null && region !== undefined)
-    )
-  );
+
+
   return (
     <Container
       maxWidth="lg"
@@ -33,7 +28,7 @@ Search by location, see who travels, and find the perfect artist in your price r
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
-          uniqueRegions={uniqueRegions}
+          uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
         />
       </Suspense>

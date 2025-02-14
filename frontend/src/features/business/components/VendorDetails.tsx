@@ -63,7 +63,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <LocationOn fontSize="small" />
-                <Typography variant="subtitle1">{vendor.metroRegion ?? vendor.state ?? vendor.region}</Typography>
+                <Typography variant="subtitle1">{vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}</Typography>
               </Box>
               {vendor.travels_world_wide && (
                 <Chip

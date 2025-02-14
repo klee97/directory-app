@@ -5,7 +5,11 @@ export async function fetchVendorById(id: string) {
   console.log("Fetching vendor with ID: %s", id);
   const { data: vendor, error } = await supabase
     .from('vendors')
-    .select('*, usstates:usstates(name), usmetro:usmetro(name)')
+    .select(`
+      *, 
+      usmetro!metro_id(display_name), 
+      usmetro_regions!metro_region_id(name) 
+    `)
     .eq('id', id)
     .single();
   if (error) {
@@ -19,7 +23,11 @@ export async function fetchVendorBySlug(slug: string) {
   console.log("Fetching vendor with slug: %s", slug);
   const { data: vendor, error } = await supabase
     .from('vendors')
-    .select('*, usstates:usstates(name), usmetro:usmetro(name)')
+    .select(`
+      *, 
+      usmetro!metro_id(display_name), 
+      usmetro_regions!metro_region_id(name) 
+    `)
     .eq('slug', slug)
     .single();
   if (error) {

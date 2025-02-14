@@ -7,6 +7,8 @@ import {
   MenuItem,
   Typography,
   CircularProgress,
+  Button,
+  Divider,
 } from '@mui/material';
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
@@ -14,7 +16,7 @@ import { Vendor } from '@/types/vendor';
 import { searchVendors } from '../api/searchVendors';
 import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 const PAGE_SIZE = 12;
@@ -37,7 +39,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
   // Memoize the filtered vendors based on the selected filters
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
-      const matchesRegion = selectedRegion ? vendor.region === selectedRegion : true;
+      const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       return matchesRegion && matchesTravel;
     });
@@ -58,7 +60,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
       result.sort((a, b) => {
         if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
         if (b.bridal_makeup_price === null) return -1;
-        return b.bridal_makeup_price- a.bridal_makeup_price;
+        return b.bridal_makeup_price - a.bridal_makeup_price;
       });
     }
 
@@ -86,6 +88,11 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
     setLoading(false);
   };
 
+  const router = useRouter();
+
+  const handleClearFilters = () => {
+    router.push("?", { scroll: false }); // Resets URL to base with no query params
+  };
 
   // Reset visible vendors whenever the filtered & searched vendor list changes
   useEffect(() => {
@@ -124,25 +131,62 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column-reverse', md: 'row' },
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 4,
+          flexDirection: 'column',
+          gap: 2,
         }}
       >
-        {/* Region Filter */}
-        <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
+        {/* First Row: Location & Search Bar */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
+          <TravelFilter searchParams={searchParams} />
+          <SearchBar searchParams={searchParams} />
 
-        {/* Travels Worldwide Filter */}
-        <TravelFilter searchParams={searchParams} />
+        </Box>
 
-        {/* Sorting Section */}
+        {/* Second Row: Clear Button */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: 2,
+          }}
+        >
+          <Button variant="contained" onClick={handleClearFilters} size="small">
+            Clear Filters
+          </Button>
+        </Box>
+      </Box>
+
+      <Divider />
+      {/* Filtered Vendors Count */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          gap: 2,
+        }}
+      >
+        <Typography variant="h6">
+          {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
+        </Typography>
+
         <FormControl sx={{ minWidth: 200 }}>
           <Select
             value={sortOption || 'default'}
             onChange={(e) => setSortOption(e.target.value)}
             displayEmpty
-            size='small'
+            size="small"
           >
             <MenuItem value="default">
               <em>Sort: Default</em>
@@ -151,15 +195,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
             <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>
           </Select>
         </FormControl>
-
-        {/* Search */}
-        <SearchBar searchParams={searchParams} />
       </Box>
-
-      {/* Filtered Vendors Count */}
-      <Typography variant="h6">
-        {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
-      </Typography>
 
       {/* Vendor Grid */}
       <VendorGrid
