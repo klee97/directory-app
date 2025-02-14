@@ -4,7 +4,7 @@ import { fetchVendorBySlug } from '@/features/business/api/fetchVendor';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
-import defaultImage from '@/assets/default.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img.jpeg';
 
 interface PageProps {
   params: Promise<{ slug: string }>;

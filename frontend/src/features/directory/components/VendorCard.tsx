@@ -9,7 +9,7 @@ import Chip from '@mui/material/Chip';
 import { OverridableStringUnion } from '@mui/types';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
-import defaultImage from '@/assets/default.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 export const VendorCard = ({
   vendor,
@@ -72,14 +72,16 @@ export const VendorCard = ({
             right: 12,
             display: 'flex',
             flexDirection: 'column',
-            gap: 0.5, // Adjust spacing between chips
+            gap: 1, // Adjust spacing between chips
             alignItems: 'flex-end',
           }}
         >
           {vendor.bridal_hair_price && (
             <Chip
-              label={`Hair from $${vendor.bridal_hair_price}`}
+              label={`✂️ from $${vendor.bridal_hair_price}`}
               sx={{
+                outline: '2px solid',
+                outlineColor: 'primary.main',
                 backgroundColor: 'white',
                 fontWeight: 'medium',
                 textAlign: 'right',
@@ -88,8 +90,10 @@ export const VendorCard = ({
           )}
           {vendor.bridal_makeup_price && (
             <Chip
-              label={`Makeup from $${vendor.bridal_makeup_price}`}
+              label={`💄 from $${vendor.bridal_makeup_price}`}
               sx={{
+                outline: '2px solid',
+                outlineColor: 'primary.main',
                 backgroundColor: 'white',
                 fontWeight: 'medium',
                 textAlign: 'right'
