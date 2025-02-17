@@ -1,30 +1,30 @@
 const typography = {
-  fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
-    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '3rem',
     fontWeight: 500,
     color: 'primary'
   },
   h2: {
-    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '2rem',
     fontWeight: 500,
   },
   h4: {
-    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
     mb: 1,
   },
   h6: {
-    fontFamily: '"Merienda", "Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1rem',
     fontWeight: 400,
     mb: 1,
   },
   body1: {
-    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1rem',
     fontWeight: 300,
   }
@@ -34,10 +34,10 @@ export const colorSchemes = {
   light: {
     palette: {
       primary: {
-        main: '#fdc6ea',
+        main: '#d18f90',
       },
       secondary: {
-        main: '#ff6bbd',
+        main: '#64c6d5',
       },
       success: {
         main: '#30c74d',
@@ -46,23 +46,20 @@ export const colorSchemes = {
         main: '#009688',
       },
       background: {
-        default: '#FFFFFF',
-        paper: '#fffefa',
+        default: '#fbf9f8',
+        paper: '#f4f4f4',
       },
-      divider: '#fdc6ea',
-      text: {
-        primary: '#000000',
-      },
+      divider: '#bf6566',
     },
     typography: typography,
   },
   dark: {
     palette: {
       primary: {
-        main: '#e6a39a',
+        main: '#edecef',
       },
       secondary: {
-        main: '#ffffff',
+        main: '#a8a6a9',
       },
       success: {
         main: '#30c74d',
@@ -71,13 +68,14 @@ export const colorSchemes = {
         main: '#009688',
       },
       background: {
-        default: '#251717',
-        paper: '#714040',
+        default: '#0f0d10',
+        paper: '#313033',
       },
-      divider: "#db8073",
+      divider: '#db8073',
       text: {
-        primary: '#ffffff',
-      }
+        primary: '#edecef',
+        secondary: '#a8a6a9',
+      },
     },
     typography: typography,
   }

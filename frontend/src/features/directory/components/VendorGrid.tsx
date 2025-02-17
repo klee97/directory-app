@@ -31,7 +31,6 @@ export function VendorGrid({
           >
             <VendorCard
               vendor={vendor}
-              variant="outlined"
               onFocus={() => handleFocus(0)}
               onBlur={handleBlur}
               tabIndex={0}

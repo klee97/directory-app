@@ -1,25 +1,22 @@
 import { Vendor } from '@/types/vendor';
-import { PaperPropsVariantOverrides } from '@mui/material';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import { OverridableStringUnion } from '@mui/types';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+
 export const VendorCard = ({
   vendor,
-  variant,
   onFocus,
   onBlur,
   tabIndex,
   className,
 }: {
   vendor: Vendor;
-  variant: OverridableStringUnion<'elevation' | 'outlined', PaperPropsVariantOverrides>
   onFocus: () => void;
   onBlur: () => void;
   tabIndex: number;
@@ -28,7 +25,7 @@ export const VendorCard = ({
 
   return (
     <Card
-      variant={variant}
+      elevation={1}
       onFocus={onFocus}
       onBlur={onBlur}
       tabIndex={tabIndex}
@@ -41,13 +38,8 @@ export const VendorCard = ({
         transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',
-          boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
+          boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
           cursor: 'pointer',
-        },
-        '&:focus-visible': {
-          outline: '3px solid',
-          outlineColor: 'primary.main',
-          outlineOffset: '2px',
         },
       }}
     >
@@ -79,9 +71,7 @@ export const VendorCard = ({
             <Chip
               label={`✂️ from $${vendor.bridal_hair_price}`}
               sx={{
-                outline: '2px solid',
-                outlineColor: 'primary.main',
-                backgroundColor: 'white',
+                backgroundColor: 'paper',
                 fontWeight: 'medium',
                 textAlign: 'right',
               }}
@@ -91,9 +81,7 @@ export const VendorCard = ({
             <Chip
               label={`💄 from $${vendor.bridal_makeup_price}`}
               sx={{
-                outline: '2px solid',
-                outlineColor: 'primary.main',
-                backgroundColor: 'white',
+                backgroundColor: 'paper',
                 fontWeight: 'medium',
                 textAlign: 'right'
               }}
