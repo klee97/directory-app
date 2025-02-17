@@ -27,7 +27,7 @@ const faqs = [
         question: "Who runs this site?",
         answer: (
           <>
-            Katrina and Ivy! Two Asian-American women who think it’s too hard to find vendors for Asian-specific needs.
+            Katrina and Ivy! We are two Asian-American women who think it’s too hard to find vendors for Asian-specific needs.
           </>
         ),
       },

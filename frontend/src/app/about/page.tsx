@@ -2,6 +2,7 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { NewsletterForm } from '@/features/contact/components/NewsletterForm';
 
 export default function About() {
   return (
@@ -13,7 +14,6 @@ export default function About() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
           textAlign: 'center',
           '& > p': { marginBottom: 2 },
         }}
@@ -32,6 +32,14 @@ export default function About() {
         <Typography variant="body1" component="p">
         Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
         </Typography>
+        <br />
+      <Typography variant="h2" gutterBottom sx={{ mt: 2 }}>
+        Subscribe
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Our directory is just the beginning. Get the latest news on what we&apos;re working on (think friend referrals and social elements)!
+      </Typography>
+      <NewsletterForm />
       </Box>
     </Container>
   );
