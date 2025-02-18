@@ -3,9 +3,10 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import Navbar from "@/components/layouts/Navbar";
+import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 
 export const metadata: Metadata = {
-  title: 'Hair and Makeup Artist Directory for Asian Brides - Find Artists Experienced with Asian Features',
+  title: 'Hair and Makeup Wedding Directory for Asian Beauty - Find Artists Experienced with Asian Features',
   description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
   openGraph: {
     title: 'Vendor Directory - Find the Best Wedding Artists',
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hair and Makeup Artist Directory for Asian Brides - Find Artists Experienced with Asian Features',
+    title: 'Hair and Makeup Wedding Directory for Asian Beauty - Find Artists Experienced with Asian Features',
     description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
     // images: ['https://yourwebsite.com/preview-image.jpg'],
   },
@@ -44,6 +45,7 @@ export default function RootLayout({
           <ThemeProvider>
             <Navbar />
             {children}
+            <FeedbackPopup />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

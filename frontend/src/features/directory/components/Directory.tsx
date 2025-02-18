@@ -16,19 +16,17 @@ export function Directory({ vendors, uniqueMetroRegions }: {
     <Container
       maxWidth="lg"
       component="main"
-      sx={{ display: 'flex', flexDirection: 'column', my: 16, gap: 4 }}
+      sx={{ display: 'flex', flexDirection: 'column', my: 12, gap: 4 }}
     >
-      <div>
-        <Typography variant="h1" gutterBottom>
-          Hair and Makeup Artists for Asian Beauty
-        </Typography>
-        <Typography gutterBottom>
-          Welcome to the Hair and Makeup Directory for Asian Beauty! Discover talented artists who have experience with Asian features and are recommended by the community.
-        </Typography>
-        <Typography>
-          Search by location, see who travels worldwide, and find the perfect artist in your price range.
-        </Typography>
-      </div>
+      <Typography variant="h1" gutterBottom>
+        Hair and Makeup Artists for Asian Beauty
+      </Typography>
+      <Typography>
+        Welcome to the Hair and Makeup Directory for Asian Beauty! Discover talented artists who have experience with Asian features and are recommended by the community.
+      </Typography>
+      <Typography>
+        Search by location, see who travels worldwide, and find the perfect artist in your price range.
+      </Typography>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
           uniqueRegions={uniqueMetroRegions}

@@ -38,7 +38,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           {/* Image & Contact Card */}
           {vendor.cover_image && (
             <Grid size={{ xs: 8, md: 4 }}>
-              <Card elevation={2} sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 {/* Vendor Image */}
                 <Box
                   component="img"
@@ -119,7 +119,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           <Grid size={{ xs: 12, md: 8 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {/* Services & Pricing */}
-              <Paper elevation={0} sx={{ p: 4, borderRadius: 2, border: 1, borderColor: 'divider' }}>
+              <Paper elevation={0} sx={{ p: 4, }}>
                 <Typography variant="h5" component="h2">
                   Services & Pricing
                 </Typography>
@@ -254,7 +254,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           {vendor.email && (
             <Grid size={{ xs: 12, md: 4 }}>
               <StickyCard elevation={0} >
-                <CardContent sx={{ p: 4, border: 1, borderColor: 'divider' }}>
+                <CardContent sx={{ p: 4 }}>
                   <Typography variant="h5" component="h2" sx={{
                     mb: 3,
                     textAlign: 'center'

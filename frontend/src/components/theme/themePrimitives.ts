@@ -37,7 +37,7 @@ export const colorSchemes = {
         main: '#d18f90',
       },
       secondary: {
-        main: '#64c6d5',
+        main: '#d18fb1',
       },
       success: {
         main: '#30c74d',
@@ -47,7 +47,7 @@ export const colorSchemes = {
       },
       background: {
         default: '#fbf9f8',
-        paper: '#f4f4f4',
+        paper: '#ececec',
       },
       divider: '#bf6566',
     },

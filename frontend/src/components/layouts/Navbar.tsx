@@ -85,7 +85,7 @@ export default function Navbar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none' }} href={`/${page.toLowerCase()}`}>{page}</Typography>
+                  <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }} href={`/${page.toLowerCase()}`}>{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
