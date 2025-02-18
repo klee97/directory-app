@@ -34,7 +34,6 @@ export const VendorCard = ({
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: 'background.paper',
         transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
         '&:hover': {
           transform: 'translateY(-4px)',
@@ -71,7 +70,7 @@ export const VendorCard = ({
             <Chip
               label={`✂️ from $${vendor.bridal_hair_price}`}
               sx={{
-                backgroundColor: 'paper',
+                backgroundColor: 'background.paper',
                 fontWeight: 'medium',
                 textAlign: 'right',
               }}
@@ -81,7 +80,7 @@ export const VendorCard = ({
             <Chip
               label={`💄 from $${vendor.bridal_makeup_price}`}
               sx={{
-                backgroundColor: 'paper',
+                backgroundColor: 'background.paper',
                 fontWeight: 'medium',
                 textAlign: 'right'
               }}

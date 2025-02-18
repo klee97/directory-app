@@ -49,7 +49,7 @@ export default function Navbar() {
               mr: 2,
               fontWeight: 550,
               letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'white',
               textDecoration: 'none',
               display: { xs: 'none', md: 'flex' },
             }}
@@ -99,7 +99,7 @@ export default function Navbar() {
               mr: 2,
               fontWeight: 550,
               letterSpacing: '.3rem',
-              color: 'inherit',
+              color: 'white',
               textDecoration: 'none',
               display: { xs: 'flex', md: 'none' },
               flexGrow: 1,
@@ -116,22 +116,24 @@ export default function Navbar() {
               </Link>
             ))}
           </Box>
-          <FormControl>
-            <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-theme-toggle"
-              name="theme-toggle"
-              row
-              value={mode}
-              onChange={(event) =>
-                setMode(event.target.value as 'system' | 'light' | 'dark')
-              }
-            >
-              <FormControlLabel value="system" control={<Radio />} label="System" />
-              <FormControlLabel value="light" control={<Radio />} label="Light" />
-              <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-            </RadioGroup>
-          </FormControl>
+          {process.env.NODE_ENV === 'development' && (
+            <FormControl>
+              <FormLabel id="demo-theme-toggle">Theme</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-theme-toggle"
+                name="theme-toggle"
+                row
+                value={mode}
+                onChange={(event) =>
+                  setMode(event.target.value as 'system' | 'light' | 'dark')
+                }
+              >
+                <FormControlLabel value="system" control={<Radio />} label="System" />
+                <FormControlLabel value="light" control={<Radio />} label="Light" />
+                <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+              </RadioGroup>
+            </FormControl>
+          )}
         </Toolbar>
       </Container>
     </AppBar>
