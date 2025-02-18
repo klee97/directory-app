@@ -92,6 +92,7 @@ const FeedbackPopup = () => {
           margin="dense"
           label="Anything you&apos;d like us to improve?"
           rows={3}
+          multiline
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
