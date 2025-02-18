@@ -41,6 +41,7 @@ export default async function Home() {
     <>
       <Head>
         <script
+          id="app-ld-json"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
