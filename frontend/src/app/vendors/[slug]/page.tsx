@@ -51,7 +51,7 @@ export default async function VendorPage({ params }: PageProps) {
     notFound(); // Return 404 if vendor is not found
   }
 
-  // Define your JSON-LD schema for the vendor
+  // Define JSON-LD schema for the vendor
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",  // For a wedding vendor, "Service" may be appropriate

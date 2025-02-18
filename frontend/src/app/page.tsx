@@ -26,7 +26,7 @@ export default async function Home() {
           "url": "https://www.asianweddingmakeup.com/",
         },
       },
-    })),
+    }))
   };
   // Get unique regions from the vendor data
   const uniqueMetroRegions = Array.from(
