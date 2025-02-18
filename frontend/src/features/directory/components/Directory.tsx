@@ -20,11 +20,14 @@ export function Directory({ vendors, uniqueMetroRegions }: {
     >
       <div>
         <Typography variant="h1" gutterBottom>
-          Hair and Makeup Artists for Asian Brides
+          Hair and Makeup Artists for Asian Beauty
         </Typography>
-        <Typography>Welcome to the Hair and Makeup Artist Directory for Asian Brides! Our online directory features talented artists who have experience with Asian features.
-
-Search by location, see who travels, and find the perfect artist in your price range.</Typography>
+        <Typography gutterBottom>
+          Welcome to the Hair and Makeup Directory for Asian Beauty! Discover talented artists who have experience with Asian features and are recommended by the community.
+        </Typography>
+        <Typography>
+          Search by location, see who travels worldwide, and find the perfect artist in your price range.
+        </Typography>
       </div>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable

@@ -13,6 +13,7 @@ export default async function Home() {
       vendors
         .map((vendor) => vendor.metro_region)
         .filter((region): region is string => region !== null && region !== undefined)
+        .sort()
     )
   );
   return (
