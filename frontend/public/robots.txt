@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.asianweddingmakeup.com
+
+# Sitemaps
+Sitemap: https://www.asianweddingmakeup.com/sitemap.xml

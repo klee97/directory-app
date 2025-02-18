@@ -17,7 +17,7 @@ export default async function Home() {
   );
   return (
     <>
-      <title>Hair and Makeup Directory for Asian Beauty</title>
+      <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
       <Directory vendors={vendors} uniqueMetroRegions={uniqueMetroRegions} />
     </>
   );
