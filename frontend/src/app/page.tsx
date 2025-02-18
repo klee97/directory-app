@@ -1,7 +1,6 @@
 import { Directory } from '@/features/directory/components/Directory';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
-import Head from 'next/head';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
@@ -39,13 +38,12 @@ export default async function Home() {
   );
   return (
     <>
-      <Head>
+      <section>
         <script
-          id="app-ld-json"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-      </Head>
+      </section>
       <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
       <Directory vendors={vendors} uniqueMetroRegions={uniqueMetroRegions} />
     </>
