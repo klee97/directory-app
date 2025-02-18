@@ -51,10 +51,35 @@ export default async function VendorPage({ params }: PageProps) {
     notFound(); // Return 404 if vendor is not found
   }
 
+  // Define your JSON-LD schema for the vendor
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Service",  // For a wedding vendor, "Service" may be appropriate
+    "name": vendor.business_name,
+    "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+    "image": vendor.cover_image,
+    "provider": {
+      "@type": "Organization",
+      "name": "Asian Wedding Makeup",
+      "url": "https://www.asianweddingmakeup.com/",
+    },
+    "serviceType": "Hair and Makeup",
+    "priceRange": vendor.bridal_hair_price,
+    "sameAs": vendor.instagram,
+  };
+
   return (
-    <div>
+    <>
+      <section>
+        {/* Add JSON-LD to your page */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {/* ... */}
+      </section>
       <BackButton />
       <VendorDetails vendor={vendor} />
-    </div>
+    </>
   );
 }
