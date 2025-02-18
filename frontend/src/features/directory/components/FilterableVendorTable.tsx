@@ -139,10 +139,11 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
+            flexDirection: { xs: 'row', md: 'row' }, // Keep on the same row for both small and large screens
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: 2,
+            flexWrap: 'wrap', // Allows wrapping for smaller screens
           }}
         >
           <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
@@ -161,7 +162,12 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
             gap: 2,
           }}
         >
-          <Button variant="contained" onClick={handleClearFilters} size="small">
+          <Button
+            variant="contained"
+            onClick={handleClearFilters}
+            size="small"
+            sx={{ width: { xs: '100%', md: 'auto' } }} // Full-width on mobile
+          >
             Clear Filters
           </Button>
         </Box>
@@ -172,9 +178,10 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
+          flexDirection: { xs: 'row', md: 'row' },
           alignItems: 'center',
           gap: 2,
+          flexWrap: 'wrap', // Allows wrapping for smaller screens
         }}
       >
         <Typography variant="h6">
