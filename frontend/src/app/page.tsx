@@ -2,6 +2,7 @@ import { Directory } from '@/features/directory/components/Directory';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
 import { Box } from "@mui/material";
+import FeedbackPopup from '@/features/contact/components/FeedbackPopup';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
@@ -22,6 +23,7 @@ export default async function Home() {
       <Box display="flex" justifyContent="center" p={4}>
         <Directory vendors={vendors} uniqueMetroRegions={uniqueMetroRegions} />
       </Box>
+      <FeedbackPopup />
     </>
   );
 }
