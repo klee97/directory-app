@@ -8,10 +8,10 @@ import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 import Script from "next/script";
 
 export const metadata: Metadata = {
-  title: 'Asian Wedding Hair & Makeup Directory – Find Trusted Artists',
+  title: 'Asian Wedding Hair & Makeup – Find artists in NY, LA & more',
   description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
   openGraph: {
-    title: 'Vendor Directory - Find the Best Wedding Artists',
+    title: 'Asian Wedding Hair & Makeup - Find artists in NY, LA & more',
     description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
     url: 'https://www.asianweddingmakeup.com/',
     type: 'website',
