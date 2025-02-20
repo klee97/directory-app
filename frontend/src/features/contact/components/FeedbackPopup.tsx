@@ -24,7 +24,7 @@ const FeedbackPopup = () => {
       const timer = setTimeout(() => {
         setOpen(true);
         localStorage.setItem("feedbackShown", "true"); // Mark as shown
-      }, 20000); // 20 seconds
+      }, 30000); // 30 seconds
 
       return () => clearTimeout(timer); // Cleanup on unmount
     }
