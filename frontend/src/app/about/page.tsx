@@ -2,7 +2,6 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import { NewsletterForm } from '@/features/contact/components/NewsletterForm';
 
 export default function About() {
   return (
@@ -14,7 +13,7 @@ export default function About() {
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          textAlign: 'center',
+          textAlign: 'left',
           '& > p': { marginBottom: 2 },
         }}
       >
@@ -22,24 +21,17 @@ export default function About() {
           About Us
         </Typography>
         <Typography variant="body1" component="p">
-        As two Asian American women, we understand how overwhelming wedding planning can be—especially when you&apos;re straddling the line between different cultures. 
+          As two Asian American women, we understand how overwhelming wedding planning can be—especially when you&apos;re straddling the line between different cultures.
         </Typography>
         <Typography variant="body1" component="p">
-        We&apos;re building this directory to help Asian couples find artists who are recommended within their local communities.
-        We&apos;re asking our friends and family, scouring the web, and looking through Reddit and Facebook, so you don&apos;t have to.
-        The artists here are people who other couples have recommended, and we&apos;re excited to share their knowledge with you.
+          We&apos;re building this directory to help Asian couples find artists who are recommended within their local communities.
+          We&apos;re asking our friends and family, scouring the web, and looking through Reddit and Facebook, so you don&apos;t have to.
+          The artists here are people who other couples have recommended, and we&apos;re excited to share their knowledge with you.
         </Typography>
         <Typography variant="body1" component="p">
-        Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
+          Whether you&apos;re a vendor looking to showcase your work or a couple planning your big day, we&apos;re here to help.
         </Typography>
         <br />
-      <Typography variant="h2" gutterBottom sx={{ mt: 2 }}>
-        Subscribe
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        Our directory is just the beginning. Get the latest news on what we&apos;re working on (think friend referrals and social elements)!
-      </Typography>
-      <NewsletterForm />
       </Box>
     </Container>
   );

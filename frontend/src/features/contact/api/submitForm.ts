@@ -51,10 +51,10 @@ export async function submitForm({
 
 export async function submitNewsletterForm({
   email,
-  reason
+  reasons
 }: {
   email: string,
-  reason: string,
+  reasons: string[],
 }) {
   try {
     const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID;
@@ -70,7 +70,7 @@ export async function submitNewsletterForm({
       body: JSON.stringify({
         fields: [
           { name: "email", value: email },
-          { name: "reason", value: reason },
+          { name: "reason", value: reasons.toString() },
         ],
       }),
     });

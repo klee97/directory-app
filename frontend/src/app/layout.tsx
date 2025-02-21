@@ -6,6 +6,7 @@ import Navbar from "@/components/layouts/Navbar";
 import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 import Script from "next/script";
+import { Footer } from "@/components/layouts/Footer";
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Hair & Makeup – Find artists in NY, LA & more',
@@ -60,6 +61,7 @@ export default function RootLayout({
           <ThemeProvider>
             <Navbar />
             {children}
+            <Footer />
             <FeedbackPopup />
           </ThemeProvider>
         </AppRouterCacheProvider>
