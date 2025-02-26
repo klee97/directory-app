@@ -1,6 +1,7 @@
 import { Directory } from '@/features/directory/components/Directory';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
+import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
@@ -36,6 +37,10 @@ export default async function Home() {
         .sort()
     )
   );
+
+  const seed = getTodaySeed();
+  const shuffledVendors = shuffleWithSeed(vendors, seed);
+
   return (
     <>
       <section>
@@ -45,7 +50,7 @@ export default async function Home() {
         />
       </section>
       <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
-      <Directory vendors={vendors} uniqueMetroRegions={uniqueMetroRegions} />
+      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} />
     </>
   );
 }
