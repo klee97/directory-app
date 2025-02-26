@@ -1,6 +1,7 @@
 import React from "react";
 import { Container, Typography, Accordion, AccordionSummary, AccordionDetails, Link } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Metadata } from "next";
 
 const faqs = [
   {
@@ -72,6 +73,14 @@ const faqs = [
     ],
   },
 ];
+
+export const metadata: Metadata = {
+  title: "FAQ - Asian Wedding Hair & Makeup",
+  description: "Learn more about our wedding directory, and find answers to common questions about booking Asian bridal hair and makeup artists.",
+  alternates: {
+    canonical: "https://www.asianweddingmakeup.com/faq",
+  },
+};
 
 const FAQPage = () => {
   return (

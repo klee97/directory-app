@@ -2,8 +2,15 @@ import { Directory } from '@/features/directory/components/Directory';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
+import { Metadata } from 'next';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "https://www.asianweddingmakeup.com",
+  },
+};
 
 export default async function Home() {
   const vendors = await getCachedVendors();

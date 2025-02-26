@@ -30,10 +30,7 @@ export const metadata: Metadata = {
     title: 'Hair and Makeup Wedding Directory for Asian Beauty - Find Artists Experienced with Asian Features',
     description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
     // images: ['https://yourwebsite.com/preview-image.jpg'],
-  },
-  alternates: {
-    canonical: 'https://asianweddingmakeup.com/',
-  },
+  }
 };
 export default function RootLayout({
   children,

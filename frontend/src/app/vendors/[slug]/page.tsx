@@ -40,6 +40,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: `Book ${vendor.business_name} for your wedding.`,
       images: [vendor.cover_image || defaultImage.src],
     },
+    alternates: {
+      canonical: `https://www.asianweddingmakeup.com/${slug}`,
+    },
   };
 }
 

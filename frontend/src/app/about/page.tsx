@@ -2,6 +2,16 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "About - Asian Wedding Hair & Makeup",
+  description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists.",
+  alternates: {
+    canonical: "https://www.asianweddingmakeup.com/about",
+  },
+};
+
 
 export default function About() {
   return (
