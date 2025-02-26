@@ -3,10 +3,26 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 export const metadata: Metadata = {
-  title: "About - Asian Wedding Hair & Makeup",
-  description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists.",
+  title: "About - Asian Wedding Hair & Makeup in NYC, LA & more",
+  description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists for their weddings",
+  openGraph: {
+    title: 'About — Asian Wedding Hair & Makeup in NYC, LA & more',
+    description: 'Learn more about our mission to connect Asian brides with experienced hair and makeup artists for their wedding',
+    url: 'https://www.asianweddingmakeup.com/about',
+    type: 'website',
+    siteName: 'Asian Wedding Hair & Makeup',
+    images: [
+      {
+        url: defaultImage.src,
+        width: 1200,
+        height: 630,
+        alt: 'Wedding Vendor Directory Preview',
+      },
+    ],
+  },
   alternates: {
     canonical: "https://www.asianweddingmakeup.com/about",
   },
@@ -27,7 +43,7 @@ export default function About() {
           '& > p': { marginBottom: 2 },
         }}
       >
-        <Typography variant="h2" component="h1" gutterBottom>
+        <Typography variant="h1" component="h1" gutterBottom>
           About Us
         </Typography>
         <Typography variant="body1" component="p">

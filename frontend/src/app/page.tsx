@@ -3,10 +3,25 @@ import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
 export const metadata: Metadata = {
+  openGraph: {
+    title: 'Asian Wedding Hair & Makeup - Find artists in NY, LA & more',
+    description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
+    url: 'https://www.asianweddingmakeup.com',
+    type: 'website',
+    images: [
+      {
+        url: defaultImage.src,
+        width: 1200,
+        height: 630,
+        alt: 'Wedding Vendor Directory Preview',
+      },
+    ],
+  },
   alternates: {
     canonical: "https://www.asianweddingmakeup.com",
   },
@@ -29,7 +44,7 @@ export default async function Home() {
         "image": vendor.cover_image,
         "provider": {
           "@type": "Organization",
-          "name": "Wedding Hair and Makeup Directory for Asian Beauty",
+          "name": "Asian Wedding Hair & Makeup – Find artists in NY, LA & more",
           "url": "https://www.asianweddingmakeup.com",
         },
       },

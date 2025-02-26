@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Typography, Accordion, AccordionSummary, AccordionDetails, Link } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Metadata } from "next";
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 const faqs = [
   {
@@ -75,8 +76,22 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: "FAQ - Asian Wedding Hair & Makeup",
+  title: "FAQ - Asian Wedding Hair & Makeup in NYC, LA & more",
   description: "Learn more about our wedding directory, and find answers to common questions about booking Asian bridal hair and makeup artists.",
+  openGraph: {
+    title: 'FAQ - Asian Wedding Hair & Makeup in NYC, LA & more',
+    description: 'Learn more about our wedding directory, and find answers to common questions about booking Asian bridal hair and makeup artists.',
+    url: 'https://www.asianweddingmakeup.com/faq',
+    type: 'website',
+    images: [
+      {
+        url: defaultImage.src,
+        width: 1200,
+        height: 630,
+        alt: 'Wedding Vendor Directory Preview',
+      },
+    ],
+  },
   alternates: {
     canonical: "https://www.asianweddingmakeup.com/faq",
   },
@@ -86,7 +101,7 @@ const FAQPage = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <br />
-      <Typography variant="h2" gutterBottom>
+      <Typography variant="h1" gutterBottom>
         Frequently Asked Questions
       </Typography>
       {faqs.map((section, index) => (

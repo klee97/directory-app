@@ -20,10 +20,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${vendor.business_name} - Wedding Beauty Artist`,
-    description: `Book ${vendor.business_name} for your wedding. See pricing, portfolio, and contact details.`,
+    description: `Book ${vendor.business_name}, a trusted wedding artist in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, recommended for their experience with Asian features. See pricing, photos, and contact information.`,
     openGraph: {
       title: `${vendor.business_name} - Wedding Vendor`,
-      description: `Book ${vendor.business_name} for your wedding.`,
+      description: `Book ${vendor.business_name}, a trusted wedding artist in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, recommended for their experience with Asian features. See pricing, photos, and contact information.`,
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
       images: [
         {

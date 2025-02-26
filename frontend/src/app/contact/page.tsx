@@ -1,10 +1,25 @@
 import { Container, Typography } from "@mui/material";
 import { EmailForm } from "@/features/contact/components/EmailForm";
 import { Metadata } from "next";
+import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
 
 export const metadata: Metadata = {
-  title: "Contact Us - Asian Wedding Hair & Makeup",
+  title: "Contact Us - Asian Wedding Hair & Makeup in NYC, LA & more",
   description: "Need help finding a wedding artist? Want to recommend a hair and makeup artist, or update a listing? Get in touch with us.",
+  openGraph: {
+    title: 'Contact Us - Asian Wedding Hair & Makeup in NYC, LA & more',
+    description: 'Need help finding a wedding artist? Want to recommend a hair and makeup artist, or update a listing? Get in touch with us.',
+    url: 'https://www.asianweddingmakeup.com/contact',
+    type: 'website',
+    images: [
+      {
+        url: defaultImage.src,
+        width: 1200,
+        height: 630,
+        alt: 'Wedding Vendor Directory Preview',
+      },
+    ],
+  },
   alternates: {
     canonical: "https://www.asianweddingmakeup.com/contact",
   },
@@ -14,7 +29,7 @@ export default function ContactUs() {
   return (
     <Container maxWidth="sm">
       <br />
-      <Typography variant="h2" gutterBottom sx={{ mt: 2 }}>
+      <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Contact Us
       </Typography>
       <Typography variant="body1" gutterBottom>
