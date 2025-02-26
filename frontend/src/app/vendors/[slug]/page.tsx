@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${vendor.business_name} - Wedding Vendor`,
       description: `Book ${vendor.business_name} for your wedding.`,
-      url: `https://asianweddingmakeup.com/vendor/${slug}`,
+      url: `https://asianweddingmakeup.com/vendors/${slug}`,
       images: [
         {
           url: vendor.cover_image || defaultImage.src,
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: [vendor.cover_image || defaultImage.src],
     },
     alternates: {
-      canonical: `https://www.asianweddingmakeup.com/${slug}`,
+      canonical: `https://asianweddingmakeup.com/vendors/${slug}`,
     },
   };
 }

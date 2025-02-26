@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "About - Asian Wedding Hair & Makeup",
   description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists.",
   alternates: {
-    canonical: "https://www.asianweddingmakeup.com/about",
+    canonical: "https://asianweddingmakeup.com/about",
   },
 };
 

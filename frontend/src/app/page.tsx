@@ -8,7 +8,7 @@ const getCachedVendors = unstable_cache(fetchAllVendors);
 
 export const metadata: Metadata = {
   alternates: {
-    canonical: "https://www.asianweddingmakeup.com",
+    canonical: "https://asianweddingmakeup.com",
   },
 };
 
@@ -25,12 +25,12 @@ export default async function Home() {
       "item": {
         "@type": "Service",
         "name": vendor.business_name,
-        "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        "url": `https://asianweddingmakeup.com/vendors/${vendor.slug}`,
         "image": vendor.cover_image,
         "provider": {
           "@type": "Organization",
           "name": "Wedding Hair and Makeup Directory for Asian Beauty",
-          "url": "https://www.asianweddingmakeup.com/",
+          "url": "https://asianweddingmakeup.com",
         },
       },
     }))
