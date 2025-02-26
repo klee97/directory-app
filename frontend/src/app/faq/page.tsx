@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   title: "FAQ - Asian Wedding Hair & Makeup",
   description: "Learn more about our wedding directory, and find answers to common questions about booking Asian bridal hair and makeup artists.",
   alternates: {
-    canonical: "https://asianweddingmakeup.com/faq",
+    canonical: "https://www.asianweddingmakeup.com/faq",
   },
 };
 

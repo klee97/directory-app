@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "About - Asian Wedding Hair & Makeup",
   description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists.",
   alternates: {
-    canonical: "https://asianweddingmakeup.com/about",
+    canonical: "https://www.asianweddingmakeup.com/about",
   },
 };
 
@@ -32,7 +32,7 @@ export default function About() {
         </Typography>
         <Typography variant="body1" component="p">
           As two Asian American women, we understand how difficult it is to find wedding artists who know how to highlight your natural beauty.
-          A makeup artist who is an experienced professional is not necessarily experienced with Asian features or styles of makeup. 
+          A makeup artist who is an experienced professional is not necessarily experienced with Asian features or styles of makeup.
         </Typography>
         <Typography variant="body1" component="p">
           We&apos;re building this directory to help Asian couples find artists who are recommended within their local communities.
