@@ -23,6 +23,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'bridesmaid_hair_price'
   | 'bridesmaid_makeup_price'
   | 'gis'
+  | 'google_maps_place'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
@@ -31,6 +32,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   'metro_region': string | null,
   'state': string | null,
   'instagram': string | null,
+  'google_maps': string | null,
 }
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
@@ -40,6 +42,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     email: vendor.email,
     website: vendor.website,
     instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
+    google_maps: vendor.google_maps_place,
     region: vendor.region,
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
