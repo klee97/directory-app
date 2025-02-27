@@ -13,7 +13,7 @@ import {
   useTheme,
   styled,
 } from '@mui/material';
-import { Public, LocationOn, Mail, Link, Instagram } from '@mui/icons-material';
+import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-material';
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
 
@@ -107,6 +107,18 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   color='secondary'
                 >
                   Instagram
+                </Button>
+              )}
+              {vendor.google_maps && (
+                <Button
+                  href={vendor.google_maps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  startIcon={<Place />}
+                  sx={{ textTransform: 'none' }}
+                  color='secondary'
+                >
+                  Google Maps
                 </Button>
               )}
             </Box>

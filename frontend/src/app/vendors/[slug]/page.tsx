@@ -4,7 +4,7 @@ import { fetchVendorBySlug } from '@/features/business/api/fetchVendor';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
-import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import previewImage from '@/assets/website_preview.jpeg';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
       images: [
         {
-          url: vendor.cover_image || defaultImage.src,
+          url: vendor.cover_image || previewImage.src,
           width: 1200,
           height: 630,
           alt: `${vendor.business_name} Preview`,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title: `${vendor.business_name} - Wedding Beauty Artist`,
       description: `Book ${vendor.business_name} for your wedding.`,
-      images: [vendor.cover_image || defaultImage.src],
+      images: [vendor.cover_image || previewImage.src],
     },
     alternates: {
       canonical: `https://www.asianweddingmakeup.com/vendors/${slug}`,
