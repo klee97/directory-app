@@ -109,9 +109,9 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   Instagram
                 </Button>
               )}
-              {vendor.google_maps && (
+              {vendor.google_maps_place && (
                 <Button
-                  href={vendor.google_maps}
+                  href={vendor.google_maps_place}
                   target="_blank"
                   rel="noopener noreferrer"
                   startIcon={<Place />}

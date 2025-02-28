@@ -32,7 +32,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   'metro_region': string | null,
   'state': string | null,
   'instagram': string | null,
-  'google_maps': string | null,
+  'google_maps_place': string | null,
 }
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
@@ -42,7 +42,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     email: vendor.email,
     website: vendor.website,
     instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
-    google_maps: vendor.google_maps_place,
+    google_maps_place: vendor.google_maps_place,
     region: vendor.region,
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
