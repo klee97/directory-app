@@ -10,6 +10,8 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   };
 ;
 
+export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
+
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
   | 'email'
@@ -60,3 +62,4 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     state: vendor.usstates?.name ?? null, // Safely access state name
   };
 }
+

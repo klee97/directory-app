@@ -34,6 +34,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           geom: unknown | null
@@ -210,7 +231,7 @@ export type Database = {
           email?: string | null
           gis?: unknown | null
           google_maps_place?: string | null
-          id: string
+          id?: string
           ig_handle?: string | null
           lists_prices?: boolean | null
           location_coordinates?: string | null
@@ -277,78 +298,6 @@ export type Database = {
             referencedColumns: ["gid"]
           },
         ]
-      }
-      vendors_full: {
-        Row: {
-          "bridal_hair_&_makeup_price": number | null
-          bridal_hair_price: number | null
-          bridal_makeup_price: number | null
-          "bridesmaid_hair_&_makeup_price": number | null
-          bridesmaid_hair_price: number | null
-          bridesmaid_makeup_price: number | null
-          business_name: string | null
-          cover_image: string | null
-          email: string | null
-          id: string
-          ig_handle: string | null
-          instagram: string | null
-          lists_prices: boolean | null
-          logo: string | null
-          region: string | null
-          slug: string | null
-          specialization: string | null
-          "travel_bridal_prices_h&m_unless_indicated": string | null
-          travels_world_wide: boolean | null
-          website: string | null
-          what_is_your_minimum_spend: string | null
-        }
-        Insert: {
-          "bridal_hair_&_makeup_price"?: number | null
-          bridal_hair_price?: number | null
-          bridal_makeup_price?: number | null
-          "bridesmaid_hair_&_makeup_price"?: number | null
-          bridesmaid_hair_price?: number | null
-          bridesmaid_makeup_price?: number | null
-          business_name?: string | null
-          cover_image?: string | null
-          email?: string | null
-          id: string
-          ig_handle?: string | null
-          instagram?: string | null
-          lists_prices?: boolean | null
-          logo?: string | null
-          region?: string | null
-          slug?: string | null
-          specialization?: string | null
-          "travel_bridal_prices_h&m_unless_indicated"?: string | null
-          travels_world_wide?: boolean | null
-          website?: string | null
-          what_is_your_minimum_spend?: string | null
-        }
-        Update: {
-          "bridal_hair_&_makeup_price"?: number | null
-          bridal_hair_price?: number | null
-          bridal_makeup_price?: number | null
-          "bridesmaid_hair_&_makeup_price"?: number | null
-          bridesmaid_hair_price?: number | null
-          bridesmaid_makeup_price?: number | null
-          business_name?: string | null
-          cover_image?: string | null
-          email?: string | null
-          id?: string
-          ig_handle?: string | null
-          instagram?: string | null
-          lists_prices?: boolean | null
-          logo?: string | null
-          region?: string | null
-          slug?: string | null
-          specialization?: string | null
-          "travel_bridal_prices_h&m_unless_indicated"?: string | null
-          travels_world_wide?: boolean | null
-          website?: string | null
-          what_is_your_minimum_spend?: string | null
-        }
-        Relationships: []
       }
     }
     Views: {
@@ -783,6 +732,10 @@ export type Database = {
           geom2: unknown
         }
         Returns: boolean
+      }
+      generate_vendor_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       geography:
         | {
