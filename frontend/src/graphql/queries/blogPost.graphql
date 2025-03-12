@@ -1,0 +1,67 @@
+query GetAllBlogPosts {
+  pageBlogPostCollection(order: [publishedDate_DESC]) {
+    items {
+      sys {
+        id
+      }
+      title
+      slug
+      shortDescription
+      publishedDate
+      content {
+        json
+      }
+      featuredImage {
+        url
+        title
+        width
+        height
+      }
+      author {
+        name
+        avatar {
+          url
+          title
+        }
+      }
+      seoFields {
+        pageTitle
+        pageDescription
+      }
+    }
+  }
+}
+
+query GetBlogPostBySlug($slug: String!) {
+  pageBlogPostCollection(where: { slug: $slug }, limit: 1) {
+    items {
+      sys {
+        id
+      }
+      title
+      slug
+      shortDescription
+      publishedDate
+      content {
+        json
+      }
+      featuredImage {
+        url
+        title
+        width
+        height
+      }
+      author {
+        name
+        avatar {
+          url
+          title
+        }
+      }
+      seoFields {
+        pageTitle
+        pageDescription
+      }
+    }
+  }
+}
