@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  var jsonLd = {};
+  let jsonLd = {};
   if (post) {
     jsonLd = {
       "@context": "https://schema.org",
