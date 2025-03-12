@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml",
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
     "lint": "next lint",
-    "generate": "DOTENV_CONFIG_PATH=.env graphql-codegen --require dotenv/config --config codegen.yml"
+    "generate": "graphql-codegen --require dotenv/config --config codegen.yml"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^16.0.1",
