@@ -17,6 +17,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { useColorScheme } from '@mui/material/styles';
 import Link from 'next/link';
+import Image from 'next/image';
+import Logo from '@/assets/logo.png';
 
 const pages = ["About", "Contact", "FAQ"];
 
@@ -40,7 +42,7 @@ export default function Navbar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <Typography
+           <Typography
             variant="h6"
             noWrap
             component="a"
@@ -134,6 +136,7 @@ export default function Navbar() {
               </RadioGroup>
             </FormControl>
           )}
+          <Image src={Logo.src} width={40} height={40} alt={"logo"}/>
         </Toolbar>
       </Container>
     </AppBar>
