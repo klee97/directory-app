@@ -7,6 +7,8 @@ import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import Script from "next/script";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/website_preview.jpeg';
+import { Toaster } from 'react-hot-toast';
+
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Hair & Makeup – Find artists in NY, LA & more',
@@ -61,6 +63,7 @@ export default function RootLayout({
           <ThemeProvider>
             <Navbar />
             {children}
+            <Toaster position="top-center" />
             <Footer />
             <FeedbackPopup />
           </ThemeProvider>
