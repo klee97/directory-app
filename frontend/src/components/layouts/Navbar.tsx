@@ -42,6 +42,7 @@ export default function Navbar() {
     <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{marginRight: '16px'}}/>
            <Typography
             variant="h6"
             noWrap
@@ -118,7 +119,7 @@ export default function Navbar() {
               </Link>
             ))}
           </Box>
-          {process.env.NODE_ENV === 'development' && (
+          {process.env.NODE_ENV == 'development' && (
             <FormControl>
               <FormLabel id="demo-theme-toggle">Theme</FormLabel>
               <RadioGroup
@@ -136,7 +137,6 @@ export default function Navbar() {
               </RadioGroup>
             </FormControl>
           )}
-          <Image src={Logo.src} width={40} height={40} alt={"logo"}/>
         </Toolbar>
       </Container>
     </AppBar>

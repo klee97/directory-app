@@ -1,3 +1,6 @@
+import DefaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import DefaultImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
+
 const typography = {
   fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
@@ -52,6 +55,7 @@ export const colorSchemes = {
       divider: '#bf6566',
     },
     typography: typography,
+    placeholderImage: DefaultImage,
   },
   dark: {
     palette: {
@@ -78,6 +82,7 @@ export const colorSchemes = {
       },
     },
     typography: typography,
+    placeholderImage: DefaultImageGray,
   }
 
 }

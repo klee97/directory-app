@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
-import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import { useTheme } from '@mui/material';
 
 export const VendorCard = ({
   vendor,
@@ -22,6 +22,7 @@ export const VendorCard = ({
   tabIndex: number;
   className: string;
 }) => {
+  const theme = useTheme();
 
   return (
     <Card
@@ -45,7 +46,7 @@ export const VendorCard = ({
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
-          src={vendor.cover_image ?? defaultImage.src}
+          src={vendor.cover_image ?? theme.placeholderImage.src}
           alt={`${vendor.business_name} preview`}
           sx={{
             height: 300, // Adjust as needed for uniform height
