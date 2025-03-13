@@ -11,6 +11,7 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
 ;
 
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
+export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'

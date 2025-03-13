@@ -18,7 +18,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { useColorScheme } from '@mui/material/styles';
 import Link from 'next/link';
 
-const pages = ["About", "Contact", "FAQ"];
+const pages = ["About", "Contact", "FAQ", "Recommend"];
 
 const Title = 'HAIR AND MAKEUP';
 
