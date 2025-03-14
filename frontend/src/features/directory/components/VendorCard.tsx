@@ -8,6 +8,8 @@ import Chip from '@mui/material/Chip';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import { useTheme } from '@mui/material';
+import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
+import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
 export const VendorCard = ({
   vendor,
@@ -23,6 +25,7 @@ export const VendorCard = ({
   className: string;
 }) => {
   const theme = useTheme();
+  const placeholderImage = (theme.palette.mode === 'light')? PlaceholderImage : PlaceholderImageGray;
 
   return (
     <Card
@@ -46,7 +49,7 @@ export const VendorCard = ({
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
-          src={vendor.cover_image ?? theme.placeholderImage.src}
+          src={vendor.cover_image ?? placeholderImage.src}
           alt={`${vendor.business_name} preview`}
           sx={{
             height: 300, // Adjust as needed for uniform height

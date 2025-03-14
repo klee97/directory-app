@@ -55,7 +55,6 @@ export const colorSchemes = {
       divider: '#bf6566',
     },
     typography: typography,
-    placeholderImage: DefaultImage,
   },
   dark: {
     palette: {
@@ -82,7 +81,6 @@ export const colorSchemes = {
       },
     },
     typography: typography,
-    placeholderImage: DefaultImageGray,
   }
 
 }
