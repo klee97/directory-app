@@ -8,7 +8,11 @@ export const createRecommendation = async (rec: BackendVendorRecommendationInser
 
     // Extract and verify reCAPTCHA token
     const { recaptchaToken, ...cleanRec } = rec;
-    await verifyRecaptchaToken(recaptchaToken);
+    const { success } = await verifyRecaptchaToken(recaptchaToken);
+    if (!success) {
+      console.log("CAPTCHA verification failed");
+      throw new Error("Security verification failed. Please try again.");
+    }
 
     // Create the recommendation in database
     const supabase = await createClient();
