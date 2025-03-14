@@ -119,7 +119,7 @@ export default function Navbar() {
               </Link>
             ))}
           </Box>
-          {process.env.NODE_ENV == 'development' && (
+          {process.env.NODE_ENV === 'development' && (
             <FormControl>
               <FormLabel id="demo-theme-toggle">Theme</FormLabel>
               <RadioGroup

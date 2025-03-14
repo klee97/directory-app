@@ -1,4 +1,4 @@
-import DefaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import DefaultImage from '@/assets/placeholder_cover_img.jpeg';
 import DefaultImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
 const typography = {

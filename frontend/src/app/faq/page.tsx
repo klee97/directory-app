@@ -2,7 +2,7 @@ import React from "react";
 import { Container, Typography, Accordion, AccordionSummary, AccordionDetails, Link } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Metadata } from "next";
-import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img.jpeg';
 
 const faqs = [
   {
