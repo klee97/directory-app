@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -11,6 +11,7 @@ import Grid from '@mui/material/Grid2';
 import { BackendVendorRecommendationInsert } from '@/types/vendor';
 import { createRecommendation } from '../api/createRecommendation';
 import toast from 'react-hot-toast';
+import ReCaptcha, { ReCaptchaRef } from '@/components/security/ReCaptcha';
 
 export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationInsert = {
   business_name: "",
@@ -25,6 +26,7 @@ export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationIns
 const RecommendationForm = () => {
   const [recommendation, setRecommendation] = useState<BackendVendorRecommendationInsert>(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
   const [errors, setErrors] = useState({ business_name: false, region: false });
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -42,17 +44,35 @@ const RecommendationForm = () => {
     const loadingToast = toast.loading("Submitting your recommendation...");
 
     try {
-      const res = await createRecommendation(recommendation);
+      // Execute reCAPTCHA and get token
+      const recaptchaToken = await recaptchaRef.current?.executeAsync();
+
+      if (!recaptchaToken) {
+        toast.dismiss(loadingToast);
+        toast.error("CAPTCHA verification failed. Please try again.");
+        return;
+      }
+
+      // Add token to submission data
+      const submissionData = {
+        ...recommendation,
+        recaptchaToken
+      };
+      const res = await createRecommendation(submissionData);
       if (!res.id) throw new Error("Failed to submit recommendation");
 
       // Dismiss loading toast and show success
       toast.dismiss(loadingToast);
-      toast.success("Thank you! Your recommendation has been submitted."); setRecommendation(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
-    } catch (error) {
+      toast.success("Thank you! Your recommendation has been submitted.");
+      setRecommendation(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
+      recaptchaRef.current?.reset();
+    } catch (error: unknown) {
       console.error(error);
       // Dismiss loading toast and show error
       toast.dismiss(loadingToast);
-      toast.error("Something went wrong. Please try again.");
+      if (error instanceof Error) {
+        toast.error(error.message || "Something went wrong. Please try again.");
+      }
     }
   };
 
@@ -130,7 +150,14 @@ const RecommendationForm = () => {
           />
         </Grid>
         <Grid>
-
+          <ReCaptcha
+            ref={recaptchaRef}
+            size="invisible"
+            onExpired={() => console.log('reCAPTCHA expired')}
+            onErrored={() => console.log('reCAPTCHA errored')}
+          />
+        </Grid>
+        <Grid>
           <Button
             variant="contained"
             color="primary"
