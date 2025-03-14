@@ -18,7 +18,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { useColorScheme } from '@mui/material/styles';
 import Link from 'next/link';
 import Image from 'next/image';
-import Logo from '@/assets/logo.png';
+import Logo from '@/assets/logo.jpeg';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 
