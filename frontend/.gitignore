@@ -41,4 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # graphql generated files
-/frontend/src/lib/generated/
+**/src/lib/generated/
