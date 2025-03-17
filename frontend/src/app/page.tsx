@@ -3,7 +3,7 @@ import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { unstable_cache } from 'next/cache';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img.jpeg';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 

@@ -43,6 +43,9 @@ export function Footer() {
           <Link href="/faq" style={{ color: "inherit", textDecoration: "none" }}>
             FAQ
           </Link>
+          <Link href="/recommend" style={{ color: "inherit", textDecoration: "none" }}>
+            Recommend an Artist
+          </Link>
           <Link href="/vendors" style={{ color: "inherit", textDecoration: "none" }}>
             All Vendors
           </Link>

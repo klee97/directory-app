@@ -55,6 +55,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_admin: boolean | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          is_admin?: boolean | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_admin?: boolean | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       regions: {
         Row: {
           geom: unknown | null
@@ -187,6 +211,53 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_recommendations: {
+        Row: {
+          business_name: string
+          created_at: string | null
+          id: string
+          ig_handle: string | null
+          notes: string | null
+          recommended_by: string | null
+          region: string
+          status: string | null
+          vendor_id: string | null
+          website: string | null
+        }
+        Insert: {
+          business_name: string
+          created_at?: string | null
+          id?: string
+          ig_handle?: string | null
+          notes?: string | null
+          recommended_by?: string | null
+          region: string
+          status?: string | null
+          vendor_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          business_name?: string
+          created_at?: string | null
+          id?: string
+          ig_handle?: string | null
+          notes?: string | null
+          recommended_by?: string | null
+          region?: string
+          status?: string | null
+          vendor_id?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_recommendations_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           "bridal_hair_&_makeup_price": number | null
@@ -292,6 +363,118 @@ export type Database = {
           },
           {
             foreignKeyName: "vendors_state_id_fkey"
+            columns: ["state_id"]
+            isOneToOne: false
+            referencedRelation: "usstates"
+            referencedColumns: ["gid"]
+          },
+        ]
+      }
+      vendors_test: {
+        Row: {
+          "bridal_hair_&_makeup_price": number | null
+          bridal_hair_price: number | null
+          bridal_makeup_price: number | null
+          "bridesmaid_hair_&_makeup_price": number | null
+          bridesmaid_hair_price: number | null
+          bridesmaid_makeup_price: number | null
+          business_name: string | null
+          city: string | null
+          country: string | null
+          cover_image: string | null
+          email: string | null
+          gis: unknown | null
+          google_maps_place: string | null
+          id: string
+          ig_handle: string | null
+          lists_prices: boolean | null
+          location_coordinates: string | null
+          logo: string | null
+          metro_id: number | null
+          metro_region_id: number | null
+          region: string | null
+          slug: string | null
+          specialization: string | null
+          state: string | null
+          state_id: number | null
+          travels_world_wide: boolean | null
+          website: string | null
+        }
+        Insert: {
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          cover_image?: string | null
+          email?: string | null
+          gis?: unknown | null
+          google_maps_place?: string | null
+          id?: string
+          ig_handle?: string | null
+          lists_prices?: boolean | null
+          location_coordinates?: string | null
+          logo?: string | null
+          metro_id?: number | null
+          metro_region_id?: number | null
+          region?: string | null
+          slug?: string | null
+          specialization?: string | null
+          state?: string | null
+          state_id?: number | null
+          travels_world_wide?: boolean | null
+          website?: string | null
+        }
+        Update: {
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
+          business_name?: string | null
+          city?: string | null
+          country?: string | null
+          cover_image?: string | null
+          email?: string | null
+          gis?: unknown | null
+          google_maps_place?: string | null
+          id?: string
+          ig_handle?: string | null
+          lists_prices?: boolean | null
+          location_coordinates?: string | null
+          logo?: string | null
+          metro_id?: number | null
+          metro_region_id?: number | null
+          region?: string | null
+          slug?: string | null
+          specialization?: string | null
+          state?: string | null
+          state_id?: number | null
+          travels_world_wide?: boolean | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_test_metro_id_fkey"
+            columns: ["metro_id"]
+            isOneToOne: false
+            referencedRelation: "usmetro"
+            referencedColumns: ["gid"]
+          },
+          {
+            foreignKeyName: "vendors_test_metro_region_id_fkey"
+            columns: ["metro_region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendors_test_state_id_fkey"
             columns: ["state_id"]
             isOneToOne: false
             referencedRelation: "usstates"
@@ -3364,6 +3547,12 @@ export type Database = {
           "": string
         }
         Returns: number
+      }
+      update_vendor_location: {
+        Args: {
+          vendor_id: string
+        }
+        Returns: undefined
       }
       updategeometrysrid: {
         Args: {

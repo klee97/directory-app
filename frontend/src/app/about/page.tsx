@@ -3,7 +3,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/placeholder_cover_img_heart.jpeg';
+import defaultImage from '@/assets/placeholder_cover_img.jpeg';
 
 export const metadata: Metadata = {
   title: "About - Asian Wedding Hair & Makeup in NYC, LA & more",
