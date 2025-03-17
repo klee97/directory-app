@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { createVendor } from '../api/createVendor';
+import toast from 'react-hot-toast';
 
 // Define types directly in the file
 export interface VendorInput {
@@ -61,13 +62,20 @@ export const VENDOR_INPUT_DEFAULT: VendorInput = {
 
 const AdminVendorManagement = () => {
   const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
 
   const addVendor = async () => {
+    const loadingToast = toast.loading("Submitting your recommendation...");
     const newVendorData = JSON.parse(JSON.stringify(newVendor));
-    const data = await createVendor(newVendorData);
+    const data = await createVendor(newVendorData, firstName, lastName);
+    toast.dismiss(loadingToast);
 
     if (data) {
       setNewVendor(VENDOR_INPUT_DEFAULT);
+      toast.success("Vendor added successfully!");
+    } else {
+      toast.error("Failed to add vendor. Please try again.");
     }
   };
 
@@ -107,6 +115,22 @@ const AdminVendorManagement = () => {
               variant="outlined"
               value={newVendor.ig_handle ?? ""}
               onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
+            />
+          </Grid>
+
+          <Grid container spacing={3} columns={3}>
+
+            <TextField
+              label="First Name"
+              variant="outlined"
+              value={firstName ?? ""}
+              onChange={(e) => setFirstName(e.target.value)}
+            />
+            <TextField
+              label="Last Name"
+              variant="outlined"
+              value={lastName ?? ""}
+              onChange={(e) => setLastName(e.target.value)}
             />
           </Grid>
 

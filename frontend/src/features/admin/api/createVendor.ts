@@ -2,8 +2,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert } from "@/types/vendor";
 import { prepareVendorInsertData } from "../components/vendorHelper";
+import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 
-export const createVendor = async (vendor: BackendVendorInsert) => {
+export const createVendor = async (
+  vendor: BackendVendorInsert,
+  firstname: string,
+  lastname: string
+) => {
   console.log("Creating vendor:", vendor);
 
   // Get current session to verify user is authenticated
@@ -27,10 +32,11 @@ export const createVendor = async (vendor: BackendVendorInsert) => {
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('is_admin')
+    .eq('id', session.user.id)
     .single();
 
   if (profileError || !profileData || !profileData.is_admin) {
-    console.error("Authorization error: User is not an admin");
+    console.error("Authorization error: User is not an admin: %s", profileError);
     throw new Error("You do not have permission to create vendors");
   }
 
@@ -40,10 +46,28 @@ export const createVendor = async (vendor: BackendVendorInsert) => {
   console.log("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor creation
-  const { data, error } = await supabase.from("vendors").insert(vendorData).select("id").single();
+  const { data, error } = await supabase.from("vendors").insert(vendorData).select("id, slug").single();
 
-  if (data && data.id) {
+  if (data && data.id && data.slug) {
+    console.log("Vendor created successfully!", data);
+
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+
+    // Create a contact in HubSpot
+    const hubspotContactId = await createHubSpotContact({
+      email: vendor.email || vendor.ig_handle || '',
+      firstname: firstname,
+      lastname: lastname,
+      slug: data.slug,
+      company: vendor.business_name ?? '',
+    });
+    console.log("Vendor region updated successfully!", data);
+
+    if (!hubspotContactId) {
+      console.error("Failed to create HubSpot contact for vendor:", data.slug);
+      throw new Error("Failed to create HubSpot contact for vendor");
+    }
+    console.log("HubSpot contact created successfully!", hubspotContactId);
   }
 
   if (error) {
@@ -52,5 +76,6 @@ export const createVendor = async (vendor: BackendVendorInsert) => {
   }
 
   console.log("Vendor created successfully!", data);
+
   return data;
 };
