@@ -6,7 +6,6 @@ type HubSpotContactProps = {
   lastname?: string;
   slug?: string;
   company?: string;
-  type?: string;
 };
 
 /**
