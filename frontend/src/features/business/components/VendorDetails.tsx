@@ -289,7 +289,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
             </Grid>
           )}
           {/* Bottom - Testimonials */}
-          {vendor.testimonials && vendor.testimonials[0](
+          {vendor.testimonials && vendor.testimonials[0] && (
             <Grid>
               <Paper elevation={0} sx={{ p: 4, }}>
                 <Typography variant="h5" component="h2">
@@ -297,7 +297,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 </Typography>
                 <br />
                 <Typography variant="body1" component="h3">
-                  {vendor.testimonials[0].text}
+                  {vendor.testimonials[0].review}
                 </Typography>
                 <Typography variant="body1" component="h3" textAlign="right">
                   - {vendor.testimonials[0].author}
