@@ -73,6 +73,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 />
               )}
             </Box>
+
             <Box
               sx={{
                 pt: 3,
@@ -285,6 +286,23 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   </Button>
                 </CardContent>
               </StickyCard>
+            </Grid>
+          )}
+          {/* Bottom - Testimonials */}
+          {vendor.testimonials && vendor.testimonials[0](
+            <Grid>
+              <Paper elevation={0} sx={{ p: 4, }}>
+                <Typography variant="h5" component="h2">
+                  Testimonials
+                </Typography>
+                <br />
+                <Typography variant="body1" component="h3">
+                  {vendor.testimonials[0].text}
+                </Typography>
+                <Typography variant="body1" component="h3" textAlign="right">
+                  - {vendor.testimonials[0].author}
+                </Typography>
+              </Paper>
             </Grid>
           )}
         </Grid>
