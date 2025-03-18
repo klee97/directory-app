@@ -106,6 +106,11 @@ const AdminVendorManagement = () => {
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
   };
 
+  const handleRegionChange = (value: RegionOption | null) => {
+    setSelectedRegion(value);
+    setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
+  };
+
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
@@ -167,7 +172,7 @@ const AdminVendorManagement = () => {
             <Grid size={6}>
               <RegionSelector
                 value={selectedRegion}
-                onChange={(newRegion: RegionOption | null) => setSelectedRegion(newRegion)}
+                onChange={(newRegion: RegionOption | null) => handleRegionChange(newRegion)}
               />
             </Grid>
             <Grid size={6}>
