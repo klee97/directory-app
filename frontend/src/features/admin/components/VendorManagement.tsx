@@ -78,8 +78,11 @@ const AdminVendorManagement = () => {
       toast.dismiss(loadingToast);
 
       if (data) {
-        setNewVendor(VENDOR_INPUT_DEFAULT);
         toast.success("Vendor added successfully!");
+        setNewVendor(VENDOR_INPUT_DEFAULT);
+        setFirstName("");
+        setLastName("");
+        setSelectedRegion(null);
       } else {
         toast.error("Failed to add vendor. Please try again.");
       }
@@ -161,10 +164,6 @@ const AdminVendorManagement = () => {
                 onChange={(e) => setLastName(e.target.value)}
               />
             </Grid>
-            {/* 
-          </Grid>
-
-          <Grid container spacing={3}> */}
             <Grid size={6}>
               <RegionSelector
                 value={selectedRegion}
@@ -210,19 +209,19 @@ const AdminVendorManagement = () => {
               label="Bridal Hair Price"
               variant="outlined"
               value={newVendor.bridal_hair_price ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
-              />
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
+            />
             <TextField
               label="Bridal Makeup Price"
               variant="outlined"
               value={newVendor.bridal_makeup_price ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
             />
             <TextField
               label="Bridal Hair & Makeup Price"
               variant="outlined"
               value={newVendor["bridal_hair_&_makeup_price"] ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
             />
           </Grid>
 
@@ -231,19 +230,19 @@ const AdminVendorManagement = () => {
               label="Bridesmaid Hair Price"
               variant="outlined"
               value={newVendor.bridesmaid_hair_price ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
             />
             <TextField
               label="Bridesmaid Makeup Price"
               variant="outlined"
               value={newVendor.bridesmaid_makeup_price ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
             />
             <TextField
               label="Bridesmaid Hair & Makeup Price"
               variant="outlined"
               value={newVendor["bridesmaid_hair_&_makeup_price"] ?? ''}
-              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
             />
           </Grid>
           <Divider />
