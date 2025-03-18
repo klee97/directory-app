@@ -20,6 +20,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import { createVendor } from '../api/createVendor';
 import toast from 'react-hot-toast';
+import RegionSelector, { RegionOption } from './RegionSelector';
 
 // Define types directly in the file
 export interface VendorInput {
@@ -64,19 +65,42 @@ const AdminVendorManagement = () => {
   const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
 
   const addVendor = async () => {
-    const loadingToast = toast.loading("Submitting your recommendation...");
-    const newVendorData = JSON.parse(JSON.stringify(newVendor));
-    const data = await createVendor(newVendorData, firstName, lastName);
-    toast.dismiss(loadingToast);
+    const loadingToast = toast.loading("Creating vendor...");
 
-    if (data) {
-      setNewVendor(VENDOR_INPUT_DEFAULT);
-      toast.success("Vendor added successfully!");
-    } else {
-      toast.error("Failed to add vendor. Please try again.");
+    try {
+      const newVendorData = JSON.parse(JSON.stringify(newVendor));
+      const data = await createVendor(newVendorData, firstName, lastName);
+
+      // Dismiss loading toast regardless of the result
+      toast.dismiss(loadingToast);
+
+      if (data) {
+        setNewVendor(VENDOR_INPUT_DEFAULT);
+        toast.success("Vendor added successfully!");
+      } else {
+        toast.error("Failed to add vendor. Please try again.");
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+
+      // Show error message
+      toast.error(
+        error instanceof Error
+          ? `Error: ${error.message}`
+          : "An unexpected error occurred. Please try again."
+      );
+
+      console.error("Error adding vendor:", error);
     }
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorInput) => {
+    const value = e.target.value;
+    const numberValue = value === '' ? null : Number(value);
+    setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
   };
 
   return (
@@ -118,77 +142,87 @@ const AdminVendorManagement = () => {
             />
           </Grid>
 
-          <Grid container spacing={3} columns={3}>
+          <Grid container spacing={3}>
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="First Name"
+                variant="outlined"
+                value={firstName ?? ""}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Last Name"
+                variant="outlined"
+                value={lastName ?? ""}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </Grid>
+            {/* 
+          </Grid>
 
-            <TextField
-              label="First Name"
-              variant="outlined"
-              value={firstName ?? ""}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <TextField
-              label="Last Name"
-              variant="outlined"
-              value={lastName ?? ""}
-              onChange={(e) => setLastName(e.target.value)}
-            />
+          <Grid container spacing={3}> */}
+            <Grid size={6}>
+              <RegionSelector
+                value={selectedRegion}
+                onChange={(newRegion: RegionOption | null) => setSelectedRegion(newRegion)}
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                required
+                fullWidth
+                label="Location Coordinates"
+                variant="outlined"
+                value={newVendor.location_coordinates ?? ""}
+                onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
+              />
+            </Grid>
           </Grid>
 
           <Grid container spacing={3}>
+            <FormControl>
+              <FormLabel id="demo-controlled-radio-buttons-group">Travels Worldwide</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={newVendor.travels_world_wide.toString()}
+                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: Boolean(e.target.value) })}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="True" />
+                <FormControlLabel value="false" control={<Radio />} label="False" />
+              </RadioGroup>
+            </FormControl>
             <TextField
-              required
-              label="Region (See Notion options)"
+              fullWidth
+              label="Google Maps Place link"
               variant="outlined"
-              value={newVendor.region ?? ""}
-              onChange={(e) => setNewVendor({ ...newVendor, region: e.target.value })}
-            />
-            <TextField
-              required
-              label="Location Coordinates"
-              variant="outlined"
-              value={newVendor.location_coordinates ?? ""}
-              onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
+              value={newVendor.google_maps_place ?? ""}
+              onChange={(e) => setNewVendor({ ...newVendor, google_maps_place: e.target.value })}
             />
           </Grid>
-
-          <FormControl>
-            <FormLabel id="demo-controlled-radio-buttons-group">Travels Worldwide</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-controlled-radio-buttons-group"
-              name="controlled-radio-buttons-group"
-              value={newVendor.travels_world_wide.toString()}
-              onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: Boolean(e.target.value) })}
-            >
-              <FormControlLabel value="true" control={<Radio />} label="True" />
-              <FormControlLabel value="false" control={<Radio />} label="False" />
-            </RadioGroup>
-          </FormControl>
-          <TextField
-            fullWidth
-            label="Google Maps Place link"
-            variant="outlined"
-            value={newVendor.google_maps_place ?? ""}
-            onChange={(e) => setNewVendor({ ...newVendor, google_maps_place: e.target.value })}
-          />
           <Grid container spacing={3}>
 
             <TextField
               label="Bridal Hair Price"
               variant="outlined"
-              value={newVendor.bridal_hair_price ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, bridal_hair_price: Number(e.target.value), lists_prices: true })}
-            />
+              value={newVendor.bridal_hair_price ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
+              />
             <TextField
               label="Bridal Makeup Price"
               variant="outlined"
-              value={newVendor.bridal_makeup_price ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, bridal_makeup_price: Number(e.target.value), lists_prices: true })}
+              value={newVendor.bridal_makeup_price ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
             />
             <TextField
               label="Bridal Hair & Makeup Price"
               variant="outlined"
-              value={newVendor["bridal_hair_&_makeup_price"] ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, "bridal_hair_&_makeup_price": Number(e.target.value), lists_prices: true })}
+              value={newVendor["bridal_hair_&_makeup_price"] ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
             />
           </Grid>
 
@@ -196,20 +230,20 @@ const AdminVendorManagement = () => {
             <TextField
               label="Bridesmaid Hair Price"
               variant="outlined"
-              value={newVendor.bridesmaid_hair_price ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, bridesmaid_hair_price: Number(e.target.value), lists_prices: true })}
+              value={newVendor.bridesmaid_hair_price ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
             />
             <TextField
               label="Bridesmaid Makeup Price"
               variant="outlined"
-              value={newVendor.bridesmaid_makeup_price ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, bridesmaid_makeup_price: Number(e.target.value), lists_prices: true })}
+              value={newVendor.bridesmaid_makeup_price ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
             />
             <TextField
               label="Bridesmaid Hair & Makeup Price"
               variant="outlined"
-              value={newVendor["bridesmaid_hair_&_makeup_price"] ?? 0}
-              onChange={(e) => setNewVendor({ ...newVendor, "bridesmaid_hair_&_makeup_price": Number(e.target.value), lists_prices: true })}
+              value={newVendor["bridesmaid_hair_&_makeup_price"] ?? ''}
+              onChange={(e:  React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
             />
           </Grid>
           <Divider />
