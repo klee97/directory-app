@@ -258,6 +258,41 @@ export type Database = {
           },
         ]
       }
+      vendor_testimonials: {
+        Row: {
+          author: string | null
+          id: number
+          inserted_at: string
+          review: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          author?: string | null
+          id?: number
+          inserted_at?: string
+          review?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          author?: string | null
+          id?: number
+          inserted_at?: string
+          review?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_testimonials_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           "bridal_hair_&_makeup_price": number | null

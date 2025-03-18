@@ -8,7 +8,7 @@ export async function fetchAllVendors() {
     .select(`
       *, 
       usmetro!metro_id(display_name), 
-      regions!metro_region_id(name) 
+      regions!metro_region_id(name)
     `);
     if (data === null) {
       return [];
