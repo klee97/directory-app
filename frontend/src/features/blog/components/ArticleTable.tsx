@@ -1,7 +1,8 @@
-import { Typography, Card, CardContent, CardMedia } from '@mui/material';
+import { Typography, Card, CardContent, CardMedia, Box } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
 import Link from 'next/link';
+import ContentfulImage from '@/components/ui/ContentfulImage';
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
@@ -14,13 +15,17 @@ export async function ArticleTable() {
           <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block' }}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
               {post.featuredImage && (
-                <CardMedia
-                  component="img"
-                  height="200"
-                  sx={{ objectFit: 'cover' }}
-                  src={post.featuredImage?.url ?? ''}
-                  alt={post.title ?? ''}
-                />
+                <Box sx={{ position: 'relative', height: '300px', width: '100%' }}>
+                  <ContentfulImage
+                    alt={`Cover Image for ${post.featuredImage.title}`}
+                    src={post.featuredImage.url}
+                    fill
+                    style={{
+                      objectFit: 'cover', objectPosition: 'center top'
+                    }}
+                    sizes="(max-width: 600px) 100vw, 600px"
+                  />
+                </Box>
               )}
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h5" component="h2">

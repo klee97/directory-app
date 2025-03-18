@@ -16,12 +16,16 @@ query GetAllBlogPosts {
         title
         width
         height
-      }
+        description
+        contentType      }
       author {
         name
         avatar {
           url
           title
+          width
+          height
+          contentType
         }
       }
       seoFields {
@@ -50,12 +54,17 @@ query GetBlogPostBySlug($slug: String!) {
         title
         width
         height
+        description
+        contentType
       }
       author {
         name
         avatar {
           url
           title
+          width
+          height
+          contentType
         }
       }
       seoFields {

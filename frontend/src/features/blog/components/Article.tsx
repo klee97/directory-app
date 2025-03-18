@@ -1,7 +1,7 @@
-import { Box, Typography, Container, Avatar, Divider } from '@mui/material';
-import { documentToReactComponents } from '@contentful/rich-text-react-renderer';
-import Image from 'next/image';
+import { Box, Typography, Container, Avatar } from '@mui/material';
 import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
+import ContentfulImage from '@/components/ui/ContentfulImage';
+import RichText from '@/components/ui/RichText';
 export default async function Article({ post }: { post: PageBlogPost | null | undefined }) {
   if (!post) {
     return (
@@ -30,13 +30,18 @@ export default async function Article({ post }: { post: PageBlogPost | null | un
           </Typography>
         </Box>
         {post.featuredImage?.url && (
-          <Box sx={{ position: 'relative', height: '400px', mb: 4 }}>
-            <Image src={post.featuredImage?.url} alt={post.title ?? ''} fill style={{ objectFit: 'cover' }} />
+          <Box sx={{ position: 'relative', height: '400px', width: '100%', mb: 4 }}>
+            <ContentfulImage
+              alt={`Cover Image for ${post.featuredImage.title}`}
+              src={post.featuredImage.url}
+              caption={post.featuredImage.description}
+              fill
+              style={{ objectFit: 'contain' }}
+            />
           </Box>
         )}
-        <Divider sx={{ mb: 4 }} />
         <Box sx={{ typography: 'body1' }}>
-          {documentToReactComponents(post.content?.json)}
+          <RichText content={post.content?.json} />
         </Box>
       </Box>
     </Container>
