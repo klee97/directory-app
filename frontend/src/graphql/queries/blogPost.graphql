@@ -16,12 +16,16 @@ query GetAllBlogPosts {
         title
         width
         height
-      }
+        description
+        contentType      }
       author {
         name
         avatar {
           url
           title
+          width
+          height
+          contentType
         }
       }
       seoFields {
@@ -44,18 +48,56 @@ query GetBlogPostBySlug($slug: String!) {
       publishedDate
       content {
         json
+        links {
+          assets {
+            block {
+              sys {
+                id
+              }
+              url
+              title
+              width
+              height
+              description
+            }
+          }
+          entries {
+            block {
+              sys {
+                id
+              }
+              __typename
+              ... on ComponentRichImage {
+                caption
+                fullWidth
+                image {
+                  url
+                  description
+                  width
+                  height
+                }
+              }
+              # Add other entry types as needed
+            }
+          }
+        }
       }
       featuredImage {
         url
         title
         width
         height
+        description
+        contentType
       }
       author {
         name
         avatar {
           url
           title
+          width
+          height
+          contentType
         }
       }
       seoFields {
