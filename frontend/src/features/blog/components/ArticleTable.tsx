@@ -1,4 +1,4 @@
-import { Typography, Card, CardContent, CardMedia, Box } from '@mui/material';
+import { Typography, Card, CardContent, Box } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
 import Link from 'next/link';
@@ -14,16 +14,18 @@ export async function ArticleTable() {
         <Grid key={post.slug} size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>
           <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block' }}>
             <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              {post.featuredImage && (
+              {post.featuredImage && post.featuredImage.url && (
                 <Box sx={{ position: 'relative', height: '300px', width: '100%' }}>
                   <ContentfulImage
-                    alt={`Cover Image for ${post.featuredImage.title}`}
+                    alt={ post.featuredImage.description ?? `Cover Image for ${post.featuredImage.title}`}
                     src={post.featuredImage.url}
                     fill
+                    priority
+                    sizes="(max-width: 300px) 100vw, 50vw, 33vw"
                     style={{
-                      objectFit: 'cover', objectPosition: 'center top'
+                      objectPosition: 'center',
+                      objectFit: 'cover',
                     }}
-                    sizes="(max-width: 600px) 100vw, 600px"
                   />
                 </Box>
               )}

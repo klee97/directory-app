@@ -5,6 +5,11 @@ export type PageBlogPost = NonNullable<
   NonNullable<GetAllBlogPostsQuery['pageBlogPostCollection']>['items'][number]
 >;
 
+export type SinglePageBlogPost = NonNullable<GetBlogPostBySlugQuery['pageBlogPostCollection']>['items'][number];
+
+export type Content = NonNullable<SinglePageBlogPost>['content'];
+
+
 export async function getAllPosts() {
   const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
   return pageBlogPostCollection?.items || [];

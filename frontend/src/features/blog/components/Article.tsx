@@ -1,8 +1,8 @@
-import { Box, Typography, Container, Avatar } from '@mui/material';
-import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
-import ContentfulImage from '@/components/ui/ContentfulImage';
+import { Box, Typography, Container } from '@mui/material';
+import { SinglePageBlogPost } from '@/features/blog/api/getBlogPosts';
 import RichText from '@/components/ui/RichText';
-export default async function Article({ post }: { post: PageBlogPost | null | undefined }) {
+import PostHeader from './PostHeader';
+export default async function Article({ post }: { post: SinglePageBlogPost | null | undefined }) {
   if (!post) {
     return (
       <Container maxWidth="md">
@@ -14,34 +14,12 @@ export default async function Article({ post }: { post: PageBlogPost | null | un
       </Container>
     );
   }
-
   return (
     <Container maxWidth="md">
       <Box sx={{ py: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom>
-          {post.title}
-        </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          {post.author?.avatar?.url && (
-            <Avatar src={post.author?.avatar?.url} alt={post.author?.name ?? ''} sx={{ mr: 2 }} />
-          )}
-          <Typography variant="subtitle1">
-            {post.author?.name} • {new Date(post.publishedDate).toLocaleDateString()}
-          </Typography>
-        </Box>
-        {post.featuredImage?.url && (
-          <Box sx={{ position: 'relative', height: '400px', width: '100%', mb: 4 }}>
-            <ContentfulImage
-              alt={`Cover Image for ${post.featuredImage.title}`}
-              src={post.featuredImage.url}
-              caption={post.featuredImage.description}
-              fill
-              style={{ objectFit: 'contain' }}
-            />
-          </Box>
-        )}
+        <PostHeader post={post} />
         <Box sx={{ typography: 'body1' }}>
-          <RichText content={post.content?.json} />
+          <RichText content={post.content} />
         </Box>
       </Box>
     </Container>
