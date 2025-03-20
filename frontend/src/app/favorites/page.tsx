@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/placeholder_cover_img.jpeg';
-import FavoriteTable from '@/features/favorites/Favorites';
+import FavoriteTable from '@/features/favorites/FavoriteTable';
 import { unstable_cache } from 'next/cache';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 

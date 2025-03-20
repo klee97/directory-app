@@ -16,6 +16,7 @@ import {
 import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-material';
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   position: 'sticky',
@@ -24,13 +25,17 @@ const StickyCard = styled(Card)(({ theme }) => ({
 
 interface VendorDetailsProps {
   vendor: Vendor;
+  isFavorite?: boolean;
 }
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
-export function VendorDetails({ vendor }: VendorDetailsProps) {
+export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
   const theme = useTheme();
-
+  const handleFavoriteClick = () => {
+    // Add code here to save the vendor to favorites
+  };
+  isFavorite = true;
   return (
     <Box>
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -58,7 +63,11 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
           {/* Vendor Info */}
           <Grid size={{ xs: 12, md: 7 }}>
             <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif', mb: 2 }}>
-              {vendor.business_name}
+              {vendor.business_name} {isFavorite ? (
+              <FavoriteIcon
+                color='primary'
+              />
+              ) : null}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -73,7 +82,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 />
               )}
             </Box>
-
             <Box
               sx={{
                 pt: 3,
@@ -272,7 +280,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     mb: 3,
                     textAlign: 'center'
                   }}>
-                    Get in Touch
+                    Love what you see?
                   </Typography>
                   <Button
                     variant="contained"
@@ -283,6 +291,16 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     href={`mailto:${vendor.email}`}
                   >
                     Contact Vendor
+                  </Button>
+                  <Button
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    startIcon={<FavoriteIcon />}
+                    sx={{ mb: 3 }}
+                    onClick={handleFavoriteClick}
+                  >
+                    {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
                   </Button>
                 </CardContent>
               </StickyCard>

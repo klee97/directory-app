@@ -35,6 +35,7 @@ export function VendorGrid({
               onBlur={handleBlur}
               tabIndex={0}
               className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
+              isFavorite={Math.random() < 0.5} //todo: replace with user value
             >
             </VendorCard>
           </Link>

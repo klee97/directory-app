@@ -19,7 +19,6 @@ export default function FavoriteTable({ favoriteVendors }: {
   };
   return (
     <div>
-      <h1>My Favorites</h1>
       <VendorGrid
         vendors={favoriteVendors}
         searchParams=''

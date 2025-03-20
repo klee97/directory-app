@@ -9,7 +9,7 @@ import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { useTheme } from '@mui/material';
+import { IconButton, useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
@@ -31,8 +31,11 @@ export const VendorCard = ({
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
 
-  const handleFavorite = (vendorId: string) => {
+  const handleFavorite = (event: React.MouseEvent<HTMLButtonElement>, vendorId: string) => {
     // TO DO: implement the favorite logic here
+    event.stopPropagation();
+    event.preventDefault(); // Prevent link navigation
+
     console.log(`Favorite vendor ${vendorId}`);
   };
   return (
@@ -64,8 +67,28 @@ export const VendorCard = ({
             width: '100%',
             objectFit: 'cover', // Ensures the image covers the space without stretching
             objectPosition: 'center', // Adjust to prioritize faces (try 'center' if needed)
+            zIndex: 1
           }}
         />
+        {/* Favorite Button */}
+        {process.env.NODE_ENV === 'development' && (
+          // <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+          <IconButton
+            sx={{ position: 'absolute', display: 'block', top: 8, right: 8, fontSize: 24, cursor: 'pointer'}}
+            color='primary'
+            onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleFavorite(event, vendor.id)}
+          >
+            {isFavorite ? (
+              <FavoriteIcon
+                color='inherit'
+              />
+            ) : (
+              <FavoriteBorderIcon
+                color='inherit'
+              />
+            )}
+          </IconButton>
+        )}
         {/* Price Badges Container */}
         <Box
           sx={{
@@ -98,11 +121,8 @@ export const VendorCard = ({
               }}
             />
           )}
-
-
         </Box>
       </Box>
-
       <CardContent
         sx={{
           display: 'flex',
@@ -113,17 +133,6 @@ export const VendorCard = ({
           '&:last-child': { pb: 3 },
         }}
       >
-
-        {/* Favorite Button */}
-        {process.env.NODE_ENV === 'development' && (
-          <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-            {isFavorite ? (
-              <FavoriteIcon sx={{ fontSize: 24, cursor: 'pointer', color: 'pink' }} />
-            ) : (
-              <FavoriteBorderIcon sx={{ fontSize: 24, cursor: 'pointer' }} onClick={() => handleFavorite(vendor.id)} />
-            )}
-          </Box>
-        )}
         {/* Business Name */}
         <Typography
           variant="h4"
@@ -162,6 +171,6 @@ export const VendorCard = ({
         </Box>
 
       </CardContent>
-    </Card>
+    </Card >
   );
 };
