@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import {
   Box,
   FormControl,
@@ -68,7 +68,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
   }, [searchQuery, filteredVendors, sortOption]);
 
   // Load more vendors when scrolling
-  const loadMoreVendors = () => {
+  const loadMoreVendors = useCallback(() => {
     if (loading) return; // Prevent multiple calls while loading
     setLoading(true);
 
@@ -86,7 +86,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
     });
 
     setLoading(false);
-  };
+  }, [loading, searchedAndSortedVendors]);
 
   const router = useRouter();
 
@@ -101,6 +101,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
 
   // Intersection Observer to detect scrolling near the end
   useEffect(() => {
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -110,10 +111,11 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
       { threshold: 1.0 }
     );
 
-    if (observerRef.current) observer.observe(observerRef.current);
+    const observerCurrent = observerRef.current;
+    if (observerCurrent) observer.observe(observerCurrent);
 
     return () => {
-      if (observerRef.current) observer.unobserve(observerRef.current);
+      if (observerCurrent) observer.unobserve(observerCurrent);
     };
   }, [searchedAndSortedVendors, loadMoreVendors]);
 
