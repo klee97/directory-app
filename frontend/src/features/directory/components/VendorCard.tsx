@@ -7,6 +7,8 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
 import PublicIcon from '@mui/icons-material/Public';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
@@ -17,16 +19,22 @@ export const VendorCard = ({
   onBlur,
   tabIndex,
   className,
+  isFavorite
 }: {
   vendor: Vendor;
   onFocus: () => void;
   onBlur: () => void;
   tabIndex: number;
   className: string;
+  isFavorite?: boolean;
 }) => {
   const theme = useTheme();
-  const placeholderImage = (theme.palette.mode === 'light')? PlaceholderImage : PlaceholderImageGray;
+  const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
 
+  const handleFavorite = (vendorId: string) => {
+    // TO DO: implement the favorite logic here
+    console.log(`Favorite vendor ${vendorId}`);
+  };
   return (
     <Card
       elevation={1}
@@ -105,6 +113,17 @@ export const VendorCard = ({
           '&:last-child': { pb: 3 },
         }}
       >
+
+        {/* Favorite Button */}
+        {process.env.NODE_ENV === 'development' && (
+          <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+            {isFavorite ? (
+              <FavoriteIcon sx={{ fontSize: 24, cursor: 'pointer', color: 'pink' }} />
+            ) : (
+              <FavoriteBorderIcon sx={{ fontSize: 24, cursor: 'pointer' }} onClick={() => handleFavorite(vendor.id)} />
+            )}
+          </Box>
+        )}
         {/* Business Name */}
         <Typography
           variant="h4"
