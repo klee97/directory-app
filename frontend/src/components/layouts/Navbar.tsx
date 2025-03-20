@@ -102,7 +102,13 @@ export default function Navbar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }} href={`/${page.toLowerCase()}`}>{page}</Typography>
+                  <Typography
+                    component="a"
+                    sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                    href={`/${page.toLowerCase()}`}
+                  >
+                    {page}
+                  </Typography>
                 </MenuItem>
               ))}
               <Box sx={{ width: '100%' }}>
@@ -120,12 +126,12 @@ export default function Navbar() {
                 <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ pl: 2 }}>
                     {resources.map((resource) => (
-                      <MenuItem
-                        key={resource}
-                        onClick={handleCloseNavMenu}
-                        sx={{ pl: 2 }}
-                      >
-                        <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }} href={`/${resource.toLowerCase()}`}>
+                      <MenuItem key={resource} onClick={handleCloseNavMenu}>
+                        <Typography
+                          component="a"
+                          sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                          href={`/${resource.toLowerCase()}`}
+                        >
                           {resource}
                         </Typography>
                       </MenuItem>
@@ -136,11 +142,10 @@ export default function Navbar() {
             </Menu>
           </Box>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }}/>
+            <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
             <Typography
               variant="h6"
               noWrap
-              component="a"
               sx={{
                 mr: 2,
                 fontWeight: 550,
