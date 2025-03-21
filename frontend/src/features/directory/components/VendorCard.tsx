@@ -72,7 +72,6 @@ export const VendorCard = ({
         />
         {/* Favorite Button */}
         {process.env.NODE_ENV === 'development' && (
-          // <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
           <IconButton
             sx={{ position: 'absolute', display: 'block', top: 8, right: 8, fontSize: 24, cursor: 'pointer'}}
             color='primary'

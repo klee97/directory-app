@@ -35,7 +35,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
   const handleFavoriteClick = () => {
     // Add code here to save the vendor to favorites
   };
-  isFavorite = true;
+  isFavorite = true; // Todo: make this dynamic
   return (
     <Box>
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -63,10 +63,10 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
           {/* Vendor Info */}
           <Grid size={{ xs: 12, md: 7 }}>
             <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif', mb: 2 }}>
-              {vendor.business_name} {isFavorite ? (
-              <FavoriteIcon
-                color='primary'
-              />
+              {vendor.business_name} {process.env.NODE_ENV === 'development' && isFavorite ? (
+                <FavoriteIcon
+                  color='primary'
+                />
               ) : null}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -292,16 +292,18 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                   >
                     Contact Vendor
                   </Button>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    fullWidth
-                    startIcon={<FavoriteIcon />}
-                    sx={{ mb: 3 }}
-                    onClick={handleFavoriteClick}
-                  >
-                    {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
-                  </Button>
+                  {process.env.NODE_ENV === 'development' && (
+                    <Button
+                      variant="contained"
+                      size="large"
+                      fullWidth
+                      startIcon={<FavoriteIcon />}
+                      sx={{ mb: 3 }}
+                      onClick={handleFavoriteClick}
+                    >
+                      {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                    </Button>
+                  )}
                 </CardContent>
               </StickyCard>
             </Grid>

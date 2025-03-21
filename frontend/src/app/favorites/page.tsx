@@ -52,8 +52,10 @@ export default async function Favorites() {
         <Typography variant="h1" component="h1" gutterBottom>
           My Favorites
         </Typography>
-        {process.env.NODE_ENV === 'development' && (<FavoriteTable favoriteVendors={vendors}/>
-        )}
+        {process.env.NODE_ENV === 'development'
+          ? (<FavoriteTable favoriteVendors={vendors} />)
+          : <Typography variant="h4">Coming soon...</Typography>
+        }
       </Box>
     </Container>
   );
