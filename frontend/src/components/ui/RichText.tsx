@@ -45,6 +45,29 @@ interface RichTextProps {
   content: Content;
 }
 
+export function renderCaption(description: string) {
+  // Check if the description contains source information
+  if (description.includes('Source:')) {
+    const [mainText, sourceInfo] = description.split('Source:');
+    const sourceUrl = sourceInfo?.includes('www.') ?
+      `https://${sourceInfo.trim().match(/www\.[^\s]+/)?.[0]}` :
+      '#';
+
+    return (
+      <>
+        {mainText}
+        <Link
+          href={sourceUrl}
+        >
+          Source
+        </Link>
+      </>
+    );
+  }
+  // If no source information, just render the description
+  return description;
+}
+
 const RichText: React.FC<RichTextProps> = ({ content }) => {
   // Create maps for easy asset/entry lookup by ID
   const assetMap: Record<string, ContentfulAsset> = {};
@@ -66,7 +89,7 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
         entryMap[entry.sys.id] = entry as ContentfulEntry;
       }
     });
-    
+
   }
 
   const options: Options = {
@@ -112,29 +135,6 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
           console.warn(`Embedded entry ${entryId} not found in entryMap`);
           return <p>Content not available</p>;
         }
-        const renderCaption = (description: string) => {
-          // Check if the description contains source information
-          if (description.includes('Source:')) {
-            const [mainText, sourceInfo] = description.split('Source:');
-            const sourceUrl = sourceInfo?.includes('www.') ?
-              `https://${sourceInfo.trim().match(/www\.[^\s]+/)?.[0]}` :
-              '#';
-
-            return (
-              <>
-                {mainText}
-                <Link
-                  href={sourceUrl}
-                >
-                  Source
-                </Link>
-              </>
-            );
-          }
-
-          // If no source information, just render the description
-          return description;
-        };
 
         // Handle different entry types based on __typename
         switch (entry.__typename) {

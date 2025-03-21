@@ -2,6 +2,7 @@ import Avatar from '@/components/ui/Avatar'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import { PageBlogPost } from '../api/getBlogPosts'
 import { Box, Typography } from '@mui/material'
+import { renderCaption } from '@/components/ui/RichText'
 
 const PostHeader = ({ post }: { post: PageBlogPost }) => {
 
@@ -23,13 +24,16 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
               }}
             />
           </Box>
-          <Typography variant="caption" component="figcaption">
-            {post.featuredImage.description}
-          </Typography>
+          {post.featuredImage.description &&
+            <Typography variant="caption" component="figcaption">
+              {renderCaption(post.featuredImage.description)}
+            </Typography>
+          }
+
         </Box>
       )}
 
-      
+
       <Typography paddingTop={3} variant="h3" component="h1">
         {post.title}
       </Typography>
