@@ -280,7 +280,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                     mb: 3,
                     textAlign: 'center'
                   }}>
-                    Love what you see?
+                    {process.env.NODE_ENV === 'development' ? 'Love what you see?' : 'Get in Touch'}
                   </Typography>
                   <Button
                     variant="contained"
