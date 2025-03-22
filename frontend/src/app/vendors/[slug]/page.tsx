@@ -18,12 +18,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Vendor Not Found' };
   }
 
+  const isHairStylist = vendor.specialties?.has('Hair');
+  const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
+
   return {
-    title: `${vendor.business_name} - Wedding Beauty Artist`,
-    description: `Book ${vendor.business_name}, a trusted wedding artist in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, recommended for their experience with Asian features. See pricing, photos, and contact information.`,
+    title: `${vendor.business_name} - ${specialtyTitle} for Asian Brides`,
+    description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
     openGraph: {
-      title: `${vendor.business_name} - Wedding Beauty Artist`,
-      description: `Book ${vendor.business_name}, a trusted wedding artist in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, recommended for their experience with Asian features. See pricing, photos, and contact information.`,
+      title: `${vendor.business_name} - ${specialtyTitle} for Asian Brides`,
+      description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
       images: [
         {
@@ -36,8 +39,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${vendor.business_name} - Wedding Beauty Artist`,
-      description: `Book ${vendor.business_name} for your wedding.`,
+      title: `${vendor.business_name} - ${specialtyTitle} experienced with Asian features`,
+      description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
       images: [vendor.cover_image || previewImage.src],
     },
     alternates: {

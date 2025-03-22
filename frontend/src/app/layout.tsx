@@ -11,11 +11,11 @@ import { Toaster } from 'react-hot-toast';
 
 
 export const metadata: Metadata = {
-  title: 'Asian Wedding Hair & Makeup – Find artists in NY, LA & more',
-  description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
+  title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
+  description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
   openGraph: {
-    title: 'Asian Wedding Hair & Makeup - Find artists in NY, LA & more',
-    description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
+    title: 'Asian Wedding Makeup - Find artists in NYC, LA & more',
+    description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
     url: 'https://www.asianweddingmakeup.com/',
     type: 'website',
     images: [
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
         url: previewImage.src,
         width: 1200,
         height: 630,
-        alt: 'Wedding Vendor Directory Preview',
+        alt: 'Asian Wedding Makeup Preview',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hair and Makeup Wedding Directory for Asian Beauty - Find Artists Experienced with Asian Features',
-    description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
+    title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
+    description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
     images: [previewImage.src],
   },
   alternates: {

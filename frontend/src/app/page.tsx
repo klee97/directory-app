@@ -9,8 +9,8 @@ const getCachedVendors = unstable_cache(fetchAllVendors);
 
 export const metadata: Metadata = {
   openGraph: {
-    title: 'Asian Wedding Hair & Makeup - Find artists in NY, LA & more',
-    description: 'Find hair and makeup artists recommended for Asian brides. Compare prices, search by location, and book the right artist for you.',
+    title: 'Asian Wedding Makeup - Trusted artists in NYC, LA & more',
+    description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
     url: 'https://www.asianweddingmakeup.com',
     type: 'website',
     images: [
@@ -44,7 +44,7 @@ export default async function Home() {
         "image": vendor.cover_image,
         "provider": {
           "@type": "Organization",
-          "name": "Asian Wedding Hair & Makeup – Find artists in NY, LA & more",
+          "name": "Asian Wedding Makeup – Trusted artists in NYC, LA & more",
           "url": "https://www.asianweddingmakeup.com",
         },
       },

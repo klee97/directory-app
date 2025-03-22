@@ -16,13 +16,13 @@ export const metadata: Metadata = {
     description: 'Browse your favorite wedding vendors from our directory of hair and makeup artists experienced with Asian features.',
     url: 'https://www.asianweddingmakeup.com/favorites',
     type: 'website',
-    siteName: 'Asian Wedding Hair & Makeup',
+    siteName: 'Asian Wedding Makeup',
     images: [
       {
         url: defaultImage.src,
         width: 1200,
         height: 630,
-        alt: 'Wedding Vendor Directory Preview',
+        alt: 'Asian Wedding Makeup Preview',
       },
     ],
   },

@@ -6,20 +6,20 @@ import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 
 export const metadata: Metadata = {
-  title: "About - Asian Wedding Hair & Makeup in NYC, LA & more",
+  title: "About - Asian Wedding Makeup in NYC, LA & more",
   description: "Learn more about our mission to connect Asian brides with experienced hair and makeup artists for their weddings",
   openGraph: {
-    title: 'About — Asian Wedding Hair & Makeup in NYC, LA & more',
+    title: 'About — Asian Wedding Makeup in NYC, LA & more',
     description: 'Learn more about our mission to connect Asian brides with experienced hair and makeup artists for their wedding',
     url: 'https://www.asianweddingmakeup.com/about',
     type: 'website',
-    siteName: 'Asian Wedding Hair & Makeup',
+    siteName: 'Asian Wedding Makeup',
     images: [
       {
         url: defaultImage.src,
         width: 1200,
         height: 630,
-        alt: 'Wedding Vendor Directory Preview',
+        alt: 'Asian Wedding Makeup Preview',
       },
     ],
   },
