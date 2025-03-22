@@ -2,7 +2,7 @@ import { fetchAllVendors } from "@/features/directory/api/fetchVendors";
 import VendorsList from "@/features/directory/components/VendorsList";
 import { Metadata } from "next";
 import { unstable_cache } from "next/cache";
-import defaultImage from '@/assets/placeholder_cover_img.jpeg';
+import defaultImage from '@/assets/website_preview.jpeg';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
