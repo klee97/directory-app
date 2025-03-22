@@ -3,7 +3,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/placeholder_cover_img.jpeg';
+import defaultImage from '@/assets/website_preview.jpeg';
 import FavoriteTable from '@/features/favorites/FavoriteTable';
 import { unstable_cache } from 'next/cache';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';

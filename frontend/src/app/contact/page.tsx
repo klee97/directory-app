@@ -1,7 +1,7 @@
 import { Container, Typography } from "@mui/material";
 import { EmailForm } from "@/features/contact/components/EmailForm";
 import { Metadata } from "next";
-import defaultImage from '@/assets/placeholder_cover_img.jpeg';
+import defaultImage from '@/assets/website_preview.jpeg';
 
 export const metadata: Metadata = {
   title: "Contact Us - Asian Wedding Hair & Makeup in NYC, LA & more",
