@@ -121,6 +121,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorites: {
+        Row: {
+          id: number
+          inserted_at: string
+          is_favorited: boolean
+          updated_at: string
+          user_id: string
+          vendor_id: string
+        }
+        Insert: {
+          id?: number
+          inserted_at?: string
+          is_favorited?: boolean
+          updated_at?: string
+          user_id: string
+          vendor_id: string
+        }
+        Update: {
+          id?: number
+          inserted_at?: string
+          is_favorited?: boolean
+          updated_at?: string
+          user_id?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorites_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usmetro: {
         Row: {
           aland: number | null
