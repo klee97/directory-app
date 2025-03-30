@@ -7,6 +7,9 @@ import defaultImage from '@/assets/website_preview.jpeg';
 import FavoriteTable from '@/features/favorites/FavoriteTable';
 import { unstable_cache } from 'next/cache';
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
+import { fetchCustomerById } from '@/features/business/api/fetchCustomer';
+import { createClient } from "@/lib/supabase/server";
+import { Vendor } from '@/types/vendor';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -32,9 +35,19 @@ export const metadata: Metadata = {
 };
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
+async function getFavoritedVendors(customerId: string): Promise<Vendor[]> {
+  const vendors = await getCachedVendors();
+  const favorites = (await fetchCustomerById(customerId))?.favorite_vendors;
+  return vendors.filter(vendor => {
+    return favorites?.some(fav => fav.vendor_id === vendor.id && fav.is_favorited)
+  })
+}
 
 export default async function Favorites() {
-  const vendors = await getCachedVendors();
+  const supabase = await createClient();
+  const { data: { user} } = await supabase.auth.getUser();
+  const customerId = user?.id; // Get the current user's ID from the session
+  const favorites = customerId ? await getFavoritedVendors(customerId) : null;
 
   return (
     <Container maxWidth="lg">
@@ -52,9 +65,12 @@ export default async function Favorites() {
         <Typography variant="h1" component="h1" gutterBottom>
           My Favorites
         </Typography>
-        {process.env.NODE_ENV === 'development'
-          ? (<FavoriteTable favoriteVendors={vendors} />)
-          : <Typography variant="h4">Coming soon...</Typography>
+        {process.env.NODE_ENV !== 'development' &&
+          <Typography variant="h4">Coming soon...</Typography>
+        }
+        {(process.env.NODE_ENV == 'development' && favorites)
+          ? <FavoriteTable favoriteVendors={favorites} />
+          : <Typography variant="h4">Please login or create an account to view favorited vendors.</Typography>
         }
       </Box>
     </Container>

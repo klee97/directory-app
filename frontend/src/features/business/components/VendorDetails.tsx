@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -17,6 +17,7 @@ import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-mat
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { upsertCustomerFavorite } from '@/features/favorites/api/upsertCustomerFavorite';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   position: 'sticky',
@@ -32,10 +33,14 @@ const DEFAULT_PRICE = "Contact for Pricing";
 
 export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
   const theme = useTheme();
+  const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
   const handleFavoriteClick = () => {
-    // Add code here to save the vendor to favorites
+    upsertCustomerFavorite({
+      vendor_id: vendor.id,
+      is_favorited: !isFavoritedState
+    })
+    setIsFavoritedState(!isFavoritedState);
   };
-  isFavorite = true; // Todo: make this dynamic
   return (
     <Box>
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -301,7 +306,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                       sx={{ mb: 3 }}
                       onClick={handleFavoriteClick}
                     >
-                      {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+                      {isFavoritedState ? 'Remove from Favorites' : 'Add to Favorites'}
                     </Button>
                   )}
                 </CardContent>
