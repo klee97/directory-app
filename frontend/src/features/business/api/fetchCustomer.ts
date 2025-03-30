@@ -5,11 +5,9 @@ export async function fetchCustomerById(id: string) {
   console.debug("Fetching customer with ID: %s", id);
   const { data: customer, error: customerError } = await supabase
     .from('profiles')
-    .select(`
-    *
-  `)
-    .eq('id', id)
-    .single();
+    .select()
+    // .eq('id', id)
+    // .single();
 
   console.log(customer)
   if (customerError) {
@@ -19,10 +17,8 @@ export async function fetchCustomerById(id: string) {
 
   const { data: favorites, error: favoritesError } = await supabase
     .from('user_favorites')
-    .select(`
-      *
-    `)
-    .eq('user_id', id);
+    .select()
+    // .eq('user_id', id);
 
   console.log(favorites)
   if (favoritesError) {

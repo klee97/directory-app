@@ -3,7 +3,8 @@ import Grid from '@mui/material/Grid2';
 import { VendorCard } from './VendorCard';
 import { Vendor } from '@/types/vendor';
 import Link from 'next/link';
-
+import { fetchCustomerById } from '@/features/business/api/fetchCustomer';
+import { createClient } from '@/lib/supabase/client';
 
 export function VendorGrid({
   handleFocus,
@@ -18,6 +19,13 @@ export function VendorGrid({
   vendors: Vendor[],
   searchParams: string
 }) {
+  // const supabase = await createClient();
+  // const { data: { user } } = await supabase.auth.getUser();
+  // const customerId = user?.id; // Get the current user's ID from the session
+  // const customer = null // customerId ? await fetchCustomerById(customerId) : null;
+  // const favoriteVendors = customer ? customer.favorite_vendors : new Set();
+  // console.log("vendors", vendors)
+  const favoriteVendors = new Set<string>();
 
   return (
     <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
@@ -35,7 +43,7 @@ export function VendorGrid({
               onBlur={handleBlur}
               tabIndex={0}
               className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
-              isFavorite={Math.random() < 0.5} //todo: replace with user value
+              isFavorite={vendor.id in favoriteVendors}
             >
             </VendorCard>
           </Link>
