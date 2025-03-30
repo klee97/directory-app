@@ -11,7 +11,6 @@ export function Directory({ vendors, uniqueMetroRegions }: {
   uniqueMetroRegions: string[]
 }) {
 
-
   return (
     <Container
       maxWidth="lg"

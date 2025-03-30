@@ -6,10 +6,8 @@ import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import FavoriteTable from '@/features/favorites/FavoriteTable';
 import { unstable_cache } from 'next/cache';
-import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
-import { fetchCustomerById } from '@/features/business/api/fetchCustomer';
 import { createClient } from "@/lib/supabase/server";
-import { Vendor } from '@/types/vendor';
+import { getFavoritedVendors } from '@/features/favorites/api/getCustomerFavorites';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -33,15 +31,6 @@ export const metadata: Metadata = {
     canonical: "https://www.asianweddingmakeup.com/favorites",
   },
 };
-const getCachedVendors = unstable_cache(fetchAllVendors);
-
-async function getFavoritedVendors(customerId: string): Promise<Vendor[]> {
-  const vendors = await getCachedVendors();
-  const favorites = (await fetchCustomerById(customerId))?.favorite_vendors;
-  return vendors.filter(vendor => {
-    return favorites?.some(fav => fav.vendor_id === vendor.id && fav.is_favorited)
-  })
-}
 
 export default async function Favorites() {
   const supabase = await createClient();
