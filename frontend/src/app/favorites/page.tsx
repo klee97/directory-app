@@ -5,9 +5,8 @@ import Box from '@mui/material/Box';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import FavoriteTable from '@/features/favorites/FavoriteTable';
-import { unstable_cache } from 'next/cache';
 import { createClient } from "@/lib/supabase/server";
-import { getFavoritedVendors } from '@/features/favorites/api/getCustomerFavorites';
+import { getFavoriteVendors } from '@/features/favorites/api/getCustomerFavorites';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -34,9 +33,9 @@ export const metadata: Metadata = {
 
 export default async function Favorites() {
   const supabase = await createClient();
-  const { data: { user} } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   const customerId = user?.id; // Get the current user's ID from the session
-  const favorites = customerId ? await getFavoritedVendors(customerId) : null;
+  const favorites = customerId ? await getFavoriteVendors(customerId) : null;
 
   return (
     <Container maxWidth="lg">
@@ -54,12 +53,24 @@ export default async function Favorites() {
         <Typography variant="h1" component="h1" gutterBottom>
           My Favorites
         </Typography>
-        {process.env.NODE_ENV !== 'development' &&
+        {/* Favorites not released in prod */}
+        {
+          process.env.NODE_ENV !== 'development' &&
           <Typography variant="h4">Coming soon...</Typography>
         }
-        {(process.env.NODE_ENV == 'development' && favorites)
-          ? <FavoriteTable favoriteVendors={favorites} />
-          : <Typography variant="h4">Please login or create an account to view favorited vendors.</Typography>
+        {/* User not logged in */}
+        {
+          (process.env.NODE_ENV === 'development' && !user) &&
+          <Typography variant="h4">Please login or create an account to view saved vendors.</Typography>
+        }
+        {/* No favorites */}
+        {
+          (process.env.NODE_ENV === 'development' && user && favorites?.length == 0) &&
+          <Typography variant="h4">You have no vendors saved!</Typography>
+        }
+        {
+          (process.env.NODE_ENV === 'development' && !!user && !!favorites && favorites.length > 0) &&
+          <FavoriteTable favoriteVendors={favorites} />
         }
       </Box>
     </Container>

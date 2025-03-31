@@ -3,7 +3,7 @@ import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchAllVendors() {
   try {
-    console.log("Fetching vendors");
+    console.debug("Fetching vendors");
     const { data } = await supabase.from('vendors')
     .select(`
       *, 

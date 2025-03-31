@@ -3,13 +3,13 @@ import { transformBackendCustomerToFrontend } from '@/types/customer';
 
 export async function fetchCustomerById(id: string) {
   console.debug("Fetching customer with ID: %s", id);
+
   const { data: customer, error: customerError } = await supabase
     .from('profiles')
     .select()
-    // .eq('id', id)
-    // .single();
+    .eq('id', id)
+    .single();
 
-  console.log(customer)
   if (customerError) {
     console.error('Error fetching customer: %s', customerError);
     return null;
@@ -18,9 +18,8 @@ export async function fetchCustomerById(id: string) {
   const { data: favorites, error: favoritesError } = await supabase
     .from('user_favorites')
     .select()
-    // .eq('user_id', id);
+    .eq('user_id', id);
 
-  console.log(favorites)
   if (favoritesError) {
     console.error('Error fetching favorites: %s', favoritesError);
     return null;
