@@ -35,11 +35,10 @@ export const VendorCard = ({
 
   const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
 
-  const handleFavorite = (event: React.MouseEvent<HTMLButtonElement>, vendorId: string) => {
+  const handleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
     // TO DO: implement the favorite logic here
     event.stopPropagation();
     event.preventDefault(); // Prevent link navigation
-    console.log(`Setting favorite vendor ${vendorId} state ${!isFavoritedState}`);
     
     upsertCustomerFavorite({
       vendor_id: vendor.id,
@@ -84,7 +83,7 @@ export const VendorCard = ({
           <IconButton
             sx={{ position: 'absolute', display: 'block', top: 8, right: 8, fontSize: 24, cursor: 'pointer'}}
             color='primary'
-            onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleFavorite(event, vendor.id)}
+            onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleFavorite(event)}
           >
             {isFavoritedState? (
               <FavoriteIcon

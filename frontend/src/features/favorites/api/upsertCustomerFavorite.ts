@@ -11,12 +11,12 @@ export const upsertCustomerFavorite = async ({
     vendor_id,
     is_favorited
 }: FavoriteProps) => {
-    console.log("Favoriting or unfavoriting vendor", vendor_id);
+    console.debug("Updating vendor favorite status", vendor_id, is_favorited);
 
     // Get current session to verify user is authenticated
     const supabase = await createClient();
 
-    console.log("Authenticating...");
+    console.debug("Authenticating...");
 
     // Check if user is authenticated
     const { data: { user }, error: sessionError } = await supabase.auth.getUser();
@@ -47,7 +47,7 @@ export const upsertCustomerFavorite = async ({
         throw error;
     }
 
-    console.log("Vendor favorited or unfavorited successfully!", data);
+    console.debug("Vendor favorited or unfavorited successfully!", data);
 
     return data;
 };
