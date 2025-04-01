@@ -38,7 +38,7 @@ export default async function Spotlight({ post }: { post: SinglePageBlogPost | n
           </Typography>
           <Typography variant="body1" paddingY={2} sx={{ textAlign: 'center' }}>
             Stay tuned for more Makeup Artist Spotlights, where we celebrate the
-            talented makeup artists in our directory recommended by the Asian diaspora.
+            talented makeup artists in our directory.
           </Typography>
 
           <Button variant="contained" color="primary" href="/">
