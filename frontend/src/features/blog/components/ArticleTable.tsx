@@ -6,7 +6,13 @@ import ContentfulImage from '@/components/ui/ContentfulImage';
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
-  const validPosts = posts.filter(post => post !== null && post !== undefined);
+  const validPosts = posts.filter((post): post is NonNullable<typeof post> => {
+    if (!post) return false;
+    if (process.env.NODE_ENV === 'production') {
+      return new Date(post.publishedDate) <= new Date();
+    }
+    return true;
+  });
 
   return (
     <Grid container spacing={2}>
