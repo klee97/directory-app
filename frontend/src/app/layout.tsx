@@ -8,7 +8,13 @@ import Script from "next/script";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/website_preview.jpeg';
 import { Toaster } from 'react-hot-toast';
+import { Lato } from 'next/font/google';
 
+const lato = Lato({
+  weight: ['300', '400', '700', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
@@ -43,8 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-
+    <html lang="en" className={lato.className}>
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
       {/* Microsoft Clarity */}
       <Script

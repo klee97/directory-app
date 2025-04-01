@@ -10,8 +10,8 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
     <>
 
       {post.featuredImage?.url && (
-        <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%' }}>
-          <Box sx={{ position: 'relative', height: '500px', width: '100%', marginBottom: 1 }}>
+        <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%', mb: 4 }}>
+          <Box sx={{ position: 'relative', height: '500px', width: '100%', mb: 1 }}>
             <ContentfulImage
               alt={`Cover Image: ${post.featuredImage.title}`}
               src={post.featuredImage.url}
@@ -29,7 +29,6 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
               {renderCaption(post.featuredImage.description)}
             </Typography>
           }
-
         </Box>
       )}
 

@@ -1,6 +1,12 @@
 query GetAllBlogPosts {
   pageBlogPostCollection(order: [publishedDate_DESC]) {
     items {
+      contentfulMetadata {
+        tags {
+          id
+          name
+        }
+      }
       sys {
         id
       }
@@ -39,6 +45,15 @@ query GetAllBlogPosts {
 query GetBlogPostBySlug($slug: String!) {
   pageBlogPostCollection(where: { slug: $slug }, limit: 1) {
     items {
+      contentfulMetadata {
+        tags {
+          id
+          name
+        }
+        concepts {
+					id
+        }
+      }
       sys {
         id
       }

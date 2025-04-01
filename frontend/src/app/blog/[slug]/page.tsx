@@ -3,6 +3,7 @@ import { getAllPosts, getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
 import Button from '@mui/material/Button';
+import Spotlight from '@/features/blog/components/Spotlight';
 
 
 type Props = {
@@ -99,6 +100,7 @@ export default async function BlogPostPage({ params }: Props) {
       "articleBody": post.content?.json ? post.content.json : ""
     };
   }
+  const isSpotlight = post?.contentfulMetadata?.tags?.some(tag => tag?.id === "makeupArtistSpotlight");
   return (
     <>
       <section>
@@ -112,8 +114,10 @@ export default async function BlogPostPage({ params }: Props) {
       <Button variant="text" href="/blog" color='secondary'>
         ← Back
       </Button>
-      <Article post={post} />
+      { isSpotlight
+        ? <Spotlight post={post} />
+        : <Article post={post} />
+      }
     </>
-
   )
 }

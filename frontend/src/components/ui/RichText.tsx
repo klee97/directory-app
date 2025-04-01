@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import { Box, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid2'
 import { Content } from '@/features/blog/api/getBlogPosts'
 
 // Define types for the GraphQL response
@@ -68,6 +69,11 @@ export function renderCaption(description: string) {
   return description;
 }
 
+interface GridNode {
+  nodeType: 'grid';
+  content: (Block | Inline)[];
+}
+
 const RichText: React.FC<RichTextProps> = ({ content }) => {
   // Create maps for easy asset/entry lookup by ID
   const assetMap: Record<string, ContentfulAsset> = {};
@@ -89,8 +95,87 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
         entryMap[entry.sys.id] = entry as ContentfulEntry;
       }
     });
-
   }
+
+  const isImageBlock = (block: Block | Inline) => {
+    return block.nodeType === BLOCKS.EMBEDDED_ENTRY || block.nodeType === BLOCKS.EMBEDDED_ASSET;
+  };
+
+  const renderImage = (node: Block | Inline) => {
+    if (node.nodeType === BLOCKS.EMBEDDED_ENTRY) {
+      const entryId = node.data.target.sys.id;
+      const entry = entryMap[entryId];
+
+      if (!entry) {
+        console.warn(`Embedded entry ${entryId} not found in entryMap`);
+        return <p>Content not available</p>;
+      }
+
+      if (entry.__typename === 'ComponentRichImage') {
+        const imageEntry = entry as ComponentRichImage;
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', mb: 4 }}>
+            <Box
+              sx={{
+                position: 'relative',
+                width: '100%',
+                height: '400px',
+                mb: 1
+              }}
+            >
+              <ContentfulImage
+                src={imageEntry.image.url}
+                alt={imageEntry.caption || 'Embedded image'}
+                fill
+                style={{
+                  objectFit: 'contain',
+                  objectPosition: 'center bottom'
+                }}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </Box>
+            {imageEntry.image.description && (
+              <Typography variant="caption" component="figcaption" sx={{ textAlign: 'center' }}>
+                {renderCaption(imageEntry.image.description)}
+              </Typography>
+            )}
+          </Box>
+        );
+      }
+    } else if (node.nodeType === BLOCKS.EMBEDDED_ASSET) {
+      const assetId = node.data.target.sys.id;
+      const asset = assetMap[assetId];
+
+      if (!asset) {
+        console.warn(`Asset ${assetId} not found in assetMap`);
+        return <p>Image not available</p>;
+      }
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100%',
+              height: '300px'
+            }}
+          >
+            <ContentfulImage
+              src={asset.url}
+              alt={asset.title || 'Embedded image'}
+              fill
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'center bottom'
+              }}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </Box>
+        </Box>
+      );
+    }
+    return null;
+  };
 
   const options: Options = {
     renderMark: {
@@ -107,26 +192,6 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
         return <Typography variant='body1' gutterBottom>{children}</Typography>;
       },
 
-      // [INLINES.ENTRY_HYPERLINK]: (node: Block | Inline) => {
-      //   const entryId = node.data.target.sys.id;
-      //   const entry = entryMap[entryId];
-
-      //   if (!entry) {
-      //     console.warn(`Entry hyperlink ${entryId} not found in entryMap`);
-      //     return node.content?.[0]?.data?.[0]?.value || 'Link';
-      //   }
-
-      //   if (entry.__typename === 'Post') {
-      //     return (
-      //       <Link href={`/posts/${node.data.target.fields.slug}`}>
-      //         {entry.title || node.content?.[0]?.data?.[0]?.value || 'Post link'}
-      //       </Link>
-      //     );
-      //   }
-
-      //   return node.content?.[0]?.data?.[0]?.value || 'Link';
-      // },
-
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
         const entryId = node.data.target.sys.id;
         const entry = entryMap[entryId];
@@ -139,63 +204,81 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
         // Handle different entry types based on __typename
         switch (entry.__typename) {
           case 'ComponentRichImage':
-            const imageEntry = entry as ComponentRichImage;
-            return (
-              <Box paddingY={1} maxWidth='800px'>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    width: '100%',
-                    height: '400px'
-                  }}
-                >
-                  <ContentfulImage
-                    src={imageEntry.image.url}
-                    alt={imageEntry.caption || 'Embedded image'}
-                    fill
-                    style={{
-                      objectFit: 'contain',
-                      objectPosition: 'center top'
-                    }}
-                    sizes="(max-width: 768px) 100vw, 1200px"
-                  />
-                </Box>
-                {imageEntry.image.description && (
-                  <Typography variant="caption" component="figcaption" sx={{ mt: 1, textAlign: 'center', display: 'block' }}>
-                    {renderCaption(imageEntry.image.description)}
-                  </Typography>
-                )}
-              </Box>
-
-            );
+            return renderImage(node);
           default:
             return <p>Unknown entry type: {entry.__typename}</p>;
         }
       },
 
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => {
-        const assetId = node.data.target.sys.id;
-        const asset = assetMap[assetId];
-
-        if (!asset) {
-          console.warn(`Asset ${assetId} not found in assetMap`);
-          return <p>Image not available</p>;
-        }
-
-        return (
-          <ContentfulImage
-            src={asset.url}
-            width={asset.width || 800}
-            height={asset.height || 600}
-            alt={asset.title || 'Embedded image'}
-            className='h-auto w-full'
-          />
-        );
+        return renderImage(node);
       }
     }
   };
 
-  return <>{documentToReactComponents(content?.json, options)}</>;
+  // Process content to group consecutive images
+  const processContent = (content: Content) => {
+    if (!content?.json?.content) return null;
+
+    const blocks = content.json.content;
+    const processedBlocks = [];
+    let currentImageGroup = [];
+
+    for (let i = 0; i < blocks.length; i++) {
+      const block = blocks[i];
+      
+      if (isImageBlock(block)) {
+        currentImageGroup.push(block);
+        
+        // If this is the last block or next block is not an image, render the group
+        if (i === blocks.length - 1 || !isImageBlock(blocks[i + 1])) {
+          if (currentImageGroup.length > 1) {
+            // Render multiple images in a grid
+            processedBlocks.push({
+              nodeType: 'grid',
+              content: currentImageGroup
+            });
+          } else {
+            // Render single image
+            processedBlocks.push(currentImageGroup[0]);
+          }
+          currentImageGroup = [];
+        }
+      } else {
+        processedBlocks.push(block);
+      }
+    }
+
+    return {
+      ...content.json,
+      content: processedBlocks
+    };
+  };
+
+  const processedContent = processContent(content);
+
+  return (
+    <Box>
+      {documentToReactComponents(processedContent, {
+        ...options,
+        renderNode: {
+          ...options.renderNode,
+          grid: (node: unknown) => {
+            const gridNode = node as GridNode;
+            return (
+              <Grid container spacing={2} sx={{ my: 4 }}>
+                {gridNode.content.map((block: Block | Inline, index: number) => (
+                  <Grid key={index} size={{ xs: 12, md: 6 }}>
+                    {renderImage(block)}
+                  </Grid>
+                ))}
+              </Grid>
+            );
+          }
+        }
+      })}
+    </Box>
+  );
 };
 
 export default RichText;

@@ -1,32 +1,32 @@
 const typography = {
-  fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '3rem',
     fontWeight: 500,
     color: 'primary'
   },
   h2: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '2rem',
     fontWeight: 500,
   },
   h4: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
     mb: 1,
   },
   h6: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: '1rem',
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.1rem',
     fontWeight: 400,
     mb: 1,
   },
   body1: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: '1rem',
-    fontWeight: 300,
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.1rem',
+    fontWeight: 400,
   }
 }
 

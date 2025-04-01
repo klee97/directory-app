@@ -57,16 +57,16 @@ export const VendorCard = ({
         },
       }}
     >
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{ position: 'relative', mb: 1 }}>
         <CardMedia
           component="img"
           src={vendor.cover_image ?? placeholderImage.src}
           alt={`${vendor.business_name} preview`}
           sx={{
-            height: 300, // Adjust as needed for uniform height
+            height: 300,
             width: '100%',
-            objectFit: 'cover', // Ensures the image covers the space without stretching
-            objectPosition: 'center', // Adjust to prioritize faces (try 'center' if needed)
+            objectFit: 'cover',
+            objectPosition: 'center',
             zIndex: 1
           }}
         />
