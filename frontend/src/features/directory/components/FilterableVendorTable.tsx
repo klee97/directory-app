@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorId } from '@/types/vendor';
 import { searchVendors } from '../api/searchVendors';
 import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
@@ -21,9 +21,10 @@ import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 const PAGE_SIZE = 12;
 
-export default function FilterableVendorTable({ uniqueRegions, vendors }: {
+export default function FilterableVendorTable({ uniqueRegions, vendors, favoriteVendorIds }: {
   uniqueRegions: string[],
-  vendors: Vendor[]
+  vendors: Vendor[],
+  favoriteVendorIds: VendorId[]
 }) {
   const searchParams = useSearchParams();
   const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
@@ -213,6 +214,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
         focusedCardIndex={focusedCardIndex}
         vendors={visibleVendors}
         searchParams={searchParams.toString()}
+        favoriteVendorIds={favoriteVendorIds}
       />
 
       {/* Loading Spinner */}

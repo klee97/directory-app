@@ -17,7 +17,7 @@ import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-mat
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { upsertCustomerFavorite } from '@/features/favorites/api/upsertCustomerFavorite';
+import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   position: 'sticky',
@@ -35,9 +35,9 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
   const theme = useTheme();
   const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
   const handleFavoriteClick = () => {
-    upsertCustomerFavorite({
+    upsertUserFavorite({
       vendor_id: vendor.id,
-      is_favorited: !isFavoritedState
+      is_favorite: !isFavoritedState
     })
     setIsFavoritedState(!isFavoritedState);
   };
@@ -68,11 +68,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
           {/* Vendor Info */}
           <Grid size={{ xs: 12, md: 7 }}>
             <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif', mb: 2 }}>
-              {vendor.business_name} {process.env.NODE_ENV === 'development' && isFavorite ? (
-                <FavoriteIcon
-                  color='primary'
-                />
-              ) : null}
+              {vendor.business_name}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -277,7 +273,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
           </Grid>
 
           {/* Right Column - Contact Card */}
-          {vendor.email && (
+          {(process.env.NODE_ENV !== 'development' && vendor.email) && (
             <Grid size={{ xs: 12, md: 4 }}>
               <StickyCard elevation={0} >
                 <CardContent sx={{ p: 4 }}>
@@ -285,7 +281,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                     mb: 3,
                     textAlign: 'center'
                   }}>
-                    {process.env.NODE_ENV === 'development' ? 'Love what you see?' : 'Get in Touch'}
+                    Get in Touch
                   </Typography>
                   <Button
                     variant="contained"
@@ -297,18 +293,42 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                   >
                     Contact Vendor
                   </Button>
-                  {process.env.NODE_ENV === 'development' && (
+                </CardContent>
+              </StickyCard>
+            </Grid>
+          )}
+          {(process.env.NODE_ENV === 'development') && (
+            <Grid size={{ xs: 12, md: 4 }}>
+              <StickyCard elevation={0} >
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h5" component="h2" sx={{
+                    mb: 3,
+                    textAlign: 'center'
+                  }}>
+                    Love what you see?
+                  </Typography>
+                  {vendor.email && (
                     <Button
                       variant="contained"
                       size="large"
                       fullWidth
-                      startIcon={<FavoriteIcon />}
+                      startIcon={<Mail />}
                       sx={{ mb: 3 }}
-                      onClick={handleFavoriteClick}
+                      href={`mailto:${vendor.email}`}
                     >
-                      {isFavoritedState ? 'Remove from Favorites' : 'Add to Favorites'}
+                      Contact Vendor
                     </Button>
                   )}
+                  <Button
+                    variant="contained"
+                    size="large"
+                    fullWidth
+                    startIcon={<FavoriteIcon />}
+                    sx={{ mb: 3 }}
+                    onClick={handleFavoriteClick}
+                  >
+                    {isFavoritedState ? 'Remove from Favorites' : 'Add to Favorites'}
+                  </Button>
                 </CardContent>
               </StickyCard>
             </Grid>
