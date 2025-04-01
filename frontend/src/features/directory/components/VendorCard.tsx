@@ -13,7 +13,7 @@ import { IconButton, useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import { useState } from 'react';
-import { upsertCustomerFavorite } from '@/features/favorites/api/upsertCustomerFavorite';
+import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
 
 export const VendorCard = ({
   vendor,
@@ -32,17 +32,15 @@ export const VendorCard = ({
 }) => {
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
-
   const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
 
   const handleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
-    // TO DO: implement the favorite logic here
     event.stopPropagation();
     event.preventDefault(); // Prevent link navigation
     
-    upsertCustomerFavorite({
+    upsertUserFavorite({
       vendor_id: vendor.id,
-      is_favorited: !isFavoritedState
+      is_favorite: !isFavoritedState
     })
     setIsFavoritedState(!isFavoritedState);
   };

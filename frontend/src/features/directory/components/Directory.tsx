@@ -1,14 +1,15 @@
 "use client"
 import Container from '@mui/material/Container';
 import { Typography } from '@mui/material';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorId } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
 import { Suspense } from 'react';
 
 
-export function Directory({ vendors, uniqueMetroRegions }: {
+export function Directory({ vendors, uniqueMetroRegions, favoriteVendorIds }: {
   vendors: Vendor[],
-  uniqueMetroRegions: string[]
+  uniqueMetroRegions: string[],
+  favoriteVendorIds: VendorId[]
 }) {
 
   return (
@@ -30,6 +31,7 @@ export function Directory({ vendors, uniqueMetroRegions }: {
         <FilterableVendorTable
           uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
+          favoriteVendorIds={favoriteVendorIds}
         />
       </Suspense>
     </Container>

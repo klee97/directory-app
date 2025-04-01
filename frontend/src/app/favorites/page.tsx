@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import FavoriteTable from '@/features/favorites/FavoriteTable';
 import { createClient } from "@/lib/supabase/server";
-import { getFavoriteVendors } from '@/features/favorites/api/getCustomerFavorites';
+import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -34,8 +34,7 @@ export const metadata: Metadata = {
 export default async function Favorites() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const customerId = user?.id; // Get the current user's ID from the session
-  const favorites = customerId ? await getFavoriteVendors(customerId) : null;
+  const favorites = user?.id ? await getFavoriteVendors() : [];
 
   return (
     <Container maxWidth="lg">
@@ -65,11 +64,11 @@ export default async function Favorites() {
         }
         {/* No favorites */}
         {
-          (process.env.NODE_ENV === 'development' && user && favorites?.length == 0) &&
+          (process.env.NODE_ENV === 'development' && user && favorites.length == 0) &&
           <Typography variant="h4">You have no vendors saved!</Typography>
         }
         {
-          (process.env.NODE_ENV === 'development' && !!user && !!favorites && favorites.length > 0) &&
+          (process.env.NODE_ENV === 'development' && user && favorites.length > 0) &&
           <FavoriteTable favoriteVendors={favorites} />
         }
       </Box>

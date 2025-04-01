@@ -1,7 +1,7 @@
 import { Grid as SystemGrid } from '@mui/system';
 import Grid from '@mui/material/Grid2';
 import { VendorCard } from './VendorCard';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorId } from '@/types/vendor';
 import Link from 'next/link';
 
 export function VendorGrid({
@@ -9,16 +9,16 @@ export function VendorGrid({
   handleBlur,
   focusedCardIndex,
   vendors,
-  searchParams
+  searchParams,
+  favoriteVendorIds
 }: {
   handleFocus: (index: number) => void,
   handleBlur: () => void,
   focusedCardIndex: number | null,
   vendors: Vendor[],
-  searchParams: string
+  searchParams: string,
+  favoriteVendorIds: VendorId[]
 }) {
-  const favoriteVendors = new Set<string>();
-
   return (
     <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
       {vendors.map((vendor, index) => (
@@ -35,7 +35,7 @@ export function VendorGrid({
               onBlur={handleBlur}
               tabIndex={0}
               className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
-              isFavorite={vendor.id in favoriteVendors}
+              isFavorite={favoriteVendorIds.includes(vendor.id)}
             >
             </VendorCard>
           </Link>

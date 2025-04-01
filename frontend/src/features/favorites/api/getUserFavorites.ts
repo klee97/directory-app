@@ -1,21 +1,20 @@
-import { fetchCustomerById } from "@/features/business/api/fetchCustomer";
+import { fetchUserById } from "@/features/business/api/fetchUser";
 import { fetchAllVendors } from "@/features/directory/api/fetchVendors";
 import { Vendor, VendorId } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
-const getCachedCustomer = unstable_cache(fetchCustomerById);
 
-export async function getFavoriteVendorIds(customerId: string): Promise<VendorId[]> {
-  const customer = await getCachedCustomer(customerId);
-  const favoriteVendorIds = customer?.favorite_vendors ?? [];
+export async function getFavoriteVendorIds(): Promise<VendorId[]> {
+  const user = await fetchUserById();
+  const favoriteVendorIds = user?.favorite_vendors ?? [];
   return favoriteVendorIds
 }
 
-export async function getFavoriteVendors(customerId: string): Promise<Vendor[]> {
-  const favoriteVendorIds = await getFavoriteVendorIds(customerId)
+export async function getFavoriteVendors(): Promise<Vendor[]> {
+  const favoriteVendorIds = await getFavoriteVendorIds()
   if (favoriteVendorIds.length === 0) {
-    console.debug("No favorite vendors found for customer with ID: %s", customerId);
+    console.debug("No favorite vendors found for user");
     return [];
   }
   const favoriteVendorIdsSet = new Set(favoriteVendorIds);
