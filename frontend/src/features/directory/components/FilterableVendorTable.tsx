@@ -215,6 +215,7 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, favorite
         vendors={visibleVendors}
         searchParams={searchParams.toString()}
         favoriteVendorIds={favoriteVendorIds}
+        showFavoriteButton={true}
       />
 
       {/* Loading Spinner */}

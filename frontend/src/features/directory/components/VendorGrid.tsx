@@ -10,14 +10,16 @@ export function VendorGrid({
   focusedCardIndex,
   vendors,
   searchParams,
-  favoriteVendorIds
+  favoriteVendorIds,
+  showFavoriteButton = false
 }: {
   handleFocus: (index: number) => void,
   handleBlur: () => void,
   focusedCardIndex: number | null,
   vendors: Vendor[],
   searchParams: string,
-  favoriteVendorIds: VendorId[]
+  favoriteVendorIds: VendorId[],
+  showFavoriteButton?: boolean
 }) {
   return (
     <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
@@ -36,6 +38,7 @@ export function VendorGrid({
               tabIndex={0}
               className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
               isFavorite={favoriteVendorIds.includes(vendor.id)}
+              showFavoriteButton={showFavoriteButton}
             >
             </VendorCard>
           </Link>
