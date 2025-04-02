@@ -1,12 +1,6 @@
-import * as React from 'react';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
-import FavoriteTable from '@/features/favorites/FavoriteTable';
-import { createClient } from "@/lib/supabase/server";
-import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
+import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -31,47 +25,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Favorites() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const favorites = user?.id ? await getFavoriteVendors() : [];
-
-  return (
-    <Container maxWidth="lg">
-      <br />
-      <Box
-        sx={{
-          my: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          textAlign: 'left',
-          '& > p': { marginBottom: 2 },
-        }}
-      >
-        <Typography variant="h1" component="h1" gutterBottom>
-          My Favorites
-        </Typography>
-        {/* Favorites not released in prod */}
-        {
-          process.env.NODE_ENV !== 'development' &&
-          <Typography variant="h4">Coming soon...</Typography>
-        }
-        {/* User not logged in */}
-        {
-          (process.env.NODE_ENV === 'development' && !user) &&
-          <Typography variant="h4">Please login or create an account to view saved artists.</Typography>
-        }
-        {/* No favorites */}
-        {
-          (process.env.NODE_ENV === 'development' && user && favorites.length == 0) &&
-          <Typography variant="h4">You have no artists saved!</Typography>
-        }
-        {
-          (process.env.NODE_ENV === 'development' && user && favorites.length > 0) &&
-          <FavoriteTable favoriteVendors={favorites} />
-        }
-      </Box>
-    </Container>
-  );
+export default function Favorites() {
+  return <FavoritesContent />;
 }

@@ -18,10 +18,11 @@ import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { Suspense } from 'react';
 
 const PAGE_SIZE = 12;
 
-export default function FilterableVendorTable({ uniqueRegions, vendors, favoriteVendorIds }: {
+function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorIds }: {
   uniqueRegions: string[],
   vendors: Vendor[],
   favoriteVendorIds: VendorId[]
@@ -229,5 +230,17 @@ export default function FilterableVendorTable({ uniqueRegions, vendors, favorite
       <div ref={observerRef} style={{ height: 1 }} />
     </Box>
 
+  );
+}
+
+export default function FilterableVendorTable(props: {
+  uniqueRegions: string[],
+  vendors: Vendor[],
+  favoriteVendorIds: VendorId[]
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FilterableVendorTableContent {...props} />
+    </Suspense>
   );
 }

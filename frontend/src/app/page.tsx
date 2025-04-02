@@ -4,7 +4,6 @@ import { unstable_cache } from 'next/cache';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
-import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 
 const getCachedVendors = unstable_cache(fetchAllVendors);
 
@@ -30,7 +29,6 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const vendors = await getCachedVendors();
-  const userFavorites = await getFavoriteVendorIds();
 
   // Define JSON-LD schema for the directory
   const jsonLd = {
@@ -52,6 +50,7 @@ export default async function Home() {
       },
     }))
   };
+
   // Get unique regions from the vendor data
   const uniqueMetroRegions = Array.from(
     new Set(
@@ -74,7 +73,7 @@ export default async function Home() {
         />
       </section>
       <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
-      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} favoriteVendorIds={userFavorites} />
+      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} />
     </>
   );
 }
