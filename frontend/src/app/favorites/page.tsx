@@ -60,12 +60,12 @@ export default async function Favorites() {
         {/* User not logged in */}
         {
           (process.env.NODE_ENV === 'development' && !user) &&
-          <Typography variant="h4">Please login or create an account to view saved vendors.</Typography>
+          <Typography variant="h4">Please login or create an account to view saved artists.</Typography>
         }
         {/* No favorites */}
         {
           (process.env.NODE_ENV === 'development' && user && favorites.length == 0) &&
-          <Typography variant="h4">You have no vendors saved!</Typography>
+          <Typography variant="h4">You have no artists saved!</Typography>
         }
         {
           (process.env.NODE_ENV === 'development' && user && favorites.length > 0) &&
