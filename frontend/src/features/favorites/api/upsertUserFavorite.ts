@@ -21,11 +21,7 @@ export const upsertUserFavorite = async ({
     // Check if user is authenticated
     const { data: { user }, error: sessionError } = await supabase.auth.getUser();
 
-    if (!user) {
-        return { error: "You must be logged in to perform this action" };
-    }
-
-    if (sessionError) {
+    if (!user || sessionError) {
         console.error("Authentication error:", sessionError || "No active session");
         throw new Error("You must be logged in to perform this action");
     }
@@ -37,7 +33,7 @@ export const upsertUserFavorite = async ({
     }
 
     // Proceed with vendor creation
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("user_favorites")
         .upsert(vendorData, { onConflict: 'user_id, vendor_id' })
         .select();
@@ -46,8 +42,4 @@ export const upsertUserFavorite = async ({
         console.error("Error creating or updating user favorite:", error);
         throw error;
     }
-
-    console.debug("Vendor favorited or unfavorited successfully!", data);
-
-    return data;
 };

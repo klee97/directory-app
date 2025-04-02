@@ -13,7 +13,7 @@ export async function fetchUserById() {
 
   if (!user || sessionError) {
     console.error("Authentication error:", sessionError || "No active session");
-    throw new Error("You must be logged in to perform this action");
+    return null;
   }
 
   const { data: profile, error: userError } = await supabase
