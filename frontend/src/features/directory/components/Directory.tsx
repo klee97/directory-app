@@ -3,14 +3,36 @@ import Container from '@mui/material/Container';
 import { Typography } from '@mui/material';
 import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 
+interface DirectoryProps {
+  vendors: Vendor[];
+  uniqueMetroRegions: string[];
+}
 
-export function Directory({ vendors, uniqueMetroRegions }: {
-  vendors: Vendor[],
-  uniqueMetroRegions: string[]
-}) {
+export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
+  const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    async function loadFavorites() {
+      try {
+        const favorites = await getFavoriteVendorIds();
+        setFavoriteVendorIds(favorites);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadFavorites();
+  }, []);
+
+  if (isLoading) {
+    return <FilterableVendorTable uniqueRegions={uniqueMetroRegions} vendors={vendors} favoriteVendorIds={[]} />;
+  }
 
   return (
     <Container
@@ -31,6 +53,7 @@ export function Directory({ vendors, uniqueMetroRegions }: {
         <FilterableVendorTable
           uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
+          favoriteVendorIds={favoriteVendorIds}
         />
       </Suspense>
     </Container>

@@ -5,6 +5,8 @@ import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
+import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
+import { Suspense } from 'react';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -57,6 +59,10 @@ export default async function VendorPage({ params }: PageProps) {
     notFound(); // Return 404 if vendor is not found
   }
 
+
+  const userFavorites = await getFavoriteVendorIds();
+  const isFavorite = userFavorites.includes(vendor.id);
+
   // Define JSON-LD schema for the vendor
   const jsonLd = {
     "@context": "https://schema.org",
@@ -84,8 +90,10 @@ export default async function VendorPage({ params }: PageProps) {
         />
         {/* ... */}
       </section>
-      <BackButton />
-      <VendorDetails vendor={vendor} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <BackButton />
+      </Suspense>
+      <VendorDetails vendor={vendor} isFavorite={isFavorite} />
     </>
   );
 }
