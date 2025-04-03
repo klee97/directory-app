@@ -5,6 +5,7 @@ import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
 import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
+import { usePathname } from 'next/navigation';
 
 interface DirectoryProps {
   vendors: Vendor[];
@@ -13,7 +14,8 @@ interface DirectoryProps {
 
 export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  console.log("favoriteVendorIds", favoriteVendorIds);
 
   useEffect(() => {
     async function loadFavorites() {
@@ -22,17 +24,11 @@ export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
         setFavoriteVendorIds(favorites);
       } catch (error) {
         console.error('Error loading favorites:', error);
-      } finally {
-        setIsLoading(false);
       }
     }
 
     loadFavorites();
-  }, []);
-
-  if (isLoading) {
-    return <FilterableVendorTable uniqueRegions={uniqueMetroRegions} vendors={vendors} favoriteVendorIds={[]} />;
-  }
+  }, [pathname]); // Reload favorites when pathname changes (i.e., when returning from vendor page)
 
   return (
     <Container

@@ -12,7 +12,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import { Dialog, IconButton, useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
 import { LoginPopupContent } from '@/features/login/components/LoginPopupContent';
 
@@ -38,18 +38,22 @@ export const VendorCard = ({
   const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
-  const handleFavorite = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    event.preventDefault(); // Prevent link navigation
+  useEffect(() => {
+    setIsFavoritedState(isFavorite ?? false);
+  }, [isFavorite]);
 
+  const handleFavorite = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const newFavoriteState = !isFavoritedState;
     try {
+      setIsFavoritedState(newFavoriteState);
       await upsertUserFavorite({
         vendor_id: vendor.id,
-        is_favorite: !isFavoritedState
-      })
-      setIsFavoritedState(!isFavoritedState);
+        is_favorite: newFavoriteState
+      });
     } catch {
-      setShowLoginPopup(true)
+      setShowLoginPopup(true);
     }
   };
   return (

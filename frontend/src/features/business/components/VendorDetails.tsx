@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -13,12 +13,16 @@ import {
   useTheme,
   styled,
   Dialog,
+  IconButton,
 } from '@mui/material';
 import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-material';
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
+import { createClient } from '@/lib/supabase/client';
 import { LoginPopupContent } from '@/features/login/components/LoginPopupContent';
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -28,26 +32,59 @@ const StickyCard = styled(Card)(({ theme }) => ({
 
 interface VendorDetailsProps {
   vendor: Vendor;
-  isFavorite?: boolean;
 }
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
-export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
+export function VendorDetails({ vendor }: VendorDetailsProps) {
   const theme = useTheme();
-  const [isFavoritedState, setIsFavoritedState] = useState(isFavorite ?? false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const supabase = createClient();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function checkFavoriteStatus() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        return;
+      }
+
+      try {
+        const favoriteVendorIds = await getFavoriteVendorIds();
+        if (mounted) {
+          setIsFavorite(favoriteVendorIds.includes(vendor.id));
+        }
+      } catch (error) {
+        console.error('Error checking favorite status:', error);
+      }
+    }
+
+    checkFavoriteStatus();
+
+    return () => {
+      mounted = false;
+    };
+  }, [vendor.id, supabase]);
+
   const handleFavoriteClick = async () => {
-    try {
-      await upsertUserFavorite({
-        vendor_id: vendor.id,
-        is_favorite: !isFavoritedState
-      })
-      setIsFavoritedState(!isFavoritedState);
-    } catch {
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session) {
       setShowLoginPopup(true);
+      return;
+    }
+    const newFavoriteState = !isFavorite;
+    try {
+      setIsFavorite(newFavoriteState);
+      await upsertUserFavorite({ vendor_id: vendor.id, is_favorite: newFavoriteState });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
     }
   };
+
   return (
     <>
       {showLoginPopup &&
@@ -71,7 +108,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                       display: 'block',
                       width: '100%',
                       height: 300,
-                      objectFit: 'cover', // Ensures it doesn’t stretch
+                      objectFit: 'cover', // Ensures it doesn't stretch
                     }}
                   />
                 </Card>
@@ -80,9 +117,29 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
 
             {/* Vendor Info */}
             <Grid size={{ xs: 12, md: 7 }}>
-              <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif', mb: 2 }}>
-                {vendor.business_name}
-              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif' }}>
+                  {vendor.business_name}
+                </Typography>
+                {/* Favorite Button */}
+                {(process.env.NODE_ENV === 'development') && (
+                  <IconButton
+                    sx={{ fontSize: 24, cursor: 'pointer' }}
+                    color='primary'
+                    onClick={handleFavoriteClick}
+                  >
+                    {isFavorite ? (
+                      <FavoriteIcon
+                        color='inherit'
+                      />
+                    ) : (
+                      <FavoriteBorderIcon
+                        color='inherit'
+                      />
+                    )}
+                  </IconButton>
+                )}
+              </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <LocationOn fontSize="small" />
@@ -286,7 +343,7 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
             </Grid>
 
             {/* Right Column - Contact Card */}
-            {(process.env.NODE_ENV !== 'development' && vendor.email) && (
+            {vendor.email && (
               <Grid size={{ xs: 12, md: 4 }}>
                 <StickyCard elevation={0} >
                   <CardContent sx={{ p: 4 }}>
@@ -305,42 +362,6 @@ export function VendorDetails({ vendor, isFavorite }: VendorDetailsProps) {
                       href={`mailto:${vendor.email}`}
                     >
                       Contact Vendor
-                    </Button>
-                  </CardContent>
-                </StickyCard>
-              </Grid>
-            )}
-            {(process.env.NODE_ENV === 'development') && (
-              <Grid size={{ xs: 12, md: 4 }}>
-                <StickyCard elevation={0} >
-                  <CardContent sx={{ p: 4 }}>
-                    <Typography variant="h5" component="h2" sx={{
-                      mb: 3,
-                      textAlign: 'center'
-                    }}>
-                      Love what you see?
-                    </Typography>
-                    {vendor.email && (
-                      <Button
-                        variant="contained"
-                        size="large"
-                        fullWidth
-                        startIcon={<Mail />}
-                        sx={{ mb: 3 }}
-                        href={`mailto:${vendor.email}`}
-                      >
-                        Contact Vendor
-                      </Button>
-                    )}
-                    <Button
-                      variant="contained"
-                      size="large"
-                      fullWidth
-                      startIcon={<FavoriteIcon />}
-                      sx={{ mb: 3 }}
-                      onClick={handleFavoriteClick}
-                    >
-                      {isFavoritedState ? 'Remove from Favorites' : 'Add to Favorites'}
                     </Button>
                   </CardContent>
                 </StickyCard>

@@ -33,10 +33,10 @@ export function VendorGrid({
           >
             <VendorCard
               vendor={vendor}
-              onFocus={() => handleFocus(0)}
+              onFocus={() => handleFocus(index)}
               onBlur={handleBlur}
               tabIndex={0}
-              className={focusedCardIndex === 0 ? 'Mui-focused' : ''}
+              className={focusedCardIndex === index ? 'Mui-focused' : ''}
               isFavorite={favoriteVendorIds.includes(vendor.id)}
               showFavoriteButton={showFavoriteButton}
             >

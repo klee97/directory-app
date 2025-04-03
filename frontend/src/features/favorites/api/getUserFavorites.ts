@@ -1,19 +1,19 @@
+import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { createClient } from '@/lib/supabase/client';
 import { Vendor, VendorId } from "@/types/vendor";
-import { fetchAllVendors } from "@/features/directory/api/fetchVendors";
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
     return [];
   }
 
   const { data: favorites } = await supabase
     .from('user_favorites')
     .select('vendor_id')
-    .eq('user_id', user.id)
+    .eq('user_id', session.user.id)
     .eq('is_favorited', true);
 
   return favorites?.map(f => f.vendor_id) ?? [];
