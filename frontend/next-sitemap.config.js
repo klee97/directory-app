@@ -16,6 +16,7 @@ export default {
     return data.map((vendor) => ({
       loc: `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
       lastmod: new Date().toISOString(),
+      priority: 0.5,
     }));
   },
 };
