@@ -19,8 +19,8 @@ import { useColorScheme, useTheme } from '@mui/material/styles';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/assets/logo.jpeg';
-import { Collapse, useMediaQuery } from '@mui/material';
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
+import { Collapse, useMediaQuery, ListItemIcon, ListItemText, Divider, Skeleton } from '@mui/material';
+import { ExpandLess, ExpandMore, AccountCircle, Settings, Favorite } from '@mui/icons-material';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const resources = ["Blog"];
@@ -28,37 +28,67 @@ const resources = ["Blog"];
 const Title = 'HAIR AND MAKEUP';
 
 export default function Navbar() {
+  const [mounted, setMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElResources, setAnchorElResources] = React.useState<null | HTMLElement>(null);
   const [resourcesExpanded, setResourcesExpanded] = React.useState(false);
+  const [anchorElProfile, setAnchorElProfile] = React.useState<null | HTMLElement>(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  // Handle hydration and initial loading
   React.useEffect(() => {
-    // Close menus when screen size changes
-    if (anchorElNav) {
+    setMounted(true);
+  }, []);
+
+  // Close menus when screen size changes
+  React.useEffect(() => {
+    if (mounted && isMobile) {
       setAnchorElNav(null);
+      setAnchorElResources(null);
+      setResourcesExpanded(false);
+      setAnchorElProfile(null);
     }
-  }, [isMobile]);
+  }, [isMobile, mounted]);
+
+  // Cleanup menu states on unmount
+  React.useEffect(() => {
+    return () => {
+      setAnchorElNav(null);
+      setAnchorElResources(null);
+      setResourcesExpanded(false);
+      setAnchorElProfile(null);
+    };
+  }, []);
 
   const { mode, setMode } = useColorScheme();
-  if (!mode) {
-    return null;
+  if (!mounted || !mode) {
+    return (
+      <AppBar position="static">
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <Skeleton variant="rectangular" width={40} height={40} />
+            <Skeleton variant="text" width={200} sx={{ ml: 2 }} />
+          </Toolbar>
+        </Container>
+      </AppBar>
+    );
   }
+
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    console.log("Open menu");
+    event.preventDefault();
     setAnchorElNav(event.currentTarget);
     setResourcesExpanded(false);
   };
 
   const handleCloseNavMenu = () => {
-    console.log("Close menu");
     setAnchorElNav(null);
     setResourcesExpanded(false);
   };
 
   const handleOpenResourcesMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
     setAnchorElResources(event.currentTarget);
     setResourcesExpanded(true);
   };
@@ -66,6 +96,21 @@ export default function Navbar() {
   const handleCloseResourcesMenu = () => {
     setAnchorElResources(null);
     setResourcesExpanded(false);
+  };
+
+  const handleOpenProfileMenu = (event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    setAnchorElProfile(event.currentTarget);
+  };
+
+  const handleCloseProfileMenu = () => {
+    setAnchorElProfile(null);
+  };
+
+  const handleMenuLinkClick = (event: React.MouseEvent, href: string) => {
+    event.preventDefault();
+    handleCloseNavMenu();
+    window.location.href = href;
   };
 
   return (
@@ -101,11 +146,12 @@ export default function Navbar() {
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem
+                  key={page}
+                  onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                >
                   <Typography
-                    component="a"
                     sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
-                    href={`/${page.toLowerCase()}`}
                   >
                     {page}
                   </Typography>
@@ -126,11 +172,12 @@ export default function Navbar() {
                 <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
                   <Box sx={{ pl: 2 }}>
                     {resources.map((resource) => (
-                      <MenuItem key={resource} onClick={handleCloseNavMenu}>
+                      <MenuItem
+                        key={resource}
+                        onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
+                      >
                         <Typography
-                          component="a"
                           sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
-                          href={`/${resource.toLowerCase()}`}
                         >
                           {resource}
                         </Typography>
@@ -139,6 +186,31 @@ export default function Navbar() {
                   </Box>
                 </Collapse>
               </Box>
+              {process.env.NODE_ENV === 'development' && (
+                <Box sx={{ width: '100%' }}>
+                  <Divider />
+                  <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                    <ListItemIcon>
+                      <Favorite fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                      <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                        My Favorites
+                      </Typography>
+                    </ListItemText>
+                  </MenuItem>
+                  <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+                    <ListItemIcon>
+                      <Settings fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>
+                      <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                        Settings
+                      </Typography>
+                    </ListItemText>
+                  </MenuItem>
+                </Box>
+              )}
             </Menu>
           </Box>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
@@ -161,11 +233,13 @@ export default function Navbar() {
           </Link>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Link style={{ textDecoration: 'none' }} color="inherit" key={page} href={`/${page.toLowerCase()}`} onClick={handleCloseNavMenu}>
-                <Button sx={{ my: 2, color: 'white', display: 'block' }}>
-                  {page}
-                </Button>
-              </Link>
+              <Button
+                key={page}
+                onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                {page}
+              </Button>
             ))}
             <Button
               key="Resources"
@@ -190,12 +264,18 @@ export default function Navbar() {
               onClose={handleCloseResourcesMenu}
             >
               {resources.map((resource) => (
-                <MenuItem key={resource} onClick={handleCloseResourcesMenu}>
-                  <Typography component="a" sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }} href={`/blog`}>{resource}</Typography>
+                <MenuItem
+                  key={resource}
+                  onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
+                >
+                  <Typography sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>
+                    {resource}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
+
           {process.env.NODE_ENV === 'development' && (
             <FormControl>
               <FormLabel id="demo-theme-toggle">Theme</FormLabel>
@@ -213,6 +293,56 @@ export default function Navbar() {
                 <FormControlLabel value="dark" control={<Radio />} label="Dark" />
               </RadioGroup>
             </FormControl>
+          )}
+          {process.env.NODE_ENV === 'development' && (
+            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <IconButton
+                size="large"
+                aria-label="profile menu"
+                aria-controls="menu-profile"
+                aria-haspopup="true"
+                onClick={handleOpenProfileMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-profile"
+                anchorEl={anchorElProfile}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorElProfile)}
+                onClose={handleCloseProfileMenu}
+              >
+                <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                  <ListItemIcon>
+                    <Favorite fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>
+                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                      My Favorites
+                    </Typography>
+                  </ListItemText>
+                </MenuItem>
+                <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+                  <ListItemIcon>
+                    <Settings fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>
+                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                      Settings
+                    </Typography>
+                  </ListItemText>
+                </MenuItem>
+              </Menu>
+            </Box>
           )}
         </Toolbar>
       </Container>
