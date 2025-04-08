@@ -19,10 +19,11 @@ import { useColorScheme, useTheme } from '@mui/material/styles';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/assets/logo.jpeg';
-import { Collapse, useMediaQuery, ListItemIcon, ListItemText, Divider, Skeleton } from '@mui/material';
+import { Collapse, useMediaQuery, ListItemIcon, ListItemText, Divider, Skeleton, Snackbar, Alert, AlertColor } from '@mui/material';
 import { ExpandLess, ExpandMore, AccountCircle, Settings, Favorite, Logout } from '@mui/icons-material';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useNotification } from '@/contexts/NotificationContext';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const resources = ["Blog"];
@@ -36,8 +37,18 @@ export default function Navbar() {
   const [resourcesExpanded, setResourcesExpanded] = React.useState(false);
   const [anchorElProfile, setAnchorElProfile] = React.useState<null | HTMLElement>(null);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [notification, setNotification] = React.useState<{
+    open: boolean;
+    message: string;
+    severity: AlertColor;
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
   const router = useRouter();
   const supabase = createClient();
+  const { addNotification } = useNotification();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -138,12 +149,18 @@ export default function Navbar() {
     window.location.href = href;
   };
 
+  const handleCloseNotification = () => {
+    setNotification(prev => ({ ...prev, open: false }));
+  };
+
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
+      addNotification('Successfully logged out');
       router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
+      addNotification('Failed to log out', 'error');
     }
   };
 
@@ -417,30 +434,41 @@ export default function Navbar() {
             </Menu>
           </Box>
 
-          {process.env.NODE_ENV === 'development' && (
-            <>
-              <FormControl>
-                <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-theme-toggle"
-                  name="theme-toggle"
-                  row
-                  value={mode}
-                  onChange={(event) =>
-                    setMode(event.target.value as 'system' | 'light' | 'dark')
-                  }
-                >
-                  <FormControlLabel value="system" control={<Radio />} label="System" />
-                  <FormControlLabel value="light" control={<Radio />} label="Light" />
-                  <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-                </RadioGroup>
-              </FormControl>
-              {renderAuthButtons()}
-              {renderProfileMenu()}
-            </>
-          )}
+          <FormControl>
+            <FormLabel id="demo-theme-toggle">Theme</FormLabel>
+            <RadioGroup
+              aria-labelledby="demo-theme-toggle"
+              name="theme-toggle"
+              row
+              value={mode}
+              onChange={(event) =>
+                setMode(event.target.value as 'system' | 'light' | 'dark')
+              }
+            >
+              <FormControlLabel value="system" control={<Radio />} label="System" />
+              <FormControlLabel value="light" control={<Radio />} label="Light" />
+              <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+            </RadioGroup>
+          </FormControl>
+          {renderAuthButtons()}
+          {renderProfileMenu()}
         </Toolbar>
       </Container>
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={3000}
+        onClose={handleCloseNotification}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseNotification} 
+          severity={notification.severity}
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </AppBar>
   );
 }

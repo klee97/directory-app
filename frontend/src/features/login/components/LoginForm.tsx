@@ -12,41 +12,40 @@ import {
   Alert,
 } from '@mui/material';
 import { login } from '../api/actions';
-import { toast } from 'react-hot-toast';
+import { useNotification } from '@/contexts/NotificationContext';
 import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
 
 export function LoginForm() {
-  const router = useRouter();
+  const { addNotification } = useNotification();
   const [verificationNeeded, setVerificationNeeded] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const loadingToast = toast.loading('Logging in...');
+    setIsSubmitting(true);
 
     try {
       const result = await login(formData);
-      
-      if (result && result.error) {
-        toast.dismiss(loadingToast);
-        toast.error(result.error);
-        return;
-      }
-      
-      if (result && result.verificationNeeded) {
-        toast.dismiss(loadingToast);
-        toast.error('Please verify your email address to fully activate your account');
+      console.log(result);
+
+      if (result && result.action === 'verify-email') {
         setVerificationNeeded(true);
         return;
       }
+
+      if (result && result.error) {
+        addNotification(result.error, 'error');
+        return;
+      }
       
-      toast.dismiss(loadingToast);
-      toast.success('Logged in successfully!');
-      router.push('/');
+      addNotification('Logged in successfully!');
+      window.location.href = '/';
     } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error('An unexpected error occurred. Please try again.');
+      console.error("An unexpected error occurred: " + error);
+      addNotification('An unexpected error occurred. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -65,7 +64,7 @@ export function LoginForm() {
                 <Button
                   size="small"
                   component={NextLink}
-                  href="/auth/resend-verification"
+                  href="/auth/verify-email"
                 >
                   Resend verification email
                 </Button>
@@ -84,6 +83,7 @@ export function LoginForm() {
               autoComplete="email"
               autoFocus
               variant="outlined"
+              disabled={isSubmitting}
             />
 
             <TextField
@@ -96,6 +96,7 @@ export function LoginForm() {
               id="password"
               autoComplete="current-password"
               variant="outlined"
+              disabled={isSubmitting}
             />
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
@@ -104,12 +105,13 @@ export function LoginForm() {
                 fullWidth
                 variant="contained"
                 size="large"
+                disabled={isSubmitting}
               >
-                Log In
+                {isSubmitting ? 'Logging in...' : 'Log In'}
               </Button>
 
               <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Don't have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link component={NextLink} href="/signup">
                   Sign up
                 </Link>

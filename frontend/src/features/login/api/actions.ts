@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
 
@@ -21,27 +20,23 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    if (error.message.includes('Invalid login credentials')) {
-      return { error: 'Invalid email or password' };
+    switch (error.code) {
+      case 'invalid_credentials':
+        return { error: 'Invalid email or password' };
+      case 'email_not_confirmed':
+        return { 
+          error: 'This email is already registered but not verified.',
+          action: 'verify-email'
+        };
+      case 'user_banned':
+        return { error: 'This account has been banned. Please contact support.' };
+      default:
+        return { error: error.message };
     }
-    return { error: error.message };
-  }
-
-  const user = data.user;
-
-  // Check if email is verified
-  const isEmailVerified = user?.email_confirmed_at != null;
-
-  if (!isEmailVerified) {
-    // Return verification needed status but allow login
-    return { 
-      success: true, 
-      verificationNeeded: true 
-    };
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+  return { success: true, session: data.session };
 }
 
 export async function signup(formData: FormData) {
@@ -72,10 +67,19 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    if (error.message.includes('User already registered')) {
-      return { error: 'An account with this email already exists' };
+    switch (error.code) {
+      case 'email_exists':
+        return { 
+          error: 'An account with this email already exists.',
+          action: 'login'
+        };
+      case 'weak_password':
+        return { error: 'Password does not meet strength criteria.' };
+      case 'signup_disabled':
+        return { error: 'Signups are currently disabled.' };
+      default:
+        return { error: error.message };
     }
-    return { error: error.message };
   }
 
   revalidatePath('/', 'layout');

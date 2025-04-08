@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,62 +19,75 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Alert,
 } from '@mui/material';
 import { Lock, Delete, Favorite } from '@mui/icons-material';
 import { updatePassword } from '../api/updatePassword';
 import { deleteAccount } from '../api/deleteAccount';
-import { toast } from 'react-hot-toast';
+import { useNotification } from '@/contexts/NotificationContext';
+import { validatePassword } from '@/utils/passwordValidation';
 
 interface ApiError extends Error {
   message: string;
 }
 
-export function Settings() {
+export default function Settings() {
+  const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const router = useRouter();
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    const loadingToast = toast.loading('Updating password...');
+    setIsSubmitting(true);
+    setPasswordError(null);
 
     if (newPassword !== confirmPassword) {
-      toast.dismiss(loadingToast);
-      toast.error('New passwords do not match');
+      addNotification('New passwords do not match', 'error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const validation = validatePassword(newPassword);
+    if (!validation.isValid) {
+      setPasswordError(validation.message);
+      setIsSubmitting(false);
       return;
     }
 
     try {
       await updatePassword(currentPassword, newPassword);
-      toast.dismiss(loadingToast);
-      toast.success('Password updated successfully');
+      addNotification('Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setPasswordDialogOpen(false);
     } catch (error: unknown) {
-      toast.dismiss(loadingToast);
       const apiError = error as ApiError;
-      toast.error(apiError.message || 'Failed to update password');
+      addNotification(apiError.message || 'Failed to update password', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    const loadingToast = toast.loading('Deleting account...');
+    setIsSubmitting(true);
 
     try {
       await deleteAccount(deletePassword);
-      toast.dismiss(loadingToast);
-      toast.success('Account deleted successfully');
+      addNotification('Account deleted successfully');
       router.push('/');
     } catch (error: unknown) {
-      toast.dismiss(loadingToast);
       const apiError = error as ApiError;
-      toast.error(apiError.message || 'Failed to delete account');
+      addNotification(apiError.message || 'Failed to delete account', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -139,15 +153,22 @@ export function Settings() {
               onChange={(e) => setCurrentPassword(e.target.value)}
               margin="normal"
               required
+              disabled={isSubmitting}
             />
             <TextField
               fullWidth
               type="password"
               label="New Password"
               value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPasswordError(null);
+              }}
               margin="normal"
               required
+              disabled={isSubmitting}
+              error={!!passwordError}
+              helperText={passwordError}
             />
             <TextField
               fullWidth
@@ -157,17 +178,29 @@ export function Settings() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               margin="normal"
               required
+              disabled={isSubmitting}
             />
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Password must contain:
+              <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
+                <Box component="li">At least 8 characters</Box>
+                <Box component="li">At least one uppercase letter</Box>
+                <Box component="li">At least one lowercase letter</Box>
+                <Box component="li">At least one number</Box>
+                <Box component="li">At least one special character: {'!@#$%^&*(),.?'}</Box>
+              </Box>
+            </Alert>
             <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              <Button onClick={() => setPasswordDialogOpen(false)}>
+              <Button onClick={() => setPasswordDialogOpen(false)} disabled={isSubmitting}>
                 Cancel
               </Button>
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
+                disabled={isSubmitting}
               >
-                Update Password
+                {isSubmitting ? 'Updating...' : 'Update Password'}
               </Button>
             </Box>
           </form>
@@ -193,12 +226,19 @@ export function Settings() {
             onChange={(e) => setDeletePassword(e.target.value)}
             margin="normal"
             required
+            disabled={isSubmitting}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleDeleteAccount} color="error">
-            Delete Account
+          <Button onClick={() => setDeleteDialogOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleDeleteAccount} 
+            color="error"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Deleting...' : 'Delete Account'}
           </Button>
         </DialogActions>
       </Dialog>

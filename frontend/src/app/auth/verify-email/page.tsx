@@ -1,5 +1,6 @@
-import { Container, Typography, Paper, Box, Button } from "@mui/material";
+import { Container, Typography, Paper, Box, Button, Alert } from "@mui/material";
 import Link from "next/link";
+import { ResendVerificationForm } from "@/features/login/components/ResendVerificationForm";
 
 export default function VerifyEmailPage() {
   return (
@@ -10,13 +11,33 @@ export default function VerifyEmailPage() {
             Verify Your Email
           </Typography>
           
-          <Typography variant="body1" align="center" paragraph>
-            We've sent a verification email to your inbox. Please check your email and click the verification link to complete your signup.
+          <Alert severity="info" sx={{ mb: 3 }}>
+            <Typography variant="body1">
+              We&apos;ve sent a verification email to your inbox. Please check your email and click the verification link to complete your signup.
+            </Typography>
+          </Alert>
+          
+          <Typography variant="body1" paragraph>
+            If you don&apos;t see the email:
           </Typography>
           
-          <Typography variant="body1" align="center" paragraph>
-            If you don't see the email, please check your spam folder.
+          <Box component="ul" sx={{ pl: 2, mb: 3 }}>
+            <Typography component="li" variant="body1">
+              Check your spam folder
+            </Typography>
+            <Typography component="li" variant="body1">
+              Wait a few minutes for the email to arrive
+            </Typography>
+            <Typography component="li" variant="body1">
+              Make sure you entered the correct email address
+            </Typography>
+          </Box>
+
+          <Typography variant="h6" gutterBottom>
+            Need a new verification link?
           </Typography>
+          
+          <ResendVerificationForm />
           
           <Box display="flex" justifyContent="center" mt={4}>
             <Link href="/login" passHref style={{ textDecoration: 'none' }}>

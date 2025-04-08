@@ -9,44 +9,60 @@ import {
   Paper,
   Stack,
   Link,
+  Alert,
 } from '@mui/material';
 import { signup } from '../api/actions';
-import { toast } from 'react-hot-toast';
+import { useNotification } from '@/contexts/NotificationContext';
+import { validatePassword } from '@/utils/passwordValidation';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function SignupForm() {
   const router = useRouter();
+  const { addNotification } = useNotification();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [passwordError, setPasswordError] = React.useState<string | null>(null);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const loadingToast = toast.loading('Creating your account...');
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+    setIsSubmitting(true);
+    setPasswordError(null);
+
+    if (password !== confirmPassword) {
+      addNotification('Passwords do not match', 'error');
+      setIsSubmitting(false);
+      return;
+    }
+
+    const validation = validatePassword(password);
+    if (!validation.isValid) {
+      setPasswordError(validation.message);
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const result = await signup(formData);
       
       if (result && result.error) {
-        toast.dismiss(loadingToast);
-        toast.error(result.error);
-        return;
-      }
-      
-      if (result && result.success) {
-        toast.dismiss(loadingToast);
-        toast.success('Account created successfully!');
-        // Use setTimeout to ensure the toast is visible before redirecting
-        setTimeout(() => {
+        addNotification(result.error, 'error');
+        if (result.action === 'login') {
+          router.push('/login');
+        } else if (result.action === 'verify-email') {
           router.push('/auth/verify-email');
-        }, 1000);
+        }
         return;
       }
       
-      toast.dismiss(loadingToast);
-      toast.success('Account created successfully! Please check your email to verify your account.');
+      router.push('/auth/verify-email');
     } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error('An unexpected error occurred. Please try again.');
+      console.error("An unexpected error occurred: " + error);
+      addNotification('An unexpected error occurred. Please try again.', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -55,7 +71,7 @@ export function SignupForm() {
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Create Account
+            Sign Up
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -69,6 +85,7 @@ export function SignupForm() {
               autoComplete="email"
               autoFocus
               variant="outlined"
+              disabled={isSubmitting}
             />
 
             <TextField
@@ -81,7 +98,10 @@ export function SignupForm() {
               id="password"
               autoComplete="new-password"
               variant="outlined"
-              helperText="Password must be at least 6 characters long"
+              disabled={isSubmitting}
+              error={!!passwordError}
+              helperText={passwordError}
+              onChange={() => setPasswordError(null)}
             />
 
             <TextField
@@ -94,7 +114,19 @@ export function SignupForm() {
               id="confirmPassword"
               autoComplete="new-password"
               variant="outlined"
+              disabled={isSubmitting}
             />
+
+            <Alert severity="info" sx={{ mt: 2 }}>
+              Password must contain:
+              <ul>
+                <li>At least 8 characters</li>
+                <li>At least one uppercase letter</li>
+                <li>At least one lowercase letter</li>
+                <li>At least one number</li>
+                <li>At least one special character: {'!@#$%^&*(),.?'}</li>
+              </ul>
+            </Alert>
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
               <Button
@@ -102,10 +134,11 @@ export function SignupForm() {
                 fullWidth
                 variant="contained"
                 size="large"
+                disabled={isSubmitting}
               >
-                Sign Up
+                {isSubmitting ? 'Creating account...' : 'Sign Up'}
               </Button>
-              
+
               <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Already have an account?{' '}
                 <Link component={NextLink} href="/login">
