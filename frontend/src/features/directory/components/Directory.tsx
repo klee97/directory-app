@@ -15,7 +15,6 @@ interface DirectoryProps {
 export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
-  console.log("favoriteVendorIds", favoriteVendorIds);
 
   useEffect(() => {
     async function loadFavorites() {

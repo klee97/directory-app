@@ -27,8 +27,6 @@ export function LoginForm() {
 
     try {
       const result = await login(formData);
-      console.log(result);
-
       if (result && result.action === 'verify-email') {
         setVerificationNeeded(true);
         return;
