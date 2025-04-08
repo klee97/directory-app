@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { createVendor } from '../api/createVendor';
-import toast from 'react-hot-toast';
+import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from './RegionSelector';
 
 // Define types directly in the file
@@ -62,41 +62,39 @@ export const VENDOR_INPUT_DEFAULT: VendorInput = {
 } as const;
 
 const AdminVendorManagement = () => {
+  const { addNotification } = useNotification();
   const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addVendor = async () => {
-    const loadingToast = toast.loading("Creating vendor...");
+    setIsSubmitting(true);
 
     try {
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
       const data = await createVendor(newVendorData, firstName, lastName);
 
-      // Dismiss loading toast regardless of the result
-      toast.dismiss(loadingToast);
-
       if (data) {
-        toast.success("Vendor added successfully!");
+        addNotification("Vendor added successfully!");
         setNewVendor(VENDOR_INPUT_DEFAULT);
         setFirstName("");
         setLastName("");
         setSelectedRegion(null);
       } else {
-        toast.error("Failed to add vendor. Please try again.");
+        addNotification("Failed to add vendor. Please try again.", "error");
       }
     } catch (error) {
-      toast.dismiss(loadingToast);
-
-      // Show error message
-      toast.error(
+      addNotification(
         error instanceof Error
           ? `Error: ${error.message}`
-          : "An unexpected error occurred. Please try again."
+          : "An unexpected error occurred. Please try again.",
+        "error"
       );
-
       console.error("Error adding vendor:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -193,8 +191,8 @@ const AdminVendorManagement = () => {
               <RadioGroup
                 aria-labelledby="demo-controlled-radio-buttons-group"
                 name="controlled-radio-buttons-group"
-                value={newVendor.travels_world_wide.toString()}
-                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: Boolean(e.target.value) })}
+                value={newVendor.travels_world_wide ? "true" : "false"}
+                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: e.target.value === "true" })}
               >
                 <FormControlLabel value="true" control={<Radio />} label="True" />
                 <FormControlLabel value="false" control={<Radio />} label="False" />
@@ -270,6 +268,7 @@ const AdminVendorManagement = () => {
             color="primary"
             onClick={addVendor}
             fullWidth
+            disabled={isSubmitting}
           >
             Add Vendor
           </Button>

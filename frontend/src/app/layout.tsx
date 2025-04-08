@@ -7,8 +7,9 @@ import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import Script from "next/script";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/website_preview.jpeg';
-import { Toaster } from 'react-hot-toast';
 import { Lato } from 'next/font/google';
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import { NotificationManager } from '@/components/common/NotificationManager';
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -64,15 +65,17 @@ export default function RootLayout({
         }}
       />
       <body>
-        <AppRouterCacheProvider>
-          <ThemeProvider>
-            <Navbar />
-            {children}
-            <Toaster position="top-center" />
-            <Footer />
-            <FeedbackPopup />
-          </ThemeProvider>
-        </AppRouterCacheProvider>
+        <NotificationProvider>
+          <NotificationManager />
+          <AppRouterCacheProvider>
+            <ThemeProvider>
+              <Navbar />
+              {children}
+              <Footer />
+              <FeedbackPopup />
+            </ThemeProvider>
+          </AppRouterCacheProvider>
+        </NotificationProvider>
       </body>
     </html>
   );

@@ -1,12 +1,12 @@
 "use client";
 
-import { LoginForm } from "@/features/login/components/LoginForm";
+import { SignupForm } from "@/features/login/components/SignupForm";
 import { Container, Typography, CircularProgress, Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   
@@ -20,7 +20,7 @@ export default function LoginPage() {
         // User is already logged in, redirect to home page
         router.push('/');
       } else {
-        // User is not logged in, show the login form
+        // User is not logged in, show the signup form
         setIsLoading(false);
       }
     };
@@ -49,9 +49,9 @@ export default function LoginPage() {
     <Container maxWidth="sm">
       <br />
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
-        Login
+        Sign Up
       </Typography>
-      <LoginForm />
+      <SignupForm />
     </Container>
   );
-}
+} 

@@ -6,9 +6,8 @@ import { useState } from 'react';
 export default function FavoriteTable({ favoriteVendors }: {
   favoriteVendors: Vendor[]
 }) {
-
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
-
+  const favoriteVendorIds = favoriteVendors.map(vendor => vendor.id);
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
@@ -25,6 +24,7 @@ export default function FavoriteTable({ favoriteVendors }: {
         handleBlur={handleBlur}
         handleFocus={handleFocus}
         focusedCardIndex={focusedCardIndex}
+        favoriteVendorIds={favoriteVendorIds}
       />
     </div>
   );
