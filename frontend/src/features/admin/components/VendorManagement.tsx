@@ -193,8 +193,8 @@ const AdminVendorManagement = () => {
               <RadioGroup
                 aria-labelledby="demo-controlled-radio-buttons-group"
                 name="controlled-radio-buttons-group"
-                value={newVendor.travels_world_wide.toString()}
-                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: Boolean(e.target.value) })}
+                value={newVendor.travels_world_wide ? "true" : "false"}
+                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: e.target.value === "true" })}
               >
                 <FormControlLabel value="true" control={<Radio />} label="True" />
                 <FormControlLabel value="false" control={<Radio />} label="False" />

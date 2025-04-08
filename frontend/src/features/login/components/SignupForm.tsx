@@ -9,24 +9,22 @@ import {
   Paper,
   Stack,
   Link,
-  Alert,
 } from '@mui/material';
-import { login } from '../api/actions';
+import { signup } from '../api/actions';
 import { toast } from 'react-hot-toast';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export function LoginForm() {
+export function SignupForm() {
   const router = useRouter();
-  const [verificationNeeded, setVerificationNeeded] = React.useState(false);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const loadingToast = toast.loading('Logging in...');
+    const loadingToast = toast.loading('Creating your account...');
 
     try {
-      const result = await login(formData);
+      const result = await signup(formData);
       
       if (result && result.error) {
         toast.dismiss(loadingToast);
@@ -34,16 +32,18 @@ export function LoginForm() {
         return;
       }
       
-      if (result && result.verificationNeeded) {
+      if (result && result.success) {
         toast.dismiss(loadingToast);
-        toast.error('Please verify your email address to fully activate your account');
-        setVerificationNeeded(true);
+        toast.success('Account created successfully!');
+        // Use setTimeout to ensure the toast is visible before redirecting
+        setTimeout(() => {
+          router.push('/auth/verify-email');
+        }, 1000);
         return;
       }
       
       toast.dismiss(loadingToast);
-      toast.success('Logged in successfully!');
-      router.push('/');
+      toast.success('Account created successfully! Please check your email to verify your account.');
     } catch (error) {
       toast.dismiss(loadingToast);
       toast.error('An unexpected error occurred. Please try again.');
@@ -55,23 +55,8 @@ export function LoginForm() {
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Login
+            Create Account
           </Typography>
-          
-          {verificationNeeded && (
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              Your email is not verified. Please check your inbox and follow the verification link.
-              <Box mt={1}>
-                <Button
-                  size="small"
-                  component={NextLink}
-                  href="/auth/resend-verification"
-                >
-                  Resend verification email
-                </Button>
-              </Box>
-            </Alert>
-          )}
 
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <TextField
@@ -94,7 +79,20 @@ export function LoginForm() {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
+              variant="outlined"
+              helperText="Password must be at least 6 characters long"
+            />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              id="confirmPassword"
+              autoComplete="new-password"
               variant="outlined"
             />
 
@@ -105,13 +103,13 @@ export function LoginForm() {
                 variant="contained"
                 size="large"
               >
-                Log In
+                Sign Up
               </Button>
-
+              
               <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Don't have an account?{' '}
-                <Link component={NextLink} href="/signup">
-                  Sign up
+                Already have an account?{' '}
+                <Link component={NextLink} href="/login">
+                  Log in
                 </Link>
               </Typography>
             </Stack>
@@ -120,4 +118,4 @@ export function LoginForm() {
       </Box>
     </Container>
   );
-}
+} 
