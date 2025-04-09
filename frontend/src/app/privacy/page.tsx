@@ -18,7 +18,7 @@ const PrivacyPolicy = () => {
       </Typography>
 
       <Typography component="p">
-        This Privacy Policy describes how Asian Wedding Directory (the &quot;Site&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and discloses your personal information when you visit, use our services including asianweddingmakeup.com (the &quot;Site&quot;) or otherwise communicate with us (collectively, the &quot;Services&quot;). For purposes of this Privacy Policy, &quot;you&quot; and &quot;your&quot; means you as the user of the Services, whether you are a customer, website visitor, vendor, or another individual whose information we have collected pursuant to this Privacy Policy.
+        This Privacy Policy describes how Asian Wedding Makeup (the &quot;Site&quot;, &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) collects, uses, and discloses your personal information when you visit, use our services including asianweddingmakeup.com (the &quot;Site&quot;) or otherwise communicate with us (collectively, the &quot;Services&quot;). For purposes of this Privacy Policy, &quot;you&quot; and &quot;your&quot; means you as the user of the Services, whether you are a customer, website visitor, vendor, or another individual whose information we have collected pursuant to this Privacy Policy.
       </Typography>
 
       <Typography component="p">
@@ -463,7 +463,7 @@ const PrivacyPolicy = () => {
           Contact
         </Typography>
         <Typography component="p">
-          Should you have any questions about our privacy practices or this Privacy Policy, or if you would like to exercise any of the rights available to you, please email us at info@asianweddingmakeup.com.
+          Should you have any questions about our privacy practices or this Privacy Policy, or if you would like to exercise any of the rights available to you, please email us at katrina@asianweddingmakeup.com.
         </Typography>
       </Box>
 
