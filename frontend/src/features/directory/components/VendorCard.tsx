@@ -95,7 +95,7 @@ export const VendorCard = ({
             }}
           />
           {/* Favorite Button */}
-          {(process.env.NODE_ENV === 'development' && showFavoriteButton) && (
+          {(process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && showFavoriteButton) && (
             <IconButton
               sx={{ position: 'absolute', display: 'block', top: 8, right: 8, fontSize: 24, cursor: 'pointer' }}
               color='primary'
