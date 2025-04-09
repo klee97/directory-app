@@ -323,7 +323,7 @@ export default function Navbar() {
                   </Box>
                 </Collapse>
               </Box>
-              {process.env.NODE_ENV === 'development' && (
+              {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && (
                 <Box sx={{ width: '100%' }}>
                   <Divider />
                   {!isLoggedIn ? (
