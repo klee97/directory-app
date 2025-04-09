@@ -122,7 +122,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                   {vendor.business_name}
                 </Typography>
                 {/* Favorite Button */}
-                {(process.env.NODE_ENV === 'development') && (
+                {(process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true') && (
                   <IconButton
                     sx={{ fontSize: 24, cursor: 'pointer' }}
                     color='primary'
