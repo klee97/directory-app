@@ -30,7 +30,7 @@ export function Footer() {
           </IconButton>
         </Link>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 4, flexWrap: "wrap" }}>
           <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
             Home
           </Link>
@@ -52,7 +52,9 @@ export function Footer() {
           <Link href="/vendors" style={{ color: "inherit", textDecoration: "none" }}>
             All Vendors
           </Link>
-          {/* Add more links here as needed */}
+          <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
+            Privacy Policy
+          </Link>
         </Box>
         {/* Copyright */}
         <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
