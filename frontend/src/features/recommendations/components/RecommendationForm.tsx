@@ -10,7 +10,7 @@ import {
 import Grid from '@mui/material/Grid2';
 import { BackendVendorRecommendationInsert } from '@/types/vendor';
 import { createRecommendation } from '../api/createRecommendation';
-import toast from 'react-hot-toast';
+import { useNotification } from '@/contexts/NotificationContext';
 import ReCaptcha, { ReCaptchaRef } from '@/components/security/ReCaptcha';
 
 export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationInsert = {
@@ -24,8 +24,10 @@ export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationIns
 } as const;
 
 const RecommendationForm = () => {
+  const { addNotification } = useNotification();
   const [recommendation, setRecommendation] = useState<BackendVendorRecommendationInsert>(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
   const [errors, setErrors] = useState({ business_name: false, region: false });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
@@ -41,15 +43,15 @@ const RecommendationForm = () => {
       setErrors(newErrors);
       return;
     }
-    const loadingToast = toast.loading("Submitting your recommendation...");
+
+    setIsSubmitting(true);
 
     try {
       // Execute reCAPTCHA and get token
       const recaptchaToken = await recaptchaRef.current?.executeAsync();
 
       if (!recaptchaToken) {
-        toast.dismiss(loadingToast);
-        toast.error("CAPTCHA verification failed. Please try again.");
+        addNotification("CAPTCHA verification failed. Please try again.", "error");
         return;
       }
 
@@ -61,18 +63,16 @@ const RecommendationForm = () => {
       const res = await createRecommendation(submissionData);
       if (!res.id) throw new Error("Failed to submit recommendation");
 
-      // Dismiss loading toast and show success
-      toast.dismiss(loadingToast);
-      toast.success("Thank you! Your recommendation has been submitted.");
+      addNotification("Thank you! Your recommendation has been submitted.");
       setRecommendation(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
       recaptchaRef.current?.reset();
     } catch (error: unknown) {
       console.error(error);
-      // Dismiss loading toast and show error
-      toast.dismiss(loadingToast);
       if (error instanceof Error) {
-        toast.error(error.message || "Something went wrong. Please try again.");
+        addNotification(error.message || "Something went wrong. Please try again.", "error");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -163,8 +163,9 @@ const RecommendationForm = () => {
             color="primary"
             onClick={handleSubmit}
             sx={{ width: 'auto' }}
+            disabled={isSubmitting}
           >
-            Submit Recommendation
+            {isSubmitting ? 'Submitting...' : 'Submit Recommendation'}
           </Button>
         </Grid>
       </Grid>

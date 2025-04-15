@@ -12,18 +12,20 @@ import {
 } from '@mui/material';
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorId } from '@/types/vendor';
 import { searchVendors } from '../api/searchVendors';
 import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { Suspense } from 'react';
 
 const PAGE_SIZE = 12;
 
-export default function FilterableVendorTable({ uniqueRegions, vendors }: {
+function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorIds }: {
   uniqueRegions: string[],
-  vendors: Vendor[]
+  vendors: Vendor[],
+  favoriteVendorIds: VendorId[]
 }) {
   const searchParams = useSearchParams();
   const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
@@ -213,6 +215,8 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
         focusedCardIndex={focusedCardIndex}
         vendors={visibleVendors}
         searchParams={searchParams.toString()}
+        favoriteVendorIds={favoriteVendorIds}
+        showFavoriteButton={true}
       />
 
       {/* Loading Spinner */}
@@ -226,5 +230,17 @@ export default function FilterableVendorTable({ uniqueRegions, vendors }: {
       <div ref={observerRef} style={{ height: 1 }} />
     </Box>
 
+  );
+}
+
+export default function FilterableVendorTable(props: {
+  uniqueRegions: string[],
+  vendors: Vendor[],
+  favoriteVendorIds: VendorId[]
+}) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FilterableVendorTableContent {...props} />
+    </Suspense>
   );
 }

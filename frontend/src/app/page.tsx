@@ -50,6 +50,7 @@ export default async function Home() {
       },
     }))
   };
+
   // Get unique regions from the vendor data
   const uniqueMetroRegions = Array.from(
     new Set(

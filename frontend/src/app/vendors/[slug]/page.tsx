@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
+import { Suspense } from 'react';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -84,7 +85,9 @@ export default async function VendorPage({ params }: PageProps) {
         />
         {/* ... */}
       </section>
-      <BackButton />
+      <Suspense fallback={<div>Loading...</div>}>
+        <BackButton />
+      </Suspense>
       <VendorDetails vendor={vendor} />
     </>
   );

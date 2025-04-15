@@ -3,14 +3,31 @@ import Container from '@mui/material/Container';
 import { Typography } from '@mui/material';
 import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
+import { usePathname } from 'next/navigation';
 
+interface DirectoryProps {
+  vendors: Vendor[];
+  uniqueMetroRegions: string[];
+}
 
-export function Directory({ vendors, uniqueMetroRegions }: {
-  vendors: Vendor[],
-  uniqueMetroRegions: string[]
-}) {
+export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
+  const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
+  const pathname = usePathname();
 
+  useEffect(() => {
+    async function loadFavorites() {
+      try {
+        const favorites = await getFavoriteVendorIds();
+        setFavoriteVendorIds(favorites);
+      } catch (error) {
+        console.error('Error loading favorites:', error);
+      }
+    }
+
+    loadFavorites();
+  }, [pathname]); // Reload favorites when pathname changes (i.e., when returning from vendor page)
 
   return (
     <Container
@@ -31,6 +48,7 @@ export function Directory({ vendors, uniqueMetroRegions }: {
         <FilterableVendorTable
           uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
+          favoriteVendorIds={favoriteVendorIds}
         />
       </Suspense>
     </Container>

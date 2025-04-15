@@ -1,12 +1,7 @@
-import * as React from 'react';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
-import FavoriteTable from '@/features/favorites/FavoriteTable';
-import { unstable_cache } from 'next/cache';
-import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
+import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
+import { Box, Container, Typography } from '@mui/material';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -30,33 +25,28 @@ export const metadata: Metadata = {
     canonical: "https://www.asianweddingmakeup.com/favorites",
   },
 };
-const getCachedVendors = unstable_cache(fetchAllVendors);
 
-
-export default async function Favorites() {
-  const vendors = await getCachedVendors();
-
+export default function Favorites() {
   return (
-    <Container maxWidth="lg">
-      <br />
-      <Box
-        sx={{
-          my: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          textAlign: 'left',
-          '& > p': { marginBottom: 2 },
-        }}
-      >
-        <Typography variant="h1" component="h1" gutterBottom>
-          My Favorites
-        </Typography>
-        {process.env.NODE_ENV === 'development'
-          ? (<FavoriteTable favoriteVendors={vendors} />)
-          : <Typography variant="h4">Coming soon...</Typography>
-        }
-      </Box>
-    </Container>
-  );
+    <>
+      {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
+        ? <FavoritesContent />
+        : <Container maxWidth="lg">
+          <br />
+          <Box
+            sx={{
+              my: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              textAlign: 'left',
+              '& > p': { marginBottom: 2 },
+            }}
+          >
+            <Typography variant="h4">Coming soon...</Typography>
+          </Box>
+        </Container>
+      }
+    </>
+  )
 }

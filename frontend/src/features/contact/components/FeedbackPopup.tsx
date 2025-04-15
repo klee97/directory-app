@@ -15,8 +15,6 @@ const FeedbackPopup = () => {
   const [rating, setRating] = useState<FeedbackRating | null>(null);
   const [comment, setComment] = useState("");
 
-
-
   useEffect(() => {
     const hasSeenPopup = localStorage.getItem("feedbackShown");
 
