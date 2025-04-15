@@ -171,7 +171,7 @@ export default function Navbar() {
           color="inherit"
           variant="outlined"
           onClick={() => router.push('/login')}
-          sx={{ 
+          sx={{
             mx: 1,
             display: { xs: 'none', md: 'block' }
           }}
@@ -434,22 +434,24 @@ export default function Navbar() {
             </Menu>
           </Box>
 
-          <FormControl>
-            <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-theme-toggle"
-              name="theme-toggle"
-              row
-              value={mode}
-              onChange={(event) =>
-                setMode(event.target.value as 'system' | 'light' | 'dark')
-              }
-            >
-              <FormControlLabel value="system" control={<Radio />} label="System" />
-              <FormControlLabel value="light" control={<Radio />} label="Light" />
-              <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-            </RadioGroup>
-          </FormControl>
+          {process.env.NODE_ENV === 'development' && (
+            <FormControl>
+              <FormLabel id="demo-theme-toggle">Theme</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-theme-toggle"
+                name="theme-toggle"
+                row
+                value={mode}
+                onChange={(event) =>
+                  setMode(event.target.value as 'system' | 'light' | 'dark')
+                }
+              >
+                <FormControlLabel value="system" control={<Radio />} label="System" />
+                <FormControlLabel value="light" control={<Radio />} label="Light" />
+                <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+              </RadioGroup>
+            </FormControl>
+          )}
           {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
           {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
         </Toolbar>
@@ -460,8 +462,8 @@ export default function Navbar() {
         onClose={handleCloseNotification}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert 
-          onClose={handleCloseNotification} 
+        <Alert
+          onClose={handleCloseNotification}
           severity={notification.severity}
           variant="filled"
           sx={{ width: '100%' }}
