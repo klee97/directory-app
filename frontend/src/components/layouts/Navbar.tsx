@@ -450,8 +450,8 @@ export default function Navbar() {
               <FormControlLabel value="dark" control={<Radio />} label="Dark" />
             </RadioGroup>
           </FormControl>
-          {renderAuthButtons()}
-          {renderProfileMenu()}
+          {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
+          {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
         </Toolbar>
       </Container>
       <Snackbar

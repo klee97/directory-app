@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -26,6 +26,7 @@ import { updatePassword } from '../api/updatePassword';
 import { deleteAccount } from '../api/deleteAccount';
 import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
+import { createClient } from '@/lib/supabase/client';
 
 interface ApiError extends Error {
   message: string;
@@ -42,6 +43,19 @@ export default function Settings() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function checkLogin() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+    }
+    checkLogin();
+  }, []);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +111,7 @@ export default function Settings() {
         Account Settings
       </Typography>
 
-      <List sx={{ 
+      <List sx={{
         width: '100%',
         '& .MuiListItemButton-root': {
           py: 2,
@@ -127,10 +141,10 @@ export default function Settings() {
             <ListItemIcon>
               <Delete color="error" />
             </ListItemIcon>
-            <ListItemText 
-              primary="Delete Account" 
+            <ListItemText
+              primary="Delete Account"
               secondary="Delete your account and data. This action cannot be undone"
-              slotProps={{secondary: {color: "error"}}}
+              slotProps={{ secondary: { color: "error" } }}
             />
           </ListItemButton>
         </ListItem>
@@ -233,8 +247,8 @@ export default function Settings() {
           <Button onClick={() => setDeleteDialogOpen(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleDeleteAccount} 
+          <Button
+            onClick={handleDeleteAccount}
             color="error"
             disabled={isSubmitting}
           >

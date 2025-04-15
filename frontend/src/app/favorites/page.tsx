@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
+import { Box, Container, Typography } from '@mui/material';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
@@ -26,5 +27,26 @@ export const metadata: Metadata = {
 };
 
 export default function Favorites() {
-  return <FavoritesContent />;
+  return (
+    <>
+      {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
+        ? <FavoritesContent />
+        : <Container maxWidth="lg">
+          <br />
+          <Box
+            sx={{
+              my: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              textAlign: 'left',
+              '& > p': { marginBottom: 2 },
+            }}
+          >
+            <Typography variant="h4">Coming soon...</Typography>
+          </Box>
+        </Container>
+      }
+    </>
+  )
 }
