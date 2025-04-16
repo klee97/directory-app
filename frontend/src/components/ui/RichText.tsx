@@ -266,7 +266,7 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
           grid: (node: unknown) => {
             const gridNode = node as GridNode;
             return (
-              <Grid container spacing={2} sx={{ my: 4 }}>
+              <Grid container spacing={1} sx={{ my: 4 }}>
                 {gridNode.content.map((block: Block | Inline, index: number) => (
                   <Grid key={index} size={{ xs: 12, md: 6 }}>
                     {renderImage(block)}
