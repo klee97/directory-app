@@ -22,7 +22,6 @@ import Logo from '@/assets/logo.jpeg';
 import { Collapse, useMediaQuery, ListItemIcon, ListItemText, Divider, Skeleton, Snackbar, Alert, AlertColor } from '@mui/material';
 import { ExpandLess, ExpandMore, AccountCircle, Settings, Favorite, Logout } from '@mui/icons-material';
 import { createClient } from '@/lib/supabase/client';
-import { useRouter } from 'next/navigation';
 import { useNotification } from '@/contexts/NotificationContext';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
@@ -46,7 +45,6 @@ export default function Navbar() {
     message: '',
     severity: 'success',
   });
-  const router = useRouter();
   const supabase = createClient();
   const { addNotification } = useNotification();
 
@@ -156,8 +154,8 @@ export default function Navbar() {
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
+      window.location.reload();
       addNotification('Successfully logged out');
-      router.push('/');
     } catch (error) {
       console.error('Error signing out:', error);
       addNotification('Failed to log out', 'error');
@@ -170,7 +168,7 @@ export default function Navbar() {
         <Button
           color="inherit"
           variant="outlined"
-          onClick={() => router.push('/login')}
+          onClick={(e) => handleMenuLinkClick(e, '/login')}
           sx={{
             mx: 1,
             display: { xs: 'none', md: 'block' }
@@ -327,7 +325,7 @@ export default function Navbar() {
                 <Box sx={{ width: '100%' }}>
                   <Divider />
                   {!isLoggedIn ? (
-                    <MenuItem onClick={() => router.push('/login')}>
+                    <MenuItem onClick={(e) => handleMenuLinkClick(e, '/login')}>
                       <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
                         Login
                       </Typography>

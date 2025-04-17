@@ -19,6 +19,7 @@ import TravelFilter from './TravelFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
+import useScrollRestoration from '@/hooks/useScrollRestoration';
 
 const PAGE_SIZE = 12;
 
@@ -38,6 +39,8 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
   const [loading, setLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
+  useScrollRestoration(true);
+
   // Memoize the filtered vendors based on the selected filters
   const filteredVendors = useMemo(() => {
     return vendors.filter((vendor) => {
@@ -55,7 +58,7 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
       result.sort((a, b) => {
         if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
         if (b.bridal_makeup_price === null) return -1;
-        console.log("Comparing prices");
+        console.debug("Comparing prices");
         return a.bridal_makeup_price - b.bridal_makeup_price;
       });
     } else if (sortOption === 'priceHighToLow') {

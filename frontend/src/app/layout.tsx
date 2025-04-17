@@ -10,6 +10,7 @@ import previewImage from '@/assets/website_preview.jpeg';
 import { Lato } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -65,17 +66,19 @@ export default function RootLayout({
         }}
       />
       <body>
-        <NotificationProvider>
-          <NotificationManager />
-          <AppRouterCacheProvider>
-            <ThemeProvider>
-              <Navbar />
-              {children}
-              <Footer />
-              <FeedbackPopup />
-            </ThemeProvider>
-          </AppRouterCacheProvider>
-        </NotificationProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <NotificationManager />
+            <AppRouterCacheProvider>
+              <ThemeProvider>
+                <Navbar />
+                {children}
+                <Footer />
+                <FeedbackPopup />
+              </ThemeProvider>
+            </AppRouterCacheProvider>
+          </NotificationProvider>
+        </AuthProvider>
       </body>
     </html>
   );

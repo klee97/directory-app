@@ -6,6 +6,7 @@ import FilterableVendorTable from './FilterableVendorTable';
 import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 interface DirectoryProps {
   vendors: Vendor[];
@@ -15,19 +16,33 @@ interface DirectoryProps {
 export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
-
+  const supabase = createClient();
   useEffect(() => {
     async function loadFavorites() {
       try {
-        const favorites = await getFavoriteVendorIds();
-        setFavoriteVendorIds(favorites);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const favoriteVendorIds = await getFavoriteVendorIds();
+          setFavoriteVendorIds(favoriteVendorIds);
+        }
       } catch (error) {
         console.error('Error loading favorites:', error);
       }
     }
-
     loadFavorites();
-  }, [pathname]); // Reload favorites when pathname changes (i.e., when returning from vendor page)
+
+    // Listen for session changes (e.g., when logging out or logging in)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setFavoriteVendorIds([]);
+      }
+    });
+
+    // Cleanup the subscription when the component unmounts
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [pathname, supabase.auth]);
 
   return (
     <Container
