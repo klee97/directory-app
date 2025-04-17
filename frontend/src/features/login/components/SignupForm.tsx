@@ -46,7 +46,6 @@ export function SignupForm() {
 
     try {
       const result = await signup(formData);
-      console.log(result);
       if (result && result.error) {
         addNotification(result.error, 'error');
         if (result.action === 'login') {
