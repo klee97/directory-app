@@ -11,7 +11,7 @@ export default function VerifyEmailPage() {
             Verify Your Email
           </Typography>
           <Typography variant="body1" component={"p"}>
-            Please check your inbox for a verification link from us.
+            Please check your email for a verification link.
           </Typography>
           
           <Typography variant="body1">

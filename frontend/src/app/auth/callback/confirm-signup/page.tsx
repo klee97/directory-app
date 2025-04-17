@@ -47,23 +47,26 @@ function ConfirmSignUpContent() {
             </>
           ) : (
             <>
-              <Typography variant="body1" align="center" component={'p'}>
-                Please click the button below to verify your email address and set up your account.
-              </Typography>
 
               {confirmationUrl ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  component="a"
-                  href={confirmationUrl}
-                  size="large"
-                >
-                  Confirm Now
-                </Button>
+                <>
+                  <Typography variant="body1" align="center" component={'p'}>
+                    Please click the button below to verify your email address and set up your account.
+                  </Typography>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component="a"
+                    href={confirmationUrl}
+                    size="large"
+                  >
+                    Confirm Now
+                  </Button>
+                </>
               ) : (
                 <Typography color="error">
-                  No confirmation URL provided. Please check the link and try again.
+                  There was an error verifying your email address. Please check the link and try again.
                 </Typography>
               )}
             </>

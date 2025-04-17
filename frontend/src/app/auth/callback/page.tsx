@@ -20,7 +20,7 @@ export default function AuthCallbackPage() {
 
       // If we have a session, redirect to home
       if (session) {
-        setMessage("Account is verified! Redirecting to homepage...");
+        setMessage("Authentication successful! Redirecting to homepage...");
         setTimeout(() => {
           router.push("/");
         }, 2000);
@@ -54,7 +54,7 @@ export default function AuthCallbackPage() {
 
       if (type === 'signup') {
         // email is successfully verified
-        setMessage("Authentication successful! Redirecting to homepage...");
+        setMessage("Email is verified! Redirecting to homepage...");
 
         // Redirect to homepage after 2 seconds
         setTimeout(() => {
