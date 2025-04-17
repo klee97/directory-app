@@ -4,7 +4,7 @@ import { Button } from "@mui/material";
 
 export default function BackButton() {
   const router = useRouter();
-  const referrer = typeof document !== 'undefined' ? document.referrer : ''; // Get the referrer (previous page)
+  const referrer = typeof document !== 'undefined' ? document.referrer : null; // Get the referrer (previous page)
   const backUrl = referrer ? referrer : '/'; // '/' should be the directory path
 
   const handleBack = () => {
