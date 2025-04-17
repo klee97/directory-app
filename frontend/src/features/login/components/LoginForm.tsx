@@ -64,7 +64,7 @@ export function LoginForm() {
                   component={NextLink}
                   href="/auth/verify-email"
                 >
-                  Resend verification email
+                  Get a new verification link
                 </Button>
               </Box>
             </Alert>

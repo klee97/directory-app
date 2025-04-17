@@ -67,6 +67,7 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
+    console.log(error)
     switch (error.code) {
       case 'email_exists':
         return { 

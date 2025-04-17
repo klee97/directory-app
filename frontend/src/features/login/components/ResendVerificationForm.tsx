@@ -33,7 +33,6 @@ export function ResendVerificationForm() {
       if (error) {
         addNotification(error.message || 'Failed to send verification email', 'error');
       } else {
-        addNotification('If your email is associated with an account, we will send a verification email to you! Please check your inbox');
         setIsSuccess(true);
       }
     } catch (error) {

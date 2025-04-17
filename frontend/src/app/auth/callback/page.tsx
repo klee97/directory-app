@@ -17,17 +17,26 @@ export default function AuthCallbackPage() {
       const supabase = createClient();
       const { data: { session }, error } = await supabase.auth.getSession();
 
-      // Get the hash and search params from the URL
-      const hash = window.location.hash;
+
+      // If we have a session, redirect to home
+      if (session) {
+        setMessage("Account is verified! Redirecting to homepage...");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        return;
+      }
+
+      // Get the search params from the URL
       const searchParams = new URLSearchParams(window.location.search);
+      const type = searchParams.get('type');
       const errorCode = searchParams.get('error_code');
 
       if (errorCode === 'otp_expired') {
         setIsError(true);
-        setMessage("Verification link has expired");
-        addNotification("The verification link has expired. Please request a new one.", "error");
+        setMessage("The verification link has expired. Please request a new one.");
         setTimeout(() => {
-          router.push("/auth/resend-verification");
+          router.push("/auth/verify-email");
         }, 2000);
         return;
       }
@@ -35,25 +44,19 @@ export default function AuthCallbackPage() {
       if (error) {
         setIsError(true);
         setMessage("Authentication error: " + error.message);
-        addNotification("Authentication failed: " + error.message, "error");
-        return;
-      }
 
-      // If this was an email verification
-      if (hash && hash.includes("type=signup")) {
-        addNotification("Email verified successfully! You can now log in with your account.");
-        setMessage("Email verified successfully!");
-        
         // Redirect to login after 2 seconds
         setTimeout(() => {
-          router.push("/login");
+          router.push("/");
         }, 2000);
         return;
       }
 
-      // If we have a session, redirect to home
-      if (session) {
-        setMessage("Authentication successful!");
+      if (type === 'signup') {
+        // email is successfully verified
+        setMessage("Authentication successful! Redirecting to homepage...");
+
+        // Redirect to homepage after 2 seconds
         setTimeout(() => {
           router.push("/");
         }, 2000);
@@ -61,9 +64,10 @@ export default function AuthCallbackPage() {
       }
 
       // If no session and no specific error, show a generic message
-      setMessage("Processing authentication...");
+      setIsError(true);
+      setMessage("Authentication failed. Redirecting to homepage... ");
       setTimeout(() => {
-        router.push("/login");
+        router.push("/");
       }, 2000);
     };
 

@@ -1,4 +1,4 @@
-import { Container, Typography, Paper, Box, Button, Alert } from "@mui/material";
+import { Container, Typography, Paper, Box, Button } from "@mui/material";
 import Link from "next/link";
 import { ResendVerificationForm } from "@/features/login/components/ResendVerificationForm";
 
@@ -10,14 +10,11 @@ export default function VerifyEmailPage() {
           <Typography variant="h4" component="h1" align="center" gutterBottom>
             Verify Your Email
           </Typography>
+          <Typography variant="body1" component={"p"}>
+            Please check your inbox for a verification link from us.
+          </Typography>
           
-          <Alert severity="info" sx={{ mb: 3 }}>
-            <Typography variant="body1">
-              We&apos;ve sent a verification email to your inbox. Please check your email and click the verification link to complete your signup.
-            </Typography>
-          </Alert>
-          
-          <Typography variant="body1" paragraph>
+          <Typography variant="body1">
             If you don&apos;t see the email:
           </Typography>
           
@@ -34,7 +31,7 @@ export default function VerifyEmailPage() {
           </Box>
 
           <Typography variant="h6" gutterBottom>
-            Need a new verification link?
+            Need a new verification link? Enter your email below:
           </Typography>
           
           <ResendVerificationForm />
