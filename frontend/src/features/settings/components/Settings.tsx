@@ -55,7 +55,7 @@ export default function Settings() {
       }
     }
     checkLogin();
-  }, []);
+  }, [router, supabase.auth]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();

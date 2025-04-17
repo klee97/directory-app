@@ -4,7 +4,7 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import FavoriteTable from '@/features/favorites/FavoriteTable';
+import FavoriteTable from '@/features/favorites/components/FavoriteTable';
 import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Vendor } from '@/types/vendor';
@@ -30,7 +30,7 @@ export function FavoritesContent() {
   const supabase = createClient();
 
   // Memoize the transformed vendors to prevent unnecessary re-renders
-  const transformedVendors = useMemo(() => 
+  const transformedVendors = useMemo(() =>
     favoriteVendors.map(transformToVendor),
     [favoriteVendors]
   );
@@ -40,7 +40,7 @@ export function FavoritesContent() {
 
     async function loadFavorites() {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (!session) {
         router.push('/login');
         return;

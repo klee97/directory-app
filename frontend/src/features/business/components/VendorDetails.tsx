@@ -11,19 +11,14 @@ import {
   Card,
   CardContent,
   useTheme,
-  styled,
-  Dialog,
-  IconButton,
+  styled
 } from '@mui/material';
 import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-material';
 import { Vendor } from '@/types/vendor';
 import Grid from '@mui/system/Grid';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
-import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
 import { createClient } from '@/lib/supabase/client';
-import { LoginPopupContent } from '@/features/login/components/LoginPopupContent';
+import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   position: 'sticky',
@@ -40,58 +35,32 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
-  const [showLoginPopup, setShowLoginPopup] = useState(false);
-
   useEffect(() => {
-    let mounted = true;
-
-    async function checkFavoriteStatus() {
+    const fetchFavoriteStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        return;
-      }
-
-      try {
+      if (session) {
         const favoriteVendorIds = await getFavoriteVendorIds();
-        if (mounted) {
-          setIsFavorite(favoriteVendorIds.includes(vendor.id));
-        }
-      } catch (error) {
-        console.error('Error checking favorite status:', error);
+        setIsFavorite(favoriteVendorIds.includes(vendor.id));  // Update with the backend status
       }
-    }
-
-    checkFavoriteStatus();
-
-    return () => {
-      mounted = false;
     };
-  }, [vendor.id, supabase]);
 
-  const handleFavoriteClick = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    fetchFavoriteStatus();
 
-    if (!session) {
-      setShowLoginPopup(true);
-      return;
-    }
-    const newFavoriteState = !isFavorite;
-    try {
-      setIsFavorite(newFavoriteState);
-      await upsertUserFavorite({ vendor_id: vendor.id, is_favorite: newFavoriteState });
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-    }
-  };
+    // Listen for session changes (e.g., when logging out)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        setIsFavorite(false);
+      }
+    });
+
+    // Cleanup the subscription when the component unmounts
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, [vendor.id, supabase.auth]);
 
   return (
     <>
-      {showLoginPopup &&
-        <Dialog open={showLoginPopup} onClose={() => setShowLoginPopup(false)}>
-          <LoginPopupContent handleClose={() => setShowLoginPopup(false)} />
-        </Dialog>
-      }
       <Box>
         <Container maxWidth="lg" sx={{ py: 8 }}>
           <Grid container rowSpacing={4} columnSpacing={8}>
@@ -123,21 +92,10 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 </Typography>
                 {/* Favorite Button */}
                 {(process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true') && (
-                  <IconButton
-                    sx={{ fontSize: 24, cursor: 'pointer' }}
-                    color='primary'
-                    onClick={handleFavoriteClick}
-                  >
-                    {isFavorite ? (
-                      <FavoriteIcon
-                        color='inherit'
-                      />
-                    ) : (
-                      <FavoriteBorderIcon
-                        color='inherit'
-                      />
-                    )}
-                  </IconButton>
+                  <FavoriteButton
+                    vendorId={vendor.id}
+                    initialIsFavorited={isFavorite}
+                  />
                 )}
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

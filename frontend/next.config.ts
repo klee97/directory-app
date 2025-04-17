@@ -7,9 +7,6 @@ const nextConfig: NextConfig = {
 export default nextConfig;
 
 module.exports = {
-  experimental: {
-    scrollRestoration: true,
-  },
   images: {
     remotePatterns: [
       {
