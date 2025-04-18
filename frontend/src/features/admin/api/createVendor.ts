@@ -17,22 +17,18 @@ export const createVendor = async (
   console.log("Authenticating...");
 
   // Check if user is authenticated
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  const { data: { user },  error: sessionError } = await supabase.auth.getUser()
 
-  if (!session) {
-    return { error: "You must be logged in to perform this action" };
-  }
-
-  if (sessionError || !session) {
+  if (!user || sessionError) {
     console.error("Authentication error:", sessionError || "No active session");
-    throw new Error("You must be logged in to perform this action");
+    return { error: "You must be logged in to perform this action" };
   }
 
   // Check if user is an admin using the profiles table
   const { data: profileData, error: profileError } = await supabase
     .from('profiles')
     .select('is_admin')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
 
   if (profileError || !profileData || !profileData.is_admin) {
