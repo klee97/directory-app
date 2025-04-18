@@ -1,6 +1,7 @@
 import { Box, Typography, Link, IconButton } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { CallToAction } from "./CallToAction";
+import KoFiButton from "../ui/KoFiButton";
 export function Footer() {
   return (
     <>
@@ -16,21 +17,30 @@ export function Footer() {
         }}
       >
         {/* Social Media Links */}
-        <Typography variant="body2" sx={{ mb: 1 }}>
-          Follow us on Instagram
-        </Typography>
-        <Link
-          href="https://www.instagram.com/asianweddingmkup"
-          target="_blank"
-          rel="noopener"
-          underline="none"
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 2,
+            mb: 4
+          }}
         >
-          <IconButton color="primary">
-            <InstagramIcon fontSize="large" />
-          </IconButton>
-        </Link>
+          <KoFiButton />
+          <Link
+            href="https://www.instagram.com/asianweddingmkup"
+            target="_blank"
+            rel="noopener"
+            underline="none"
+          >
+            <IconButton color="primary">
+              <InstagramIcon fontSize="large" />
+            </IconButton>
+          </Link>
+        </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 4, flexWrap: "wrap" }}>
+
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 4, flexWrap: "wrap", mb: 4 }}>
           <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
             Home
           </Link>
