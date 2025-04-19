@@ -15,17 +15,6 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       const supabase = createClient();
-      const { data: { session }, error } = await supabase.auth.getSession();
-
-
-      // If we have a session, redirect to home
-      if (session) {
-        setMessage("Authentication successful! Redirecting to homepage...");
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-        return;
-      }
 
       // Get the search params from the URL
       const searchParams = new URLSearchParams(window.location.search);
@@ -41,22 +30,35 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      if (error) {
-        setIsError(true);
-        setMessage("Authentication error: " + error.message);
 
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-        return;
-      }
 
       if (type === 'signup') {
         // email is successfully verified
         setMessage("Email is verified! Redirecting to homepage...");
 
         // Redirect to homepage after 2 seconds
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        return;
+      }
+
+      const { data: { user }, error } = await supabase.auth.getUser();
+
+      // If we have a session, redirect to home
+      if (user) {
+        setMessage("Authentication successful! Redirecting to homepage...");
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+        return;
+      }
+
+      if (error) {
+        setIsError(true);
+        setMessage("Authentication error: " + error.message);
+
+        // Redirect to login after 2 seconds
         setTimeout(() => {
           router.push("/");
         }, 2000);
