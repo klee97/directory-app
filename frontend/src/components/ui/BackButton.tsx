@@ -16,9 +16,12 @@ export default function BackButton() {
       router.push(backUrl);
     }
   };
+
+  const backButtonText = referrer ? '← Back' : '← Back to Directory';
+
   return (
     <Button variant="text" onClick={handleBack} color='secondary'>
-      ← Back to Directory
+      {backButtonText}
     </Button>
   );
 }
