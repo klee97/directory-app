@@ -19,7 +19,11 @@ export async function GET(request: NextRequest) {
     })
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      redirect(next)
+      const successRedirectUrl = new URL(next, request.url)
+      successRedirectUrl.searchParams.set('message', 'Authentication successful!')
+      redirect(successRedirectUrl.toString())
+    } else {
+      console.error('Error verifying OTP:', error.message);
     }
   }
 

@@ -7,6 +7,8 @@ import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/router';
+import { useNotification } from '@/contexts/NotificationContext';
 
 interface DirectoryProps {
   vendors: Vendor[];
@@ -17,6 +19,20 @@ export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
+  const router = useRouter();
+  const { addNotification } = useNotification();
+
+
+  const { message } = router.query;
+
+  useEffect(() => {
+    if (message) {
+      if (typeof message === 'string') {
+        addNotification(message);
+      }
+    }
+  }, [message]);
+
   useEffect(() => {
     async function loadFavorites() {
       try {
