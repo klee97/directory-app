@@ -17,6 +17,7 @@ export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
+
   useEffect(() => {
     async function loadFavorites() {
       try {
