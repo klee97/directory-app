@@ -43,7 +43,7 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      const { data: { user }, error } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
 
       // If we have a session, redirect to home
       if (user) {
@@ -54,16 +54,16 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      if (error) {
-        setIsError(true);
-        setMessage("Authentication error: " + error.message);
+      // if (error) {
+      //   setIsError(true);
+      //   setMessage("Authentication error: " + error.message);
 
-        // Redirect to login after 2 seconds
-        // setTimeout(() => {
-        //   router.push("/");
-        // }, 2000);
-        return;
-      }
+      //   // Redirect to login after 2 seconds
+      //   // setTimeout(() => {
+      //   //   router.push("/");
+      //   // }, 2000);
+      //   return;
+      // }
 
       // If no session and no specific error, show a generic message
       setIsError(true);
