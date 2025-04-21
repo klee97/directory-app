@@ -22,7 +22,7 @@ export function Footer() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 2,
+            gap: 4,
             mb: 4
           }}
         >
