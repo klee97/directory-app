@@ -18,3 +18,10 @@ export const updatePassword = async (currentPassword: string, newPassword: strin
   if (error) throw error;
 };
 
+export const updatePasswordAfterReset = async (newPassword: string) => {
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword
+  });
+  if (error) throw error;
+};
+
