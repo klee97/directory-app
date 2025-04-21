@@ -24,9 +24,9 @@ export default function AuthCallbackPage() {
       if (errorCode === 'otp_expired') {
         setIsError(true);
         setMessage("The verification link has expired. Please request a new one.");
-        setTimeout(() => {
-          router.push("/auth/verify-email");
-        }, 2000);
+        // setTimeout(() => {
+        //   router.push("/auth/verify-email");
+        // }, 2000);
         return;
       }
 
@@ -37,9 +37,9 @@ export default function AuthCallbackPage() {
         setMessage("Email is verified! Redirecting to homepage...");
 
         // Redirect to homepage after 2 seconds
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        // setTimeout(() => {
+        //   router.push("/");
+        // }, 2000);
         return;
       }
 
@@ -48,9 +48,9 @@ export default function AuthCallbackPage() {
       // If we have a session, redirect to home
       if (user) {
         setMessage("Authentication successful! Redirecting to homepage...");
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        // setTimeout(() => {
+        //   router.push("/");
+        // }, 2000);
         return;
       }
 
@@ -59,18 +59,18 @@ export default function AuthCallbackPage() {
         setMessage("Authentication error: " + error.message);
 
         // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        // setTimeout(() => {
+        //   router.push("/");
+        // }, 2000);
         return;
       }
 
       // If no session and no specific error, show a generic message
       setIsError(true);
       setMessage("Authentication failed. Redirecting to homepage... ");
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
+      // setTimeout(() => {
+      //   router.push("/");
+      // }, 2000);
     };
 
     handleCallback();
