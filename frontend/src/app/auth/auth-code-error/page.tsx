@@ -1,14 +1,12 @@
 'use client'
 
-import { Container, Typography, Box, Button, Paper, Stack, Divider } from '@mui/material'
+import { Container, Typography, Box, Button, Paper, Stack, Divider, Link } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
 import EmailIcon from '@mui/icons-material/Email'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { useRouter } from 'next/navigation'
 
 export default function AuthCodeErrorPage() {
-  const router = useRouter()
 
   return (
     <Container maxWidth="sm">
@@ -21,8 +19,8 @@ export default function AuthCodeErrorPage() {
             </Typography>
           </Box>
 
-          <Typography variant="body1" component={"p"}>
-            We couldn't verify your account. This could be because:
+          <Typography variant="body1" component={"p"} gutterBottom>
+            We couldn&apos;t verify your account. This could be because:
           </Typography>
 
           <Box sx={{ ml: 2, mb: 3 }}>
@@ -43,33 +41,34 @@ export default function AuthCodeErrorPage() {
             What you can do:
           </Typography>
 
-          <Stack spacing={2} sx={{ mt: 3 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              startIcon={<RefreshIcon />}
-              onClick={() => router.push('/auth/resend-verification')}
-            >
-              Request a new verification link
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              startIcon={<EmailIcon />}
-              onClick={() => router.push('/auth/signin')}
-            >
-              Try signing in
-            </Button>
-            <Button
-              variant="text"
-              startIcon={<HomeIcon />}
-              fullWidth
-              onClick={() => router.push('/')}
-            >
-              Return to homepage
-            </Button>
+          <Stack spacing={2} alignItems="center" sx={{ mt: 3 }}>
+            <Link href="/auth/signin" style={{ textDecoration: 'none' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<RefreshIcon />}
+              >
+                Try logging in
+              </Button>
+            </Link>
+            <Link href="/auth/resend-verification" style={{ textDecoration: 'none' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<EmailIcon />}
+              >
+                Get a new verification link
+              </Button>
+            </Link>
+            <Link href="/" style={{ textDecoration: 'none' }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<HomeIcon />}
+              >
+                Return to homepage
+              </Button>
+            </Link>
           </Stack>
 
           <Box sx={{ mt: 4, textAlign: 'center' }}>
