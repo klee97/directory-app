@@ -42,7 +42,7 @@ export default function AuthCodeErrorPage() {
           </Typography>
 
           <Stack spacing={2} alignItems="center" sx={{ mt: 3 }}>
-            <Link href="/auth/signin" style={{ textDecoration: 'none' }}>
+            <Link href="/login" style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -51,7 +51,7 @@ export default function AuthCodeErrorPage() {
                 Try logging in
               </Button>
             </Link>
-            <Link href="/auth/resend-verification" style={{ textDecoration: 'none' }}>
+            <Link href="/auth/verify-email" style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 color="primary"
