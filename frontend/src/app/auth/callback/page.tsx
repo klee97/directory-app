@@ -30,8 +30,6 @@ export default function AuthCallbackPage() {
         return;
       }
 
-
-
       if (type === 'signup') {
         // email is successfully verified
         setMessage("Email is verified! Redirecting to homepage...");
