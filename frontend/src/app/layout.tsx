@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/react"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import Navbar from "@/components/layouts/Navbar";
@@ -52,6 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={lato.className}>
+      <Analytics />
       <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
       {/* Microsoft Clarity */}
       <Script
