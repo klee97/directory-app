@@ -11,7 +11,13 @@ const typography = {
     fontSize: '2rem',
     fontWeight: 500,
   },
+  h3: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.5rem',
+    fontWeight: 500,
+  },
   h4: {
+    
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
