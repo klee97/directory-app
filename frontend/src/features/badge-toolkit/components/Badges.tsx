@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Typography, Box, Button, TextField, Card, CardContent, CircularProgress } from '@mui/material'
+import { Typography, Box, Button, TextField, Card, CardContent, CircularProgress, Link } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { useEffect, useState } from 'react'
 import { fetchVendorBySlug } from '@/features/badge-toolkit/api/fetchVendor'
@@ -83,7 +83,7 @@ export function Badges() {
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 4 }}>
-        For more information about how to embed badges, check out our <a href="#guides">guides</a> at the bottom of the page.
+        For more information about how to embed badges, check out our <Link href="#guides">guides</Link> at the bottom of the page.
       </Typography>
       <Grid container spacing={4}>
         {badges.map((badge) => (
@@ -210,7 +210,7 @@ export function Badges() {
 
       <Box mt={4}>
         <Typography variant="body1">
-          Need help? Shoot us an email and we&apos;ll walk you through it!
+          Need help? Shoot us an <Link href="/contact">email</Link> and we&apos;ll walk you through it!
         </Typography>
       </Box>
     </Box>
