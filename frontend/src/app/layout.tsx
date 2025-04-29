@@ -12,6 +12,7 @@ import { Lato } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
+import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -73,6 +74,7 @@ export default function RootLayout({
             <NotificationManager />
             <AppRouterCacheProvider>
               <ThemeProvider>
+                <FeatureCTABanner actionUrl="/signup" />
                 <Navbar />
                 {children}
                 <Footer />
