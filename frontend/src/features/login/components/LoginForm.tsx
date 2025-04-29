@@ -116,7 +116,7 @@ export function LoginForm() {
               </Typography>
               <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Forgot your password?{' '}
-                <Link component={NextLink} href="/reset-password">
+                <Link component={NextLink} href="/forgot-password">
                   Reset your password
                 </Link>
               </Typography>

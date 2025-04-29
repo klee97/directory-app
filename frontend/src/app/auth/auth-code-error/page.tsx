@@ -73,7 +73,7 @@ export default function AuthCodeErrorPage() {
 
           <Box sx={{ mt: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
-              If you continue to experience issues, please contact support.
+              If you continue to experience issues, please contact <Link href="/contact">support</Link>.
             </Typography>
           </Box>
         </Paper>

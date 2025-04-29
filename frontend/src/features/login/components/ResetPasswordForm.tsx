@@ -5,7 +5,7 @@ import { Box, Button, TextField, CircularProgress, Alert, Container, Paper, Typo
 import { createClient } from '@/lib/supabase/client';
 import { useNotification } from '@/contexts/NotificationContext';
 
-export function ResetPasswordForm() {
+export function ForgotPasswordForm() {
   const { addNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
