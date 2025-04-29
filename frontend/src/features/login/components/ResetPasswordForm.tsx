@@ -22,9 +22,7 @@ export function ResetPasswordForm() {
 
     try {
       const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/update-password`,
-      })
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
 
       if (error) {
         addNotification(error.message || 'Failed to send reset password email', 'error');
@@ -76,7 +74,7 @@ export function ResetPasswordForm() {
                     disabled={isSubmitting}
                     startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
                   >
-                    {isSubmitting ? 'Sending...' : 'Send New Reset Password Email'}
+                    {isSubmitting ? 'Sending...' : 'Send Link to Email'}
                   </Button>
                 </Box>
               </>
