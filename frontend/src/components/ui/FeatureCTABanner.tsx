@@ -65,31 +65,29 @@ export default function FeatureCTABanner({
                 Save your favorite artists for later
               </Typography>
               <Typography variant="body2">
-                Create an account to save artists to your Favorites list for easy access! Coming soon: specialties like ethnicities and styles.
+                Create an account to save your favorite artists for easy access! Coming soon: artist specialties like ethnicities and styles.
               </Typography>
             </Box>
           </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button
-              variant="contained"
-              component={Link}
-              href={actionUrl}
-              sx={{
-                bgcolor: theme.palette.mode === 'light' ? 'white' : theme.palette.primary.main,
-                color: theme.palette.mode === 'light' ? theme.palette.info.main : theme.palette.background.paper,
-                fontWeight: 'bold',
-                '&:hover': {
-                  bgcolor: theme.palette.mode === 'light'
-                    ? 'rgba(255,255,255,0.9)'
-                    : theme.palette.secondary.main,
-                },
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {buttonText}
-            </Button>
-
+          <Button
+            variant="contained"
+            component={Link}
+            href={actionUrl}
+            sx={{
+              bgcolor: theme.palette.mode === 'light' ? 'white' : theme.palette.primary.main,
+              color: theme.palette.mode === 'light' ? theme.palette.info.main : theme.palette.background.paper,
+              fontWeight: 'bold',
+              '&:hover': {
+                bgcolor: theme.palette.mode === 'light'
+                  ? 'rgba(255,255,255,0.9)'
+                  : theme.palette.secondary.main,
+              },
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {buttonText}
+          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', gap: 2 }}>
             <IconButton
               size="small"
               onClick={handleClose}
