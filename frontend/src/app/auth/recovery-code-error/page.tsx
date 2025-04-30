@@ -3,7 +3,6 @@
 import { Container, Typography, Box, Button, Paper, Stack, Divider, Link } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
-import EmailIcon from '@mui/icons-material/Email'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
 export default function AuthCodeErrorPage() {
@@ -15,23 +14,20 @@ export default function AuthCodeErrorPage() {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <ErrorOutlineIcon color="error" sx={{ fontSize: 40, mr: 2 }} />
             <Typography variant="h4" component="h1" fontWeight="bold">
-              Account Verification Failed
+              Password Reset Link Failed
             </Typography>
           </Box>
 
           <Typography variant="body1" component={"p"} gutterBottom>
-            We couldn&apos;t verify your account. This could be because:
+            We couldn&apos;t verify your account for password reset. This could be because:
           </Typography>
 
           <Box sx={{ ml: 2, mb: 3 }}>
             <Typography variant="body1" component={"p"}>
-              • The verification link has expired
+              • The reset link has expired
             </Typography>
             <Typography variant="body1" component={"p"}>
-              • The link was already used
-            </Typography>
-            <Typography variant="body1" component={"p"}>
-              • The authentication token is invalid
+              • The reset link was already used
             </Typography>
           </Box>
 
@@ -42,22 +38,13 @@ export default function AuthCodeErrorPage() {
           </Typography>
 
           <Stack spacing={2} alignItems="center" sx={{ mt: 3 }}>
-            <Link href="/login" style={{ textDecoration: 'none' }}>
+            <Link href="/reset-password" style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 color="primary"
                 startIcon={<RefreshIcon />}
               >
-                Try logging in
-              </Button>
-            </Link>
-            <Link href="/auth/verify-email" style={{ textDecoration: 'none' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<EmailIcon />}
-              >
-                Get a new verification link
+                Request another password reset link
               </Button>
             </Link>
             <Link href="/" style={{ textDecoration: 'none' }}>

@@ -114,6 +114,12 @@ export function LoginForm() {
                   Sign up
                 </Link>
               </Typography>
+              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                Forgot your password?{' '}
+                <Link component={NextLink} href="/forgot-password">
+                  Reset your password
+                </Link>
+              </Typography>
             </Stack>
           </Box>
         </Paper>

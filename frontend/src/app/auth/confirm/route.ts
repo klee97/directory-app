@@ -28,5 +28,8 @@ export async function GET(request: NextRequest) {
   }
 
   // redirect the user to an error page with some instructions
+  if (type === 'recovery') {
+    redirect('/auth/recovery-code-error')    
+  }
   redirect('/auth/auth-code-error')
 }
