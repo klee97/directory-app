@@ -13,6 +13,8 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
 import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
+import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
+import { Suspense } from "react";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -79,6 +81,9 @@ export default function RootLayout({
               <ThemeProvider>
                 <FeatureCTABanner actionUrl="/signup" />
                 <Navbar />
+                <Suspense fallback={null}>
+                  <GTMRouteTracker />
+                </Suspense>
                 {children}
                 <Footer />
                 <FeedbackPopup />
