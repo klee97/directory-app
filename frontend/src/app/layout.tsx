@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react"
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
@@ -13,6 +13,8 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
 import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
+import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
+import { Suspense } from "react";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -54,21 +56,24 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={lato.className}>
-      <Analytics />
-      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
-      {/* Microsoft Clarity */}
-      <Script
-        id="microsoft-clarity"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `(function(c,l,a,r,i,t,y){
+      <head>
+        <GoogleTagManager gtmId="GTM-5SVLZR2M" />
+        {/* Microsoft Clarity */}
+        <Script
+          id="microsoft-clarity"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(c,l,a,r,i,t,y){
               c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
               t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
               y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
           })(window, document, "clarity", "script", "qcfdyqnpxk");`,
-        }}
-      />
+          }}
+        />
+      </head>
       <body>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5SVLZR2M"
+          height="0" width="0" style={{ display: "none", visibility: "hidden" }}></iframe></noscript>
         <AuthProvider>
           <NotificationProvider>
             <NotificationManager />
@@ -76,6 +81,9 @@ export default function RootLayout({
               <ThemeProvider>
                 <FeatureCTABanner actionUrl="/signup" />
                 <Navbar />
+                <Suspense fallback={null}>
+                  <GTMRouteTracker />
+                </Suspense>
                 {children}
                 <Footer />
                 <FeedbackPopup />
@@ -83,7 +91,9 @@ export default function RootLayout({
             </AppRouterCacheProvider>
           </NotificationProvider>
         </AuthProvider>
+        <Analytics />
       </body>
+      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
     </html>
   );
 }
