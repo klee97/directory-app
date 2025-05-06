@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from 'react';
-import { Box, Button, TextField, CircularProgress, Alert, Container, Paper, Typography } from '@mui/material';
-import { createClient } from '@/lib/supabase/client';
-import { useNotification } from '@/contexts/NotificationContext';
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+import { createClient } from "@/lib/supabase/client";
+import { useNotification } from "@/contexts/NotificationContext";
 
 export function ForgotPasswordForm() {
   const { addNotification } = useNotification();

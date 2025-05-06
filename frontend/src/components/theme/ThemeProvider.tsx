@@ -1,7 +1,8 @@
 "use client"
-import { createTheme, ThemeProvider as MuiThemeProvider } from "@mui/material/styles";
+import { createTheme } from "@mui/material/styles";
+import MuiThemeProvider from "@mui/material/styles/ThemeProvider";
 import { ReactNode } from "react";
-import { CssBaseline } from "@mui/material";
+import CssBaseline from "@mui/material/CssBaseline";
 import { getDesignTokens } from "./themePrimitives";
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {

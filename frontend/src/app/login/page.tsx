@@ -1,7 +1,10 @@
 "use client";
 
 import { LoginForm } from "@/features/login/components/LoginForm";
-import { Container, Typography, CircularProgress, Box } from "@mui/material";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";

@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
-import { Box, Container, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 export const metadata: Metadata = {
   title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",

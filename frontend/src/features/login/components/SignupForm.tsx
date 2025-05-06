@@ -1,27 +1,26 @@
 "use client";
-import React from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  Paper,
-  Stack,
-  Link,
-  Alert,
-} from '@mui/material';
-import { signup } from '../api/actions';
-import { useNotification } from '@/contexts/NotificationContext';
-import { validatePassword } from '@/utils/passwordValidation';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
+
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Link from "@mui/material/Link";
+import Alert from "@mui/material/Alert";
+import NextLink from "next/link";
+import { useRouter } from "next/navigation";
+import { signup } from "../api/actions";
+import { useNotification } from "@/contexts/NotificationContext";
+import { validatePassword } from "@/utils/passwordValidation";
 
 export function SignupForm() {
   const router = useRouter();
   const { addNotification } = useNotification();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [passwordError, setPasswordError] = React.useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

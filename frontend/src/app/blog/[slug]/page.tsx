@@ -4,8 +4,9 @@ import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
-import { Typography, Container, Box } from '@mui/material';
-
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 
 type Props = {
   params: Promise<{ slug: string }>

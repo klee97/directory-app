@@ -1,6 +1,7 @@
 import { ArticleTable } from '@/features/blog/components/ArticleTable';
-import { Box, Typography, Container } from '@mui/material';
-
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 
 
 export default async function BlogIndex() {

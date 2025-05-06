@@ -1,6 +1,6 @@
 "use client"
 import Container from '@mui/material/Container';
-import { Typography } from '@mui/material';
+import Typography from '@mui/material/Typography';
 import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
 import { Suspense, useEffect, useState } from 'react';

@@ -1,5 +1,10 @@
 import React from "react";
-import { Container, Typography, Accordion, AccordionSummary, AccordionDetails, Link } from "@mui/material";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Link from "@mui/material/Link";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Metadata } from "next";
 import defaultImage from '@/assets/website_preview.jpeg';

@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { AlertColor } from '@mui/material';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { AlertColor } from '@mui/material/Alert';
 
 interface Notification {
   message: string;

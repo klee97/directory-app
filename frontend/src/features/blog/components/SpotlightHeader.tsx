@@ -1,6 +1,7 @@
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import { PageBlogPost } from '../api/getBlogPosts'
-import { Box, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 
 const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
 

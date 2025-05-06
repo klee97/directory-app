@@ -1,4 +1,5 @@
-import { Container, Typography } from "@mui/material";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
 import { EmailForm } from "@/features/contact/components/EmailForm";
 import { Metadata } from "next";
 import defaultImage from '@/assets/website_preview.jpeg';
