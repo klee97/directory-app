@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import { useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -12,7 +12,7 @@ import { SEARCH_PARAM } from '@/lib/constants';
 export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [searchTerm, setSearchTerm] = React.useState(searchParams.get(SEARCH_PARAM) || '');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get(SEARCH_PARAM) || '');
 
   function handleSearch(term: string) {
     const params = new URLSearchParams(searchParams);

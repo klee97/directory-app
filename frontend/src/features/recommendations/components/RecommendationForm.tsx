@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { useRef, useState } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
 import { BackendVendorRecommendationInsert } from '@/types/vendor';
 import { createRecommendation } from '../api/createRecommendation';

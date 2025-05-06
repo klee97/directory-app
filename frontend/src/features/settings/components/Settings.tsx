@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Divider,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Alert,
-} from '@mui/material';
-import { Lock, Delete, Favorite } from '@mui/icons-material';
-import { updatePassword } from '../api/updatePassword';
-import { deleteAccount } from '../api/deleteAccount';
-import { useNotification } from '@/contexts/NotificationContext';
-import { validatePassword } from '@/utils/passwordValidation';
-import { createClient } from '@/lib/supabase/client';
+import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Divider from "@mui/material/Divider";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Alert from "@mui/material/Alert";
+import Favorite from "@mui/icons-material/Favorite";
+import Lock from "@mui/icons-material/Lock";
+import Delete from "@mui/icons-material/Delete";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { updatePassword } from "../api/updatePassword";
+import { deleteAccount } from "../api/deleteAccount";
+import { useNotification } from "@/contexts/NotificationContext";
+import { validatePassword } from "@/utils/passwordValidation";
+import { createClient } from "@/lib/supabase/client";
 
 interface ApiError extends Error {
   message: string;

@@ -1,6 +1,13 @@
 'use client'
 
-import { Container, Typography, Box, Button, Paper, Stack, Divider, Link } from '@mui/material'
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
 import EmailIcon from '@mui/icons-material/Email'

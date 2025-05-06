@@ -1,24 +1,23 @@
 "use client";
-import React from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  Paper,
-  Stack,
-  Link,
-  Alert,
-} from '@mui/material';
-import { login } from '../api/actions';
-import { useNotification } from '@/contexts/NotificationContext';
-import NextLink from 'next/link';
+
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Link from "@mui/material/Link";
+import Alert from "@mui/material/Alert";
+import NextLink from "next/link";
+import { login } from "../api/actions";
+import { useNotification } from "@/contexts/NotificationContext";
 
 export function LoginForm() {
   const { addNotification } = useNotification();
-  const [verificationNeeded, setVerificationNeeded] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [verificationNeeded, setVerificationNeeded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

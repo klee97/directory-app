@@ -1,4 +1,7 @@
-import { Box, Typography, Link, IconButton } from "@mui/material";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { CallToAction } from "./CallToAction";
 import KoFiButton from "../ui/KoFiButton";

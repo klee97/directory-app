@@ -1,6 +1,6 @@
 "use client";
 import { useTheme } from '@mui/material';
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useRef, forwardRef, useImperativeHandle } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 
 export interface ReCaptchaProps {

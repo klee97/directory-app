@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  TextField,
-  Button,
-  Box,
-  Alert,
-  Typography,
-  Container,
-} from "@mui/material";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 import { submitNewsletterForm } from "../api/submitForm";
 
 export function NewsletterForm() {

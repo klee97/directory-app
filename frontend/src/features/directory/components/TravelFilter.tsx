@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, usePathname, ReadonlyURLSearchParams } from "next/navigation";
-import { FormControlLabel, Switch } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import { TRAVEL_PARAM } from "@/lib/constants";
 
 export default function TravelFilter({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {

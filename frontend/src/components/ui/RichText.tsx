@@ -1,9 +1,9 @@
 import { Block, BLOCKS, Inline, MARKS } from '@contentful/rich-text-types'
 import { documentToReactComponents, Options } from '@contentful/rich-text-react-renderer'
-import React from 'react'
 import Link from 'next/link'
 import ContentfulImage from '@/components/ui/ContentfulImage'
-import { Box, Typography } from '@mui/material'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
 import { Content } from '@/features/blog/api/getBlogPosts'
 

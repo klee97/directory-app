@@ -1,7 +1,10 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
-import { FormControl, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { SelectChangeEvent } from "@mui/material/Select";
 import { LOCATION_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
 

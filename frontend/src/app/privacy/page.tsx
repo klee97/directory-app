@@ -1,13 +1,11 @@
 import React from 'react';
-import {
-  Container,
-  Typography,
-  Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon
-} from '@mui/material';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Box from '@mui/material/Box';
 import CircleIcon from '@mui/icons-material/Circle';
 
 const PrivacyPolicy = () => {

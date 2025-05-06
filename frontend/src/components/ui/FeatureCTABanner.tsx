@@ -1,6 +1,12 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Paper, Typography, IconButton, Container, useTheme } from '@mui/material';
+import { useState, useEffect } from 'react';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Container from '@mui/material/Container';
+import useTheme from '@mui/material/styles/useTheme';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Link from 'next/link';

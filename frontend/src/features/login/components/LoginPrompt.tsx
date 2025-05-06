@@ -1,9 +1,14 @@
 "use client";
-import React from 'react';
-import { DialogActions, DialogTitle, Button, IconButton, Dialog } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from "react";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+
 
 
 type LoginPromptProps = {
@@ -17,7 +22,7 @@ export default function LoginPrompt({
   onLoginSuccess,
   onCancel
 }: LoginPromptProps) {
-  const [isOpen, setIsOpen] = React.useState(true);
+  const [isOpen, setIsOpen] = useState(true);
   const { isLoggedIn } = useAuth();
 
   // Close the prompt if user becomes logged in

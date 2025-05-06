@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Container, Box, Typography, CircularProgress } from '@mui/material';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
 import AdminVendorManagement from '@/features/admin/components/VendorManagement';
 import { createClient } from '@/lib/supabase/client';

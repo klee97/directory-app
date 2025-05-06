@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { TextField, MenuItem, Button, Box, Alert } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import MenuItem from "@mui/material/MenuItem";
+import Button from "@mui/material/Button";
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
 import { submitForm } from "../api/submitForm";
 
 export function EmailForm() {

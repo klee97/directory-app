@@ -1,6 +1,6 @@
 'use client'
 
-import { Container } from '@mui/material'
+import Container from '@mui/material/Container'
 import { Badges } from '@/features/badge-toolkit/components/Badges'
 
 export default function VendorBadgeToolkit() {
