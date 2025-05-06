@@ -6,6 +6,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -134,6 +135,17 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     size="small"
                   />
                 )}
+                {vendor.tags.length && 
+                vendor.tags
+                .filter((tag) => tag.is_visible)
+                .map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    icon={<Checkbox />}
+                    label={tag.display_name}
+                    size="small"
+                  />
+                ))}
               </Box>
               <Box
                 sx={{

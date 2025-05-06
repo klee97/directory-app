@@ -98,7 +98,7 @@ export const VendorCard = ({
                 zIndex: 1
               }}
             />
-            {/* Price Badges Container */}
+            {/* Price and Specialties Badges Container */}
             <Box
               sx={{
                 position: 'absolute',
@@ -130,6 +130,19 @@ export const VendorCard = ({
                   }}
                 />
               )}
+              {vendor.tags.length && (vendor.tags
+                // .filter((tag) => tag.is_visible)
+                .map((tag) =>
+                  <Chip
+                    key={tag.id}
+                    label={`✔️ ${tag.display_name}`}
+                    sx={{
+                      backgroundColor: 'background.paper',
+                      fontWeight: 'medium',
+                      textAlign: 'right',
+                    }}
+                  />
+                ))}
             </Box>
           </Box>
           <CardContent
