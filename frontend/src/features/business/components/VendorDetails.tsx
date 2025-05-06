@@ -44,12 +44,12 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
 
   useEffect(() => {
     startTime.current = performance.now();
-  
+
     return () => {
       if (startTime.current !== null) {
         const endTime = performance.now();
         const durationSeconds = ((endTime - startTime.current) / 1000).toFixed(2);
-  
+
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: 'profile_view_duration',
@@ -135,17 +135,17 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     size="small"
                   />
                 )}
-                {vendor.tags.length && 
-                vendor.tags
-                .filter((tag) => tag.is_visible)
-                .map((tag) => (
-                  <Chip
-                    key={tag.id}
-                    icon={<Checkbox />}
-                    label={tag.display_name}
-                    size="small"
-                  />
-                ))}
+                {vendor.tags.length > 0 &&
+                  vendor.tags
+                    .filter((tag) => tag.is_visible)
+                    .map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        icon={<Checkbox />}
+                        label={tag.display_name}
+                        size="small"
+                      />
+                    ))}
               </Box>
               <Box
                 sx={{

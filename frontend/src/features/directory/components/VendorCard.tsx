@@ -130,8 +130,8 @@ export const VendorCard = ({
                   }}
                 />
               )}
-              {vendor.tags.length && (vendor.tags
-                // .filter((tag) => tag.is_visible)
+              {vendor.tags.length > 0 && (vendor.tags
+                .filter((tag) => tag.is_visible)
                 .map((tag) =>
                   <Chip
                     key={tag.id}
