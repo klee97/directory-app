@@ -1,8 +1,14 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Typography, Box, Button, TextField, Card, CardContent, CircularProgress, Link } from '@mui/material'
-import Grid from '@mui/material/Grid2'
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CircularProgress from '@mui/material/CircularProgress';
+import Link from '@mui/material/Link';import Grid from '@mui/material/Grid2'
 import { useEffect, useState } from 'react'
 import { fetchVendorBySlug } from '@/features/badge-toolkit/api/fetchVendor'
 

@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import { NewsletterForm } from "@/features/contact/components/NewsletterForm";
 export function CallToAction() {
   return (

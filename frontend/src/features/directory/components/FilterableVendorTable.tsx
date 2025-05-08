@@ -1,15 +1,13 @@
 "use client"
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import {
-  Box,
-  FormControl,
-  Select,
-  MenuItem,
-  Typography,
-  CircularProgress,
-  Button,
-  Divider,
-} from '@mui/material';
+import Box from "@mui/material/Box";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
 import { Vendor, VendorId } from '@/types/vendor';

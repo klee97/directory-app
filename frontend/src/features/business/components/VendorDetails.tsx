@@ -1,24 +1,29 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Paper,
-  Button,
-  Chip,
-  Card,
-  CardContent,
-  useTheme,
-  styled
-} from '@mui/material';
-import { Public, LocationOn, Mail, Link, Instagram, Place } from '@mui/icons-material';
 import { Vendor } from '@/types/vendor';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import { useTheme } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Grid from '@mui/system/Grid';
+import Public from '@mui/icons-material/Public';
+import LocationOn from '@mui/icons-material/LocationOn';
+import Mail from '@mui/icons-material/Mail';
+import Link from '@mui/icons-material/Link';
+import Instagram from '@mui/icons-material/Instagram';
+import Place from '@mui/icons-material/Place';
+import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
+
 
 const StickyCard = styled(Card)(({ theme }) => ({
   position: 'sticky',

@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import LoginPrompt from '@/features/login/components/LoginPrompt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { IconButton } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import { upsertUserFavorite } from '../api/upsertUserFavorite';
 
 type FavoriteButtonProps = {
