@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -36,9 +36,29 @@ interface VendorDetailsProps {
 const DEFAULT_PRICE = "Contact for Pricing";
 
 export function VendorDetails({ vendor }: VendorDetailsProps) {
+  const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
+
+  useEffect(() => {
+    startTime.current = performance.now();
+  
+    return () => {
+      if (startTime.current !== null) {
+        const endTime = performance.now();
+        const durationSeconds = ((endTime - startTime.current) / 1000).toFixed(2);
+  
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          event: 'profile_view_duration',
+          vendorSlug: vendor.slug,
+          duration: durationSeconds,
+        });
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -65,7 +85,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
 
   return (
     <>
-      <Box>
+      <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg" sx={{ py: 8 }}>
           <Grid container rowSpacing={4} columnSpacing={8}>
             {/* Image & Contact Card */}

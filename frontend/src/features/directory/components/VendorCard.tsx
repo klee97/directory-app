@@ -13,6 +13,9 @@ import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
+import { useInView } from 'react-intersection-observer';
+import { useEffect } from 'react';
+
 
 export const VendorCard = ({
   vendor,
@@ -33,12 +36,29 @@ export const VendorCard = ({
   isFavorite?: boolean;
   showFavoriteButton?: boolean;
 }) => {
+  const { ref, inView } = useInView({
+    threshold: 0.5,
+    triggerOnce: true, // Only fire once
+  });
+
+  useEffect(() => {
+    if (inView) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'card_impression',
+        vendorSlug: vendor.slug,
+        hasPhoto: !!vendor.cover_image,
+      });
+    }
+  }, [inView]);
+
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
 
   return (
     <>
       <Card
+        ref={ref}
         elevation={1}
         onFocus={onFocus}
         onBlur={onBlur}
@@ -63,6 +83,7 @@ export const VendorCard = ({
           href={`/vendors/${vendor.slug}?${searchParams}`}
           passHref
           style={{ textDecoration: 'none', color: 'inherit' }}
+          data-has-photo={!!vendor.cover_image}
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
             <CardMedia
