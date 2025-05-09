@@ -176,7 +176,7 @@ export const VendorCard = ({
                 return (
                   <Chip
                     key={index}
-                    label={`✔️ ${specialty}`}
+                    label={`${specialty}`}
                     variant="outlined"
                     sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
                   />
@@ -187,7 +187,7 @@ export const VendorCard = ({
                 .map((tag) =>
                   <Chip
                     key={tag.id}
-                    label={`✔️ ${tag.display_name}`}
+                    label={`${tag.display_name}`}
                     variant="outlined"
                     sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
                   />

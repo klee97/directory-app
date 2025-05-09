@@ -6,7 +6,6 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import Check from '@mui/icons-material/Check';
 import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -141,7 +140,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     .map((tag) => (
                       <Chip
                         key={tag.id}
-                        icon={<Check />}
                         label={`${tag.display_name}`}
                         size="small"
                       />                      
