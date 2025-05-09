@@ -11,9 +11,10 @@ import { createClient } from '@/lib/supabase/client';
 interface DirectoryProps {
   vendors: Vendor[];
   uniqueMetroRegions: string[];
+  tags: string[];
 }
 
-export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
+export function Directory({ vendors, uniqueMetroRegions, tags }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
@@ -58,13 +59,14 @@ export function Directory({ vendors, uniqueMetroRegions }: DirectoryProps) {
         Welcome to the Hair and Makeup Directory for Asian Beauty! Discover talented artists who have experience with Asian features and are recommended by the community.
       </Typography>
       <Typography>
-        Search by location, see who travels worldwide, and find the perfect artist in your price range.
+        Search by location and specialties, see who travels worldwide, and find the perfect artist in your price range.
       </Typography>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
           uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
           favoriteVendorIds={favoriteVendorIds}
+          tags={tags}
         />
       </Suspense>
     </Container>

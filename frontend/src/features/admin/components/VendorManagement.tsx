@@ -64,6 +64,7 @@ const AdminVendorManagement = () => {
   const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [skillSouthAsian, setSkillSouthAsian] = useState<boolean>(false);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -72,7 +73,7 @@ const AdminVendorManagement = () => {
 
     try {
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
-      const data = await createVendor(newVendorData, firstName, lastName);
+      const data = await createVendor(newVendorData, firstName, lastName, skillSouthAsian);
 
       if (data) {
         addNotification("Vendor added successfully!");
@@ -191,6 +192,18 @@ const AdminVendorManagement = () => {
                 name="controlled-radio-buttons-group"
                 value={newVendor.travels_world_wide ? "true" : "false"}
                 onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: e.target.value === "true" })}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="True" />
+                <FormControlLabel value="false" control={<Radio />} label="False" />
+              </RadioGroup>
+            </FormControl>
+            <FormControl>
+              <FormLabel id="demo-controlled-radio-buttons-group">Skilled in South Asian makeup</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={skillSouthAsian}
+                onChange={(e) => setSkillSouthAsian(e.target.value === "true")}
               >
                 <FormControlLabel value="true" control={<Radio />} label="True" />
                 <FormControlLabel value="false" control={<Radio />} label="False" />

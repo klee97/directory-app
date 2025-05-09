@@ -14,15 +14,17 @@ import { Vendor, VendorId } from '@/types/vendor';
 import { searchVendors } from '../api/searchVendors';
 import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
+import { SkillFilter } from './SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LOCATION_PARAM, SEARCH_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 
 const PAGE_SIZE = 12;
 
-function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorIds }: {
+function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVendorIds }: {
   uniqueRegions: string[],
+  tags: string[],
   vendors: Vendor[],
   favoriteVendorIds: VendorId[]
 }) {
@@ -30,6 +32,7 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
   const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
+  const selectedSkill = searchParams.get(SKILL_PARAM) || "";
 
   const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
@@ -44,9 +47,12 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
     return vendors.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
-      return matchesRegion && matchesTravel;
+      const matchesSkill = selectedSkill ? vendor.tags
+        .some((tag) => tag.display_name?.toLowerCase() === selectedSkill.toLowerCase())
+        : true;
+      return matchesRegion && matchesTravel && matchesSkill;
     });
-  }, [vendors, selectedRegion, travelsWorldwide]);
+  }, [vendors, selectedRegion, travelsWorldwide, selectedSkill]);
 
   // Apply search and sorting
   const searchedAndSortedVendors = useMemo(() => {
@@ -152,6 +158,7 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
           }}
         >
           <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
+          <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
           <SearchBar searchParams={searchParams} />
 
@@ -236,6 +243,7 @@ function FilterableVendorTableContent({ uniqueRegions, vendors, favoriteVendorId
 
 export default function FilterableVendorTable(props: {
   uniqueRegions: string[],
+  tags: string[],
   vendors: Vendor[],
   favoriteVendorIds: VendorId[]
 }) {

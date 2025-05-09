@@ -8,12 +8,14 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
     regions: { name: string } | null // Metro region name (can be null if no metro region found)
     usstates: { name: string } | null      // State name (can be null if no state found)
     vendor_testimonials: BackendVendorTestimonial[] | null
+    tags: BackendVendorTag[] | null
   };
 ;
 
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 export type BackendVendorTestimonial = Database['public']['Tables']['vendor_testimonials']['Row']
+export type BackendVendorTag = Database['public']['Tables']['tags']['Row'];
 export type VendorId = string;
 
 export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
@@ -21,6 +23,11 @@ export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
   | 'review'
   | 'author'
 >
+
+export type VendorTag = Pick<BackendVendorTag, 'id'
+  | 'display_name'
+  | 'is_visible'
+  >
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
@@ -45,8 +52,9 @@ export type Vendor = Pick<BackendVendor, 'id'
   'state': string | null,
   'instagram': string | null,
   'google_maps_place': string | null,
-  'testimonials': VendorTestimonial[]
-}
+  'testimonials': VendorTestimonial[],
+  'tags': VendorTag[]
+};
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
   return {
@@ -72,6 +80,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     metro_region: vendor.regions?.name ?? null, // Safely access region name
     state: vendor.usstates?.name ?? null, // Safely access state name
     testimonials: vendor.vendor_testimonials ?? [],
+    tags: vendor.tags ?? [],
   };
 }
 

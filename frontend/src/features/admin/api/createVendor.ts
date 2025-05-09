@@ -7,7 +7,8 @@ import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 export const createVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
-  lastname: string
+  lastname: string,
+  skillSouthAsian: boolean,
 ) => {
   console.log("Creating vendor:", vendor);
 
@@ -17,7 +18,7 @@ export const createVendor = async (
   console.log("Authenticating...");
 
   // Check if user is authenticated
-  const { data: { user },  error: sessionError } = await supabase.auth.getUser()
+  const { data: { user }, error: sessionError } = await supabase.auth.getUser()
 
   if (!user || sessionError) {
     console.error("Authentication error:", sessionError || "No active session");
@@ -48,6 +49,19 @@ export const createVendor = async (
     console.log("Vendor created successfully!", data);
 
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+
+    // Add tags to the vendor
+    if (skillSouthAsian) {
+      const southAsianTag = "90944527-f735-461c-92cf-79395c93c371"; // South Asian tag ID
+
+      const { error: skillError } = await supabase
+        .from("vendor_tags")
+        .insert({ vendor_id: data.id, tag_id: southAsianTag });
+
+      if (skillError) {
+        console.error(`Error adding tag ${southAsianTag} to new vendor id ${data.id}`, skillError);
+      }
+    }
 
     // Create a contact in HubSpot
     const hubspotContactId = await createHubSpotContact({
