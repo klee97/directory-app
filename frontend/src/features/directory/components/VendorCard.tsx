@@ -22,6 +22,7 @@ export const VendorCard = ({
   searchParams,
   onFocus,
   onBlur,
+  positionIndex,
   tabIndex,
   className,
   isFavorite,
@@ -31,6 +32,7 @@ export const VendorCard = ({
   searchParams: string;
   onFocus: () => void;
   onBlur: () => void;
+  positionIndex: number;
   tabIndex: number;
   className: string;
   isFavorite?: boolean;
@@ -47,6 +49,7 @@ export const VendorCard = ({
       window.dataLayer.push({
         event: 'card_impression',
         vendorSlug: vendor.slug,
+        position: positionIndex,
         hasPhoto: !!vendor.cover_image,
       });
     }
@@ -84,6 +87,7 @@ export const VendorCard = ({
           passHref
           style={{ textDecoration: 'none', color: 'inherit' }}
           data-has-photo={!!vendor.cover_image}
+          data-position={positionIndex}
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
             <CardMedia
