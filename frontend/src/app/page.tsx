@@ -64,9 +64,10 @@ export default async function Home() {
   const uniqueTags = Array.from(
     new Set(
       vendors
-        .flatMap((vendor) => vendor.tags
-        .filter((tag) => tag.is_visible)
-        .map((tag) => tag.display_name))
+        .flatMap(vendor => vendor.tags)
+        .filter(tag => tag.is_visible)
+        .map(tag => tag.display_name)
+        .filter(tag => tag !== null)
         .sort()
     )
   );

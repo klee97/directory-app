@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
+import Check from '@mui/icons-material/Check';
 import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -41,6 +41,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
+  const tags = vendor.tags.filter((tag) => tag.is_visible);
 
   useEffect(() => {
     startTime.current = performance.now();
@@ -58,7 +59,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
         });
       }
     };
-  }, []);
+  }, [vendor.slug]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -135,16 +136,15 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     size="small"
                   />
                 )}
-                {vendor.tags.length > 0 &&
-                  vendor.tags
-                    .filter((tag) => tag.is_visible)
+                {tags.length > 0 && 
+                  tags
                     .map((tag) => (
                       <Chip
                         key={tag.id}
-                        icon={<Checkbox />}
-                        label={tag.display_name}
+                        icon={<Check />}
+                        label={`${tag.display_name}`}
                         size="small"
-                      />
+                      />                      
                     ))}
               </Box>
               <Box

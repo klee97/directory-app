@@ -50,7 +50,7 @@ export const VendorCard = ({
         hasPhoto: !!vendor.cover_image,
       });
     }
-  }, [inView]);
+  }, [inView, vendor.cover_image, vendor.slug]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
@@ -98,7 +98,7 @@ export const VendorCard = ({
                 zIndex: 1
               }}
             />
-            {/* Price and Specialties Badges Container */}
+            {/* Price Container */}
             <Box
               sx={{
                 position: 'absolute',
@@ -130,19 +130,6 @@ export const VendorCard = ({
                   }}
                 />
               )}
-              {vendor.tags.length > 0 && (vendor.tags
-                .filter((tag) => tag.is_visible)
-                .map((tag) =>
-                  <Chip
-                    key={tag.id}
-                    label={`✔️ ${tag.display_name}`}
-                    sx={{
-                      backgroundColor: 'background.paper',
-                      fontWeight: 'medium',
-                      textAlign: 'right',
-                    }}
-                  />
-                ))}
             </Box>
           </Box>
           <CardContent
@@ -178,7 +165,7 @@ export const VendorCard = ({
                 />
               </Box>
             )}
-            {/* Specialty Tags */}
+            {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
             <Box sx={{
               display: 'flex',
               justifyContent: 'left',
@@ -189,12 +176,22 @@ export const VendorCard = ({
                 return (
                   <Chip
                     key={index}
-                    label={specialty}
+                    label={`✔️ ${specialty}`}
                     variant="outlined"
                     sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
                   />
                 );
               })}
+              {vendor.tags.length > 0 && (vendor.tags
+                .filter((tag) => tag.is_visible)
+                .map((tag) =>
+                  <Chip
+                    key={tag.id}
+                    label={`✔️ ${tag.display_name}`}
+                    variant="outlined"
+                    sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+                  />
+                ))}
             </Box>
           </CardContent>
         </Link>

@@ -41,7 +41,7 @@ export function SkillFilter({ tags, searchParams }:
         <FormControl sx={{ minWidth: 200 }}>
             <Select size='small' value={selectedRegion} onChange={handleChange} displayEmpty>
                 <MenuItem value="">
-                    <em>Filter: All Specialties</em>
+                    <em>Filter: All Skills</em>
                 </MenuItem>
                 {tags.map((skill) => (
                     <MenuItem key={skill} value={skill}>
