@@ -128,6 +128,7 @@ export type Database = {
           id: string
           is_visible: boolean | null
           name: string
+          style: string | null
         }
         Insert: {
           created_at?: string | null
@@ -135,6 +136,7 @@ export type Database = {
           id?: string
           is_visible?: boolean | null
           name: string
+          style?: string | null
         }
         Update: {
           created_at?: string | null
@@ -142,6 +144,7 @@ export type Database = {
           id?: string
           is_visible?: boolean | null
           name?: string
+          style?: string | null
         }
         Relationships: []
       }
@@ -327,21 +330,18 @@ export type Database = {
       vendor_tags: {
         Row: {
           created_at: string | null
-          id: string
-          tag_id: string | null
-          vendor_id: string | null
+          tag_id: string
+          vendor_id: string
         }
         Insert: {
           created_at?: string | null
-          id?: string
-          tag_id?: string | null
-          vendor_id?: string | null
+          tag_id: string
+          vendor_id: string
         }
         Update: {
           created_at?: string | null
-          id?: string
-          tag_id?: string | null
-          vendor_id?: string | null
+          tag_id?: string
+          vendor_id?: string
         }
         Relationships: [
           {

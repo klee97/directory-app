@@ -27,6 +27,7 @@ export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
 export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'display_name'
   | 'is_visible'
+  | 'style'
   >
 
 export type Vendor = Pick<BackendVendor, 'id'

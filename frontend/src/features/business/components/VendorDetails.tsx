@@ -137,11 +137,14 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                 )}
                 {tags.length > 0 && 
                   tags
+                    .filter((tag) => tag.is_visible && tag.display_name !== null)
+                    .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                     .map((tag) => (
                       <Chip
                         key={tag.id}
                         label={`${tag.display_name}`}
                         size="small"
+                        color={tag.style === 'primary' ? 'primary' : 'default'}
                       />                      
                     ))}
               </Box>

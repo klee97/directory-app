@@ -9,7 +9,7 @@ export async function fetchAllVendors() {
       *, 
       usmetro!metro_id(display_name), 
       regions!metro_region_id(name),
-      tags (id, display_name, is_visible)
+      tags (id, display_name, is_visible, style)
     `);
     if (data === null) {
       return [];

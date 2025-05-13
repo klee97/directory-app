@@ -172,24 +172,16 @@ export const VendorCard = ({
               mt: 'auto',
               gap: 1,
             }}>
-              {Array.from(vendor.specialties).map((specialty, index) => {
-                return (
-                  <Chip
-                    key={index}
-                    label={`${specialty}`}
-                    variant="outlined"
-                    sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
-                  />
-                );
-              })}
               {vendor.tags.length > 0 && (vendor.tags
-                .filter((tag) => tag.is_visible)
+                .filter((tag) => tag.is_visible && tag.display_name !== null)
+                .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                 .map((tag) =>
                   <Chip
                     key={tag.id}
                     label={`${tag.display_name}`}
                     variant="outlined"
                     sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+                    color={tag.style === 'primary' ? 'primary' : 'default'}
                   />
                 ))}
             </Box>

@@ -10,7 +10,7 @@ export async function fetchVendorById(id: string) {
       usmetro!metro_id(display_name), 
       regions!metro_region_id(name),
       vendor_testimonials (review, author),
-      tags (id, display_name, is_visible)
+      tags (id, display_name, is_visible, style)
     `)
     .eq('id', id)
     .single();
@@ -30,7 +30,7 @@ export async function fetchVendorBySlug(slug: string) {
       usmetro!metro_id(display_name), 
       regions!metro_region_id(name),
       vendor_testimonials (review, author),
-      tags (id, display_name, is_visible)
+      tags (id, display_name, is_visible, style)
     `)
     .eq('slug', slug)
     .single();
