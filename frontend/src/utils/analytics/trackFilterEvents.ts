@@ -33,7 +33,7 @@ export const trackFiltersApplied = (
 ) => {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({
-      event: 'filter_applied',
+      event: 'filters_applied',
       region: region,
       skill: skill,
       travels_worldwide: travelsWorldwide,
