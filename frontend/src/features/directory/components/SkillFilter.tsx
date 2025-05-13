@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { SKILL_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
+
 export function SkillFilter({ tags, searchParams }:
     {
         tags: string[];
@@ -31,7 +32,7 @@ export function SkillFilter({ tags, searchParams }:
                 newParams.delete(SKILL_PARAM);
             }
 
-            // 🔹 Use router.push() to update the URL while keeping other params
+            // Use router.push() to update the URL while keeping other params
             router.push(`?${newParams.toString()}`, { scroll: false });
         },
         [router, searchParams]
