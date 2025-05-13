@@ -40,15 +40,16 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
+  const tags = vendor.tags.filter((tag) => tag.is_visible);
 
   useEffect(() => {
     startTime.current = performance.now();
-  
+
     return () => {
       if (startTime.current !== null) {
         const endTime = performance.now();
         const durationSeconds = ((endTime - startTime.current) / 1000).toFixed(2);
-  
+
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: 'profile_view_duration',
@@ -57,7 +58,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
         });
       }
     };
-  }, []);
+  }, [vendor.slug]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -134,6 +135,18 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     size="small"
                   />
                 )}
+                {tags.length > 0 && 
+                  tags
+                    .filter((tag) => tag.is_visible && tag.display_name !== null)
+                    .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
+                    .map((tag) => (
+                      <Chip
+                        key={tag.id}
+                        label={`${tag.display_name}`}
+                        size="small"
+                        color={tag.style === 'primary' ? 'primary' : 'default'}
+                      />                      
+                    ))}
               </Box>
               <Box
                 sx={{

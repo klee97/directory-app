@@ -61,6 +61,17 @@ export default async function Home() {
     )
   );
 
+  const uniqueTags = Array.from(
+    new Set(
+      vendors
+        .flatMap(vendor => vendor.tags)
+        .filter(tag => tag.is_visible)
+        .map(tag => tag.display_name)
+        .filter(tag => tag !== null)
+        .sort()
+    )
+  );
+
   const seed = getTodaySeed();
   const shuffledVendors = shuffleWithSeed(vendors, seed);
 
@@ -73,7 +84,7 @@ export default async function Home() {
         />
       </section>
       <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
-      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} />
+      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} tags={uniqueTags} />
     </>
   );
 }

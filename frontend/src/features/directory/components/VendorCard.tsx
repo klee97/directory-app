@@ -53,7 +53,7 @@ export const VendorCard = ({
         hasPhoto: !!vendor.cover_image,
       });
     }
-  }, [inView]);
+  }, [inView, vendor.cover_image, vendor.slug]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
@@ -102,7 +102,7 @@ export const VendorCard = ({
                 zIndex: 1
               }}
             />
-            {/* Price Badges Container */}
+            {/* Price Container */}
             <Box
               sx={{
                 position: 'absolute',
@@ -169,23 +169,25 @@ export const VendorCard = ({
                 />
               </Box>
             )}
-            {/* Specialty Tags */}
+            {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
             <Box sx={{
               display: 'flex',
               justifyContent: 'left',
               mt: 'auto',
               gap: 1,
             }}>
-              {Array.from(vendor.specialties).map((specialty, index) => {
-                return (
+              {vendor.tags.length > 0 && (vendor.tags
+                .filter((tag) => tag.is_visible && tag.display_name !== null)
+                .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
+                .map((tag) =>
                   <Chip
-                    key={index}
-                    label={specialty}
+                    key={tag.id}
+                    label={`${tag.display_name}`}
                     variant="outlined"
                     sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+                    color={tag.style === 'primary' ? 'primary' : 'default'}
                   />
-                );
-              })}
+                ))}
             </Box>
           </CardContent>
         </Link>
