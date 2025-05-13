@@ -12,7 +12,7 @@ import { trackSearchQuery } from '@/utils/analytics/trackFilterEvents';
 
 const DEBOUNCE_MS = 500; // Debounce delay in milliseconds
 
-export function SearchBar({ searchParams, resultCount }: { searchParams: ReadonlyURLSearchParams, resultCount?: number }) {
+export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const pathname = usePathname();
   const { replace } = useRouter();
 
@@ -48,7 +48,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
       replace(`${pathname}?${params.toString()}`, { scroll: false });
 
       if (inputValue !== previousTerm) {
-        trackSearchQuery(inputValue, previousTerm, resultCount);
+        trackSearchQuery(inputValue, previousTerm);
       }
 
       debounceTimerRef.current = null;
@@ -59,7 +59,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [inputValue, pathname, replace, searchParams, resultCount]);
+  }, [inputValue, pathname, replace, searchParams]);
 
   function handleInputChange(term: string) {
     setInputValue(term); // Update the input field immediately

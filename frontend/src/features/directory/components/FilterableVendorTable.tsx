@@ -203,7 +203,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
           <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
           <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
-          <SearchBar searchParams={searchParams} resultCount={searchedAndSortedVendors.length} />
+          <SearchBar searchParams={searchParams} />
 
         </Box>
 
