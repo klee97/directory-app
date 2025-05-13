@@ -24,7 +24,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
     if (paramSearchTerm !== searchTerm) {
       setSearchTerm(paramSearchTerm);
     }
-  }, [searchParams]);
+  }, [searchParams, resultCount, searchTerm]);
 
   function handleSearch(term: string) {
     // Clear any pending debounce timer

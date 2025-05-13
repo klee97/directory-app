@@ -159,9 +159,9 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
             flexWrap: 'wrap', // Allows wrapping for smaller screens
           }}
         >
-          <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
-          <SkillFilter tags={tags} searchParams={searchParams} />
-          <TravelFilter searchParams={searchParams} />
+          <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} resultCount={searchedAndSortedVendors.length}/>
+          <SkillFilter tags={tags} searchParams={searchParams} resultCount={searchedAndSortedVendors.length}/>
+          <TravelFilter searchParams={searchParams} resultCount={searchedAndSortedVendors.length}/>
           <SearchBar searchParams={searchParams} resultCount={searchedAndSortedVendors.length} />
 
         </Box>

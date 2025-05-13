@@ -7,11 +7,13 @@ import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { SKILL_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
+import { SKILL_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 
-export function SkillFilter({ tags, searchParams }:
+export function SkillFilter({ tags, searchParams, resultCount }:
     {
         tags: string[];
         searchParams: ReadonlyURLSearchParams;
+        resultCount?: number;
     }
 ) {
     const router = useRouter();
@@ -34,8 +36,9 @@ export function SkillFilter({ tags, searchParams }:
 
             // Use router.push() to update the URL while keeping other params
             router.push(`?${newParams.toString()}`, { scroll: false });
+            trackFilterEvent(SKILL_FILTER_NAME, skill, resultCount);
         },
-        [router, searchParams]
+        [router, searchParams, resultCount]
     );
 
     return (

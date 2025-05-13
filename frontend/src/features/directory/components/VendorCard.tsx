@@ -53,7 +53,7 @@ export const VendorCard = ({
         hasPhoto: !!vendor.cover_image,
       });
     }
-  }, [inView, vendor.cover_image, vendor.slug]);
+  }, [inView, vendor.cover_image, vendor.slug, positionIndex]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;

@@ -1,18 +1,26 @@
 export const LOCATION_FILTER_NAME = 'region';
 export const TRAVEL_FILTER_NAME = 'travelsWorldwide';
+export const SKILL_FILTER_NAME = 'skill';
 
 /**
  * Track filter changes in GTM
  * 
  * @param filterType - The type of filter being changed (e.g., 'location', 'category')
  * @param newValue - The new filter value
+ * @param resultCount - The number of results after applying the filter
  */
-export const trackFilterEvent = (filterType: string, newValue: string | null) => {
+export const trackFilterEvent = (
+  filterType: string,
+  newValue: string | null,
+  resultCount?: number
+) => {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({
       event: 'filter_change',
       filter_type: filterType,
       new_value: newValue?.toString() || 'all',
+      result_count: resultCount ?? 0,
+      has_results: resultCount ? resultCount > 0 : false,
     });
   }
 };
@@ -36,13 +44,13 @@ export const trackSearchQuery = (
       previous_term: previousTerm || '',
       timestamp: new Date().toISOString(),
     };
-    
+
     // Add result count if provided
     if (resultCount !== undefined) {
       searchEvent.result_count = resultCount;
       searchEvent.has_results = resultCount > 0;
     }
-    
+
     window.dataLayer.push(searchEvent);
   }
 };
@@ -64,4 +72,6 @@ export type GTMFilterEvent = {
   event: 'filter_change';
   filter_type: string;
   new_value: string;
+  result_count?: number;
+  has_results?: boolean;
 };
