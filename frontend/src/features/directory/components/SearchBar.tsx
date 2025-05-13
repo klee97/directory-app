@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -8,26 +8,70 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
 import { SEARCH_PARAM } from '@/lib/constants';
+import { trackSearchQuery } from '@/utils/analytics/trackFilterEvents';
 
-export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
+const DEBOUNCE_MS = 500; // Debounce delay in milliseconds
+
+export function SearchBar({ searchParams, resultCount }: { searchParams: ReadonlyURLSearchParams, resultCount?: number }) {
   const pathname = usePathname();
   const { replace } = useRouter();
   const [searchTerm, setSearchTerm] = useState(searchParams.get(SEARCH_PARAM) || '');
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Keep the input in sync with URL params if they change externally
+  useEffect(() => {
+    const paramSearchTerm = searchParams.get(SEARCH_PARAM) || '';
+    if (paramSearchTerm !== searchTerm) {
+      setSearchTerm(paramSearchTerm);
+    }
+  }, [searchParams]);
 
   function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set(SEARCH_PARAM, term);
-    } else {
-      params.delete(SEARCH_PARAM);
+    // Clear any pending debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
-    replace(`${pathname}?${params.toString()}`);
-    console.log(term);
+
+    // Update local state immediately for responsive UI
+    setSearchTerm(term);
+
+    // Debounce the URL update and tracking
+    debounceTimerRef.current = setTimeout(() => {
+      const previousTerm = searchParams.get(SEARCH_PARAM) || '';
+      const params = new URLSearchParams(searchParams);
+      if (term) {
+        params.set(SEARCH_PARAM, term);
+      } else {
+        params.delete(SEARCH_PARAM);
+      }
+      replace(`${pathname}?${params.toString()}`);
+      // Only track when the search term actually changes
+      if (term !== previousTerm) {
+        // Track with our specialized search tracking
+        trackSearchQuery(term, previousTerm, resultCount);
+      }
+      console.debug(term);
+      debounceTimerRef.current = null;
+    }, DEBOUNCE_MS);
   }
 
   function handleClear() {
+    // Clear any pending debounce timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+    const previousTerm = searchTerm;
     setSearchTerm(''); // Clear the search input
-    handleSearch(''); // Remove the query parameter
+    // Update URL immediately on clear instead of using handleSearch with debounce
+    const params = new URLSearchParams(searchParams);
+    params.delete(SEARCH_PARAM);
+    replace(`${pathname}?${params.toString()}`);
+
+    // Track the clearing action for search
+    if (previousTerm) {
+      trackSearchQuery('', previousTerm);
+    }
   }
 
   return (

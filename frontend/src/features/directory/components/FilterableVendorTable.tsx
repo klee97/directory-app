@@ -19,6 +19,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
+import { trackFilterReset } from '@/utils/analytics/trackFilterEvents';
 
 const PAGE_SIZE = 12;
 
@@ -101,6 +102,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   const handleClearFilters = () => {
     router.push("?", { scroll: false }); // Resets URL to base with no query params
+    trackFilterReset();
   };
 
   // Reset visible vendors whenever the filtered & searched vendor list changes
@@ -160,7 +162,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
           <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
           <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
-          <SearchBar searchParams={searchParams} />
+          <SearchBar searchParams={searchParams} resultCount={searchedAndSortedVendors.length} />
 
         </Box>
 

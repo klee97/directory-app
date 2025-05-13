@@ -4,6 +4,7 @@ import { useRouter, usePathname, ReadonlyURLSearchParams } from "next/navigation
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import { TRAVEL_PARAM } from "@/lib/constants";
+import { trackFilterEvent, TRAVEL_FILTER_NAME } from "@/utils/analytics/trackFilterEvents";
 
 export default function TravelFilter({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function TravelFilter({ searchParams }: { searchParams: ReadonlyU
     }
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    trackFilterEvent(TRAVEL_FILTER_NAME, newTravelsWorldwide.toString());
   };
 
   return (

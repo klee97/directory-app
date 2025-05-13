@@ -7,7 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { SelectChangeEvent } from "@mui/material/Select";
 import { LOCATION_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
-import { trackFilterEvent } from "@/utils/analytics/filterGtm";
+import { LOCATION_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 
 export function LocationFilter({ uniqueRegions, searchParams }:
   {
@@ -37,7 +37,7 @@ export function LocationFilter({ uniqueRegions, searchParams }:
       router.push(`?${newParams.toString()}`, { scroll: false });
 
       // Track the filter change event
-      trackFilterEvent(LOCATION_PARAM, region);
+      trackFilterEvent(LOCATION_FILTER_NAME, region);
     },
     [router, searchParams]
   );
