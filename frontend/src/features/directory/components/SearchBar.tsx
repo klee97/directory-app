@@ -27,7 +27,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
       setInputValue(searchParamValue);
       setDebouncedValue(searchParamValue);
     }
-  }, [searchParamValue]);
+  }, [searchParamValue, debouncedValue]);
 
   // Debounce the search term
   useEffect(() => {
@@ -59,7 +59,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
         clearTimeout(debounceTimerRef.current);
       }
     };
-  }, [inputValue]);
+  }, [inputValue, pathname, replace, searchParams, resultCount]);
 
   function handleInputChange(term: string) {
     setInputValue(term); // Update the input field immediately

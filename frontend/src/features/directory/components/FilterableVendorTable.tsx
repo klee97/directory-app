@@ -81,11 +81,10 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   useEffect(() => {
     const currentParams = searchParams.toString();
-
-
+  
     if (prevParams !== null && currentParams !== prevParams) {
       const hasSearchChanged = searchQuery !== searchParams.get(SEARCH_PARAM) || "";
-
+  
       if (hasSearchChanged) {
         debouncedTrackSearch({
           selectedRegion,
@@ -93,7 +92,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
           travelsWorldwide,
           searchQuery,
           sortOption,
-          resultCount: searchedAndSortedVendors.length
+          resultCount: searchedAndSortedVendors.length,
         });
       } else {
         trackFiltersApplied(
@@ -106,9 +105,18 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
         );
       }
     }
-
+  
     setPrevParams(currentParams);
-  }, [searchParams.toString(), searchedAndSortedVendors.length, sortOption]);
+  }, [
+    prevParams,
+    searchParams,
+    searchQuery,
+    selectedRegion,
+    selectedSkill,
+    travelsWorldwide,
+    sortOption,
+    searchedAndSortedVendors.length,
+  ]);
 
   // Load more vendors when scrolling
   const loadMoreVendors = useCallback(() => {
