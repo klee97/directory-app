@@ -6,7 +6,7 @@ import Switch from "@mui/material/Switch";
 import { TRAVEL_PARAM } from "@/lib/constants";
 import { trackFilterEvent, TRAVEL_FILTER_NAME } from "@/utils/analytics/trackFilterEvents";
 
-export default function TravelFilter({ searchParams, resultCount}: { searchParams: ReadonlyURLSearchParams, resultCount?: number }) {
+export default function TravelFilter({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,7 +25,7 @@ export default function TravelFilter({ searchParams, resultCount}: { searchParam
     }
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    trackFilterEvent(TRAVEL_FILTER_NAME, newTravelsWorldwide.toString(), resultCount);
+    trackFilterEvent(TRAVEL_FILTER_NAME, newTravelsWorldwide.toString());
   };
 
   return (

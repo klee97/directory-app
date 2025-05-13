@@ -15,60 +15,70 @@ const DEBOUNCE_MS = 500; // Debounce delay in milliseconds
 export function SearchBar({ searchParams, resultCount }: { searchParams: ReadonlyURLSearchParams, resultCount?: number }) {
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get(SEARCH_PARAM) || '');
+
+  const searchParamValue = searchParams.get(SEARCH_PARAM) || '';
+  const [inputValue, setInputValue] = useState(searchParamValue);
+  const [debouncedValue, setDebouncedValue] = useState(searchParamValue);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Keep the input in sync with URL params if they change externally
+  // Keep input value in sync with URL only if user isn't actively typing
   useEffect(() => {
-    const paramSearchTerm = searchParams.get(SEARCH_PARAM) || '';
-    if (paramSearchTerm !== searchTerm) {
-      setSearchTerm(paramSearchTerm);
+    if (searchParamValue !== debouncedValue) {
+      setInputValue(searchParamValue);
+      setDebouncedValue(searchParamValue);
     }
-  }, [searchParams, resultCount, searchTerm]);
+  }, [searchParamValue]);
 
-  function handleSearch(term: string) {
-    // Clear any pending debounce timer
+  // Debounce the search term
+  useEffect(() => {
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Update local state immediately for responsive UI
-    setSearchTerm(term);
-
-    // Debounce the URL update and tracking
     debounceTimerRef.current = setTimeout(() => {
+      setDebouncedValue(inputValue); // Commit the debounced value
+
       const previousTerm = searchParams.get(SEARCH_PARAM) || '';
       const params = new URLSearchParams(searchParams);
-      if (term) {
-        params.set(SEARCH_PARAM, term);
+      if (inputValue) {
+        params.set(SEARCH_PARAM, inputValue);
       } else {
         params.delete(SEARCH_PARAM);
       }
-      replace(`${pathname}?${params.toString()}`);
-      // Only track when the search term actually changes
-      if (term !== previousTerm) {
-        // Track with our specialized search tracking
-        trackSearchQuery(term, previousTerm, resultCount);
+      replace(`${pathname}?${params.toString()}`, { scroll: false });
+
+      if (inputValue !== previousTerm) {
+        trackSearchQuery(inputValue, previousTerm, resultCount);
       }
-      console.debug(term);
+
       debounceTimerRef.current = null;
     }, DEBOUNCE_MS);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [inputValue]);
+
+  function handleInputChange(term: string) {
+    setInputValue(term); // Update the input field immediately
   }
 
   function handleClear() {
-    // Clear any pending debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
-    const previousTerm = searchTerm;
-    setSearchTerm(''); // Clear the search input
-    // Update URL immediately on clear instead of using handleSearch with debounce
+
+    const previousTerm = inputValue;
+    setInputValue('');
+    setDebouncedValue('');
+
     const params = new URLSearchParams(searchParams);
     params.delete(SEARCH_PARAM);
-    replace(`${pathname}?${params.toString()}`);
+    replace(`${pathname}?${params.toString()}`, { scroll: false });
 
-    // Track the clearing action for search
     if (previousTerm) {
       trackSearchQuery('', previousTerm);
     }
@@ -80,11 +90,8 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
         size="small"
         id="search"
         placeholder="Search locations or artists…"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          handleSearch(e.target.value);
-        }}
+        value={inputValue}
+        onChange={(e) => handleInputChange(e.target.value)}
         sx={{ flexGrow: 1 }}
         startAdornment={
           <InputAdornment position="start" sx={{ color: 'text.primary' }}>
@@ -92,7 +99,7 @@ export function SearchBar({ searchParams, resultCount }: { searchParams: Readonl
           </InputAdornment>
         }
         endAdornment={
-          searchTerm && (
+          inputValue && (
             <InputAdornment position="end">
               <IconButton
                 aria-label="clear search"

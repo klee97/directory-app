@@ -9,11 +9,10 @@ import { LOCATION_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { LOCATION_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 
-export function LocationFilter({ uniqueRegions, searchParams, resultCount }:
+export function LocationFilter({ uniqueRegions, searchParams }:
   {
     uniqueRegions: string[];
     searchParams: ReadonlyURLSearchParams;
-    resultCount?: number;
   }
 ) {
   const router = useRouter();
@@ -38,9 +37,9 @@ export function LocationFilter({ uniqueRegions, searchParams, resultCount }:
       router.push(`?${newParams.toString()}`, { scroll: false });
 
       // Track the filter change event
-      trackFilterEvent(LOCATION_FILTER_NAME, region, resultCount);
+      trackFilterEvent(LOCATION_FILTER_NAME, region);
     },
-    [router, searchParams, resultCount]
+    [router, searchParams]
   );
   
   return (

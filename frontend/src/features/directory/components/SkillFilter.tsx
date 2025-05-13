@@ -9,11 +9,10 @@ import { SKILL_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { SKILL_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 
-export function SkillFilter({ tags, searchParams, resultCount }:
+export function SkillFilter({ tags, searchParams }:
     {
         tags: string[];
         searchParams: ReadonlyURLSearchParams;
-        resultCount?: number;
     }
 ) {
     const router = useRouter();
@@ -36,9 +35,9 @@ export function SkillFilter({ tags, searchParams, resultCount }:
 
             // Use router.push() to update the URL while keeping other params
             router.push(`?${newParams.toString()}`, { scroll: false });
-            trackFilterEvent(SKILL_FILTER_NAME, skill, resultCount);
+            trackFilterEvent(SKILL_FILTER_NAME, skill);
         },
-        [router, searchParams, resultCount]
+        [router, searchParams]
     );
 
     return (
