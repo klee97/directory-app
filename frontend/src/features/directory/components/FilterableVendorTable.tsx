@@ -83,7 +83,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     const currentParams = searchParams.toString();
   
     if (prevParams !== null && currentParams !== prevParams) {
-      const hasSearchChanged = searchQuery !== searchParams.get(SEARCH_PARAM) || "";
+      const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
   
       if (hasSearchChanged) {
         debouncedTrackSearch({

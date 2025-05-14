@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useEffect, useRef, useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -20,10 +20,11 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
   const [inputValue, setInputValue] = useState(searchParamValue);
   const [debouncedValue, setDebouncedValue] = useState(searchParamValue);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isTypingRef = useRef(false); // Track whether the user is actively typing
 
   // Keep input value in sync with URL only if user isn't actively typing
   useEffect(() => {
-    if (searchParamValue !== debouncedValue) {
+    if (!isTypingRef.current && searchParamValue !== debouncedValue) {
       setInputValue(searchParamValue);
       setDebouncedValue(searchParamValue);
     }
@@ -62,6 +63,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
   }, [inputValue, pathname, replace, searchParams]);
 
   function handleInputChange(term: string) {
+    isTypingRef.current = true; // Mark that the user is typing
     setInputValue(term); // Update the input field immediately
   }
 
@@ -92,6 +94,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
         placeholder="Search locations or artists…"
         value={inputValue}
         onChange={(e) => handleInputChange(e.target.value)}
+        onBlur={() => (isTypingRef.current = false)} // Reset typing flag on blur
         sx={{ flexGrow: 1 }}
         startAdornment={
           <InputAdornment position="start" sx={{ color: 'text.primary' }}>
