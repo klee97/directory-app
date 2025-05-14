@@ -19,6 +19,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
+import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
 
 const PAGE_SIZE = 12;
 
@@ -76,6 +77,47 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     return result;
   }, [searchQuery, filteredVendors, sortOption]);
 
+  const [prevParams, setPrevParams] = useState<string | null>(null);
+
+  useEffect(() => {
+    const currentParams = searchParams.toString();
+  
+    if (prevParams !== null && currentParams !== prevParams) {
+      const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
+  
+      if (hasSearchChanged) {
+        debouncedTrackSearch({
+          selectedRegion,
+          selectedSkill,
+          travelsWorldwide,
+          searchQuery,
+          sortOption,
+          resultCount: searchedAndSortedVendors.length,
+        });
+      } else {
+        trackFiltersApplied(
+          selectedRegion,
+          selectedSkill,
+          travelsWorldwide,
+          searchQuery,
+          sortOption,
+          searchedAndSortedVendors.length
+        );
+      }
+    }
+  
+    setPrevParams(currentParams);
+  }, [
+    prevParams,
+    searchParams,
+    searchQuery,
+    selectedRegion,
+    selectedSkill,
+    travelsWorldwide,
+    sortOption,
+    searchedAndSortedVendors.length,
+  ]);
+
   // Load more vendors when scrolling
   const loadMoreVendors = useCallback(() => {
     if (loading) return; // Prevent multiple calls while loading
@@ -101,6 +143,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   const handleClearFilters = () => {
     router.push("?", { scroll: false }); // Resets URL to base with no query params
+    trackFilterReset();
   };
 
   // Reset visible vendors whenever the filtered & searched vendor list changes

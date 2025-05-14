@@ -1,5 +1,5 @@
-"use client"
-import { useState } from 'react';
+"use client";
+import { useEffect, useRef, useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import InputAdornment from '@mui/material/InputAdornment';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -8,26 +8,82 @@ import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import { ReadonlyURLSearchParams, usePathname, useRouter } from 'next/navigation';
 import { SEARCH_PARAM } from '@/lib/constants';
+import { trackSearchQuery } from '@/utils/analytics/trackFilterEvents';
+
+const DEBOUNCE_MS = 500; // Debounce delay in milliseconds
 
 export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const pathname = usePathname();
   const { replace } = useRouter();
-  const [searchTerm, setSearchTerm] = useState(searchParams.get(SEARCH_PARAM) || '');
 
-  function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams);
-    if (term) {
-      params.set(SEARCH_PARAM, term);
-    } else {
-      params.delete(SEARCH_PARAM);
+  const searchParamValue = searchParams.get(SEARCH_PARAM) || '';
+  const [inputValue, setInputValue] = useState(searchParamValue);
+  const [debouncedValue, setDebouncedValue] = useState(searchParamValue);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isTypingRef = useRef(false); // Track whether the user is actively typing
+
+  // Keep input value in sync with URL only if user isn't actively typing
+  useEffect(() => {
+    if (!isTypingRef.current && searchParamValue !== debouncedValue) {
+      setInputValue(searchParamValue);
+      setDebouncedValue(searchParamValue);
     }
-    replace(`${pathname}?${params.toString()}`);
-    console.log(term);
+  }, [searchParamValue, debouncedValue]);
+
+  // Debounce the search term
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      setDebouncedValue(inputValue); // Commit the debounced value
+
+      const previousTerm = searchParams.get(SEARCH_PARAM) || '';
+      const params = new URLSearchParams(searchParams);
+      if (inputValue) {
+        params.set(SEARCH_PARAM, inputValue);
+      } else {
+        params.delete(SEARCH_PARAM);
+      }
+      replace(`${pathname}?${params.toString()}`, { scroll: false });
+
+      if (inputValue !== previousTerm) {
+        trackSearchQuery(inputValue, previousTerm);
+      }
+
+      debounceTimerRef.current = null;
+    }, DEBOUNCE_MS);
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [inputValue, pathname, replace, searchParams]);
+
+  function handleInputChange(term: string) {
+    isTypingRef.current = true; // Mark that the user is typing
+    setInputValue(term); // Update the input field immediately
   }
 
   function handleClear() {
-    setSearchTerm(''); // Clear the search input
-    handleSearch(''); // Remove the query parameter
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    const previousTerm = inputValue;
+    setInputValue('');
+    setDebouncedValue('');
+
+    const params = new URLSearchParams(searchParams);
+    params.delete(SEARCH_PARAM);
+    replace(`${pathname}?${params.toString()}`, { scroll: false });
+
+    if (previousTerm) {
+      trackSearchQuery('', previousTerm);
+    }
   }
 
   return (
@@ -36,11 +92,9 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
         size="small"
         id="search"
         placeholder="Search locations or artists…"
-        value={searchTerm}
-        onChange={(e) => {
-          setSearchTerm(e.target.value);
-          handleSearch(e.target.value);
-        }}
+        value={inputValue}
+        onChange={(e) => handleInputChange(e.target.value)}
+        onBlur={() => (isTypingRef.current = false)} // Reset typing flag on blur
         sx={{ flexGrow: 1 }}
         startAdornment={
           <InputAdornment position="start" sx={{ color: 'text.primary' }}>
@@ -48,7 +102,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
           </InputAdornment>
         }
         endAdornment={
-          searchTerm && (
+          inputValue && (
             <InputAdornment position="end">
               <IconButton
                 aria-label="clear search"
