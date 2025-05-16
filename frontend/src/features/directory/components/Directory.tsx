@@ -53,13 +53,18 @@ export function Directory({ vendors, uniqueMetroRegions, tags }: DirectoryProps)
       sx={{ display: 'flex', flexDirection: 'column', my: 12, gap: 4 }}
     >
       <Typography variant="h1" gutterBottom>
-        Hair and Makeup Artists for Asian Beauty
+        Find Wedding Makeup Artists skilled with Asian Features
       </Typography>
       <Typography>
-        Welcome to the Hair and Makeup Directory for Asian Beauty! Discover talented artists who have experience with Asian features and are recommended by the community.
+        Looking for a wedding makeup artist or hair stylist experienced with Asian features? This directory is for you!
       </Typography>
       <Typography>
-        Search by location and specialties, see who travels worldwide, and find the perfect artist in your price range.
+        Our site features talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
+        These artists know how to highlight your natural beauty on your wedding day, and they understand Asian features
+        like monolids, olive undertones, and hair texture.
+      </Typography>
+      <Typography>
+        Search by location and specialties, see who travels worldwide for destination weddings, and find the perfect wedding makeup artist in your price range.
       </Typography>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable

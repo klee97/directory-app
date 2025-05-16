@@ -9,8 +9,8 @@ const getCachedVendors = unstable_cache(fetchAllVendors);
 
 export const metadata: Metadata = {
   openGraph: {
-    title: 'Asian Wedding Makeup - Trusted artists in NYC, LA & more',
-    description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
+    title: 'Asian Wedding Makeup - Find trusted makeup artists in NYC, LA & beyond',
+    description: 'Discover wedding makeup artists experienced with Asian features · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.',
     url: 'https://www.asianweddingmakeup.com',
     type: 'website',
     images: [
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
         url: defaultImage.src,
         width: 1200,
         height: 630,
-        alt: 'Wedding Vendor Directory Preview',
+        alt: 'Asian Wedding Makeup Artist Directory',
       },
     ],
   },
@@ -38,14 +38,24 @@ export default async function Home() {
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "Service",
+        "@type": "MakeupArtist",
         "name": vendor.business_name,
         "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
         "image": vendor.cover_image,
+        "description": "Trusted wedding makeup artist for Asian features.",
+        "areaServed": {
+          "@type": "Place",
+          "name": vendor.region || "Various Locations"
+        },
         "provider": {
           "@type": "Organization",
-          "name": "Asian Wedding Makeup – Trusted artists in NYC, LA & more",
+          "name": "Asian Wedding Makeup",
           "url": "https://www.asianweddingmakeup.com",
+          "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+          "sameAs": [
+            "https://www.instagram.com/asianweddingmkup",
+          ],
+          "logo": defaultImage.src
         },
       },
     }))
@@ -83,7 +93,7 @@ export default async function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </section>
-      <title>Wedding Hair and Makeup Directory for Asian Beauty</title>
+      <title>Asian Wedding Makeup | The Best Artists for Asian Features</title>
       <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} tags={uniqueTags} />
     </>
   );
