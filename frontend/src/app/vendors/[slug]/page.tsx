@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { VendorDetails } from '@/features/business/components/VendorDetails';
 import { fetchVendorBySlug } from '@/features/business/api/fetchVendor';
 import { notFound } from 'next/navigation';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorSpecialty } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Vendor Not Found' };
   }
 
-  const isHairStylist = vendor.specialties?.has('Hair');
+  const isHairStylist = vendor.specialties?.has(VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
 
   return {

@@ -7,12 +7,12 @@ import Box from '@mui/material/Box';
 import FavoriteTable from '@/features/favorites/components/FavoriteTable';
 import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorSpecialty } from '@/types/vendor';
 import { useRouter } from 'next/navigation';
 import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
 
 type SerializedVendor = Omit<Vendor, 'specialties'> & {
-  specialties: string[];
+  specialties: VendorSpecialty[];
 };
 
 function transformToVendor(vendor: SerializedVendor): Vendor {

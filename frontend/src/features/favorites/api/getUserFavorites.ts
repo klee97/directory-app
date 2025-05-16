@@ -1,6 +1,6 @@
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { createClient } from '@/lib/supabase/client';
-import { Vendor, VendorId } from "@/types/vendor";
+import { Vendor, VendorId, VendorSpecialty } from "@/types/vendor";
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
   const supabase = createClient();
@@ -21,7 +21,7 @@ export async function getFavoriteVendorIds(): Promise<VendorId[]> {
 
 // This type represents the serializable data we'll pass from server to client
 type SerializedVendor = Omit<Vendor, 'specialties'> & {
-  specialties: string[];
+  specialties: VendorSpecialty[];
 };
 
 export async function getFavoriteVendors(): Promise<SerializedVendor[]> {
