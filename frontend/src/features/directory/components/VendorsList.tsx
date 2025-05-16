@@ -31,11 +31,16 @@ const VendorsList = ({ vendors }: { vendors: Vendor[] }) => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h1" gutterBottom >
-        Artists by Location
+        Browse Wedding Makeup Artists by Location
       </Typography>
 
       <Typography variant="h4" gutterBottom>
-        Find Wedding Hair and Makeup Artists in San Francisco, New York, Los Angeles, and more.
+        Find makeup artists skilled with Asian wedding makeup in New York, Los Angeles, Toronto, and more.
+      </Typography>
+
+      <Typography variant="h4" gutterBottom>
+        These artists know how to highlight your natural beauty on your wedding day, and they understand Asian features
+        like monolids, olive undertones, and hair texture.
       </Typography>
 
       <br />
