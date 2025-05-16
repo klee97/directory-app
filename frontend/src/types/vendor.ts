@@ -28,7 +28,8 @@ export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'display_name'
   | 'is_visible'
   | 'style'
-  >
+  | 'name'
+>
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
@@ -47,7 +48,7 @@ export type Vendor = Pick<BackendVendor, 'id'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
-  'specialties': Set<string>,
+  'specialties': Set<VendorSpecialty>,
   'metro': string | null,
   'metro_region': string | null,
   'state': string | null,
@@ -57,7 +58,24 @@ export type Vendor = Pick<BackendVendor, 'id'
   'tags': VendorTag[]
 };
 
+export enum VendorSpecialty {
+  SPECIALTY_HAIR,
+  SPECIALTY_MAKEUP
+}
+
+function mapTagToSpecialty(tag: VendorTag): VendorSpecialty | null {
+  switch (tag.id) {
+    case '432fa3e3-9007-4df0-8a5c-dd1d5491194a':
+      return VendorSpecialty.SPECIALTY_HAIR;
+    case '846350cd-e203-449f-90d0-c112aed74d0b':
+      return VendorSpecialty.SPECIALTY_MAKEUP;
+    default:
+      return null;
+  }
+};
+
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
+  const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   return {
     id: vendor.id,
     business_name: vendor.business_name,
@@ -76,7 +94,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
-    specialties: new Set((vendor.specialization ?? '').split(',').map(s => s.trim())),
+    specialties: new Set(specialties),
     metro: vendor.usmetro?.display_name ?? null, // Safely access metro region name
     metro_region: vendor.regions?.name ?? null, // Safely access region name
     state: vendor.usstates?.name ?? null, // Safely access state name
