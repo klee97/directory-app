@@ -9,7 +9,7 @@ export const createVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
   lastname: string,
-  tags: TagOption | null,
+  tags: TagOption[],
 ) => {
   console.log("Creating vendor:", vendor);
 
@@ -52,15 +52,15 @@ export const createVendor = async (
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
 
     // Add tags to the vendor
-    if (tags != null) {
+    tags.map(async (tag) => {
       const { error: skillError } = await supabase
         .from("vendor_tags")
-        .insert({ vendor_id: data.id, tag_id: tags.id });
+        .insert({ vendor_id: data.id, tag_id: tag.id });
 
       if (skillError) {
-        console.error(`Error adding tag ${tags} to new vendor id ${data.id}`, skillError);
+        console.error(`Error adding tag ${tag.unique_tag} to new vendor id ${data.id}`, skillError);
       }
-    }
+    })
 
     // Create a contact in HubSpot
     const hubspotContactId = await createHubSpotContact({

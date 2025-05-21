@@ -12,7 +12,7 @@ export const SKILL_FILTER_NAME = 'skill';
  */
 export const trackFilterEvent = (
   filterType: string,
-  newValue: string | null,
+  newValue: string | string[] | null,
 ) => {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({
@@ -25,7 +25,7 @@ export const trackFilterEvent = (
 
 export const trackFiltersApplied = (
   region: string,
-  skill: string,
+  skills: string[],
   travelsWorldwide: boolean,
   searchTerm: string,
   sortOption: string,
@@ -35,7 +35,7 @@ export const trackFiltersApplied = (
     window.dataLayer.push({
       event: 'filters_applied',
       region: region,
-      skill: skill,
+      skill: skills,
       travels_worldwide: travelsWorldwide,
       search_term: searchTerm,
       sort_option: sortOption,

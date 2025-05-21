@@ -35,7 +35,7 @@ export interface VendorInput {
   bridesmaid_makeup_price: number | null,
   "bridesmaid_hair_&_makeup_price": number | null,
   google_maps_place: string | null,
-  tags: string,
+  tags: TagOption[],
 }
 
 export const VENDOR_INPUT_DEFAULT: VendorInput = {
@@ -54,7 +54,7 @@ export const VENDOR_INPUT_DEFAULT: VendorInput = {
   bridesmaid_makeup_price: null,
   "bridesmaid_hair_&_makeup_price": null,
   google_maps_place: null,
-  tags: '',
+  tags: [],
 } as const;
 
 const AdminVendorManagement = () => {
@@ -63,7 +63,7 @@ const AdminVendorManagement = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
-  const [selectedTags, setSelectedTags] = useState<TagOption| null>(null);
+  const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addVendor = async () => {
@@ -79,7 +79,7 @@ const AdminVendorManagement = () => {
         setFirstName("");
         setLastName("");
         setSelectedRegion(null);
-        setSelectedTags(null);
+        setSelectedTags([]);
       } else {
         addNotification("Failed to add vendor. Please try again.", "error");
       }
@@ -107,11 +107,10 @@ const AdminVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
   };
 
-  const handleTagChange = (value: TagOption | null) => {
+  const handleTagChange = (value: TagOption[]) => {
     setSelectedTags(value);
-    setNewVendor({ ...newVendor, tags: value?.unique_tag ?? '' });
-
-  };
+    setNewVendor({ ...newVendor, tags: value });
+  }
 
   return (
     <Container maxWidth="md">
@@ -180,7 +179,7 @@ const AdminVendorManagement = () => {
             <Grid size={6}>
               <TagSelector
                 value={selectedTags}
-                onChange={(selectedTags: TagOption | null) => handleTagChange(selectedTags)}
+                onChange={(selectedTags: TagOption[]) => handleTagChange(selectedTags)}
               />
             </Grid>
             <Grid size={6}>
