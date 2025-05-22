@@ -11,7 +11,7 @@ import Divider from "@mui/material/Divider";
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './SearchBar';
 import { Vendor, VendorId } from '@/types/vendor';
-import { searchVendors } from '../api/searchVendors';
+import { getVendorsByDistance } from '../api/searchVendors';
 import { LocationFilter } from './LocationFilter';
 import TravelFilter from './TravelFilter';
 import { SkillFilter } from './SkillFilter';
@@ -34,7 +34,11 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkill = searchParams.get(SKILL_PARAM) || "";
+  const lat = parseFloat(searchParams.get("lat") || "");
+  const lon = parseFloat(searchParams.get("lon") || "");
+  const useLocationFilter = !isNaN(lat) && !isNaN(lon);
 
+  const [vendorsInRadius, setVendorsInRadius] = useState<Vendor[]>([]);
   const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
@@ -43,9 +47,33 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   useScrollRestoration(true);
 
+  // Load vendors based on location filter
+  useEffect(() => {
+    console.log("Loading vendors by distance");
+    let cancelled = false;
+
+    const fetchVendorsByDistance = async () => {
+      if (useLocationFilter && lat !== null && lon !== null) {
+        const result = await getVendorsByDistance(lat, lon, 25, 150);
+        console.log("Vendors in radius:", result);
+        if (!cancelled) {
+          setVendorsInRadius(result);
+        }
+      } else {
+        setVendorsInRadius(vendors);
+      }
+    };
+
+    fetchVendorsByDistance();
+
+    return () => {
+      cancelled = true; // Cleanup in case the component unmounts
+    };
+  }, [lat, lon, useLocationFilter, vendors]);
+
   // Memoize the filtered vendors based on the selected filters
   const filteredVendors = useMemo(() => {
-    return vendors.filter((vendor) => {
+    return vendorsInRadius.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       const matchesSkill = selectedSkill ? vendor.tags
@@ -53,38 +81,37 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
         : true;
       return matchesRegion && matchesTravel && matchesSkill;
     });
-  }, [vendors, selectedRegion, travelsWorldwide, selectedSkill]);
+  }, [vendorsInRadius, selectedRegion, travelsWorldwide, selectedSkill]);
 
   // Apply search and sorting
   const searchedAndSortedVendors = useMemo(() => {
-    const result: Vendor[] = searchVendors(searchQuery, filteredVendors);
-
+    const filteredSortedVendors: Vendor[] = filteredVendors;
     if (sortOption === 'priceLowToHigh') {
-      result.sort((a, b) => {
+      filteredSortedVendors.sort((a, b) => {
         if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
         if (b.bridal_makeup_price === null) return -1;
         console.debug("Comparing prices");
         return a.bridal_makeup_price - b.bridal_makeup_price;
       });
     } else if (sortOption === 'priceHighToLow') {
-      result.sort((a, b) => {
+      filteredSortedVendors.sort((a, b) => {
         if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
         if (b.bridal_makeup_price === null) return -1;
         return b.bridal_makeup_price - a.bridal_makeup_price;
       });
     }
 
-    return result;
+    return filteredSortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 
   const [prevParams, setPrevParams] = useState<string | null>(null);
 
   useEffect(() => {
     const currentParams = searchParams.toString();
-  
+
     if (prevParams !== null && currentParams !== prevParams) {
       const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
-  
+
       if (hasSearchChanged) {
         debouncedTrackSearch({
           selectedRegion,
@@ -105,7 +132,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
         );
       }
     }
-  
+
     setPrevParams(currentParams);
   }, [
     prevParams,

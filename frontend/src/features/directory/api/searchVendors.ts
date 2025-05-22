@@ -1,3 +1,4 @@
+import { supabase } from "@/lib/api-client";
 import { Vendor } from "@/types/vendor";
 
 export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] {
@@ -10,4 +11,23 @@ export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] 
     regex.test(vendor.instagram?.toString() ?? '')
   );
   return results;
+}
+
+export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 25, limit = 150) {
+  console.log("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
+  const { data, error } = await supabase
+    .rpc("get_vendors_by_distance",
+      {
+        lat: lat,
+        lon: lon,
+        radius_miles: radiusMi,
+        limit_results: limit
+      }
+    );
+
+  if (error) { 
+    console.error("Error fetching artists by distance:", error);
+  }
+
+  return data;
 }
