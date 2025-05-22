@@ -3,12 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert } from "@/types/vendor";
 import { prepareVendorInsertData } from "../components/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
+import { TagOption } from "../components/TagSelector";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
   lastname: string,
-  skillSouthAsian: boolean,
+  tags: TagOption[],
 ) => {
   console.log("Creating vendor:", vendor);
 
@@ -51,17 +52,15 @@ export const createVendor = async (
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
 
     // Add tags to the vendor
-    if (skillSouthAsian) {
-      const southAsianTag = "90944527-f735-461c-92cf-79395c93c371"; // South Asian tag ID
-
+    tags.map(async (tag) => {
       const { error: skillError } = await supabase
         .from("vendor_tags")
-        .insert({ vendor_id: data.id, tag_id: southAsianTag });
+        .insert({ vendor_id: data.id, tag_id: tag.id });
 
       if (skillError) {
-        console.error(`Error adding tag ${southAsianTag} to new vendor id ${data.id}`, skillError);
+        console.error(`Error adding tag ${tag.unique_tag} to new vendor id ${data.id}`, skillError);
       }
-    }
+    })
 
     // Create a contact in HubSpot
     const hubspotContactId = await createHubSpotContact({

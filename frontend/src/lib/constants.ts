@@ -7,5 +7,5 @@ export type SearchParam = {
   query?: string;
   region?: string;
   travelsWorldwide?: string;
-  skill?: string;
+  skill?: string[];
 }

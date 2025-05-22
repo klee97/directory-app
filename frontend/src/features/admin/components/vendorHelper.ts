@@ -28,7 +28,6 @@ export async function prepareVendorInsertData(vendor: BackendVendorInsert): Prom
     // metro_region_id: null,
     region: vendor.region,
     slug: slug,
-    specialization: vendor.specialization,
     state: state,
     // state_id: null,
     travels_world_wide: vendor.travels_world_wide,
