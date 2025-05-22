@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:analytics": "FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
+    "dev:preview": "VERCEL_ENV=preview next dev --turbopack",
+    "dev:preview-analytics": "VERCEL_ENV=preview FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
     "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml",
     "build": "next build",
     "postbuild": "next-sitemap",

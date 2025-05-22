@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import Navbar from "@/components/layouts/Navbar";
 import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
-import Script from "next/script";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/website_preview.jpeg';
 import { Lato } from 'next/font/google';
@@ -15,6 +13,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
 import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
 import { Suspense } from "react";
+import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -57,23 +56,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={lato.className}>
       <head>
-        <GoogleTagManager gtmId="GTM-5SVLZR2M" />
-        {/* Microsoft Clarity */}
-        <Script
-          id="microsoft-clarity"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-          })(window, document, "clarity", "script", "qcfdyqnpxk");`,
-          }}
-        />
+        <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-5SVLZR2M"} />
+        <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || "qcfdyqnpxk"} />
       </head>
       <body>
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5SVLZR2M"
-          height="0" width="0" style={{ display: "none", visibility: "hidden" }}></iframe></noscript>
+        <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-5SVLZR2M"} />
         <AuthProvider>
           <NotificationProvider>
             <NotificationManager />
@@ -93,7 +80,7 @@ export default function RootLayout({
         </AuthProvider>
         <Analytics />
       </body>
-      <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID as string} />
+      <ConditionalGA gaId={process.env.NEXT_PUBLIC_GA_ID || "G-7JZKX3Q1F4"} />
     </html>
   );
 }

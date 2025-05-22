@@ -7,6 +7,7 @@ import Spotlight from '@/features/blog/components/Spotlight';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
+import { isProduction } from '@/lib/env/env';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -77,7 +78,7 @@ export default async function BlogPostPage({ params }: Props) {
   // Check if post is scheduled for the future and we're in production
   const isFuturePost = post?.publishedDate && 
     new Date(post.publishedDate) > new Date() && 
-    process.env.NODE_ENV === 'production';
+    isProduction();
   
   if (post && !isFuturePost) {
     jsonLd = {

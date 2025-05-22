@@ -6,12 +6,13 @@ import Grid from '@mui/material/Grid2';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
 import Link from 'next/link';
 import ContentfulImage from '@/components/ui/ContentfulImage';
+import { shouldIncludeFuturePosts } from '@/lib/env/env';
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
   const validPosts = posts.filter((post): post is NonNullable<typeof post> => {
     if (!post) return false;
-    if (process.env.NODE_ENV === 'production') {
+    if (!shouldIncludeFuturePosts()) {
       return new Date(post.publishedDate) <= new Date();
     }
     return true;
