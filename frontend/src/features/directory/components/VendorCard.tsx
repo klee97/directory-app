@@ -176,7 +176,7 @@ export const VendorCard = ({
               mt: 'auto',
               gap: 1,
             }}>
-              {vendor.tags.length > 0 && (vendor.tags
+              {vendor.tags?.length > 0 && (vendor.tags
                 .filter((tag) => tag.is_visible && tag.display_name !== null)
                 .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                 .map((tag) =>
