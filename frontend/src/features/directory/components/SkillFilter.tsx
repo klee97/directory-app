@@ -49,13 +49,6 @@ export function SkillFilter({ tags, searchParams }:
                 value={selectedSkills}
                 onChange={handleChange}
                 displayEmpty
-                MenuProps={{
-                    sx: {
-                        "&& .Mui-selected": {
-                            backgroundColor: "rgba(0, 0, 0, 0.15)",
-                        }
-                    }
-                }}
                 renderValue={(selected) => {
                     if (selected.length === 0) {
                         return <em>{DEFAULT_ALL_SKILLS}</em>;

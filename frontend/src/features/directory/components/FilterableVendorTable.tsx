@@ -48,13 +48,12 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     return vendors.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
-      const matchesSkills = selectedSkills ? !selectedSkills
+      const matchesAnySkill = selectedSkills.length > 0 ? selectedSkills
         .map(skill => vendor.tags.some((tag) =>
           // does the vendor have a tag that matches the skill?
           tag.display_name?.toLowerCase() === skill.toLowerCase())
-        ).includes(false) // all skills must match
-        : true;
-      return matchesRegion && matchesTravel && matchesSkills;
+        ).includes(true) : true;
+      return matchesRegion && matchesTravel && matchesAnySkill;
     });
   }, [vendors, selectedRegion, travelsWorldwide, selectedSkills]);
 
@@ -91,7 +90,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
       if (hasSearchChanged) {
         debouncedTrackSearch({
           selectedRegion,
-          selectedSkill: selectedSkills,
+          selectedSkills,
           travelsWorldwide,
           searchQuery,
           sortOption,

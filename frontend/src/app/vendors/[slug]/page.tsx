@@ -2,10 +2,11 @@ import { Metadata } from 'next';
 import { VendorDetails } from '@/features/business/components/VendorDetails';
 import { fetchVendorBySlug } from '@/features/business/api/fetchVendor';
 import { notFound } from 'next/navigation';
-import { Vendor, VendorSpecialty } from '@/types/vendor';
+import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
+import { VendorSpecialty } from '@/types/tag';
 
 interface PageProps {
   params: Promise<{ slug: string }>;

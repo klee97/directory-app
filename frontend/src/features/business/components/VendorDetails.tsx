@@ -18,10 +18,11 @@ import Mail from '@mui/icons-material/Mail';
 import Link from '@mui/icons-material/Link';
 import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
-import { Vendor, VendorSpecialty } from '@/types/vendor';
+import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
+import { VendorSpecialty } from '@/types/tag';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -41,8 +42,6 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
-
-  console.log(vendor.specialties)
 
   useEffect(() => {
     startTime.current = performance.now();

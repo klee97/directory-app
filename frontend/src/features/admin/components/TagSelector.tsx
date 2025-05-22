@@ -1,6 +1,7 @@
 "use client"
 import TextField from '@mui/material/TextField';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+import { tagsOptionsMap } from '@/types/tag';
 
 // Define interfaces for our data structures
 export interface TagOption {
@@ -17,15 +18,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange }) => {
     const filter = createFilterOptions<TagOption>();
 
     // List of predefined tags
-    const tags: TagOption[] = [
-        { unique_tag: "SPECIALTY_HAIR", id: "432fa3e3-9007-4df0-8a5c-dd1d5491194a" },
-        { unique_tag: "SPECIALTY_MAKEUP", id: "846350cd-e203-449f-90d0-c112aed74d0b" },
-        { unique_tag: "SKILL_SOUTH_ASIAN", id: "90944527-f735-461c-92cf-79395c93c371" },
-    ];
-    const tagOptionMap = new Map<string, TagOption>();
-    tags.forEach((tag) => {
-        tagOptionMap.set(tag.unique_tag, tag);
-    })
+    const tags: TagOption[] = [...tagsOptionsMap.values()]
 
     const handleChange = (
         event: React.SyntheticEvent<Element, Event>,
@@ -38,7 +31,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange }) => {
 
         const finalOptions = value.map((option) => {
             if (typeof option === 'string') {
-                return tagOptionMap.get(option)
+                return tagsOptionsMap.get(option)
             }
             return option;
         }).filter((option) => 

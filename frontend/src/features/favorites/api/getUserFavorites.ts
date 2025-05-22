@@ -1,6 +1,7 @@
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { createClient } from '@/lib/supabase/client';
-import { Vendor, VendorId, VendorSpecialty } from "@/types/vendor";
+import { VendorSpecialty } from '@/types/tag';
+import { Vendor, VendorId } from "@/types/vendor";
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
   const supabase = createClient();

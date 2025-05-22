@@ -1,4 +1,5 @@
 import type { Database } from "@/types/supabase";
+import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 
 
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
@@ -15,7 +16,6 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 export type BackendVendorTestimonial = Database['public']['Tables']['vendor_testimonials']['Row']
-export type BackendVendorTag = Database['public']['Tables']['tags']['Row'];
 export type VendorId = string;
 
 export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
@@ -56,22 +56,6 @@ export type Vendor = Pick<BackendVendor, 'id'
   'google_maps_place': string | null,
   'testimonials': VendorTestimonial[],
   'tags': VendorTag[]
-};
-
-export enum VendorSpecialty {
-  SPECIALTY_HAIR,
-  SPECIALTY_MAKEUP
-}
-
-function mapTagToSpecialty(tag: VendorTag): VendorSpecialty | null {
-  switch (tag.id) {
-    case '432fa3e3-9007-4df0-8a5c-dd1d5491194a':
-      return VendorSpecialty.SPECIALTY_HAIR;
-    case '846350cd-e203-449f-90d0-c112aed74d0b':
-      return VendorSpecialty.SPECIALTY_MAKEUP;
-    default:
-      return null;
-  }
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
