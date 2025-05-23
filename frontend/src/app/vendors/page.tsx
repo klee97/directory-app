@@ -8,8 +8,8 @@ const getCachedVendors = unstable_cache(fetchAllVendors);
 
 export const metadata: Metadata = {
   openGraph: {
-    title: 'Asian Wedding Makeup - Find artists in NYC, LA & more',
-    description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
+    title: 'Asian Wedding Makeup - Find artists in NYC, LA, Toronto & more',
+    description: 'Find experts in Asian wedding makeup in NYC, LA, Toronto & beyond · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.',
     url: 'https://www.asianweddingmakeup.com/vendors',
     type: 'website',
     images: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         url: defaultImage.src,
         width: 1200,
         height: 630,
-        alt: 'Asian Wedding Makeup Preview',
+        alt: 'Asian Wedding Makeup Artist Directory',
       },
     ],
   },

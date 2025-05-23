@@ -71,7 +71,7 @@ export default function FeatureCTABanner({
                 Save your favorite artists for later
               </Typography>
               <Typography variant="body2">
-                {process.env.BANNER_TEXT ?? "Create an account to save your favorite artists for easy access!"}
+                {process.env.NEXT_PUBLIC_BANNER_TEXT ?? "Create an account to save your favorite artists for easy access!"}
               </Typography>
             </Box>
           </Box>

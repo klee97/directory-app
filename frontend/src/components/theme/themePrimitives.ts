@@ -17,7 +17,7 @@ const typography = {
     fontWeight: 500,
   },
   h4: {
-    
+
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
@@ -34,7 +34,7 @@ const typography = {
     fontSize: '1.1rem',
     fontWeight: 400,
   }
-}
+};
 
 export const colorSchemes = {
   light: {
@@ -85,11 +85,24 @@ export const colorSchemes = {
     },
     typography: typography,
   }
+};
 
-}
 export const getDesignTokens = () => {
 
   return {
-    colorSchemes: colorSchemes
-  };
+    colorSchemes: colorSchemes,
+    components: {
+      MuiMenu: {
+        styleOverrides: {
+          paper: {
+            '& .MuiMenuItem-root.Mui-selected': {
+              backgroundColor: 'rgba(0, 0, 0, 0.15)', '&:hover': {
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              },
+            },
+          },
+        },
+      },
+    },
+  }
 };
