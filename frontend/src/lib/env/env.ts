@@ -13,7 +13,7 @@ export const getEnvironment = () => {
   }
   
   // Local fallback
-  return nodeEnv === 'development' ? 'development' : 'production'
+  return nodeEnv === 'production' ? 'production' : 'development'
 }
 
 export const isDevelopment = () => {

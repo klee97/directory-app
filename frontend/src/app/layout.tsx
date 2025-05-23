@@ -14,6 +14,7 @@ import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
 import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
 import { Suspense } from "react";
 import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
+import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constants";
 
 const lato = Lato({
   weight: ['300', '400', '700', '900'],
@@ -56,11 +57,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={lato.className}>
       <head>
-        <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-5SVLZR2M"} />
-        <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || "qcfdyqnpxk"} />
+        <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
+        <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
       </head>
       <body>
-        <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || "GTM-5SVLZR2M"} />
+        <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
         <AuthProvider>
           <NotificationProvider>
             <NotificationManager />
@@ -80,7 +81,7 @@ export default function RootLayout({
         </AuthProvider>
         <Analytics />
       </body>
-      <ConditionalGA gaId={process.env.NEXT_PUBLIC_GA_ID || "G-7JZKX3Q1F4"} />
+      <ConditionalGA gaId={process.env.NEXT_PUBLIC_GA_ID || DEFAULT_GA_ID} />
     </html>
   );
 }
