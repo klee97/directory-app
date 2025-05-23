@@ -28,7 +28,7 @@ export default async function Article({ post }: { post: SinglePageBlogPost | nul
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
+            alignItems: 'left',
             backgroundColor: 'background.paper',
             padding: '20px',
             marginTop: '30px',
@@ -36,14 +36,14 @@ export default async function Article({ post }: { post: SinglePageBlogPost | nul
             boxShadow: 3
           }}
         >
-          <Typography variant="h6" component="h2">
-            Explore More Wedding Resources for the Asian Diaspora
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'center' }}>
+            Explore More Resources for the Asian Diaspora
           </Typography>
-          <Typography variant="body1" paddingTop={2} sx={{ textAlign: 'center' }}>
-            We&apos;re excited to bring you a series of blog posts that highlights the beauty and history of traditional wedding garments from different cultures.
-            The wedding traditions across the Asian diaspora are rich and diverse, and we want to celebrate their beauty.
+          <Typography variant="body1" paddingTop={2} sx={{ textAlign: 'left' }}>
+            We&apos;re excited to bring you blog posts that highlight the richness of the Asian Diaspora.
+            We aim to create a space where you can find inspiration, tips, and stories that resonate with your unique experiences.
           </Typography>
-          <Typography variant="body1" paddingY={2} sx={{ textAlign: 'center' }}>
+          <Typography variant="body1" paddingY={2} sx={{ textAlign: 'left' }}>
             If you&apos;re in search of a makeup artist for your own wedding,
             we also have a directory of talented makeup artists who are experienced with Asian features.
             We hope it makes your wedding planning journey a little easier!
