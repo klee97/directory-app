@@ -120,7 +120,7 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
                 position: 'relative',
                 width: '100%',
                 height: '400px',
-                mb: 1
+                my: 2
               }}
             >
               <ContentfulImage
