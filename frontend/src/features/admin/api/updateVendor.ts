@@ -2,16 +2,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert } from "@/types/vendor";
 import { prepareVendorInsertData } from "../components/vendorHelper";
-import { createHubSpotContact } from "@/lib/hubspot/hubspot";
+import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { TagOption } from "../components/TagSelector";
 
-export const createVendor = async (
+export const updateVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
   lastname: string,
   tags: TagOption[],
 ) => {
-  console.log("Creating vendor:", vendor);
+  console.log("Updating vendor:", vendor);
 
   // Get current session to verify user is authenticated
   const supabase = await createClient();
@@ -38,16 +38,21 @@ export const createVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  console.log("Vendor insert data:", vendor);
+  if (!vendor.id || vendor.id === '') {
+    console.error("Vendor ID is required for update");
+    throw new Error("Vendor ID is required for update");
+  }
+
+  console.log("Vendor update data:", vendor);
   const vendorData = await prepareVendorInsertData(vendor);
 
   console.log("Updated vendor insert data:", vendorData);
 
-  // Proceed with vendor creation
-  const { data, error } = await supabase.from("vendors").insert(vendorData).select("id, slug").single();
+  // Proceed with vendor update
+  const { data, error } = await supabase.from("vendors").update(vendorData).eq('id', vendor.id).select("id, slug, email").single();
 
-  if (data && data.id && data.slug) {
-    console.log("Vendor created successfully!", data);
+  if (data && data.id) {
+    console.log("Vendor updated successfully!", data);
 
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
     console.log("Vendor region updated successfully!", data);
@@ -56,35 +61,37 @@ export const createVendor = async (
     tags.map(async (tag) => {
       const { error: skillError } = await supabase
         .from("vendor_tags")
-        .insert({ vendor_id: data.id, tag_id: tag.id });
+        .upsert({ vendor_id: data.id, tag_id: tag.id });
 
       if (skillError) {
-        console.error(`Error adding tag ${tag.unique_tag} to new vendor id ${data.id}`, skillError);
+        console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
       }
     })
 
-    // Create a contact in HubSpot
-    const hubspotContactId = await createHubSpotContact({
-      email: vendor.email || vendor.ig_handle || '',
-      firstname: firstname,
-      lastname: lastname,
-      slug: data.slug,
-      company: vendor.business_name ?? '',
-    });
+    if (data.email != null && data.email != '') {
+      // Update contact in HubSpot
+      const hubspotContactId = await updateHubSpotContact({
+        email: data.email,
+        firstname: firstname,
+        lastname: lastname,
+        slug: data.slug,
+        company: vendor.business_name ?? '',
+      });
 
-    if (!hubspotContactId) {
-      console.error("Failed to create HubSpot contact for vendor:", data.slug);
-      throw new Error("Failed to create HubSpot contact for vendor");
+      if (!hubspotContactId) {
+        console.error("Failed to update HubSpot contact for vendor:", data.slug);
+        throw new Error("Failed to update HubSpot contact for vendor");
+      }
+      console.log("HubSpot contact updated successfully!", hubspotContactId);
     }
-    console.log("HubSpot contact created successfully!", hubspotContactId);
   }
 
   if (error) {
-    console.error("Error creating vendor:", error);
+    console.error("Error updating vendor:", error);
     throw error;
   }
 
-  console.log("Vendor created successfully!", data);
+  console.log("Vendor updating successfully!", data);
 
   return data;
 };

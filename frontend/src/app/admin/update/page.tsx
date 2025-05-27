@@ -6,10 +6,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
+import { AdminUpdateVendorManagement } from '@/features/admin/components/VendorManagement';
 import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link';
 
-export default function Admin() {
+export default function UpdateVendor() {
     const [loading, setLoading] = useState(true);
     const [isAdmin, setIsAdmin] = useState(false);
     const router = useRouter();
@@ -76,18 +76,9 @@ export default function Admin() {
                 }}
             >
                 <Typography variant="h1" component="h1" gutterBottom>
-                    Admin
+                    Update Vendor
                 </Typography>
-                <Link href="/admin/add" style={{ textDecoration: 'none' }}>
-                    <Typography variant="h3" component="h2" gutterBottom>
-                        Add New Vendor
-                    </Typography>
-                </Link>
-                <Link href="/admin/update" style={{ textDecoration: 'none' }}>
-                    <Typography variant="h3" component="h2" gutterBottom>
-                       Update Existing Vendor
-                    </Typography>
-                </Link>
+                <AdminUpdateVendorManagement />
                 <br />
             </Box>
         </Container>
