@@ -12,46 +12,46 @@ import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
 
 export default function UpdateVendor() {
-    const [loading, setLoading] = useState(true);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const router = useRouter();
-    const supabase = createClient();
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
-    useEffect(() => {
-        checkAdminStatus(supabase, setLoading, setIsAdmin);
-    }, [router, supabase]);
+  useEffect(() => {
+    checkAdminStatus(supabase, setLoading, setIsAdmin);
+  }, [router, supabase]);
 
-    if (loading) {
-        return (
-            <AdminLoadingSpinner />
-        );
-    }
-
-    if (!isAdmin) {
-        return null; // This shouldn't render as the router.push above should redirect
-    }
-
+  if (loading) {
     return (
-        <Container maxWidth="lg">
-            <br />
-            <Button variant="text" href="/admin" color='secondary'>
-                Back to Admin Dashboard
-            </Button>
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    textAlign: 'left',
-                    '& > p': { marginBottom: 2 },
-                }}
-            >
-                <Typography variant="h2" component="h2" gutterBottom>
-                    Update Vendor
-                </Typography>
-                <AdminUpdateVendorManagement />
-                <br />
-            </Box>
-        </Container>
+      <AdminLoadingSpinner />
     );
+  }
+
+  if (!isAdmin) {
+    return null; // This shouldn't render as the router.push above should redirect
+  }
+
+  return (
+    <Container maxWidth="lg">
+      <br />
+      <Button variant="text" href="/admin" color='secondary'>
+        Back to Admin Dashboard
+      </Button>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          textAlign: 'left',
+          '& > p': { marginBottom: 2 },
+        }}
+      >
+        <Typography variant="h2" component="h2" gutterBottom>
+          Update Vendor
+        </Typography>
+        <AdminUpdateVendorManagement />
+        <br />
+      </Box>
+    </Container>
+  );
 }

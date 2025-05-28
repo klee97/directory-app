@@ -189,7 +189,7 @@ export const AdminAddVendorManagement = () => {
                 required
                 fullWidth
                 label="Location Coordinates"
-                helperText="Format: 'LAT, LONG' (e.g., '37.7749, -122.4194')"
+                helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
                 variant="outlined"
                 value={newVendor.location_coordinates ?? ""}
                 onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
