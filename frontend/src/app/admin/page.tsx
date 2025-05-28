@@ -6,7 +6,6 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import Link from 'next/link';
 import { checkAdminStatus } from '@/features/admin/api/checkAdminStatus';
 import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
@@ -55,20 +54,16 @@ export default function Admin() {
                         gap: 4,
                     }}
                 >
-                    <Link href="/admin/create" style={{ textDecoration: "none" }}>
-                        <Button color="primary" variant="contained">
+                    <Button color="primary" href="/admin/create" variant="text">
                         <Typography variant="body1">
                             Add New Vendor
                         </Typography>
-                        </Button>
-                    </Link>
-                    <Link href="/admin/update" style={{ color: "inherit", textDecoration: "none" }}>
-                        <Button color="primary" variant="contained">
-                            <Typography variant="body1">
-                                Update Existing Vendor
-                            </Typography>
-                        </Button>
-                    </Link>
+                    </Button>
+                    <Button color="primary" href="/admin/update" variant="text">
+                        <Typography variant="body1">
+                            Update Existing Vendor
+                        </Typography>
+                    </Button>
                 </Box>
             </Box>
         </Container>

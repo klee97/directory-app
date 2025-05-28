@@ -9,7 +9,7 @@ import { AdminUpdateVendorManagement } from '@/features/admin/components/UpdateV
 import { createClient } from '@/lib/supabase/client';
 import { checkAdminStatus } from '@/features/admin/api/checkAdminStatus';
 import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
-import Link from 'next/link';
+import Button from '@mui/material/Button';
 
 export default function UpdateVendor() {
     const [loading, setLoading] = useState(true);
@@ -34,9 +34,11 @@ export default function UpdateVendor() {
     return (
         <Container maxWidth="lg">
             <br />
+            <Button variant="text" href="/admin" color='secondary'>
+                Back to Admin Dashboard
+            </Button>
             <Box
                 sx={{
-                    my: 4,
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
@@ -44,12 +46,7 @@ export default function UpdateVendor() {
                     '& > p': { marginBottom: 2 },
                 }}
             >
-                <Link href="/admin" style={{ color: "inherit", textDecoration: "none" }}>
-                    <Typography variant="h3" component="h2" gutterBottom>
-                        Return to Admin Dashboard
-                    </Typography>
-                </Link>
-                <Typography variant="h1" component="h1" gutterBottom>
+                <Typography variant="h2" component="h2" gutterBottom>
                     Update Vendor
                 </Typography>
                 <AdminUpdateVendorManagement />
