@@ -17,9 +17,10 @@ import { createVendor } from '../api/createVendor';
 import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from './RegionSelector';
 import TagSelector, { TagOption } from './TagSelector';
+import Link from 'next/link';
 
 // Define types directly in the file
-export interface VendorInput {
+export interface CreateVendorInput {
   business_name: string,
   website: string,
   region: string,
@@ -38,7 +39,7 @@ export interface VendorInput {
   tags: TagOption[],
 }
 
-export const VENDOR_INPUT_DEFAULT: VendorInput = {
+export const VENDOR_INPUT_DEFAULT: CreateVendorInput = {
   business_name: '',
   website: '',
   region: '',
@@ -57,9 +58,9 @@ export const VENDOR_INPUT_DEFAULT: VendorInput = {
   tags: [],
 } as const;
 
-const AdminVendorManagement = () => {
+export const AdminAddVendorManagement = () => {
   const { addNotification } = useNotification();
-  const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
+  const [newVendor, setNewVendor] = useState<CreateVendorInput>(VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
@@ -96,7 +97,7 @@ const AdminVendorManagement = () => {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorInput) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof CreateVendorInput) => {
     const value = e.target.value;
     const numberValue = value === '' ? null : Number(value);
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
@@ -115,10 +116,10 @@ const AdminVendorManagement = () => {
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Add New Vendor
+        <Typography variant="h6" component="h2" gutterBottom>
+          Instructions in <Link href="https://docs.google.com/document/d/1hHj-bi1kwWTgGTNnO1T5QSOj2YP6da9Vs5jf9I8xBe4">Google Doc</Link>
         </Typography>
-
+        <br />
         <Grid container spacing={3}>
           <TextField
             required
@@ -144,7 +145,8 @@ const AdminVendorManagement = () => {
             />
             <TextField
               required
-              label="Instagram Handle (with @)"
+              label="Instagram Handle"
+              helperText="e.g., @yourhandle"
               variant="outlined"
               value={newVendor.ig_handle ?? ""}
               onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
@@ -187,6 +189,7 @@ const AdminVendorManagement = () => {
                 required
                 fullWidth
                 label="Location Coordinates"
+                helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
                 variant="outlined"
                 value={newVendor.location_coordinates ?? ""}
                 onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
@@ -272,5 +275,3 @@ const AdminVendorManagement = () => {
     </Container>
   );
 };
-
-export default AdminVendorManagement;

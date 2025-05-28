@@ -50,6 +50,7 @@ export const createVendor = async (
     console.log("Vendor created successfully!", data);
 
     await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+    console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
     tags.map(async (tag) => {
@@ -70,7 +71,6 @@ export const createVendor = async (
       slug: data.slug,
       company: vendor.business_name ?? '',
     });
-    console.log("Vendor region updated successfully!", data);
 
     if (!hubspotContactId) {
       console.error("Failed to create HubSpot contact for vendor:", data.slug);

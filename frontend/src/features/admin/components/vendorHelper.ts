@@ -3,10 +3,10 @@ import axios from 'axios';
 
 // Prepare vendor insertion data
 export async function prepareVendorInsertData(vendor: BackendVendorInsert): Promise<BackendVendorInsert> {
-  const slug = generateSlug(vendor.business_name ?? '');
+  const slug = generateSlug(vendor.business_name ?? null);
   const { gis, city, state, country } = await convertToPostgisPoint(vendor.location_coordinates ?? null);
 
-  return {
+  return filterUndefinedOrNullValues({
     // Required field
     bridal_hair_price: vendor.bridal_hair_price,
     bridal_makeup_price: vendor.bridal_makeup_price,
@@ -32,11 +32,24 @@ export async function prepareVendorInsertData(vendor: BackendVendorInsert): Prom
     // state_id: null,
     travels_world_wide: vendor.travels_world_wide,
     website: vendor.website,
-  };
+  });
 };
 
+const filterUndefinedOrNullValues = (obj: Record<string, unknown>): Record<string, unknown> => {
+  return Object.entries(obj)
+    .filter(([, value]) => value !== undefined && value !== null)
+    .reduce((acc: Record<string, unknown>, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {} as Record<string, unknown>);
+}
+
 // Generate a slug from the business name
-const generateSlug = (business_name: string): string => {
+const generateSlug = (business_name: string | null): string | null => {
+  if (business_name === null || business_name.trim() === '') {
+    return null;
+  }
+
   return business_name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
