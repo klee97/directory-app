@@ -21,7 +21,7 @@ import Link from 'next/link';
 
 // Define types directly in the file
 export interface UpdateVendorInput {
-    vendor_id: string,
+    id: string,
     business_name: string | null,
     website: string | null,
     region: string | null,
@@ -41,7 +41,7 @@ export interface UpdateVendorInput {
 }
 
 export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
-    vendor_id: '',
+    id: 'HMUA-',
     business_name: null,
     website: null,
     region: null,
@@ -135,8 +135,8 @@ export const AdminUpdateVendorManagement = () => {
                         label="Vendor ID"
                         helperText="HMUA-123"
                         variant="outlined"
-                        value={newVendor.business_name ?? null}
-                        onChange={(e) => setNewVendor({ ...newVendor, vendor_id: e.target.value })}
+                        value={newVendor.id ?? null}
+                        onChange={(e) => setNewVendor({ ...newVendor, id: e.target.value })}
                     />
                     <TextField
                         fullWidth

@@ -11,7 +11,7 @@ export const updateVendor = async (
   lastname: string,
   tags: TagOption[],
 ) => {
-  console.log("Updating vendor:", vendor);
+  console.log("Updating vendor with update data:", vendor);
 
   // Get current session to verify user is authenticated
   const supabase = await createClient();
@@ -38,14 +38,12 @@ export const updateVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  if (vendor.id === null || vendor.id === '' || vendor.id === undefined ||  !vendor.id.includes('HMAU-')) {
-    console.error("Vendor ID in format HMAU-XXX is required for update");
-    throw new Error("Vendor ID in format HMAU-XXX is required for update");
+  if (vendor.id === null || vendor.id === '' || vendor.id === undefined ||  !vendor.id.includes('HMUA-')) {
+    console.error("Vendor ID in format HMUA-XXX is required for update: ", vendor.id);
+    throw new Error(`Vendor ID in format HMUA-XXX is required for update: ${vendor.id}`);
   }
 
-  console.log("Vendor update data:", vendor);
   const vendorData = await prepareVendorInsertData(vendor);
-
   console.log("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor update

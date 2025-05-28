@@ -1,5 +1,5 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import router from "next/router";
+import { redirect } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
 export const checkAdminStatus = async (
@@ -11,8 +11,7 @@ export const checkAdminStatus = async (
         // Check if user is authenticated
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         if (sessionError || !session) {
-            router.push('/login?redirectTo=/admin');
-            return;
+            redirect('/login?redirectTo=/admin');
         }
         // Check if user is an admin
         const { data: profileData, error: userError } = await supabase
@@ -22,14 +21,13 @@ export const checkAdminStatus = async (
             .single();
 
         if (userError || !profileData || !profileData.is_admin) {
-            router.push('/unauthorized');
-            return;
+            redirect('/unauthorized');
         }
 
         setIsAdmin(true);
     } catch (error) {
         console.error("Error checking admin status:", error);
-        router.push('/login?redirectTo=/admin');
+        redirect('/login?redirectTo=/admin');
     } finally {
         setLoading(false);
     }
