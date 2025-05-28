@@ -38,9 +38,9 @@ export const updateVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  if (!vendor.id || vendor.id === '') {
-    console.error("Vendor ID is required for update");
-    throw new Error("Vendor ID is required for update");
+  if (vendor.id === null || vendor.id === '' || vendor.id === undefined ||  !vendor.id.includes('HMAU-')) {
+    console.error("Vendor ID in format HMAU-XXX is required for update");
+    throw new Error("Vendor ID in format HMAU-XXX is required for update");
   }
 
   console.log("Vendor update data:", vendor);
