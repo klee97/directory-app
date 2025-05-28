@@ -2,8 +2,8 @@ import axios from 'axios';
 
 type HubSpotContactProps = {
   email: string;
-  firstname?: string;
-  lastname?: string;
+  firstname?: string | null;
+  lastname?: string | null;
   slug?: string;
   company?: string;
 };

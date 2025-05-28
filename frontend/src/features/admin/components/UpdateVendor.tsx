@@ -63,8 +63,8 @@ export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
 export const AdminUpdateVendorManagement = () => {
     const { addNotification } = useNotification();
     const [newVendor, setNewVendor] = useState<UpdateVendorInput>(UPDATE_VENDOR_INPUT_DEFAULT);
-    const [firstName, setFirstName] = useState<string>("");
-    const [lastName, setLastName] = useState<string>("");
+    const [firstName, setFirstName] = useState<string | null>(null);
+    const [lastName, setLastName] = useState<string | null>(null);
     const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
     const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);

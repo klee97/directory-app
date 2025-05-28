@@ -7,8 +7,8 @@ import { TagOption } from "../components/TagSelector";
 
 export const updateVendor = async (
   vendor: BackendVendorInsert,
-  firstname: string,
-  lastname: string,
+  firstname: string | null,
+  lastname: string | null,
   tags: TagOption[],
 ) => {
   console.log("Updating vendor with update data:", vendor);
