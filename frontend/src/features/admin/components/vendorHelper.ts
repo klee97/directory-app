@@ -35,14 +35,13 @@ export async function prepareVendorInsertData(vendor: BackendVendorInsert): Prom
   });
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const filterUndefinedOrNullValues = (obj: Record<string, any>): Record<string, any> => {
+const filterUndefinedOrNullValues = (obj: Record<string, unknown>): Record<string, unknown> => {
   return Object.entries(obj)
-    .filter(([, value]) => value !== undefined && value !== null && value.trim !== '')
-    .reduce((acc, [key, value]) => {
+    .filter(([, value]) => value !== undefined && value !== null)
+    .reduce((acc: Record<string, unknown>, [key, value]) => {
       acc[key] = value;
       return acc;
-    }, {});
+    }, {} as Record<string, unknown>);
 }
 
 // Generate a slug from the business name
