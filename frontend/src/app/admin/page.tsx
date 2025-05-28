@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { checkAdminStatus } from '@/features/admin/api/checkAdminStatus';
+import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
+import Button from '@mui/material/Button';
 
 export default function Admin() {
     const [loading, setLoading] = useState(true);
@@ -16,45 +18,12 @@ export default function Admin() {
     const supabase = createClient();
 
     useEffect(() => {
-        async function checkAdminStatus() {
-            try {
-                // Check if user is authenticated
-                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-                if (sessionError || !session) {
-                    router.push('/login?redirectTo=/admin');
-                    return;
-                }
-                // Check if user is an admin
-                const { data: profileData, error: userError } = await supabase
-                    .from('profiles')
-                    .select('is_admin')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (userError || !profileData || !profileData.is_admin) {
-                    router.push('/unauthorized');
-                    return;
-                }
-
-                setIsAdmin(true);
-            } catch (error) {
-                console.error("Error checking admin status:", error);
-                router.push('/login?redirectTo=/admin');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        checkAdminStatus();
+        checkAdminStatus(supabase, setLoading, setIsAdmin);
     }, [router, supabase]);
 
     if (loading) {
         return (
-            <Container maxWidth="lg">
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <CircularProgress />
-                </Box>
-            </Container>
+            <AdminLoadingSpinner />
         );
     }
 
@@ -72,23 +41,35 @@ export default function Admin() {
                     flexDirection: 'column',
                     justifyContent: 'center',
                     textAlign: 'left',
-                    '& > p': { marginBottom: 2 },
+                    gap: 2,
+                    marginBottom: 8,
                 }}
             >
-                <Typography variant="h1" component="h1" gutterBottom>
-                    Admin
+                <Typography variant="h2" component="h2" gutterBottom>
+                    Admin Dashboard
                 </Typography>
-                <Link href="/admin/add" style={{ textDecoration: 'none' }}>
-                    <Typography variant="h3" component="h2" gutterBottom>
-                        Add New Vendor
-                    </Typography>
-                </Link>
-                <Link href="/admin/update" style={{ textDecoration: 'none' }}>
-                    <Typography variant="h3" component="h2" gutterBottom>
-                       Update Existing Vendor
-                    </Typography>
-                </Link>
-                <br />
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        gap: 4,
+                    }}
+                >
+                    <Link href="/admin/create" style={{ textDecoration: "none" }}>
+                        <Button color="primary" variant="contained">
+                        <Typography variant="body1">
+                            Add New Vendor
+                        </Typography>
+                        </Button>
+                    </Link>
+                    <Link href="/admin/update" style={{ color: "inherit", textDecoration: "none" }}>
+                        <Button color="primary" variant="contained">
+                            <Typography variant="body1">
+                                Update Existing Vendor
+                            </Typography>
+                        </Button>
+                    </Link>
+                </Box>
             </Box>
         </Container>
     );
