@@ -91,7 +91,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
       <OutlinedInput
         size="small"
         id="search"
-        placeholder="Search locations or artists…"
+        placeholder="Search artists…"
         value={inputValue}
         onChange={(e) => handleInputChange(e.target.value)}
         onBlur={() => (isTypingRef.current = false)} // Reset typing flag on blur

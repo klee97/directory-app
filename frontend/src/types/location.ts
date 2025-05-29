@@ -1,5 +1,3 @@
-import { Vendor } from "./vendor";
-
 export interface NominatimResponse {
   lat: string;
   lon: string;
@@ -52,7 +50,6 @@ export interface LocationSearchOptions {
   namedetails?: boolean;
 }
 
-export type VendorByDistance = Vendor & { distance_miles?: number | null };
 
 export const stateAbbreviations: Record<string, string> = {
   "Alabama": "AL",
