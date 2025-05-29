@@ -33,10 +33,10 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
   const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
-  const selectedSkill = searchParams.get(SKILL_PARAM) || "";
   const lat = parseFloat(searchParams.get("lat") || "");
   const lon = parseFloat(searchParams.get("lon") || "");
   const useLocationFilter = !isNaN(lat) && !isNaN(lon);
+  const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
 
   const [vendorsInRadius, setVendorsInRadius] = useState<Vendor[]>([]);
   const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
@@ -76,12 +76,14 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     return vendorsInRadius.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
-      const matchesSkill = selectedSkill ? vendor.tags
-        .some((tag) => tag.display_name?.toLowerCase() === selectedSkill.toLowerCase())
-        : true;
-      return matchesRegion && matchesTravel && matchesSkill;
+      const matchesAnySkill = selectedSkills.length > 0 ? selectedSkills
+        .map(skill => vendor.tags.some((tag) =>
+          // does the vendor have a tag that matches the skill?
+          tag.display_name?.toLowerCase() === skill.toLowerCase())
+        ).includes(true) : true;
+      return matchesRegion && matchesTravel && matchesAnySkill;
     });
-  }, [vendorsInRadius, selectedRegion, travelsWorldwide, selectedSkill]);
+  }, [vendorsInRadius, selectedRegion, travelsWorldwide, selectedSkills]);
 
   // Apply search and sorting
   const searchedAndSortedVendors = useMemo(() => {
@@ -115,7 +117,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
       if (hasSearchChanged) {
         debouncedTrackSearch({
           selectedRegion,
-          selectedSkill,
+          selectedSkills,
           travelsWorldwide,
           searchQuery,
           sortOption,
@@ -124,7 +126,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
       } else {
         trackFiltersApplied(
           selectedRegion,
-          selectedSkill,
+          selectedSkills,
           travelsWorldwide,
           searchQuery,
           sortOption,
@@ -139,7 +141,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     searchParams,
     searchQuery,
     selectedRegion,
-    selectedSkill,
+    selectedSkills,
     travelsWorldwide,
     sortOption,
     searchedAndSortedVendors.length,

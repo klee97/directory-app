@@ -10,9 +10,10 @@ import { createClient } from '@/lib/supabase/client';
 import { Vendor } from '@/types/vendor';
 import { useRouter } from 'next/navigation';
 import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
+import { VendorSpecialty } from '@/types/tag';
 
 type SerializedVendor = Omit<Vendor, 'specialties'> & {
-  specialties: string[];
+  specialties: VendorSpecialty[];
 };
 
 function transformToVendor(vendor: SerializedVendor): Vendor {

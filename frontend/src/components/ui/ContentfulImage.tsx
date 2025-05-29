@@ -34,10 +34,6 @@ export default function ContentfulImage(
   };
 
   return (
-    <Box pt={3} position="relative" height="400px">
-      <Box position="relative" height="100%">
-        <Image fill loader={contentfulLoader} {...props} alt={props.alt} />
-      </Box>
-    </Box>
+    <Image loader={contentfulLoader} {...props} alt={props.alt} />
   );
 }

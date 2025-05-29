@@ -1,4 +1,5 @@
 import type { Database } from "@/types/supabase";
+import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 
 
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
@@ -15,7 +16,6 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 export type BackendVendorTestimonial = Database['public']['Tables']['vendor_testimonials']['Row']
-export type BackendVendorTag = Database['public']['Tables']['tags']['Row'];
 export type VendorId = string;
 
 export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
@@ -28,7 +28,8 @@ export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'display_name'
   | 'is_visible'
   | 'style'
-  >
+  | 'name'
+>
 
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
@@ -47,7 +48,7 @@ export type Vendor = Pick<BackendVendor, 'id'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
-  'specialties': Set<string>,
+  'specialties': Set<VendorSpecialty>,
   'metro': string | null,
   'metro_region': string | null,
   'state': string | null,
@@ -58,6 +59,7 @@ export type Vendor = Pick<BackendVendor, 'id'
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
+  const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   return {
     id: vendor.id,
     business_name: vendor.business_name,
@@ -76,7 +78,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
-    specialties: new Set((vendor.specialization ?? '').split(',').map(s => s.trim())),
+    specialties: new Set(specialties),
     metro: vendor.usmetro?.display_name ?? null, // Safely access metro region name
     metro_region: vendor.regions?.name ?? null, // Safely access region name
     state: vendor.usstates?.name ?? null, // Safely access state name

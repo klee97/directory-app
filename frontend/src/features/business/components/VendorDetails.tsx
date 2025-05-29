@@ -22,6 +22,7 @@ import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
+import { VendorSpecialty } from '@/types/tag';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -232,7 +233,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has('Hair') && (
+                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -253,7 +254,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has('Makeup') && (
+                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -293,7 +294,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has('Hair') && (
+                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -313,7 +314,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                       </Typography>
                     </Box>
                   )}
-                  {vendor.specialties.has('Makeup') && (
+                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) && (
 
                     <Box sx={{
                       display: 'flex',

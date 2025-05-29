@@ -33,9 +33,9 @@ export function LocationFilter({ uniqueRegions, searchParams }:
         newParams.delete(LOCATION_PARAM);
       }
   
-      // 🔹 Use router.push() to update the URL while keeping other params
+      // Use router.push() to update the URL while keeping other params
       router.push(`?${newParams.toString()}`, { scroll: false });
-
+      
       // Track the filter change event
       trackFilterEvent(LOCATION_FILTER_NAME, region);
     },

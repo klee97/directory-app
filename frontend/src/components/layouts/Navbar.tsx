@@ -36,10 +36,10 @@ import Favorite from "@mui/icons-material/Favorite";
 import Logout from "@mui/icons-material/Logout";
 import { createClient } from '@/lib/supabase/client';
 import { useNotification } from '@/contexts/NotificationContext';
+import { isDevOrPreview } from '@/lib/env/env';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const resources = ["Blog"];
-
 const Title = 'HAIR AND MAKEUP';
 
 export default function Navbar() {
@@ -445,7 +445,7 @@ export default function Navbar() {
             </Menu>
           </Box>
 
-          {process.env.NODE_ENV === 'development' && (
+          {isDevOrPreview() && (
             <FormControl>
               <FormLabel id="demo-theme-toggle">Theme</FormLabel>
               <RadioGroup

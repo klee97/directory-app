@@ -11,17 +11,16 @@ import FormLabel from '@mui/material/FormLabel';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
 import { createVendor } from '../api/createVendor';
 import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from './RegionSelector';
+import TagSelector, { TagOption } from './TagSelector';
+import Link from 'next/link';
 
 // Define types directly in the file
-export interface VendorInput {
+export interface CreateVendorInput {
   business_name: string,
   website: string,
   region: string,
@@ -37,10 +36,10 @@ export interface VendorInput {
   bridesmaid_makeup_price: number | null,
   "bridesmaid_hair_&_makeup_price": number | null,
   google_maps_place: string | null,
-  specialization: string
+  tags: TagOption[],
 }
 
-export const VENDOR_INPUT_DEFAULT: VendorInput = {
+export const VENDOR_INPUT_DEFAULT: CreateVendorInput = {
   business_name: '',
   website: '',
   region: '',
@@ -56,16 +55,16 @@ export const VENDOR_INPUT_DEFAULT: VendorInput = {
   bridesmaid_makeup_price: null,
   "bridesmaid_hair_&_makeup_price": null,
   google_maps_place: null,
-  specialization: ''
+  tags: [],
 } as const;
 
-const AdminVendorManagement = () => {
+export const AdminAddVendorManagement = () => {
   const { addNotification } = useNotification();
-  const [newVendor, setNewVendor] = useState<VendorInput>(VENDOR_INPUT_DEFAULT);
+  const [newVendor, setNewVendor] = useState<CreateVendorInput>(VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [skillSouthAsian, setSkillSouthAsian] = useState<boolean>(false);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
+  const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addVendor = async () => {
@@ -73,7 +72,7 @@ const AdminVendorManagement = () => {
 
     try {
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
-      const data = await createVendor(newVendorData, firstName, lastName, skillSouthAsian);
+      const data = await createVendor(newVendorData, firstName, lastName, selectedTags);
 
       if (data) {
         addNotification("Vendor added successfully!");
@@ -81,6 +80,7 @@ const AdminVendorManagement = () => {
         setFirstName("");
         setLastName("");
         setSelectedRegion(null);
+        setSelectedTags([]);
       } else {
         addNotification("Failed to add vendor. Please try again.", "error");
       }
@@ -97,7 +97,7 @@ const AdminVendorManagement = () => {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorInput) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof CreateVendorInput) => {
     const value = e.target.value;
     const numberValue = value === '' ? null : Number(value);
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
@@ -108,13 +108,18 @@ const AdminVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
   };
 
+  const handleTagChange = (value: TagOption[]) => {
+    setSelectedTags(value);
+    setNewVendor({ ...newVendor, tags: value });
+  }
+
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Add New Vendor
+        <Typography variant="h6" component="h2" gutterBottom>
+          Instructions in <Link href="https://docs.google.com/document/d/1hHj-bi1kwWTgGTNnO1T5QSOj2YP6da9Vs5jf9I8xBe4">Google Doc</Link>
         </Typography>
-
+        <br />
         <Grid container spacing={3}>
           <TextField
             required
@@ -140,7 +145,8 @@ const AdminVendorManagement = () => {
             />
             <TextField
               required
-              label="Instagram Handle (with @)"
+              label="Instagram Handle"
+              helperText="e.g., @yourhandle"
               variant="outlined"
               value={newVendor.ig_handle ?? ""}
               onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
@@ -173,10 +179,17 @@ const AdminVendorManagement = () => {
               />
             </Grid>
             <Grid size={6}>
+              <TagSelector
+                value={selectedTags}
+                onChange={(selectedTags: TagOption[]) => handleTagChange(selectedTags)}
+              />
+            </Grid>
+            <Grid size={6}>
               <TextField
                 required
                 fullWidth
                 label="Location Coordinates"
+                helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
                 variant="outlined"
                 value={newVendor.location_coordinates ?? ""}
                 onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
@@ -192,18 +205,6 @@ const AdminVendorManagement = () => {
                 name="controlled-radio-buttons-group"
                 value={newVendor.travels_world_wide ? "true" : "false"}
                 onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: e.target.value === "true" })}
-              >
-                <FormControlLabel value="true" control={<Radio />} label="True" />
-                <FormControlLabel value="false" control={<Radio />} label="False" />
-              </RadioGroup>
-            </FormControl>
-            <FormControl>
-              <FormLabel id="demo-controlled-radio-buttons-group">Skilled in South Asian makeup</FormLabel>
-              <RadioGroup
-                aria-labelledby="demo-controlled-radio-buttons-group"
-                name="controlled-radio-buttons-group"
-                value={skillSouthAsian}
-                onChange={(e) => setSkillSouthAsian(e.target.value === "true")}
               >
                 <FormControlLabel value="true" control={<Radio />} label="True" />
                 <FormControlLabel value="false" control={<Radio />} label="False" />
@@ -260,20 +261,6 @@ const AdminVendorManagement = () => {
             />
           </Grid>
           <Divider />
-          <FormControl fullWidth>
-            <InputLabel id="specialization-select-label">Specialization</InputLabel>
-            <Select
-              labelId="specialization-select-label"
-              id="specialization-select"
-              value={newVendor.specialization ?? ""}
-              label="Specialization"
-              onChange={(e) => setNewVendor({ ...newVendor, specialization: e.target.value })}
-            >
-              <MenuItem value="Hair">Hair</MenuItem>
-              <MenuItem value="Makeup">Makeup</MenuItem>
-              <MenuItem value="Hair, Makeup">Hair & Makeup</MenuItem>
-            </Select>
-          </FormControl>
           <Button
             variant="contained"
             color="primary"
@@ -288,5 +275,3 @@ const AdminVendorManagement = () => {
     </Container>
   );
 };
-
-export default AdminVendorManagement;
