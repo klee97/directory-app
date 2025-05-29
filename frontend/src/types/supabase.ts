@@ -407,6 +407,7 @@ export type Database = {
           city: string | null
           country: string | null
           cover_image: string | null
+          created_at: string
           email: string | null
           gis: unknown | null
           google_maps_place: string | null
@@ -436,6 +437,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           cover_image?: string | null
+          created_at?: string
           email?: string | null
           gis?: unknown | null
           google_maps_place?: string | null
@@ -465,6 +467,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           cover_image?: string | null
+          created_at?: string
           email?: string | null
           gis?: unknown | null
           google_maps_place?: string | null
@@ -1124,6 +1127,35 @@ export type Database = {
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
+      }
+      get_vendors_by_distance: {
+        Args: {
+          lat: number
+          lon: number
+          radius_miles: number
+          limit_results: number
+        }
+        Returns: {
+          business_name: string
+          bridal_hair_price: number
+          bridal_makeup_price: number
+          cover_image: string
+          id: string
+          lists_prices: boolean
+          location_coordinates: string
+          region: string
+          specialization: string
+          travels_world_wide: boolean
+          city: string
+          state: string
+          country: string
+          slug: string
+          gis: unknown
+          state_id: number
+          metro_id: number
+          metro_region_id: number
+          distance_miles: number
+        }[]
       }
       gettransactionid: {
         Args: Record<PropertyKey, never>

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/api-client";
+import { LocationResult, VendorByDistance } from "@/types/location";
 import { Vendor } from "@/types/vendor";
 
 export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] {
@@ -13,7 +14,38 @@ export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] 
   return results;
 }
 
-export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 25, limit = 150) {
+function isStateOnlySelection(location: LocationResult) {
+  return (
+    !location.address.city && location.address.state !== undefined && location.type === 'administrative'
+  );
+}
+
+export async function getVendorsByLocation(location: LocationResult) {
+  console.log("Fetching vendors for location:", location);
+
+  if (isStateOnlySelection(location) && location.address?.state) {
+    console.log("Fetching vendors by state:", location.address.state);
+    return await getVendorsByState(location.address.state);
+  } else {
+    return await getVendorsByDistance(parseFloat(location.lat), parseFloat(location.lon), 25, 150);
+  }
+}
+
+export async function getVendorsByState(state: string) {
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .ilike('state', state); 
+
+  if (error) {
+    console.error('Error fetching vendors:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 25, limit = 150)
+: Promise<VendorByDistance[]> {
   console.log("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
   const { data, error } = await supabase
     .rpc("get_vendors_by_distance",

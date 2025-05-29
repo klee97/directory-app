@@ -9,39 +9,60 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import { VendorGrid } from './VendorGrid';
-import { SearchBar } from './SearchBar';
-import { Vendor, VendorId } from '@/types/vendor';
-import { getVendorsByDistance } from '../api/searchVendors';
-import { LocationFilter } from './LocationFilter';
-import TravelFilter from './TravelFilter';
-import { SkillFilter } from './SkillFilter';
+import { SearchBar } from './filters/SearchBar';
+import { VendorId } from '@/types/vendor';
+import { LocationResult } from '@/types/location';
+import { getVendorsByLocation } from '../api/searchVendors';
+import TravelFilter from './filters/TravelFilter';
+import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
+import { VendorByDistance } from '@/types/location';
+import LocationAutocomplete from './filters/LocationAutocomplete';
 
 const PAGE_SIZE = 12;
 
-function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVendorIds }: {
-  uniqueRegions: string[],
-  tags: string[],
-  vendors: Vendor[],
-  favoriteVendorIds: VendorId[]
-}) {
+
+
+interface FilterableVendorTableContentProps {
+  uniqueRegions: string[];
+  tags: string[];
+  vendors: VendorByDistance[];
+  favoriteVendorIds: VendorId[];
+}
+
+export function FilterableVendorTableContent({ 
+  uniqueRegions, 
+  tags, 
+  vendors, 
+  favoriteVendorIds,
+}: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  
+  // todo: use vendors and unique regions for optimization
+  console.log(vendors);
+  console.log(uniqueRegions);
+
+  // Extract search parameters
   const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
-  const lat = parseFloat(searchParams.get("lat") || "");
-  const lon = parseFloat(searchParams.get("lon") || "");
-  const useLocationFilter = !isNaN(lat) && !isNaN(lon);
+
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
 
-  const [vendorsInRadius, setVendorsInRadius] = useState<Vendor[]>([]);
-  const [sortOption, setSortOption] = useState<string>('default'); // Added state for sorting
+  const locationSearchQuery = searchParams.get("location_search") || "";
+  const useLocationSearch = locationSearchQuery.length > 0;
+
+  // State management
+  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
+  const [sortOption, setSortOption] = useState<string>('default');
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
-  const [visibleVendors, setVisibleVendors] = useState<Vendor[]>([]);
+  const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,29 +70,26 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   // Load vendors based on location filter
   useEffect(() => {
-    console.log("Loading vendors by distance");
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
-      if (useLocationFilter && lat !== null && lon !== null) {
-        const result = await getVendorsByDistance(lat, lon, 25, 150);
-        console.log("Vendors in radius:", result);
-        if (!cancelled) {
-          setVendorsInRadius(result);
-        }
-      } else {
-        setVendorsInRadius(vendors);
+      if (!selectedLocation) return;
+      setLoading(true);
+      const result = await getVendorsByLocation(selectedLocation);
+      if (!cancelled) {
+        setVendorsInRadius(result);
       }
+      setLoading(false);
     };
 
     fetchVendorsByDistance();
-
     return () => {
-      cancelled = true; // Cleanup in case the component unmounts
+      cancelled = true;
     };
-  }, [lat, lon, useLocationFilter, vendors]);
+  }, [selectedLocation]);
 
-  // Memoize the filtered vendors based on the selected filters
+
+  // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {
     return vendorsInRadius.filter((vendor) => {
       const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
@@ -85,26 +103,34 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     });
   }, [vendorsInRadius, selectedRegion, travelsWorldwide, selectedSkills]);
 
-  // Apply search and sorting
+  // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {
-    const filteredSortedVendors: Vendor[] = filteredVendors;
+    const sortedVendors = [...filteredVendors];
+    
     if (sortOption === 'priceLowToHigh') {
-      filteredSortedVendors.sort((a, b) => {
-        if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
+      sortedVendors.sort((a, b) => {
+        if (a.bridal_makeup_price === null) return 1;
         if (b.bridal_makeup_price === null) return -1;
-        console.debug("Comparing prices");
         return a.bridal_makeup_price - b.bridal_makeup_price;
       });
     } else if (sortOption === 'priceHighToLow') {
-      filteredSortedVendors.sort((a, b) => {
-        if (a.bridal_makeup_price === null) return 1; // Null prices go to the end
+      sortedVendors.sort((a, b) => {
+        if (a.bridal_makeup_price === null) return 1;
         if (b.bridal_makeup_price === null) return -1;
         return b.bridal_makeup_price - a.bridal_makeup_price;
       });
+    } else if (useLocationSearch && sortOption === 'default') {
+      // Sort by distance when using location search
+      sortedVendors.sort((a, b) => {
+        if (!a.distance_miles && !b.distance_miles) return 0;
+        if (!a.distance_miles) return 1;
+        if (!b.distance_miles) return -1;
+        return a.distance_miles - b.distance_miles;
+      });
     }
 
-    return filteredSortedVendors;
-  }, [searchQuery, filteredVendors, sortOption]);
+    return sortedVendors;
+  }, [filteredVendors, sortOption, useLocationSearch]);
 
   const [prevParams, setPrevParams] = useState<string | null>(null);
 
@@ -147,16 +173,15 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     searchedAndSortedVendors.length,
   ]);
 
-  // Load more vendors when scrolling
+  // Load more vendors for infinite scroll
   const loadMoreVendors = useCallback(() => {
-    if (loading) return; // Prevent multiple calls while loading
+    if (loading) return;
     setLoading(true);
 
     setVisibleVendors((prevVendors) => {
       const currentLength = prevVendors.length;
       const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
 
-      // Prevent duplicate append
       if (nextVendors.length === 0) {
         setLoading(false);
         return prevVendors;
@@ -168,21 +193,19 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     setLoading(false);
   }, [loading, searchedAndSortedVendors]);
 
-  const router = useRouter();
-
+  // Clear all filters
   const handleClearFilters = () => {
-    router.push("?", { scroll: false }); // Resets URL to base with no query params
+    router.push("?", { scroll: false });
     trackFilterReset();
   };
 
-  // Reset visible vendors whenever the filtered & searched vendor list changes
+  // Reset visible vendors when filtered list changes
   useEffect(() => {
     setVisibleVendors(searchedAndSortedVendors.slice(0, PAGE_SIZE));
   }, [searchedAndSortedVendors]);
 
-  // Intersection Observer to detect scrolling near the end
+  // Intersection Observer for infinite scroll
   useEffect(() => {
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -198,7 +221,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
     return () => {
       if (observerCurrent) observer.unobserve(observerCurrent);
     };
-  }, [searchedAndSortedVendors, loadMoreVendors]);
+  }, [loadMoreVendors]);
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
@@ -210,66 +233,66 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      {/* Filters and Sorting Section */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
-        {/* First Row: Location & Search Bar */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'row', md: 'row' }, // Keep on the same row for both small and large screens
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-            flexWrap: 'wrap', // Allows wrapping for smaller screens
-          }}
-        >
-          <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} />
-          <SkillFilter tags={tags} searchParams={searchParams} />
-          <TravelFilter searchParams={searchParams} />
-          <SearchBar searchParams={searchParams} />
-
-        </Box>
-
-        {/* Second Row: Clear Button */}
+      {/* Filters and Search Section */}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        
+        {/* First Row: Search Bars */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
             gap: 2,
+            alignItems: { xs: 'stretch', md: 'center' },
           }}
         >
+          <SearchBar searchParams={searchParams} />
+          <LocationAutocomplete onSelect={setSelectedLocation} />
+          {/* <LocationSearchBar searchParams={searchParams} /> */}
+        </Box>
+
+        {/* Second Row: Other Filters */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            alignItems: { xs: 'stretch', sm: 'center' },
+            flexWrap: 'wrap',
+          }}
+        >
+          {/* <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} /> */}
+          <SkillFilter tags={tags} searchParams={searchParams} />
+          <TravelFilter searchParams={searchParams} />
+        </Box>
+
+        {/* Third Row: Clear Button */}
+        <Box>
           <Button
             variant="contained"
             onClick={handleClearFilters}
             size="small"
-            sx={{ width: { xs: '100%', md: 'auto' } }} // Full-width on mobile
+            sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
-            Clear Filters
+            Clear All Filters
           </Button>
         </Box>
       </Box>
 
       <Divider />
-      {/* Filtered Vendors Count */}
+
+      {/* Results Count and Sorting */}
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'row', md: 'row' },
-          alignItems: 'center',
+          flexDirection: { xs: 'column', md: 'row' },
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', md: 'center' },
           gap: 2,
-          flexWrap: 'wrap', // Allows wrapping for smaller screens
         }}
       >
         <Typography variant="h6">
           {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
+          {locationSearchQuery && ` near "${locationSearchQuery}"`}
         </Typography>
 
         <FormControl sx={{ minWidth: 200 }}>
@@ -280,7 +303,7 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
             size="small"
           >
             <MenuItem value="default">
-              <em>Sort: Default</em>
+              <em>Sort: {useLocationSearch ? 'Distance' : 'Default'}</em>
             </MenuItem>
             <MenuItem value="priceLowToHigh">Price: Low to High</MenuItem>
             <MenuItem value="priceHighToLow">Price: High to Low</MenuItem>
@@ -309,7 +332,6 @@ function FilterableVendorTableContent({ uniqueRegions, tags, vendors, favoriteVe
       {/* Intersection observer target */}
       <div ref={observerRef} style={{ height: 1 }} />
     </Box>
-
   );
 }
 
