@@ -1,6 +1,5 @@
 'use client';
 
-import Box from '@mui/material/Box';
 import { PlaceholderValue, OnLoadingComplete } from 'next/dist/shared/lib/get-img-props';
 import Image from 'next/image';
 import { JSX } from 'react';

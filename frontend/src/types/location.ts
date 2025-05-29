@@ -52,7 +52,7 @@ export interface LocationSearchOptions {
   namedetails?: boolean;
 }
 
-export type VendorByDistance = Vendor & { distance_miles: number | null };
+export type VendorByDistance = Vendor & { distance_miles?: number | null };
 
 export const stateAbbreviations: Record<string, string> = {
   "Alabama": "AL",

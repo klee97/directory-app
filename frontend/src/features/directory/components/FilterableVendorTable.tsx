@@ -48,13 +48,12 @@ export function FilterableVendorTableContent({
   console.log(uniqueRegions);
 
   // Extract search parameters
-  const selectedRegion = searchParams.get(LOCATION_PARAM) || "";
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
 
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
 
-  const locationSearchQuery = searchParams.get("location_search") || "";
+  const locationSearchQuery = searchParams.get(LOCATION_PARAM) || "";
   const useLocationSearch = locationSearchQuery.length > 0;
 
   // State management
@@ -92,16 +91,15 @@ export function FilterableVendorTableContent({
   // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {
     return vendorsInRadius.filter((vendor) => {
-      const matchesRegion = selectedRegion ? vendor.metro_region === selectedRegion : true;
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       const matchesAnySkill = selectedSkills.length > 0 ? selectedSkills
         .map(skill => vendor.tags.some((tag) =>
           // does the vendor have a tag that matches the skill?
           tag.display_name?.toLowerCase() === skill.toLowerCase())
         ).includes(true) : true;
-      return matchesRegion && matchesTravel && matchesAnySkill;
+      return matchesTravel && matchesAnySkill;
     });
-  }, [vendorsInRadius, selectedRegion, travelsWorldwide, selectedSkills]);
+  }, [vendorsInRadius, travelsWorldwide, selectedSkills]);
 
   // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {
@@ -142,7 +140,7 @@ export function FilterableVendorTableContent({
 
       if (hasSearchChanged) {
         debouncedTrackSearch({
-          selectedRegion,
+          locationSearchQuery,
           selectedSkills,
           travelsWorldwide,
           searchQuery,
@@ -151,7 +149,7 @@ export function FilterableVendorTableContent({
         });
       } else {
         trackFiltersApplied(
-          selectedRegion,
+          locationSearchQuery,
           selectedSkills,
           travelsWorldwide,
           searchQuery,
@@ -166,7 +164,7 @@ export function FilterableVendorTableContent({
     prevParams,
     searchParams,
     searchQuery,
-    selectedRegion,
+    locationSearchQuery,
     selectedSkills,
     travelsWorldwide,
     sortOption,
@@ -338,7 +336,7 @@ export function FilterableVendorTableContent({
 export default function FilterableVendorTable(props: {
   uniqueRegions: string[],
   tags: string[],
-  vendors: Vendor[],
+  vendors: VendorByDistance[],
   favoriteVendorIds: VendorId[]
 }) {
   return (
