@@ -47,7 +47,7 @@ export const trackFiltersApplied = (
 
 export const debouncedTrackSearch = debounce((params) => {
   trackFiltersApplied(
-    params.selectedRegion,
+    params.selectedLocation,
     params.selectedSkill,
     params.travelsWorldwide,
     params.searchQuery,

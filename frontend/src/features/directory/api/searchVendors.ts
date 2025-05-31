@@ -1,8 +1,8 @@
 import { supabase } from "@/lib/api-client";
-import { LocationResult } from "@/types/location";
-import { Vendor, VendorByDistance } from "@/types/vendor";
+import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { VendorByDistance } from "@/types/vendor";
 
-export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] {
+export function searchVendors(searchQuery: string, vendors: VendorByDistance[]): VendorByDistance[] {
   const regex = new RegExp(searchQuery, "i"); // "i" makes it case-insensitive
   const results = vendors.filter(vendor =>
     regex.test(vendor.business_name?.toString() ?? '') ||
@@ -14,25 +14,23 @@ export function searchVendors(searchQuery: string, vendors: Vendor[]): Vendor[] 
   return results;
 }
 
-function isStateOnlySelection(location: LocationResult) {
-  return (
-    !location.address.city && location.address.state !== undefined && location.type === 'administrative'
-  );
-}
-
-export async function getVendorsByLocation(location: LocationResult) {
-  console.log("Fetching vendors for location:", location);
-
-  if (isStateOnlySelection(location) && location.address?.state) {
-    console.log("Fetching vendors by state:", location.address.state);
+export async function getVendorsByLocation(location: LocationResult, vendors: VendorByDistance[] = []): Promise<VendorByDistance[]> {
+  console.debug("Fetching vendors for location:", location);
+  if (location.type === LOCATION_TYPE_PRESET_REGION) {
+    return await filterVendorByRegion(location.display_name, vendors);
+  } else if (isCountrySelection(location) && location.address?.country) {
+    return await getVendorsByCountry(location);
+  } else if (isStateSelection(location) && location.address?.state) {
     return await getVendorsByState(location);
+  } else if (!!location.lat && !!location.lon) {
+    return await getVendorsByDistanceWithFallback(location.lat, location.lon, 25, 200);
   } else {
-    return await getVendorsByDistance(location, 25, 150);
+    return [];
   }
 }
 
 export async function getVendorsByState(location: LocationResult) {
-  if (!location.address.state) {
+  if (!location.address?.state) {
     console.warn("No state provided in location:", location);
     return [];
   }
@@ -40,7 +38,7 @@ export async function getVendorsByState(location: LocationResult) {
   const { data, error } = await supabase
     .from('vendors')
     .select('*')
-    .ilike('state', location.address.state); 
+    .ilike('state', location.address.state);
 
   if (error) {
     console.error('Error fetching vendors:', error);
@@ -49,11 +47,42 @@ export async function getVendorsByState(location: LocationResult) {
   return data;
 }
 
-export async function getVendorsByDistance(location: LocationResult, radiusMi = 25, limit = 150)
-: Promise<VendorByDistance[]> {
-  const lat = parseFloat(location.lat);
-  const lon = parseFloat(location.lon);
-  console.log("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
+export async function getVendorsByCountry(location: LocationResult) {
+  if (!location.address?.country) {
+    console.warn("No country provided in location:", location);
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('*')
+    .ilike('country', location.address.country);
+
+  if (error) {
+    console.error('Error fetching vendors:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function getVendorsByDistanceWithFallback(lat: number, lon: number, initialRadius = 25, limit = 150)
+  : Promise<VendorByDistance[]> {
+  let radiusMi = initialRadius;
+  let results: VendorByDistance[] = [];
+  let attempts = 0;
+  console.debug("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
+
+  while (results.length < 5 && attempts < 3) { // Try up to 3 times
+    results = await getVendorsByDistance(lat, lon, radiusMi, limit);
+    radiusMi += 25; // Increase radius by 25 miles each time
+    attempts++;
+  }
+
+  return results;
+}
+
+export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 25, limit = 150)
+  : Promise<VendorByDistance[]> {
   const { data, error } = await supabase
     .rpc("get_vendors_by_distance",
       {
@@ -64,9 +93,28 @@ export async function getVendorsByDistance(location: LocationResult, radiusMi = 
       }
     );
 
-  if (error) { 
+  if (error) {
     console.error("Error fetching artists by distance:", error);
   }
 
   return data;
+}
+
+function isStateSelection(location: LocationResult) {
+  return (
+    location.type === LOCATION_TYPE_STATE
+  );
+}
+
+function isCountrySelection(location: LocationResult) {
+  return (
+    location.type  === LOCATION_TYPE_COUNTRY
+  );
+}
+
+async function filterVendorByRegion(region: string, vendors: VendorByDistance[]): Promise<VendorByDistance[]> {
+  const results = vendors.filter(vendor =>
+    vendor.metro_region?.toLowerCase().includes(region.toLowerCase())
+  );
+  return results;
 }

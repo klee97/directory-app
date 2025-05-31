@@ -1,46 +1,37 @@
-export interface NominatimResponse {
-  lat: string;
-  lon: string;
-  place_id: string;
+export const LOCATION_TYPE_PRESET_REGION = "preset-region";
+export const LOCATION_TYPE_STATE = "state";
+export const LOCATION_TYPE_STATE_DISPLAY = "State";
+export const LOCATION_TYPE_COUNTRY = "country";
+export const LOCATION_TYPE_COUNTRY_DISPLAY = "Country";
+export const LOCATION_TYPE_CITY = "city";
+
+
+export interface GeocodeResponse {
   type: string;
-  display_name: string;
-  importance: number;
-  address: {
-    city?: string;
-    town?: string;
-    village?: string;
-    municipality?: string;
-    state?: string;
-    country?: string;
+  geometry: {
+    coordinates: number[];
+    type: string;
+  },
+  properties: {
+    city: string;
+    state: string;
+    country: string;
+    name: string;
+    type: string;
   }
 }
 
 export interface LocationResult {
   display_name: string;
-  lat: string;
-  lon: string;
+  lat?: number;
+  lon?: number;
   type?: string;
-  address: {
+  address?: {
     city?: string;
     state?: string;
     country?: string;
   }
 }
-
-export interface NominatimResult {
-  display_name: string;
-  lat: string;
-  lon: string;
-  address?: {
-    city?: string;
-    town?: string;
-    village?: string;
-    state?: string;
-    country?: string;
-    country_code?: string;
-  };
-}
-
 
 export interface LocationSearchOptions {
   limit?: number;
@@ -102,4 +93,8 @@ export const stateAbbreviations: Record<string, string> = {
   "West Virginia": "WV",
   "Wisconsin": "WI",
   "Wyoming": "WY",
+};
+
+export const countryAbbreviations: Record<string, string> = {
+  "United States": "USA",
 };

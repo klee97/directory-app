@@ -10,11 +10,10 @@ import { createClient } from '@/lib/supabase/client';
 
 interface DirectoryProps {
   vendors: Vendor[];
-  uniqueMetroRegions: string[];
   tags: string[];
 }
 
-export function Directory({ vendors, uniqueMetroRegions, tags }: DirectoryProps) {
+export function Directory({ vendors, tags }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
@@ -68,7 +67,6 @@ export function Directory({ vendors, uniqueMetroRegions, tags }: DirectoryProps)
       </Typography>
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
-          uniqueRegions={uniqueMetroRegions}
           vendors={vendors}
           favoriteVendorIds={favoriteVendorIds}
           tags={tags}

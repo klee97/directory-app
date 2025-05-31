@@ -12,11 +12,11 @@ import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './filters/SearchBar';
 import { VendorId, VendorTag, VendorByDistance } from '@/types/vendor';
 import { LocationResult } from '@/types/location';
-import { getVendorsByLocation } from '../api/searchVendors';
+import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
@@ -27,14 +27,12 @@ const PAGE_SIZE = 12;
 
 
 interface FilterableVendorTableContentProps {
-  uniqueRegions: string[];
   tags: string[];
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
 }
 
 export function FilterableVendorTableContent({
-  uniqueRegions,
   tags,
   vendors,
   favoriteVendorIds,
@@ -42,17 +40,11 @@ export function FilterableVendorTableContent({
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // todo: use vendors and unique regions for optimization
-  console.log(vendors);
-  console.log(uniqueRegions);
-
   // Extract search parameters
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
 
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
-
-  const locationSearchQuery = searchParams.get(LOCATION_PARAM) || "";
 
   // State management
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
@@ -70,13 +62,14 @@ export function FilterableVendorTableContent({
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
+      console.log("Fetching vendors by distance for location:", selectedLocation);
       if (!selectedLocation) {
         // If no location is selected, show all vendors by default
         setVendorsInRadius(vendors);
         return;
       }
       setLoading(true);
-      const results = await getVendorsByLocation(selectedLocation);
+      const results = await getVendorsByLocation(selectedLocation, vendors);
       if (!cancelled) {
         setVendorsInRadius(results);
       }
@@ -105,7 +98,7 @@ export function FilterableVendorTableContent({
 
   // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {
-    const sortedVendors = [...filteredVendors];
+    const sortedVendors = searchVendors(searchQuery, filteredVendors);
 
     if (sortOption === 'priceLowToHigh') {
       sortedVendors.sort((a, b) => {
@@ -130,7 +123,7 @@ export function FilterableVendorTableContent({
     }
 
     return sortedVendors;
-  }, [filteredVendors, sortOption]);
+  }, [searchQuery, filteredVendors, sortOption]);
 
   const [prevParams, setPrevParams] = useState<string | null>(null);
 
@@ -142,7 +135,7 @@ export function FilterableVendorTableContent({
 
       if (hasSearchChanged) {
         debouncedTrackSearch({
-          locationSearchQuery,
+          selectedLocation: selectedLocation?.display_name,
           selectedSkills,
           travelsWorldwide,
           searchQuery,
@@ -151,7 +144,7 @@ export function FilterableVendorTableContent({
         });
       } else {
         trackFiltersApplied(
-          locationSearchQuery,
+          selectedLocation?.display_name || "",
           selectedSkills,
           travelsWorldwide,
           searchQuery,
@@ -166,7 +159,7 @@ export function FilterableVendorTableContent({
     prevParams,
     searchParams,
     searchQuery,
-    locationSearchQuery,
+    selectedLocation?.display_name,
     selectedSkills,
     travelsWorldwide,
     sortOption,
@@ -196,6 +189,7 @@ export function FilterableVendorTableContent({
   // Clear all filters
   const handleClearFilters = () => {
     router.push("?", { scroll: false });
+    setSelectedLocation(null);
     trackFilterReset();
   };
 
@@ -246,8 +240,10 @@ export function FilterableVendorTableContent({
           }}
         >
           <SearchBar searchParams={searchParams} />
-          <LocationAutocomplete onSelect={setSelectedLocation} />
-          {/* <LocationSearchBar searchParams={searchParams} /> */}
+          <LocationAutocomplete
+            value={selectedLocation?.display_name || ""}
+            onSelect={setSelectedLocation}
+          />
         </Box>
 
         {/* Second Row: Other Filters */}
@@ -260,7 +256,6 @@ export function FilterableVendorTableContent({
             flexWrap: 'wrap',
           }}
         >
-          {/* <LocationFilter uniqueRegions={uniqueRegions} searchParams={searchParams} /> */}
           <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
         </Box>
@@ -292,7 +287,7 @@ export function FilterableVendorTableContent({
       >
         <Typography variant="h6">
           {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
-          {locationSearchQuery && ` near "${locationSearchQuery}"`}
+          {!!selectedLocation && ` near ${selectedLocation.display_name}`}
         </Typography>
 
         <FormControl sx={{ minWidth: 200 }}>
@@ -334,7 +329,6 @@ export function FilterableVendorTableContent({
 }
 
 export default function FilterableVendorTable(props: {
-  uniqueRegions: string[],
   tags: string[],
   vendors: VendorByDistance[],
   favoriteVendorIds: VendorId[]

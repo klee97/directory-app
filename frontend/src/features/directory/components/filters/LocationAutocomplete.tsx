@@ -1,28 +1,37 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Paper from '@mui/material/Paper';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { debounce } from 'lodash';
-import { LocationResult } from '@/types/location';
+import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Box from '@mui/system/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface LocationAutocompleteProps {
-  onSelect: (location: LocationResult) => void;
+  value: string | null;
+  onSelect: (location: LocationResult | null) => void;
 }
 
-export default function LocationAutocomplete({ onSelect }: LocationAutocompleteProps) {
-  const [query, setQuery] = useState("");
+export default function LocationAutocomplete({ value, onSelect }: LocationAutocompleteProps) {
+  const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState<LocationResult[]>([]);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const resultWasClickedRef = useRef(false);
+  const clearWasClickedRef = useRef(false); // Add this ref to track clear button clicks
+
+  useEffect(() => {
+    setQuery(value || ""); // Update query when the value prop changes
+  }, [value]);
 
   const fetchSuggestions = async (q: string) => {
     if (abortControllerRef.current) {
@@ -30,14 +39,14 @@ export default function LocationAutocomplete({ onSelect }: LocationAutocompleteP
     }
     const controller = new AbortController();
     abortControllerRef.current = controller;
-
     setLoading(true);
     try {
       const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
       if (res.ok) {
-        const data = await res.json();
-        console.log("Nominatim results:", data);
-        setResults(data);
+        const { matchingRegions, matchingLocations } = await res.json();
+        console.log("Nominatim regions:", matchingRegions);
+        console.log("Nominatim locations:", matchingLocations);
+        setResults([...matchingRegions, ...matchingLocations]);
       } else {
         setResults([]);
       }
@@ -56,37 +65,61 @@ export default function LocationAutocomplete({ onSelect }: LocationAutocompleteP
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    if (value.length > 2) {
-      debouncedFetch(value);
-    } else {
-      setResults([]);
-    }
+    debouncedFetch(value);
+  };
+
+  const handleClear = () => {
+    clearWasClickedRef.current = true; // Set flag before clearing
+    setQuery("");
+    setResults([]);
+    setDropdownVisible(false);
+    onSelect(null); // Notify parent that the location has been cleared
   };
 
   const handleBlur = () => {
     // Delay to allow click events on dropdown to register
     setTimeout(() => {
-      if (results.length >= 3 && !resultWasClickedRef.current) {
+      // Don't auto-select if clear button was clicked or if a result was clicked
+      if (results.length >= 3 && !resultWasClickedRef.current && !clearWasClickedRef.current) {
         const topResult = results[0];
-        setQuery(topResult.display_name); // Set the input box to best guess
-        onSelect(topResult);              // Notify parent
+        setQuery(topResult.display_name); // Set the input box to top result
+        onSelect(topResult);
       }
       setDropdownVisible(false);         // Hide dropdown either way
       resultWasClickedRef.current = false; // Reset for next time
+      clearWasClickedRef.current = false;  // Reset clear flag
     }, 100);
+  };
+
+  const handleFocus = async () => {
+    // Fetch suggestions only if the query is not empty
+    await fetchSuggestions(query);
+
+    setDropdownVisible(true); // Show the dropdown
   };
 
   return (
     <Box ref={containerRef} sx={{ position: "relative", maxWidth: 400 }}>
       <TextField
-        label="Enter a city or location"
+        label="Location"
         variant="outlined"
         fullWidth
         value={query}
         onChange={handleInputChange}
-        onFocus={() => query.length >= 3 && setDropdownVisible(true)}
+        onFocus={handleFocus}
         onBlur={handleBlur}
         autoComplete="off"
+        slotProps={{
+          input: {
+            endAdornment: query && (
+              <InputAdornment position="end">
+                <IconButton onClick={handleClear} edge="end">
+                  <ClearIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          },
+        }}
       />
 
       {isDropdownVisible && (
@@ -107,6 +140,8 @@ export default function LocationAutocomplete({ onSelect }: LocationAutocompleteP
                 <ListItem key={index} disablePadding>
                   <ListItemButton
                     onClick={() => {
+                      console.log("Selected result:", result);
+                      resultWasClickedRef.current = true; // Set flag when result is clicked
                       setQuery(result.display_name); // update input box
                       setDropdownVisible(false);   // close dropdown
                       onSelect(result);              // pass selected result
@@ -114,14 +149,33 @@ export default function LocationAutocomplete({ onSelect }: LocationAutocompleteP
                     onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
                   >
                     <ListItemText
-                      primary={result.display_name}
+                      primary={
+                        <Typography
+                          fontWeight={result.type === LOCATION_TYPE_PRESET_REGION ? "bold" : "normal"}
+                        >
+                          {result.display_name}
+                          {result.type === LOCATION_TYPE_STATE || result.type === LOCATION_TYPE_COUNTRY && (
+                            <Typography
+                              component="span"
+                              fontStyle="italic"
+                              fontWeight="normal"
+                              color="text.secondary"
+                              sx={{ ml: 1 }} // Add some margin for spacing
+                            >
+                              {result.type === LOCATION_TYPE_COUNTRY
+                              ? LOCATION_TYPE_COUNTRY_DISPLAY
+                              : LOCATION_TYPE_STATE_DISPLAY}
+                            </Typography>
+                          )}
+                        </Typography>
+                      }
                     />
                   </ListItemButton>
                 </ListItem>
               ))}
             </List>
           ) : loading ? (
-            <Box sx={{ p: 1 }}>
+            <Box sx={{ p: 1 }} alignContent={"center"}>
               <CircularProgress size={20} />
             </Box>
           ) : (
