@@ -286,8 +286,17 @@ export function FilterableVendorTableContent({
         }}
       >
         <Typography variant="h6">
-          {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
-          {!!selectedLocation && ` near ${selectedLocation.display_name}`}
+          {loading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={20} />
+              Loading artists...
+            </Box>
+          ) : (
+            <>
+              {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
+              {!!selectedLocation && ` near ${selectedLocation.display_name}`}
+            </>
+          )}
         </Typography>
 
         <FormControl sx={{ minWidth: 200 }}>
@@ -306,11 +315,8 @@ export function FilterableVendorTableContent({
 
       {searchedAndSortedVendors.length === 0 && (
         <Box sx={{ textAlign: 'center', padding: 4 }}>
-          <Typography variant="h6" fontWeight="bold" gutterBottom>
-            No artists matched your search.
-          </Typography>
-          <Typography variant="body1" fontWeight="bold">
-            Look at{' '}
+          <Typography variant="body1" gutterBottom>
+            Try looking at{' '}
             <Typography
               component="span"
               onClick={() => {
@@ -328,7 +334,22 @@ export function FilterableVendorTableContent({
             >
               artists who travel worldwide
             </Typography>{' '}
-            , or try broadening your search.
+            , or broaden your search.
+          </Typography>
+          <Typography variant="body1">
+            If you&apos;d like more recommendations for a region,{' '}
+            <Typography
+              component="a"
+              href="/contact"
+              sx={{
+                color: 'primary.main',
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              let us know
+            </Typography>
+            !
           </Typography>
         </Box>
       )}
