@@ -48,10 +48,12 @@ export default function InputWithDebounce({
   renderResult,
 }: InputWithDebounceProps) {
   const [inputValue, setInputValue] = useState(value);
+  const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const [hasSelected, setHasSelected] = useState(false);
+
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isTypingRef = useRef(false);
   const prevValueRef = useRef(value);
-  const [isDropdownVisible, setDropdownVisible] = useState(false);
   const resultWasClickedRef = useRef(false);
   const clearWasClickedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -89,6 +91,7 @@ export default function InputWithDebounce({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     isTypingRef.current = true;
     setDropdownVisible(true);
+    setHasSelected(false); // user is typing again, so reset selection
     const val = e.target.value;
     setInputValue(val);
     onChange(val);
@@ -123,7 +126,9 @@ export default function InputWithDebounce({
   };
 
   const handleFocus = () => {
-    if (withDropdown && results.length) setDropdownVisible(true);
+    if (withDropdown && !hasSelected && results.length) {
+      setDropdownVisible(true);
+    }
   };
 
 
@@ -183,6 +188,7 @@ export default function InputWithDebounce({
                     onClick={() => {
                       resultWasClickedRef.current = true;
                       setInputValue(result.display_name);
+                      setHasSelected(true);
                       setDropdownVisible(false);
                       onSelect?.({ ...result, type: result.type || '' });
                     }}

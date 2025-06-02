@@ -19,6 +19,10 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
   }, [value]);
 
   const fetchSuggestions = async (q: string) => {
+    if (value) {
+      // Skip fetching suggestions if a location is already selected
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
