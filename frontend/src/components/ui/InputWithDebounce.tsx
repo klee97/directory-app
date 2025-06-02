@@ -71,7 +71,7 @@ export default function InputWithDebounce({
     debounceTimerRef.current = setTimeout(() => {
       isTypingRef.current = false;
 
-      if (onDebouncedChange) {
+      if (onDebouncedChange && inputValue !== prevValueRef.current) {
         onDebouncedChange(inputValue, prevValueRef.current);
         prevValueRef.current = inputValue;
       }
@@ -88,6 +88,7 @@ export default function InputWithDebounce({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     isTypingRef.current = true;
+    setDropdownVisible(true);
     const val = e.target.value;
     setInputValue(val);
     onChange(val);
@@ -105,6 +106,7 @@ export default function InputWithDebounce({
     if (onDebouncedChange) onDebouncedChange('', prevValueRef.current);
     prevValueRef.current = '';
     onClear?.();
+    clearWasClickedRef.current = true;
     inputRef.current?.focus();
   };
 

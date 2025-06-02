@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Typography from '@mui/material/Typography';
 import InputWithDebounce from '@/components/ui/InputWithDebounce';
+import debounce from 'lodash.debounce';
 
 interface LocationAutocompleteProps {
   value: string | null;
@@ -13,19 +14,12 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
   const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const clearWasClickedRef = useRef(false); // Add this ref to track clear button clicks
 
   useEffect(() => {
     setQuery(value || ""); // Update query when the value prop changes
   }, [value]);
 
   const fetchSuggestions = async (q: string) => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
     setLoading(true);
     try {
       const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
@@ -45,7 +39,6 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
       setLoading(false);
     }
   };
-
 
   const renderResult = (result: LocationResult) => (
     <ListItemText
@@ -93,7 +86,6 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
         fetchSuggestions(val);
       }}
       onClear={() => {
-        clearWasClickedRef.current = true;
         setQuery('');
         setResults([]);
         onSelect(null);
