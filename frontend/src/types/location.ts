@@ -42,7 +42,7 @@ export interface LocationSearchOptions {
 }
 
 
-export const stateAbbreviations: Record<string, string> = {
+export const STATE_ABBREVIATIONS: Record<string, string> = {
   "Alabama": "AL",
   "Alaska": "AK",
   "Arizona": "AZ",
@@ -95,6 +95,6 @@ export const stateAbbreviations: Record<string, string> = {
   "Wyoming": "WY",
 };
 
-export const countryAbbreviations: Record<string, string> = {
+export const COUNTRY_ABBREVIATIONS: Record<string, string> = {
   "United States": "USA",
 };

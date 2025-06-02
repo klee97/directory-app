@@ -101,6 +101,8 @@ export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 
 }
 
 function isStateSelection(location: LocationResult) {
+  console.debug("Checking if location is a state selection:", location);
+  console.debug("is state selection:", location.type === LOCATION_TYPE_STATE);
   return (
     location.type === LOCATION_TYPE_STATE
   );

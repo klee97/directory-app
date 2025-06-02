@@ -128,7 +128,7 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
           sx={{
             position: "absolute",
             width: "100%",
-            maxHeight: 240,
+            maxHeight: 200,
             overflowY: "auto",
             zIndex: (theme) => theme.zIndex.modal,
             mt: 0.5,
@@ -154,7 +154,7 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
                           fontWeight={result.type === LOCATION_TYPE_PRESET_REGION ? "bold" : "normal"}
                         >
                           {result.display_name}
-                          {result.type === LOCATION_TYPE_STATE || result.type === LOCATION_TYPE_COUNTRY && (
+                          {result.type === LOCATION_TYPE_COUNTRY && (
                             <Typography
                               component="span"
                               fontStyle="italic"
@@ -162,9 +162,18 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
                               color="text.secondary"
                               sx={{ ml: 1 }} // Add some margin for spacing
                             >
-                              {result.type === LOCATION_TYPE_COUNTRY
-                              ? LOCATION_TYPE_COUNTRY_DISPLAY
-                              : LOCATION_TYPE_STATE_DISPLAY}
+                              {LOCATION_TYPE_COUNTRY_DISPLAY}
+                            </Typography>
+                          )}
+                          {result.type === LOCATION_TYPE_STATE && (
+                            <Typography
+                              component="span"
+                              fontStyle="italic"
+                              fontWeight="normal"
+                              color="text.secondary"
+                              sx={{ ml: 1 }} // Add some margin for spacing
+                            >
+                              {LOCATION_TYPE_STATE_DISPLAY}
                             </Typography>
                           )}
                         </Typography>

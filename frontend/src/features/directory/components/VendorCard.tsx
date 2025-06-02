@@ -15,10 +15,10 @@ import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
-import { stateAbbreviations } from '@/types/location';
+import { STATE_ABBREVIATIONS } from '@/types/location';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
-  const state = vendor.state ? stateAbbreviations[vendor.state] || vendor.state : null;
+  const state = vendor.state ? STATE_ABBREVIATIONS[vendor.state] || vendor.state : null;
   const location = [vendor.city, state, vendor.country].filter(Boolean).join(', ');
   return location || 'Location not specified';
 }
