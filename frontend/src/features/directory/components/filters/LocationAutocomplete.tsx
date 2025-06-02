@@ -1,9 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Typography from '@mui/material/Typography';
 import InputWithDebounce from '@/components/ui/InputWithDebounce';
-import debounce from 'lodash.debounce';
 
 interface LocationAutocompleteProps {
   value: string | null;
