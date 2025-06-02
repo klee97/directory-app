@@ -16,7 +16,7 @@ import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
@@ -304,6 +304,34 @@ export function FilterableVendorTableContent({
         </FormControl>
       </Box>
 
+      {searchedAndSortedVendors.length === 0 && (
+        <Box sx={{ textAlign: 'center', padding: 4 }}>
+          <Typography variant="h6" fontWeight="bold" gutterBottom>
+            No artists matched your search.
+          </Typography>
+          <Typography variant="body1" fontWeight="bold">
+            Look at{' '}
+            <Typography
+              component="span"
+              onClick={() => {
+                const params = new URLSearchParams(searchParams.toString());
+                setSelectedLocation(null);
+                params.delete(LOCATION_PARAM);
+                params.set(TRAVEL_PARAM, 'true');
+                router.push(`?${params.toString()}`, { scroll: false });
+              }}
+              sx={{
+                color: 'primary.main',
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              artists who travel worldwide
+            </Typography>{' '}
+            , or try broadening your search.
+          </Typography>
+        </Box>
+      )}
       {/* Vendor Grid */}
       <VendorGrid
         handleFocus={handleFocus}
