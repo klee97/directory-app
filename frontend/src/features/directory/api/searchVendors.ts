@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/api-client";
-import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_RESULTS_MINIMUM, SEARCH_VENDORS_LIMIT_DEFAULT } from "@/types/location";
 import { VendorByDistance } from "@/types/vendor";
 
 export function searchVendors(searchQuery: string, vendors: VendorByDistance[]): VendorByDistance[] {
@@ -23,7 +23,7 @@ export async function getVendorsByLocation(location: LocationResult, vendors: Ve
   } else if (isStateSelection(location) && location.address?.state) {
     return await getVendorsByState(location);
   } else if (!!location.lat && !!location.lon) {
-    return await getVendorsByDistanceWithFallback(location.lat, location.lon, 25, 200);
+    return await getVendorsByDistanceWithFallback(location.lat, location.lon, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT);
   } else {
     return [];
   }
@@ -65,23 +65,33 @@ export async function getVendorsByCountry(location: LocationResult) {
   return data;
 }
 
-export async function getVendorsByDistanceWithFallback(lat: number, lon: number, initialRadius = 25, limit = 150)
+export async function getVendorsByDistanceWithFallback(
+  lat: number,
+  lon: number,
+  initialRadius = SEARCH_RADIUS_MILES_DEFAULT,
+  limit = SEARCH_VENDORS_LIMIT_DEFAULT
+)
   : Promise<VendorByDistance[]> {
   let radiusMi = initialRadius;
   let results: VendorByDistance[] = [];
   let attempts = 0;
   console.debug("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
 
-  while (results.length < 5 && attempts < 3) { // Try up to 3 times
+  while (results.length < SEARCH_RESULTS_MINIMUM && attempts < 3) { // Try up to 3 times
     results = await getVendorsByDistance(lat, lon, radiusMi, limit);
-    radiusMi += 25; // Increase radius by 25 miles each time
+    radiusMi += SEARCH_RADIUS_MILES_DEFAULT; // Increase radius by 25 miles each time
     attempts++;
   }
 
   return results;
 }
 
-export async function getVendorsByDistance(lat: number, lon: number, radiusMi = 25, limit = 150)
+export async function getVendorsByDistance(
+  lat: number,
+  lon: number,
+  radiusMi = SEARCH_RADIUS_MILES_DEFAULT,
+  limit = SEARCH_VENDORS_LIMIT_DEFAULT
+)
   : Promise<VendorByDistance[]> {
   const { data, error } = await supabase
     .rpc("get_vendors_by_distance",
@@ -110,7 +120,7 @@ function isStateSelection(location: LocationResult) {
 
 function isCountrySelection(location: LocationResult) {
   return (
-    location.type  === LOCATION_TYPE_COUNTRY
+    location.type === LOCATION_TYPE_COUNTRY
   );
 }
 

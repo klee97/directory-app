@@ -29,6 +29,7 @@ interface InputWithDebounceProps {
   withDropdown?: boolean;
   loading?: boolean;
   results?: Array<{ display_name: string, type?: string | undefined }>;
+  fetchResults?: (query: string) => Promise<void>;
   onSelect?: (result: { display_name: string, type?: string | undefined }) => void;
   renderResult?: (result: { display_name: string, type?: string | undefined }) => React.ReactNode;
 }
@@ -44,6 +45,7 @@ export default function InputWithDebounce({
   withDropdown = false,
   loading = false,
   results = [],
+  fetchResults,
   onSelect,
   renderResult,
 }: InputWithDebounceProps) {
@@ -98,36 +100,52 @@ export default function InputWithDebounce({
   };
 
   const handleClear = () => {
+    // Cancel debounce timer
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
     }
 
     isTypingRef.current = false;
-    setInputValue('');
-    onChange('');
-    if (onDebouncedChange) onDebouncedChange('', prevValueRef.current);
-    prevValueRef.current = '';
+    const clearedValue = '';
+    setInputValue(clearedValue);
+    onChange(clearedValue);
+    prevValueRef.current = clearedValue;
+    setHasSelected(false);
+
+    // Trigger immediate suggestion fetch for empty input
+    if (onDebouncedChange) {
+      onDebouncedChange(clearedValue, prevValueRef.current);
+    }
+
     onClear?.();
     clearWasClickedRef.current = true;
-    inputRef.current?.focus();
+    resultWasClickedRef.current = false; // Reset click state on focus
+
+    // Re-focus input
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
   };
 
   const handleBlur = () => {
     setTimeout(() => {
-      if (withDropdown && results.length && !resultWasClickedRef.current && !clearWasClickedRef.current) {
-        onSelect?.({ ...results[0], type: results[0].type || '' });
-        setInputValue(results[0]?.display_name || '');
+      console.log(clearWasClickedRef.current, resultWasClickedRef.current);
+      // Don't hide the dropdown if we're about to focus the input again after clear
+      if (!clearWasClickedRef.current) {
+        setDropdownVisible(false);
       }
-      setDropdownVisible(false);
       resultWasClickedRef.current = false;
       clearWasClickedRef.current = false;
     }, 100);
   };
 
   const handleFocus = () => {
-    if (withDropdown && !hasSelected && results.length) {
+    if (withDropdown && !hasSelected) {
       setDropdownVisible(true);
+      if (inputValue.trim() === '' && fetchResults) {
+        fetchResults(''); // Fetch suggestions when the input is focused and empty
+      }
     }
   };
 

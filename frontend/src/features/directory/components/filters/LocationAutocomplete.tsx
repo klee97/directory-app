@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Typography from '@mui/material/Typography';
@@ -13,6 +13,8 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
   const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState<LocationResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const cache = useRef(new Map<string, LocationResult[]>());
+  const MAX_CACHE_SIZE = 10;
 
   useEffect(() => {
     setQuery(value || ""); // Update query when the value prop changes
@@ -24,22 +26,37 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
       return;
     }
     setLoading(true);
-    try {
-      const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
-      if (res.ok) {
-        const { matchingRegions, matchingLocations } = await res.json();
-        console.log("Nominatim regions:", matchingRegions);
-        console.log("Nominatim locations:", matchingLocations);
-        setResults([...matchingRegions, ...matchingLocations]);
-      } else {
-        setResults([]);
-      }
-
-    } catch (err) {
-      console.error(err);
-      setResults([]);
-    } finally {
+    const cached = cache.current.get(q);
+    if (cached && cached.length > 0) {
+      setResults(cached);
       setLoading(false);
+      return;
+    } else {
+      try {
+        const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
+        if (res.ok) {
+          const { matchingRegions, matchingLocations } = await res.json();
+          console.debug("Nominatim regions:", matchingRegions);
+          console.debug("Nominatim locations:", matchingLocations);
+          const fullResults = [...matchingRegions, ...matchingLocations];
+          if (cache.current.size >= MAX_CACHE_SIZE) {
+            const firstKey = cache.current.keys().next().value;
+            if (firstKey !== undefined) {
+              cache.current.delete(firstKey);
+            }
+          }
+          cache.current.set(q, fullResults);
+          setResults(fullResults);
+        } else {
+          setResults([]);
+        }
+
+      } catch (err) {
+        console.error(err);
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -93,12 +110,13 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
         setResults([]);
         onSelect(null);
       }}
-      placeholder="Location"
+      placeholder="Search a city, state, or country"
       debounceMs={300}
       isLocationInput={true}
       withDropdown={true}
       loading={loading}
       results={results}
+      fetchResults={fetchSuggestions}
       onSelect={onSelect}
       renderResult={renderResult}
     />

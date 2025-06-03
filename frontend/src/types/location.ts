@@ -5,6 +5,10 @@ export const LOCATION_TYPE_COUNTRY = "country";
 export const LOCATION_TYPE_COUNTRY_DISPLAY = "Country";
 export const LOCATION_TYPE_CITY = "city";
 
+export const SEARCH_RADIUS_MILES_DEFAULT = 25;
+export const SEARCH_VENDORS_LIMIT_DEFAULT = 200;
+export const SEARCH_RESULTS_MINIMUM = 5;
+
 
 export interface GeocodeResponse {
   type: string;

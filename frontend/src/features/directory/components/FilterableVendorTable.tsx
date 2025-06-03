@@ -113,7 +113,6 @@ export function FilterableVendorTableContent({
         return b.bridal_makeup_price - a.bridal_makeup_price;
       });
     } else if (sortOption === 'default') {
-      // Sort by distance when using location search
       sortedVendors.sort((a, b) => {
         if (!a.distance_miles && !b.distance_miles) return 0;
         if (!a.distance_miles) return 1;
