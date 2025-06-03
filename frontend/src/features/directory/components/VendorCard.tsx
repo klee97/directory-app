@@ -1,5 +1,5 @@
 "use client";
-import { Vendor } from '@/types/vendor';
+import { VendorByDistance } from '@/types/vendor';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -15,7 +15,13 @@ import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
+import { STATE_ABBREVIATIONS } from '@/types/location';
 
+function formatVendorLocation(vendor: VendorByDistance): string {
+  const state = vendor.state ? STATE_ABBREVIATIONS[vendor.state] || vendor.state : null;
+  const location = [vendor.city, state, vendor.country].filter(Boolean).join(', ');
+  return location || 'Location not specified';
+}
 
 export const VendorCard = ({
   vendor,
@@ -28,7 +34,7 @@ export const VendorCard = ({
   isFavorite,
   showFavoriteButton = false
 }: {
-  vendor: Vendor;
+  vendor: VendorByDistance;
   searchParams: string;
   onFocus: () => void;
   onBlur: () => void;
@@ -156,7 +162,8 @@ export const VendorCard = ({
             <Typography
               variant="body1"
             >
-              <LocationOnIconOutlined fontSize='small' color='primary' /> {vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}
+              <LocationOnIconOutlined fontSize='small' color='primary' />
+              {formatVendorLocation(vendor)}
             </Typography>
 
             {/* Location Tags */}
@@ -176,7 +183,7 @@ export const VendorCard = ({
               mt: 'auto',
               gap: 1,
             }}>
-              {vendor.tags.length > 0 && (vendor.tags
+              {vendor.tags?.length > 0 && (vendor.tags
                 .filter((tag) => tag.is_visible && tag.display_name !== null)
                 .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                 .map((tag) =>

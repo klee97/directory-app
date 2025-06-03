@@ -1,11 +1,8 @@
 import { Directory } from '@/features/directory/components/Directory';
-import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
-import { unstable_cache } from 'next/cache';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
-
-const getCachedVendors = unstable_cache(fetchAllVendors);
+import { getCachedVendors } from '@/features/directory/api/fetchVendors';
 
 export const metadata: Metadata = {
   openGraph: {
@@ -61,16 +58,6 @@ export default async function Home() {
     }))
   };
 
-  // Get unique regions from the vendor data
-  const uniqueMetroRegions = Array.from(
-    new Set(
-      vendors
-        .map((vendor) => vendor.metro_region)
-        .filter((region): region is string => region !== null && region !== undefined)
-        .sort()
-    )
-  );
-
   const uniqueTags = Array.from(
     new Set(
       vendors
@@ -94,7 +81,7 @@ export default async function Home() {
         />
       </section>
       <title>Asian Wedding Makeup | The Best Artists for Asian Features</title>
-      <Directory vendors={shuffledVendors} uniqueMetroRegions={uniqueMetroRegions} tags={uniqueTags} />
+      <Directory vendors={shuffledVendors} tags={uniqueTags} />
     </>
   );
 }

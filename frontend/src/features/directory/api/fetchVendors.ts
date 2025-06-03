@@ -1,11 +1,12 @@
 import { supabase } from '@/lib/api-client';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
+import { unstable_cache } from 'next/cache';
 
 export async function fetchAllVendors() {
   try {
     console.debug("Fetching vendors");
     const { data } = await supabase.from('vendors')
-    .select(`
+      .select(`
       *, 
       usmetro!metro_id(display_name), 
       regions!metro_region_id(name),
@@ -20,3 +21,7 @@ export async function fetchAllVendors() {
     throw new Error('Failed to fetch card data.');
   }
 }
+
+export const getCachedVendors = unstable_cache(fetchAllVendors, ["all-vendors"], {
+  revalidate: 86400,
+});

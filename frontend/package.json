@@ -39,6 +39,7 @@
     "graphql": "^16.10.0",
     "graphql-request": "^6.1.0",
     "lodash.debounce": "^4.0.8",
+    "lru-cache": "^11.1.0",
     "mui": "^0.0.1",
     "next": "^15.3.1",
     "next-sitemap": "^4.2.3",

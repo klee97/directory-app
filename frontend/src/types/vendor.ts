@@ -36,6 +36,9 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'email'
   | 'website'
   | 'region'
+  | 'city'
+  | 'state'
+  | 'country'
   | 'travels_world_wide'
   | 'slug'
   | 'cover_image'
@@ -68,6 +71,9 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
     google_maps_place: vendor.google_maps_place,
     region: vendor.region,
+    city: vendor.city,
+    state: vendor.state,
+    country: vendor.country,
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
     cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
@@ -81,9 +87,11 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     specialties: new Set(specialties),
     metro: vendor.usmetro?.display_name ?? null, // Safely access metro region name
     metro_region: vendor.regions?.name ?? null, // Safely access region name
-    state: vendor.usstates?.name ?? null, // Safely access state name
     testimonials: vendor.vendor_testimonials ?? [],
     tags: vendor.tags ?? [],
   };
 }
 
+export type VendorByDistance = Vendor & {
+  distance_miles?: number | null
+};
