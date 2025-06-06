@@ -6,7 +6,7 @@ import Navbar from "@/components/layouts/Navbar";
 import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/website_preview.jpeg';
-import { Lato } from 'next/font/google';
+import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -16,8 +16,8 @@ import { Suspense } from "react";
 import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
 import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constants";
 
-const lato = Lato({
-  weight: ['300', '400', '700', '900'],
+const alice = Alice({
+  weight: ['400'],
   subsets: ['latin'],
   display: 'swap',
 });
@@ -55,7 +55,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={lato.className}>
+    <html lang="en" className={alice.className}>
       <head>
         <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
         <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />

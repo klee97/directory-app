@@ -2,9 +2,11 @@
 
 import { useRouter, usePathname, ReadonlyURLSearchParams } from "next/navigation";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Switch from "@mui/material/Switch";
+import Checkbox from "@mui/material/Checkbox";
 import { TRAVEL_PARAM } from "@/lib/constants";
 import { trackFilterEvent, TRAVEL_FILTER_NAME } from "@/utils/analytics/trackFilterEvents";
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from "@mui/material";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 export default function TravelFilter({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
   const router = useRouter();
@@ -29,11 +31,19 @@ export default function TravelFilter({ searchParams }: { searchParams: ReadonlyU
   };
 
   return (
-    <FormControlLabel
-      control={
-        <Switch checked={travelsWorldwide} onChange={handleToggle} color="primary" />
-      }
-      label="Travels Worldwide"
-    />
+    <Accordion>
+      <AccordionSummary expandIcon={<ExpandMore />}>
+        <Typography variant="h6">Travel</Typography>
+      </AccordionSummary>
+      <AccordionDetails>
+        <FormControlLabel
+          control={
+            <Checkbox checked={travelsWorldwide} onChange={handleToggle} color="primary" />
+          }
+          label="Travels Worldwide"
+        />
+      </AccordionDetails>
+    </Accordion>
+
   );
 }

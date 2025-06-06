@@ -151,7 +151,7 @@ export default function InputWithDebounce({
 
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', maxWidth: 400 }}>
+    <Box sx={{ position: 'relative', width: '100%', maxWidth: 500 }}>
       <FormControl fullWidth variant="outlined">
         <OutlinedInput
           size="small"

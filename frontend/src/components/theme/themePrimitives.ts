@@ -1,13 +1,13 @@
 const typography = {
   fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
-    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Alice", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '3rem',
     fontWeight: 500,
     color: 'primary'
   },
   h2: {
-    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Alice", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '2rem',
     fontWeight: 500,
   },
@@ -17,7 +17,6 @@ const typography = {
     fontWeight: 500,
   },
   h4: {
-
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
@@ -52,8 +51,8 @@ export const colorSchemes = {
         main: '#009688',
       },
       background: {
-        default: '#fbf9f8',
-        paper: '#ececec',
+        default: 'white',
+        paper: '#fbf9f8',
       },
       divider: '#bf6566',
     },

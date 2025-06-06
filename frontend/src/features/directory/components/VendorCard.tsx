@@ -179,6 +179,7 @@ export const VendorCard = ({
             {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
             <Box sx={{
               display: 'flex',
+              flexWrap: 'wrap',
               justifyContent: 'left',
               mt: 'auto',
               gap: 1,
