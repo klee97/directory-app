@@ -179,6 +179,7 @@ export const VendorCard = ({
             {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
             <Box sx={{
               display: 'flex',
+              flexWrap: 'wrap',
               justifyContent: 'left',
               mt: 'auto',
               gap: 1,
@@ -191,7 +192,7 @@ export const VendorCard = ({
                     key={tag.id}
                     label={`${tag.display_name}`}
                     variant="outlined"
-                    sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 2 }}
+                    sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 1 }}
                     color={tag.style === 'primary' ? 'primary' : 'default'}
                   />
                 ))}
