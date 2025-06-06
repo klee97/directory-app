@@ -21,6 +21,7 @@ import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
 import LocationAutocomplete from './filters/LocationAutocomplete';
+import { SORT_OPTIONS, SortOption } from '@/types/sort';
 
 const PAGE_SIZE = 12;
 
@@ -48,7 +49,7 @@ export function FilterableVendorTableContent({
 
   // State management
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
-  const [sortOption, setSortOption] = useState<string>('default');
+  const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
@@ -99,30 +100,44 @@ export function FilterableVendorTableContent({
   // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {
     const sortedVendors = searchVendors(searchQuery, filteredVendors);
+    switch (sortOption) {
+      case SORT_OPTIONS.PRICE_ASC:
+        sortedVendors.sort((a, b) => {
+          if (a.bridal_makeup_price === null) return 1;
+          if (b.bridal_makeup_price === null) return -1;
+          return a.bridal_makeup_price - b.bridal_makeup_price;
+        });
+        break;
 
-    if (sortOption === 'priceLowToHigh') {
-      sortedVendors.sort((a, b) => {
-        if (a.bridal_makeup_price === null) return 1;
-        if (b.bridal_makeup_price === null) return -1;
-        return a.bridal_makeup_price - b.bridal_makeup_price;
-      });
-    } else if (sortOption === 'priceHighToLow') {
-      sortedVendors.sort((a, b) => {
-        if (a.bridal_makeup_price === null) return 1;
-        if (b.bridal_makeup_price === null) return -1;
-        return b.bridal_makeup_price - a.bridal_makeup_price;
-      });
-    } else if (sortOption === 'default') {
-      sortedVendors.sort((a, b) => {
-        if (!a.distance_miles && !b.distance_miles) return 0;
-        if (!a.distance_miles) return 1;
-        if (!b.distance_miles) return -1;
-        return a.distance_miles - b.distance_miles;
-      });
+      case SORT_OPTIONS.PRICE_DESC:
+        sortedVendors.sort((a, b) => {
+          if (a.bridal_makeup_price === null) return 1;
+          if (b.bridal_makeup_price === null) return -1;
+          return b.bridal_makeup_price - a.bridal_makeup_price;
+        });
+        break;
+
+      case SORT_OPTIONS.DISTANCE_ASC:
+        sortedVendors.sort((a, b) => {
+          if (!a.distance_miles && !b.distance_miles) return 0;
+          if (!a.distance_miles) return 1;
+          if (!b.distance_miles) return -1;
+          return a.distance_miles - b.distance_miles;
+        });
+        break;
     }
 
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
+
+  // set default sort option. If location is selected, default to distance sort
+  useEffect(() => {
+    if (selectedLocation) {
+      setSortOption(SORT_OPTIONS.DISTANCE_ASC);
+    } else {
+      setSortOption(SORT_OPTIONS.DEFAULT);
+    }
+  }, [selectedLocation]);
 
   const [prevParams, setPrevParams] = useState<string | null>(null);
 
@@ -147,7 +162,7 @@ export function FilterableVendorTableContent({
           selectedSkills,
           travelsWorldwide,
           searchQuery,
-          sortOption,
+          sortOption.name,
           searchedAndSortedVendors.length
         );
       }
@@ -300,14 +315,19 @@ export function FilterableVendorTableContent({
 
         <FormControl sx={{ minWidth: 200 }}>
           <Select
-            value={sortOption || 'default'}
-            onChange={(e) => setSortOption(e.target.value)}
-            displayEmpty
+            value={sortOption}
+            onChange={(e) => {
+              const selected = Object.values(SORT_OPTIONS).find(opt => opt.name === e.target.value);
+              if (selected) setSortOption(selected);
+            }}
+            renderValue={() => `Sort by: ${sortOption.display}`}
             size="small"
           >
-            <MenuItem value="default">Sort: Distance</MenuItem>
-            <MenuItem value="priceLowToHigh">Sort: Price (Low to High)</MenuItem>
-            <MenuItem value="priceHighToLow">Sort: Price (High to Low)</MenuItem>
+            {Object.values(SORT_OPTIONS).map((option) => (
+              <MenuItem key={option.name} value={option.name}>
+                {option.display}
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       </Box>
