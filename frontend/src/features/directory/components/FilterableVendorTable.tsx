@@ -242,7 +242,7 @@ export function FilterableVendorTableContent({
       {/* Filters and Search Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-        {/* First Row: Search Bars and Filters */}
+        {/* First Row: Search Bar */}
         <Box
           sx={{
             display: 'flex',
@@ -256,6 +256,17 @@ export function FilterableVendorTableContent({
             value={selectedLocation?.display_name || ""}
             onSelect={setSelectedLocation}
           />
+        </Box>
+        {/* Second Row: Other Filters */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            gap: 2,
+            alignItems: { xs: 'stretch', sm: 'center' },
+            flexWrap: 'wrap',
+          }}
+        >
           <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
         </Box>
