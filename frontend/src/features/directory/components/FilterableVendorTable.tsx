@@ -238,7 +238,7 @@ export function FilterableVendorTableContent({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       {/* Filters and Search Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
@@ -257,22 +257,22 @@ export function FilterableVendorTableContent({
             onSelect={setSelectedLocation}
           />
         </Box>
-        {/* Second Row: Other Filters */}
+      </Box>
+      <Divider />
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+        {/* Other Filters */}
         <Box
           sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
+            flexDirection: 'column',
             gap: 2,
-            alignItems: { xs: 'stretch', sm: 'center' },
+            alignItems: 'stretch',
             flexWrap: 'wrap',
           }}
         >
           <SkillFilter tags={tags} searchParams={searchParams} />
           <TravelFilter searchParams={searchParams} />
-        </Box>
-
-        {/* Second Row: Clear Button */}
-        <Box>
+          {/* Second Row: Clear Button */}
           <Button
             variant="contained"
             onClick={handleClearFilters}
@@ -282,113 +282,113 @@ export function FilterableVendorTableContent({
             Clear All Filters
           </Button>
         </Box>
-      </Box>
+        <Divider />
 
-      <Divider />
-
-      {/* Results Count and Sorting */}
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', md: 'center' },
-          gap: 2,
-        }}
-      >
-        <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-          {loading ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CircularProgress size={20} />
-              Loading artists...
-            </Box>
-          ) : (
-            <>
-              {searchedAndSortedVendors.length} Wedding Beauty Artist{searchedAndSortedVendors.length === 1 ? '' : 's'} found
-              {!!selectedLocation && ` near ${selectedLocation.display_name}`}
-            </>
-          )}
-        </Typography>
-
-        <FormControl sx={{ minWidth: 200 }}>
-          <Select
-            value={sortOption}
-            onChange={(e) => {
-              const selected = Object.values(SORT_OPTIONS).find(opt => opt.name === e.target.value);
-              if (selected) setSortOption(selected);
+        {/* Results Count and Sorting */}
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: { xs: 'flex-start', md: 'center' },
+              gap: 2,
             }}
-            renderValue={() => `Sort by: ${sortOption.display}`}
-            size="small"
           >
-            {Object.values(SORT_OPTIONS).map((option) => (
-              <MenuItem key={option.name} value={option.name}>
-                {option.display}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      {searchedAndSortedVendors.length === 0 && (
-        <Box sx={{ textAlign: 'center', padding: 4 }}>
-          <Typography variant="body1" gutterBottom>
-            Try looking at{' '}
-            <Typography
-              component="span"
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                setSelectedLocation(null);
-                params.delete(LOCATION_PARAM);
-                params.set(TRAVEL_PARAM, 'true');
-                router.push(`?${params.toString()}`, { scroll: false });
-              }}
-              sx={{
-                color: 'primary.main',
-                textDecoration: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              artists who travel worldwide
-            </Typography>{' '}
-            , or broaden your search.
-          </Typography>
-          <Typography variant="body1">
-            If you&apos;d like more recommendations for a region,{' '}
-            <Typography
-              component="a"
-              href="/contact"
-              sx={{
-                color: 'primary.main',
-                textDecoration: 'none',
-                cursor: 'pointer',
-              }}
-            >
-              let us know
+            <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+              {loading ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={20} />
+                  Loading artists...
+                </Box>
+              ) : (
+                <>
+                  {searchedAndSortedVendors.length} Wedding Beauty Artist{searchedAndSortedVendors.length === 1 ? '' : 's'} found
+                  {!!selectedLocation && ` near ${selectedLocation.display_name}`}
+                </>
+              )}
             </Typography>
-            !
-          </Typography>
-        </Box>
-      )}
-      {/* Vendor Grid */}
-      <VendorGrid
-        handleFocus={handleFocus}
-        handleBlur={handleBlur}
-        focusedCardIndex={focusedCardIndex}
-        vendors={visibleVendors}
-        searchParams={searchParams.toString()}
-        favoriteVendorIds={favoriteVendorIds}
-        showFavoriteButton={true}
-      />
 
-      {/* Loading Spinner */}
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
-          <CircularProgress />
-        </Box>
-      )}
+            <FormControl sx={{ minWidth: 200 }}>
+              <Select
+                value={sortOption}
+                onChange={(e) => {
+                  const selected = Object.values(SORT_OPTIONS).find(opt => opt.name === e.target.value);
+                  if (selected) setSortOption(selected);
+                }}
+                renderValue={() => `Sort by: ${sortOption.display}`}
+                size="small"
+              >
+                {Object.values(SORT_OPTIONS).map((option) => (
+                  <MenuItem key={option.name} value={option.name}>
+                    {option.display}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          {searchedAndSortedVendors.length === 0 && (
+            <Box sx={{ textAlign: 'center', padding: 4 }}>
+              <Typography variant="body1" gutterBottom>
+                Try looking at{' '}
+                <Typography
+                  component="span"
+                  onClick={() => {
+                    const params = new URLSearchParams(searchParams.toString());
+                    setSelectedLocation(null);
+                    params.delete(LOCATION_PARAM);
+                    params.set(TRAVEL_PARAM, 'true');
+                    router.push(`?${params.toString()}`, { scroll: false });
+                  }}
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  artists who travel worldwide
+                </Typography>{' '}
+                , or broaden your search.
+              </Typography>
+              <Typography variant="body1">
+                If you&apos;d like more recommendations for a region,{' '}
+                <Typography
+                  component="a"
+                  href="/contact"
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                  }}
+                >
+                  let us know
+                </Typography>
+                !
+              </Typography>
+            </Box>
+          )}
+          {/* Vendor Grid */}
+          <VendorGrid
+            handleFocus={handleFocus}
+            handleBlur={handleBlur}
+            focusedCardIndex={focusedCardIndex}
+            vendors={visibleVendors}
+            searchParams={searchParams.toString()}
+            favoriteVendorIds={favoriteVendorIds}
+            showFavoriteButton={true}
+          />
 
-      {/* Intersection observer target */}
-      <div ref={observerRef} style={{ height: 1 }} />
+          {/* Loading Spinner */}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
+              <CircularProgress />
+            </Box>
+          )}
+
+          {/* Intersection observer target */}
+          <div ref={observerRef} style={{ height: 1 }} />
+        </Box>
+      </Box>
     </Box>
   );
 }

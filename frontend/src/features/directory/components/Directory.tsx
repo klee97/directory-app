@@ -50,7 +50,7 @@ export function Directory({ vendors, tags }: DirectoryProps) {
     <Container
       maxWidth="lg"
       component="main"
-      sx={{ display: 'flex', flexDirection: 'column', my: 12, gap: 2 }}
+      sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4, sm: 8, md: 12 }, gap: 2 }}
     >
       <Typography variant="h2" gutterBottom>
         The Best Wedding Makeup Artists for Asian Features
