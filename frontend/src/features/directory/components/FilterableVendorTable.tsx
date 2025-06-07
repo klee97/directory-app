@@ -25,8 +25,6 @@ import { SORT_OPTIONS, SortOption } from '@/types/sort';
 
 const PAGE_SIZE = 12;
 
-
-
 interface FilterableVendorTableContentProps {
   tags: string[];
   vendors: VendorByDistance[];
@@ -244,7 +242,7 @@ export function FilterableVendorTableContent({
       {/* Filters and Search Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
-        {/* First Row: Search Bars */}
+        {/* First Row: Search Bar */}
         <Box
           sx={{
             display: 'flex',
@@ -259,7 +257,6 @@ export function FilterableVendorTableContent({
             onSelect={setSelectedLocation}
           />
         </Box>
-
         {/* Second Row: Other Filters */}
         <Box
           sx={{
@@ -274,7 +271,7 @@ export function FilterableVendorTableContent({
           <TravelFilter searchParams={searchParams} />
         </Box>
 
-        {/* Third Row: Clear Button */}
+        {/* Second Row: Clear Button */}
         <Box>
           <Button
             variant="contained"
@@ -293,13 +290,13 @@ export function FilterableVendorTableContent({
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
+          flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between',
           alignItems: { xs: 'flex-start', md: 'center' },
           gap: 2,
         }}
       >
-        <Typography variant="h6">
+        <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
           {loading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <CircularProgress size={20} />
@@ -307,7 +304,7 @@ export function FilterableVendorTableContent({
             </Box>
           ) : (
             <>
-              {searchedAndSortedVendors.length} artist{searchedAndSortedVendors.length === 1 ? '' : 's'} matched
+              {searchedAndSortedVendors.length} Wedding Beauty Artist{searchedAndSortedVendors.length === 1 ? '' : 's'} found
               {!!selectedLocation && ` near ${selectedLocation.display_name}`}
             </>
           )}

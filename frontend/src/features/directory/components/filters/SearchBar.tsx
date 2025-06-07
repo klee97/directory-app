@@ -30,7 +30,7 @@ export function SearchBar({ searchParams }: { searchParams: ReadonlyURLSearchPar
       value={searchParamValue}
       onChange={handleChange}
       onDebouncedChange={handleDebouncedChange}
-      placeholder="Artist name"
+      placeholder="Artist Name"
       debounceMs={500}
     />
   );

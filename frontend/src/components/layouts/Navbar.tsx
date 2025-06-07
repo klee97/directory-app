@@ -40,7 +40,7 @@ import { isDevOrPreview } from '@/lib/env/env';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const resources = ["Blog"];
-const Title = 'HAIR AND MAKEUP';
+const Title = 'ASIAN WEDDING MAKEUP';
 
 export default function Navbar() {
   const [mounted, setMounted] = React.useState(false);
@@ -385,9 +385,10 @@ export default function Navbar() {
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
             <Typography
-              variant="h6"
+              variant="h1"
               noWrap
               sx={{
+                fontSize: { xs: '1rem', md: '1.5rem' },
                 mr: 2,
                 fontWeight: 550,
                 letterSpacing: '.3rem',
