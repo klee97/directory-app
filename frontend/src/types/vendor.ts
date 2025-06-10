@@ -2,7 +2,7 @@ import type { Database } from "@/types/supabase";
 import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 
 
-export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/sign/hmua-cover-photos/';
+export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/';
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   & {
     usmetro: { display_name: string } | null // Metro name (can be null if no metro region found)
