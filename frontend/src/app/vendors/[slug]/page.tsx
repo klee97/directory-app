@@ -7,6 +7,9 @@ import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
 import { VendorSpecialty } from '@/types/tag';
+import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
+import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
+import { getLocationString } from '@/lib/location/displayLocation';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -22,12 +25,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const isHairStylist = vendor.specialties?.has(VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
-
+  const locationString = getLocationString(vendor);
+  const title = `${vendor.business_name} - Wedding ${Array.from(vendor.specialties).join(' & ')} Artist for Asian Brides
+        ${locationString && ` in ${locationString}`}`;
   return {
-    title: `${vendor.business_name} - ${specialtyTitle} for Asian Brides`,
+    title: title,
     description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
     openGraph: {
-      title: `${vendor.business_name} - ${specialtyTitle} for Asian Brides`,
+      title: title,
       description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
       images: [
@@ -57,6 +62,23 @@ export default async function VendorPage({ params }: PageProps) {
 
   if (!vendor) {
     notFound(); // Return 404 if vendor is not found
+  }
+
+  // Get nearby vendors using your existing function
+  let nearbyVendors: Vendor[] = [];
+  
+  if (vendor.latitude && vendor.longitude) {
+    const allNearbyVendors = await getVendorsByDistanceWithFallback(
+      vendor.latitude,
+      vendor.longitude,
+      SEARCH_RADIUS_MILES_DEFAULT,
+      10  // Get more results to filter from
+    );
+    
+    // Filter out the current vendor and limit results
+    nearbyVendors = allNearbyVendors
+      .filter(v => v.id !== vendor.id)
+      .slice(0, 6);
   }
 
   // Define JSON-LD schema for the vendor
@@ -89,7 +111,7 @@ export default async function VendorPage({ params }: PageProps) {
       <Suspense fallback={<div>Loading...</div>}>
         <BackButton />
       </Suspense>
-      <VendorDetails vendor={vendor} />
+      <VendorDetails vendor={vendor} nearbyVendors={nearbyVendors}/>
     </>
   );
 }

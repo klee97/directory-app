@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
 import { STATE_ABBREVIATIONS } from '@/types/location';
+import Stack from '@mui/system/Stack';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const state = vendor.state ? STATE_ABBREVIATIONS[vendor.state] || vendor.state : null;
@@ -32,7 +33,8 @@ export const VendorCard = ({
   tabIndex,
   className,
   isFavorite,
-  showFavoriteButton = false
+  showFavoriteButton = false,
+  variant = 'default',
 }: {
   vendor: VendorByDistance;
   searchParams: string;
@@ -43,6 +45,7 @@ export const VendorCard = ({
   className: string;
   isFavorite?: boolean;
   showFavoriteButton?: boolean;
+  variant?: 'default' | 'compact';
 }) => {
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -101,7 +104,7 @@ export const VendorCard = ({
               src={vendor.cover_image ?? placeholderImage.src}
               alt={`${vendor.business_name} preview`}
               sx={{
-                height: 300,
+                height: variant === 'compact' ? 180 : 300,
                 width: '100%',
                 objectFit: 'cover',
                 objectPosition: 'center',
@@ -147,24 +150,27 @@ export const VendorCard = ({
               display: 'flex',
               flexDirection: 'column',
               gap: 1,
-              p: 3,
+              p: variant === 'compact' ? 1 : 3,
               flexGrow: 1,
-              '&:last-child': { pb: 3 },
+              '&:last-child': { pb: variant === 'compact' ? 2 : 3 },
             }}
           >
             {/* Business Name */}
             <Typography
-              variant="h4"
+              variant={variant === 'compact' ? "subtitle1" : "h4"}
               component="div"
             >
               {vendor.business_name}
             </Typography>
-            <Typography
-              variant="body1"
-            >
+            <Stack direction="row" alignItems="center" spacing={0.5}>
               <LocationOnIconOutlined fontSize='small' color='primary' />
-              {formatVendorLocation(vendor)}
-            </Typography>
+              <Typography
+                variant={variant === 'compact' ? "subtitle2" : "subtitle1"}
+              >
+                {formatVendorLocation(vendor)}
+              </Typography>
+
+            </Stack>
 
             {/* Location Tags */}
             {vendor.travels_world_wide && (
@@ -177,26 +183,28 @@ export const VendorCard = ({
               </Box>
             )}
             {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
-            <Box sx={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'left',
-              mt: 'auto',
-              gap: 1,
-            }}>
-              {vendor.tags?.length > 0 && (vendor.tags
-                .filter((tag) => tag.is_visible && tag.display_name !== null)
-                .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
-                .map((tag) =>
-                  <Chip
-                    key={tag.id}
-                    label={`${tag.display_name}`}
-                    variant="outlined"
-                    sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 1 }}
-                    color={tag.style === 'primary' ? 'primary' : 'default'}
-                  />
-                ))}
-            </Box>
+            {variant === 'default' && (
+              <Box sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'left',
+                mt: 'auto',
+                gap: 1,
+              }}>
+                {vendor.tags?.length > 0 && (vendor.tags
+                  .filter((tag) => tag.is_visible && tag.display_name !== null)
+                  .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
+                  .map((tag) =>
+                    <Chip
+                      key={tag.id}
+                      label={`${tag.display_name}`}
+                      variant="outlined"
+                      sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 1 }}
+                      color={tag.style === 'primary' ? 'primary' : 'default'}
+                    />
+                  ))}
+              </Box>
+            )}
           </CardContent>
         </Link>
         {/* Favorite Button */}

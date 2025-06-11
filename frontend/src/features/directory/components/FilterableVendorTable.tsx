@@ -125,6 +125,7 @@ export function FilterableVendorTableContent({
         break;
     }
 
+    console.log("Searched and sorted vendors:", sortedVendors);
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 

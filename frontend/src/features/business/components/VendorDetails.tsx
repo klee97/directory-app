@@ -23,6 +23,9 @@ import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites'
 import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { VendorSpecialty } from '@/types/tag';
+import { VendorCarousel } from '@/components/layouts/VendorCarousel';
+import { Divider } from '@mui/material';
+import { getLocationString } from '@/lib/location/displayLocation';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -32,11 +35,12 @@ const StickyCard = styled(Card)(({ theme }) => ({
 
 interface VendorDetailsProps {
   vendor: Vendor;
+  nearbyVendors?: Vendor[];
 }
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
-export function VendorDetails({ vendor }: VendorDetailsProps) {
+export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -136,7 +140,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                     size="small"
                   />
                 )}
-                {tags.length > 0 && 
+                {tags.length > 0 &&
                   tags
                     .filter((tag) => tag.is_visible && tag.display_name !== null)
                     .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
@@ -146,7 +150,7 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
                         label={`${tag.display_name}`}
                         size="small"
                         color={tag.style === 'primary' ? 'primary' : 'default'}
-                      />                      
+                      />
                     ))}
               </Box>
               <Box
@@ -381,6 +385,15 @@ export function VendorDetails({ vendor }: VendorDetailsProps) {
               </Grid>
             )}
           </Grid>
+          {nearbyVendors && nearbyVendors.length > 0 && (
+            <Box>
+              <Divider sx={{ mt: 20, mb: 4 }} />
+              <VendorCarousel
+                vendors={nearbyVendors}
+                title={`More wedding makeup artists for Asian features near ${getLocationString(vendor)}`}>
+              </VendorCarousel>
+            </Box>
+          )}
         </Container>
       </Box >
     </>

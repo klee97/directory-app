@@ -1,4 +1,3 @@
-// next-sitemap.js
 import { supabase } from './src/lib/api-client.ts';
 
 export default {
@@ -7,6 +6,11 @@ export default {
   sitemapSize: 200, // Optional: number of URLs per sitemap file
   changefreq: 'monthly', // Optional: frequency of change for pages
   priority: 1.0, // Optional: priority for your pages
+  exclude: [
+  '/admin',
+  '/admin/*',
+  '/auth/*',
+],
 
   // Fetch dynamic URLs (from Supabase in this case)
   async additionalPaths() {
