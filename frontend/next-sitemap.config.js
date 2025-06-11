@@ -12,6 +12,7 @@ export default {
   '/auth/*',
 ],
 
+
   // Fetch dynamic URLs (from Supabase in this case)
   async additionalPaths() {
     const staticPages = [
