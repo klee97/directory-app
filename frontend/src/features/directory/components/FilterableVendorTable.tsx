@@ -198,10 +198,14 @@ export function FilterableVendorTableContent({
     setLoading(false);
   }, [loading, searchedAndSortedVendors]);
 
-  // Clear all filters
+  // Clear filters
   const handleClearFilters = () => {
-    router.push("?", { scroll: false });
-    setSelectedLocation(null);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete(SKILL_PARAM);
+    newParams.delete(TRAVEL_PARAM);
+
+    // Use router.push() to update the URL while keeping other params
+    router.push(`?${newParams.toString()}`, { scroll: false });
     trackFilterReset();
   };
 
@@ -259,7 +263,9 @@ export function FilterableVendorTableContent({
         </Box>
       </Box>
       <Divider />
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
+      <Box sx={{
+        display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2
+      }}>
         {/* Other Filters */}
         <Box
           sx={{
@@ -279,7 +285,7 @@ export function FilterableVendorTableContent({
             size="small"
             sx={{ width: { xs: '100%', sm: 'auto' } }}
           >
-            Clear All Filters
+            Clear Filters
           </Button>
         </Box>
         <Divider />
@@ -389,7 +395,7 @@ export function FilterableVendorTableContent({
           <div ref={observerRef} style={{ height: 1 }} />
         </Box>
       </Box>
-    </Box>
+    </Box >
   );
 }
 
