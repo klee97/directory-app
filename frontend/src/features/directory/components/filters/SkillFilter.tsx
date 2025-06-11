@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SKILL_PARAM } from "@/lib/constants";
 import { ReadonlyURLSearchParams } from "next/navigation";
 import { SKILL_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
@@ -19,8 +19,11 @@ export function SkillFilter({ tags, searchParams }:
   const router = useRouter();
   // Get the selected skills from URL params
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
-
   const [skills, setSkills] = useState<boolean[]>(tags.map((skill) => selectedSkills.includes(skill)));
+
+  useEffect(() => {
+    setSkills(tags.map((skill) => selectedSkills.includes(skill)));
+  }, [selectedSkills, tags]);
 
   const handleChange = (index: number, skill: string, newState: boolean) => {
     const newSkills = [...skills];
