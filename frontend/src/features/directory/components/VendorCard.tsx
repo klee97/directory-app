@@ -60,6 +60,7 @@ export const VendorCard = ({
         vendorSlug: vendor.slug,
         position: positionIndex,
         hasPhoto: !!vendor.cover_image,
+        variant: variant,
       });
     }
   }, [inView, vendor.cover_image, vendor.slug, positionIndex]);
