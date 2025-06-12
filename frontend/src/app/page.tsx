@@ -3,6 +3,7 @@ import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/website_preview.jpeg';
 import { getCachedVendors } from '@/features/directory/api/fetchVendors';
+import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 
 export const metadata: Metadata = {
   openGraph: {
@@ -58,16 +59,7 @@ export default async function Home() {
     }))
   };
 
-  const uniqueTags = Array.from(
-    new Set(
-      vendors
-        .flatMap(vendor => vendor.tags)
-        .filter(tag => tag.is_visible)
-        .map(tag => tag.display_name)
-        .filter(tag => tag !== null)
-        .sort()
-    )
-  );
+  const uniqueTags = getUniqueVisibleTagNames(vendors);
 
   const seed = getTodaySeed();
   const shuffledVendors = shuffleWithSeed(vendors, seed);

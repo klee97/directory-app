@@ -1,0 +1,148 @@
+import { Directory } from '@/features/directory/components/Directory';
+import { VendorByDistance } from '@/types/vendor';
+import { notFound, redirect } from 'next/navigation';
+import defaultImage from '@/assets/website_preview.jpeg';
+import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT } from '@/types/location';
+import { Metadata } from 'next';
+import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
+import { supabase } from '@/lib/api-client';
+import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/searchVendors';
+import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
+
+interface LocationPageProps {
+  params: Promise<{ slug: string }>;
+}
+
+// Generate static params for locations with artists
+export async function generateStaticParams() {
+  const { data: slugs, error } = await supabase
+    .from('location_slugs')
+    .select(`
+      slug
+    `);
+
+  if (error || !slugs) {
+    throw new Error('Failed to load location slugs');
+  }
+  return slugs.map(({
+    slug
+  }) => ({
+    slug
+  } as { slug: string }));
+}
+
+// Page component
+export default async function LocationPage({ params }: LocationPageProps) {
+  const { slug } = await params;
+  const generator = new LocationPageGenerator();
+  const location: LocationResult | null = await generator.getLocationBySlug(slug);
+
+  if (!location) {
+    notFound();
+  }
+
+  console.log("Slug:", slug);
+  console.log("Fetched location:", location);
+
+  if (!slug || !location) {
+    notFound();
+  }
+
+  var vendors: VendorByDistance[] = [];
+  if (location.type === LOCATION_TYPE_CITY && location.lat && location.lon) {
+    vendors = await getVendorsByDistanceWithFallback(
+      location.lat,
+      location.lon,
+      SEARCH_RADIUS_MILES_DEFAULT,
+      SEARCH_VENDORS_LIMIT_DEFAULT
+    );
+  } else if (location.type === LOCATION_TYPE_STATE) {
+    vendors = await getVendorsByState(location);
+  } else if (location.type === LOCATION_TYPE_COUNTRY) {
+    vendors = await getVendorsByCountry(location);
+  }
+
+  // If no location found or no artists, redirect to search
+  if (!vendors || vendors.length === 0) {
+    redirect(`/?location=${slug}`);
+  }
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": vendors.map((vendor, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "MakeupArtist",
+        "name": vendor.business_name,
+        "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        "image": vendor.cover_image,
+        "description": "Trusted wedding makeup artist for Asian features.",
+        "areaServed": {
+          "@type": "Place",
+          "name": location.display_name || "Various Locations"
+        },
+        "provider": {
+          "@type": "Organization",
+          "name": "Asian Wedding Makeup",
+          "url": "https://www.asianweddingmakeup.com",
+          "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+          "sameAs": [
+            "https://www.instagram.com/asianweddingmkup",
+          ],
+          "logo": defaultImage.src
+        },
+      },
+    }))
+  };
+
+  const uniqueTags = getUniqueVisibleTagNames(vendors);
+
+  // const breadcrumbs = await buildBreadcrumbs(location);
+
+  return (
+    <>
+      <section>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </section>
+      <title>Asian Wedding Makeup in {location.display_name}| The Best Artists for Asian Features</title>
+      <Directory vendors={vendors} tags={uniqueTags} selectedLocation={location} />
+    </>
+  );
+}
+
+// Metadata for SEO
+export async function generateMetadata({ params }: LocationPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const generator = new LocationPageGenerator();
+  const location: LocationResult | null = await generator.getLocationBySlug(slug);
+  if (!slug || !location) {
+    return {
+      title: 'Location Not Found'
+    };
+  }
+
+  return {
+    openGraph: {
+      title: `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features in ${location.display_name}`,
+      description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.`,
+      url: `https://www.asianweddingmakeup.com/${slug}`,
+      type: 'website',
+      images: [
+        {
+          url: defaultImage.src,
+          width: 1200,
+          height: 630,
+          alt: 'Asian Wedding Makeup Artist Directory',
+        },
+      ],
+    },
+    alternates: {
+      canonical: `https://www.asianweddingmakeup.com/${slug}`,
+    },
+  };
+}
