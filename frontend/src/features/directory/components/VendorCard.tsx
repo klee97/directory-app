@@ -162,7 +162,7 @@ export const VendorCard = ({
             >
               {vendor.business_name}
             </Typography>
-            <Stack direction="row" alignItems="center" spacing={0.5}>
+            <Stack direction="row" alignItems="top" spacing={0.5}>
               <LocationOnIconOutlined fontSize='small' color='primary' />
               <Typography
                 variant={variant === 'compact' ? "subtitle2" : "subtitle1"}

@@ -94,7 +94,7 @@ export const VendorCarousel = ({
 
       <Box sx={{ position: 'relative' }}>
         {/* Left Arrow */}
-        <IconButton
+        {!!showLeftFade && <IconButton
           onClick={() => scroll('left')}
           sx={{
             position: 'absolute',
@@ -110,9 +110,10 @@ export const VendorCarousel = ({
         >
           <ChevronLeftIcon />
         </IconButton>
+        }
 
         {/* Right Arrow */}
-        <IconButton
+        {!!showRightFade && <IconButton
           onClick={() => scroll('right')}
           sx={{
             position: 'absolute',
@@ -128,6 +129,7 @@ export const VendorCarousel = ({
         >
           <ChevronRightIcon />
         </IconButton>
+        }
 
         {/* Carousel Scroll Container */}
         <Box
