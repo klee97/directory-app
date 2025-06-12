@@ -61,7 +61,6 @@ export function FilterableVendorTableContent({
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
-      console.log("Fetching vendors by distance for location:", selectedLocation);
       if (!selectedLocation) {
         // If no location is selected, show all vendors by default
         setVendorsInRadius(vendors);
@@ -125,6 +124,7 @@ export function FilterableVendorTableContent({
         break;
     }
 
+    console.log("Searched and sorted vendors:", sortedVendors);
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 

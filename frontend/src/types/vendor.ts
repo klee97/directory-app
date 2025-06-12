@@ -58,11 +58,15 @@ export type Vendor = Pick<BackendVendor, 'id'
   'instagram': string | null,
   'google_maps_place': string | null,
   'testimonials': VendorTestimonial[],
-  'tags': VendorTag[]
+  'tags': VendorTag[],
+  'latitude': number | null,
+  'longitude': number | null,
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
   const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
+  const coordinates = parseCoordinates(vendor.location_coordinates);
+
   return {
     id: vendor.id,
     business_name: vendor.business_name,
@@ -70,6 +74,8 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     website: vendor.website,
     instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
     google_maps_place: vendor.google_maps_place,
+    latitude: coordinates?.latitude ?? null,
+    longitude: coordinates?.longitude ?? null,
     region: vendor.region,
     city: vendor.city,
     state: vendor.state,
@@ -95,3 +101,27 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
 export type VendorByDistance = Vendor & {
   distance_miles?: number | null
 };
+
+function parseCoordinates(coordinateString: string | null): { latitude: number; longitude: number } | null {
+  if (!coordinateString) return null;
+
+  try {
+    const parts = coordinateString.split(',');
+    if (parts.length !== 2) return null;
+
+    const latitude = parseFloat(parts[0].trim());
+    const longitude = parseFloat(parts[1].trim());
+
+    // Validate ranges
+    if (isNaN(latitude) || isNaN(longitude) ||
+      latitude < -90 || latitude > 90 ||
+      longitude < -180 || longitude > 180) {
+      return null;
+    }
+
+    return { latitude, longitude };
+  } catch (error) {
+    console.warn('Failed to parse coordinates:', coordinateString, error);
+    return null;
+  }
+}
