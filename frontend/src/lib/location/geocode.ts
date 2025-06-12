@@ -1,4 +1,5 @@
-import { COUNTRY_ABBREVIATIONS, GeocodeResponse, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, STATE_ABBREVIATIONS } from "@/types/location";
+import { GeocodeResponse, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { getDisplayName } from "./locationNames";
 
 const PHOTON_TIMEOUT_MS = 2000;
 
@@ -56,24 +57,5 @@ export async function fetchPhotonResults(query: string): Promise<LocationResult[
       console.error("Photon retry failed:", retryErr);
       return [];
     }
-  }
-}
-
-export function getDisplayName(
-  name: string | null,
-  city: string | null,
-  state: string | null,
-  country: string | null,
-  type: string
-): string {
-  const countryName = country ? COUNTRY_ABBREVIATIONS[country] || country : "";
-  const stateName = state ? STATE_ABBREVIATIONS[state] || state : "";
-  const cityName = city || name || "";
-  if (type === LOCATION_TYPE_COUNTRY) {
-    return countryName;
-  } else if (type === LOCATION_TYPE_STATE) {
-    return [state || cityName, countryName].filter(Boolean).join(", ");
-  } else {
-    return [cityName, stateName, countryName].filter(Boolean).join(", ");
   }
 }
