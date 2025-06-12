@@ -29,12 +29,14 @@ interface FilterableVendorTableContentProps {
   tags: string[];
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
+  preselectedLocation: LocationResult | null;
 }
 
 export function FilterableVendorTableContent({
   tags,
   vendors,
   favoriteVendorIds,
+  preselectedLocation = null,
 }: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -50,7 +52,7 @@ export function FilterableVendorTableContent({
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(preselectedLocation);
   const [loading, setLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -204,6 +206,15 @@ export function FilterableVendorTableContent({
     setSelectedLocation(null);
     trackFilterReset();
   };
+
+  // Handle clear location selection for location-specific pages
+  useEffect(() => {
+    if (!!preselectedLocation && selectedLocation === null) {
+      const params = searchParams.toString();
+      const url = params ? `/?${params}` : '/';
+      router.push(url, { scroll: false });
+    }
+  }, [preselectedLocation, selectedLocation, router]);
 
   // Reset visible vendors when filtered list changes
   useEffect(() => {
@@ -396,11 +407,15 @@ export function FilterableVendorTableContent({
 export default function FilterableVendorTable(props: {
   tags: string[],
   vendors: VendorByDistance[],
-  favoriteVendorIds: VendorId[]
+  favoriteVendorIds: VendorId[],
+  preselectedLocation?: LocationResult | null,
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FilterableVendorTableContent {...props} />
+      <FilterableVendorTableContent
+        {...props}
+        preselectedLocation={props.preselectedLocation ?? null}
+      />
     </Suspense>
   );
 }

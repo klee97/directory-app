@@ -8,13 +8,14 @@ import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites'
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Divider from '@mui/material/Divider';
-
+import { LocationResult } from '@/types/location';
 interface DirectoryProps {
   vendors: Vendor[];
   tags: string[];
+  selectedLocation?: LocationResult;
 }
 
-export function Directory({ vendors, tags }: DirectoryProps) {
+export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
@@ -64,6 +65,7 @@ export function Directory({ vendors, tags }: DirectoryProps) {
           vendors={vendors}
           favoriteVendorIds={favoriteVendorIds}
           tags={tags}
+          preselectedLocation={selectedLocation} // This prop is not used in the current implementation
         />
       </Suspense>
     </Container>
