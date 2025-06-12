@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useEffect, useRef, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 
 export const VendorCarousel = ({
   vendors,
@@ -20,6 +21,7 @@ export const VendorCarousel = ({
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(true);
 
+  const theme = useTheme();
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -61,7 +63,7 @@ export const VendorCarousel = ({
               top: 0,
               bottom: 0,
               width: 40,
-              background: 'linear-gradient(to right, white 50%, transparent)',
+              background: `linear-gradient(to right, ${theme.palette.background.default} 50%, transparent)`,
               zIndex: 1,
               pointerEvents: 'none',
             }}
@@ -75,7 +77,7 @@ export const VendorCarousel = ({
               top: 0,
               bottom: 0,
               width: 40,
-              background: 'linear-gradient(to left, white 50%, transparent)',
+              background: `linear-gradient(to left, ${theme.palette.background.default} 50%, transparent)`,
               zIndex: 1,
               pointerEvents: 'none',
             }}
