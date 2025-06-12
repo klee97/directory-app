@@ -52,122 +52,124 @@ export const VendorCarousel = ({
           {title}
         </Typography>
       )}
-      {showLeftFade && (
-        <Box
-          sx={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 40,
-            background: 'linear-gradient(to right, white 50%, transparent)',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      {showRightFade && (
-        <Box
-          sx={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 40,
-            background: 'linear-gradient(to left, white 50%, transparent)',
-            zIndex: 1,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-      <Box
-        ref={scrollRef}
-        sx={{
-          overflowX: 'auto',
-          display: 'flex',
-          gap: 2,
-          scrollSnapType: 'x mandatory',
-          scrollBehavior: 'smooth',
-          px: 2,
-        }}
-      ></Box>
-
       <Box sx={{ position: 'relative' }}>
-        {/* Left Arrow */}
-        {!!showLeftFade && <IconButton
-          onClick={() => scroll('left')}
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: -20, // Move it outside the scroll box
-            transform: 'translateY(-50%)',
-            zIndex: 2,
-            backgroundColor: 'background.paper',
-            boxShadow: 2,
-            pointerEvents: 'auto', // ensure clickable
-          }}
-          aria-label="Scroll left"
-        >
-          <ChevronLeftIcon />
-        </IconButton>
-        }
-
-        {/* Right Arrow */}
-        {!!showRightFade && <IconButton
-          onClick={() => scroll('right')}
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            right: -20,
-            transform: 'translateY(-50%)',
-            zIndex: 2,
-            backgroundColor: 'background.paper',
-            boxShadow: 2,
-            pointerEvents: 'auto',
-          }}
-          aria-label="Scroll right"
-        >
-          <ChevronRightIcon />
-        </IconButton>
-        }
-
-        {/* Carousel Scroll Container */}
+        {showLeftFade && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 40,
+              background: 'linear-gradient(to right, white 50%, transparent)',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+        {showRightFade && (
+          <Box
+            sx={{
+              position: 'absolute',
+              right: 0,
+              top: 0,
+              bottom: 0,
+              width: 40,
+              background: 'linear-gradient(to left, white 50%, transparent)',
+              zIndex: 1,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
         <Box
           ref={scrollRef}
           sx={{
-            display: 'flex',
             overflowX: 'auto',
-            scrollSnapType: 'x mandatory',
+            display: 'flex',
             gap: 2,
-            py: 1,
-            px: 6,
-            scrollPaddingX: '1rem',
-            '&::-webkit-scrollbar': { display: 'none' },
+            scrollSnapType: 'x mandatory',
+            scrollBehavior: 'smooth',
+            px: 2,
           }}
-        >
-          {vendors.map((vendor, index) => (
-            <Box
-              key={vendor.id}
-              sx={{
-                flex: '0 0 auto',
-                width: { xs: 220, sm: 240 },
-                scrollSnapAlign: 'start',
-              }}
-            >
-              <VendorCard
-                vendor={vendor}
-                searchParams=""
-                onFocus={() => { }}
-                onBlur={() => { }}
-                positionIndex={index}
-                tabIndex={0}
-                className=""
-                showFavoriteButton={false}
-                isFavorite={false}
-                variant="compact"
-              />
-            </Box>
-          ))}
+        ></Box>
+
+        <Box sx={{ position: 'relative' }}>
+          {/* Left Arrow */}
+          {!!showLeftFade && <IconButton
+            onClick={() => scroll('left')}
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: -20, // Move it outside the scroll box
+              transform: 'translateY(-50%)',
+              zIndex: 2,
+              backgroundColor: 'background.paper',
+              boxShadow: 2,
+              pointerEvents: 'auto', // ensure clickable
+            }}
+            aria-label="Scroll left"
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          }
+
+          {/* Right Arrow */}
+          {!!showRightFade && <IconButton
+            onClick={() => scroll('right')}
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              right: -20,
+              transform: 'translateY(-50%)',
+              zIndex: 2,
+              backgroundColor: 'background.paper',
+              boxShadow: 2,
+              pointerEvents: 'auto',
+            }}
+            aria-label="Scroll right"
+          >
+            <ChevronRightIcon />
+          </IconButton>
+          }
+
+          {/* Carousel Scroll Container */}
+          <Box
+            ref={scrollRef}
+            sx={{
+              display: 'flex',
+              overflowX: 'auto',
+              scrollSnapType: 'x mandatory',
+              gap: 2,
+              py: 1,
+              px: 6,
+              scrollPaddingX: '1rem',
+              '&::-webkit-scrollbar': { display: 'none' },
+            }}
+          >
+            {vendors.map((vendor, index) => (
+              <Box
+                key={vendor.id}
+                sx={{
+                  flex: '0 0 auto',
+                  width: { xs: 220, sm: 240 },
+                  scrollSnapAlign: 'start',
+                }}
+              >
+                <VendorCard
+                  vendor={vendor}
+                  searchParams=""
+                  onFocus={() => { }}
+                  onBlur={() => { }}
+                  positionIndex={index}
+                  tabIndex={0}
+                  className=""
+                  showFavoriteButton={false}
+                  isFavorite={false}
+                  variant="compact"
+                />
+              </Box>
+            ))}
+          </Box>
         </Box>
       </Box>
     </Box>
