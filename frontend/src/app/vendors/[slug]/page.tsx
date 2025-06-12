@@ -77,8 +77,7 @@ export default async function VendorPage({ params }: PageProps) {
     
     // Filter out the current vendor and limit results
     nearbyVendors = allNearbyVendors
-      .filter(v => v.id !== vendor.id)
-      .slice(0, 6);
+      .filter(v => v.id !== vendor.id);
   }
 
   // Define JSON-LD schema for the vendor

@@ -28,7 +28,6 @@ export const VendorCarousel = ({
 
     const updateFade = () => {
       const { scrollLeft, scrollWidth, clientWidth } = el;
-      console.log('Scroll Left:', scrollLeft, 'Scroll Width:', scrollWidth, 'Client Width:', clientWidth);
       setShowLeftFade(scrollLeft > 50);
       setShowRightFade(scrollLeft < scrollWidth - clientWidth - 1);
     };
