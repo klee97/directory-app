@@ -47,7 +47,7 @@ export default function TravelFilter({
   };
 
   return (
-    <Accordion sx={{ minWidth: filterMinWidth }}>
+    <Accordion disableGutters={true} sx={{ minWidth: filterMinWidth }}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1-content"
