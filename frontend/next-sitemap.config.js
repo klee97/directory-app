@@ -5,7 +5,7 @@ export default {
   generateRobotsTxt: true,
   sitemapSize: 200, // Optional: number of URLs per sitemap file
   changefreq: 'monthly', // Optional: frequency of change for pages
-  priority: 1.0, // Optional: priority for your pages
+  priority: 0.8, // Optional: priority for your pages
   exclude: [
   '/admin',
   '/admin/*',
@@ -14,30 +14,26 @@ export default {
 
   // Fetch dynamic URLs (from Supabase in this case)
   async additionalPaths() {
+    const staticPages = [
+      { slug: '', priority: 1.0 }, // Home page
+      { slug: 'blog', priority: 0.9 },
+      { slug: 'about', priority: 0.3 },
+      { slug: 'contact', priority: 0.3 },
+      { slug: 'faq', priority: 0.8 },
+    ];
     // Fetch the vendor slugs from Supabase
     const data = await fetchVendorSlugs();
     // Map the slugs to the URLs
-    return data.map((vendor) => ({
+    const vendorPages = data.map((vendor) => ({
       loc: `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
       lastmod: new Date().toISOString(),
       priority: 0.5,
     }));
+    return [...staticPages, ...vendorPages];
   },
 };
 
 export async function fetchVendorSlugs() {
-  try {
-    console.log("Fetching vendor slugs");
-    const { data } = await supabase.from('vendors')
-    .select(`
-      slug 
-    `);
-    if (data === null) {
-      return [];
-    }
-    return data;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch vendor slugs.');
-  }
+  const { data } = await supabase.from('vendors').select('slug');
+  return data || [];
 }

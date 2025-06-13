@@ -15,7 +15,6 @@ export function searchVendors(searchQuery: string, vendors: VendorByDistance[]):
 }
 
 export async function getVendorsByLocation(location: LocationResult, vendors: VendorByDistance[] = []): Promise<VendorByDistance[]> {
-  console.debug("Fetching vendors for location:", location);
   if (location.type === LOCATION_TYPE_PRESET_REGION) {
     return await filterVendorByRegion(location.display_name, vendors);
   } else if (isCountrySelection(location) && location.address?.country) {
@@ -25,6 +24,7 @@ export async function getVendorsByLocation(location: LocationResult, vendors: Ve
   } else if (!!location.lat && !!location.lon) {
     return await getVendorsByDistanceWithFallback(location.lat, location.lon, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT);
   } else {
+    console.warn("Location type not recognized or missing coordinates:", location);
     return [];
   }
 }
@@ -75,7 +75,6 @@ export async function getVendorsByDistanceWithFallback(
   let radiusMi = initialRadius;
   let results: VendorByDistance[] = [];
   let attempts = 0;
-  console.debug("Fetching vendors by distance:", { lat, lon, radiusMi, limit });
 
   while (results.length < SEARCH_RESULTS_MINIMUM && attempts < 3) { // Try up to 3 times
     results = await getVendorsByDistance(lat, lon, radiusMi, limit);

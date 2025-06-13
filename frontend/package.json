@@ -10,7 +10,7 @@
     "dev:preview-analytics": "VERCEL_ENV=preview FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
     "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml",
     "build": "next build",
-    "postbuild": "next-sitemap",
+    "postbuild": "next-sitemap && next-sitemap --config next-sitemap.locations.js",
     "start": "next start",
     "lint": "next lint",
     "generate": "graphql-codegen --require dotenv/config --config codegen.yml"

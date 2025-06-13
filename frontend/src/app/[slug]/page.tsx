@@ -34,6 +34,10 @@ export async function generateStaticParams() {
 // Page component
 export default async function LocationPage({ params }: LocationPageProps) {
   const { slug } = await params;
+
+  if (!slug) {
+    notFound();
+  }
   const generator = new LocationPageGenerator();
   const location: LocationResult | null = await generator.getLocationBySlug(slug);
 
@@ -41,14 +45,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  console.log("Slug:", slug);
-  console.log("Fetched location:", location);
-
-  if (!slug || !location) {
-    notFound();
-  }
-
-  var vendors: VendorByDistance[] = [];
+  let vendors: VendorByDistance[] = [];
   if (location.type === LOCATION_TYPE_CITY && location.lat && location.lon) {
     vendors = await getVendorsByDistanceWithFallback(
       location.lat,
@@ -62,9 +59,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
     vendors = await getVendorsByCountry(location);
   }
 
-  // If no location found or no artists, redirect to search
+  // If no location found or no artists, redirect to home table
   if (!vendors || vendors.length === 0) {
-    redirect(`/?location=${slug}`);
+    redirect(`/`);
   }
 
   const jsonLd = {
@@ -127,9 +124,11 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
   }
 
   return {
+    title: `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features in ${location.display_name}`,
+    description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
     openGraph: {
       title: `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features in ${location.display_name}`,
-      description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.`,
+      description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
       url: `https://www.asianweddingmakeup.com/${slug}`,
       type: 'website',
       images: [
@@ -137,7 +136,7 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
           url: defaultImage.src,
           width: 1200,
           height: 630,
-          alt: 'Asian Wedding Makeup Artist Directory',
+          alt: `Asian Wedding Makeup Artists in ${location.display_name}`,
         },
       ],
     },

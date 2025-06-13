@@ -9,18 +9,6 @@ export const SEARCH_RADIUS_MILES_DEFAULT = 25;
 export const SEARCH_VENDORS_LIMIT_DEFAULT = 200;
 export const SEARCH_RESULTS_MINIMUM = 5;
 
-export interface ActiveLocation {
-  city: string;
-  state: string;
-  country: string;
-  state_id?: number;
-  metro_id?: number;
-  metro_region_id?: number;
-  lat: number;
-  lon: number;
-  vendor_count: number;
-}
-
 export interface GeocodeResponse {
   type: string;
   geometry: {
