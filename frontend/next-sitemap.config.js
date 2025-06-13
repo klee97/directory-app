@@ -5,13 +5,19 @@ export default {
   generateRobotsTxt: true,
   sitemapSize: 200, // Optional: number of URLs per sitemap file
   changefreq: 'monthly', // Optional: frequency of change for pages
-  priority: 0.8, // Optional: priority for your pages
+  priority: 0.8,
   exclude: [
-  '/admin',
-  '/admin/*',
-  '/auth/*',
-],
+    '/admin',
+    '/admin/*',
+    '/auth/*',
+  ],
 
+  additionalSitemaps: [
+    {
+      loc: 'https://www.asianweddingmakeup.com/sitemap-locations.xml',
+      lastmod: new Date().toISOString(),
+    },
+  ],
 
   // Fetch dynamic URLs (from Supabase in this case)
   async additionalPaths() {

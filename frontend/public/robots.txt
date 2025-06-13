@@ -7,3 +7,4 @@ Host: https://www.asianweddingmakeup.com
 
 # Sitemaps
 Sitemap: https://www.asianweddingmakeup.com/sitemap.xml
+Sitemap: https://www.asianweddingmakeup.com/sitemap-locations.xml
