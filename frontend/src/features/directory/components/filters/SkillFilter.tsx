@@ -10,10 +10,11 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Checkbox, FormControlLabel, Typography } from "@mui/material";
 
-export function SkillFilter({ tags, searchParams }:
+export function SkillFilter({ tags, searchParams, filterMinWidth }:
   {
     tags: string[];
     searchParams: ReadonlyURLSearchParams;
+    filterMinWidth: number;
   }
 ) {
   const router = useRouter();
@@ -44,7 +45,7 @@ export function SkillFilter({ tags, searchParams }:
   };
 
   return (
-    <Accordion sx={{ minWidth: 220 }} >
+    <Accordion sx={{ minWidth: filterMinWidth }} >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1-content"
@@ -52,7 +53,7 @@ export function SkillFilter({ tags, searchParams }:
       >
         <Typography component="span">Skills</Typography>
       </AccordionSummary>
-      <AccordionDetails sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <AccordionDetails sx={{ display: 'flex', flexDirection: 'column' }}>
         {tags.map((skill, index) => (
           <FormControlLabel
             key={skill}

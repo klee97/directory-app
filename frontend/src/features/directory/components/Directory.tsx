@@ -7,7 +7,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import Divider from '@mui/material/Divider';
 
 interface DirectoryProps {
   vendors: Vendor[];
@@ -58,7 +57,6 @@ export function Directory({ vendors, tags }: DirectoryProps) {
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
-      <Divider />
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
           vendors={vendors}

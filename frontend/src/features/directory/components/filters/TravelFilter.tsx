@@ -12,7 +12,13 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import React, { useEffect } from "react";
 
-export default function TravelFilter({ searchParams }: { searchParams: ReadonlyURLSearchParams }) {
+export default function TravelFilter({
+  searchParams,
+  filterMinWidth
+}: {
+  searchParams: ReadonlyURLSearchParams,
+  filterMinWidth: number
+}) {
   const router = useRouter();
   const pathname = usePathname();
   // Get the current value from URL (default to false if not set)
@@ -41,7 +47,7 @@ export default function TravelFilter({ searchParams }: { searchParams: ReadonlyU
   };
 
   return (
-    <Accordion >
+    <Accordion sx={{ minWidth: filterMinWidth }}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1-content"

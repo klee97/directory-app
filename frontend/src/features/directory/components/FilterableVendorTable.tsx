@@ -24,6 +24,8 @@ import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
 
 const PAGE_SIZE = 12;
+const FILTER_MIN_WIDTH = 240;
+const SEARCH_FILTER_GAP = 16;
 
 interface FilterableVendorTableContentProps {
   tags: string[];
@@ -242,7 +244,7 @@ export function FilterableVendorTableContent({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
       {/* Filters and Search Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
@@ -255,6 +257,7 @@ export function FilterableVendorTableContent({
             alignItems: { xs: 'stretch', md: 'center' },
           }}
         >
+          <Box minWidth={FILTER_MIN_WIDTH + SEARCH_FILTER_GAP} />
           <SearchBar searchParams={searchParams} />
           <LocationAutocomplete
             value={selectedLocation?.display_name || ""}
@@ -276,8 +279,8 @@ export function FilterableVendorTableContent({
             flexWrap: 'wrap',
           }}
         >
-          <SkillFilter tags={tags} searchParams={searchParams} />
-          <TravelFilter searchParams={searchParams} />
+          <SkillFilter tags={tags} searchParams={searchParams} filterMinWidth={FILTER_MIN_WIDTH} />
+          <TravelFilter searchParams={searchParams} filterMinWidth={FILTER_MIN_WIDTH} />
           {/* Second Row: Clear Button */}
           <Button
             variant="contained"
