@@ -291,7 +291,7 @@ export function FilterableVendorTableContent({
         <Divider />
 
         {/* Results Count and Sorting */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
           <Box
             sx={{
               display: 'flex',
