@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/api-client';
-import { ActiveLocation, LocationResult, SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
+import { LocationResult, SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { VendorByDistance } from '@/types/vendor';
-import { generateLocationSlug, getDisplayName } from './locationNames';
+import { getDisplayName } from './locationNames';
 
 
 export class LocationPageGenerator {
@@ -17,7 +17,7 @@ export class LocationPageGenerator {
       type
     `)
       .eq('slug', slug)
-      .single();
+      .maybeSingle();
 
     if (error || !data) {
       console.error(`Location not found for slug: ${slug}`, error);
@@ -36,52 +36,6 @@ export class LocationPageGenerator {
         country: data.country,
       },
     };
-  }
-
-  /**
-     * Get location data with vendors for static generation
-     */
-  async getLocationWithVendors(location: ActiveLocation): Promise<{
-    location: ActiveLocation;
-    vendors: VendorByDistance[];
-    slug: string;
-  }> {
-    const vendors = await this.getVendorsForLocation(
-      location.lat,
-      location.lon,
-      SEARCH_RADIUS_MILES_DEFAULT
-    );
-
-    const slug = generateLocationSlug(
-      location.city,
-      location.state,
-      location.country
-    );
-
-    return {
-      location,
-      vendors,
-      slug
-    };
-  }
-
-  async getActiveLocations() {
-    try {
-      console.debug("Fetching active locations");
-      const { data, error } = await supabase
-        .rpc("get_active_locations");
-
-      if (error) {
-        console.error('Error fetching active locations:', error);
-      }
-      if (data === null) {
-        return [];
-      }
-      return data;
-    } catch (error) {
-      console.error('Database Error:', error);
-      throw new Error('Failed to fetch card data.');
-    }
   }
 
   /**

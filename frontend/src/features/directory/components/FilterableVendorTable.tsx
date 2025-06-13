@@ -214,7 +214,7 @@ export function FilterableVendorTableContent({
       const url = params ? `/?${params}` : '/';
       router.push(url, { scroll: false });
     }
-  }, [preselectedLocation, selectedLocation, router]);
+  }, [preselectedLocation, selectedLocation, router, searchParams]);
 
   // Reset visible vendors when filtered list changes
   useEffect(() => {

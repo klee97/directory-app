@@ -54,7 +54,7 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       sx={{ display: 'flex', flexDirection: 'column', my: 12, gap: 2 }}
     >
       <Typography variant="h2" gutterBottom>
-        The Best Wedding Makeup Artists for Asian Features
+        The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
       </Typography>
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
