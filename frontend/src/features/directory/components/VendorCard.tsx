@@ -64,7 +64,7 @@ export const VendorCard = ({
         variant: variant,
       });
     }
-  }, [inView, vendor.cover_image, vendor.slug, positionIndex]);
+  }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
