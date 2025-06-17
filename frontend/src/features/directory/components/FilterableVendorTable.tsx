@@ -384,7 +384,10 @@ export function FilterableVendorTableContent({
                   onClick={() => {
                     const params = new URLSearchParams(searchParams.toString());
                     params.set(TRAVEL_PARAM, 'true');
-                    router.push(`/?${params.toString()}`, { scroll: false });
+                    if (!preselectedLocation) {
+                      setSelectedLocation(null);
+                    }
+                    router.push(`/?${params.toString()}`);
                   }}
                   sx={{
                     color: 'primary.main',
@@ -392,8 +395,8 @@ export function FilterableVendorTableContent({
                     cursor: 'pointer',
                   }}
                 >
-                  artists who travel worldwide
-                </Typography>{' '}
+                artists who travel worldwide
+                </Typography>{''}
                 , or broaden your search.
               </Typography>
               <Typography variant="body1">
