@@ -130,7 +130,6 @@ export default function InputWithDebounce({
 
   const handleBlur = () => {
     setTimeout(() => {
-      console.log(clearWasClickedRef.current, resultWasClickedRef.current);
       // Don't hide the dropdown if we're about to focus the input again after clear
       if (!clearWasClickedRef.current) {
         setDropdownVisible(false);

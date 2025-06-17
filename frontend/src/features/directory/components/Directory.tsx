@@ -65,7 +65,8 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
           vendors={vendors}
           favoriteVendorIds={favoriteVendorIds}
           tags={tags}
-          preselectedLocation={selectedLocation} // This prop is not used in the current implementation
+          preselectedLocation={selectedLocation}
+          useLocationPages={!!selectedLocation}
         />
       </Suspense>
     </Container>

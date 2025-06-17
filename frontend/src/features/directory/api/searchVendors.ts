@@ -93,7 +93,7 @@ export async function getVendorsByDistance(
 )
   : Promise<VendorByDistance[]> {
   const { data, error } = await supabase
-    .rpc("get_vendors_by_distance",
+    .rpc("get_vendors_by_location_with_tags",
       {
         lat: lat,
         lon: lon,
@@ -110,8 +110,6 @@ export async function getVendorsByDistance(
 }
 
 function isStateSelection(location: LocationResult) {
-  console.debug("Checking if location is a state selection:", location);
-  console.debug("is state selection:", location.type === LOCATION_TYPE_STATE);
   return (
     location.type === LOCATION_TYPE_STATE
   );

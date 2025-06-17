@@ -10,6 +10,7 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
     usstates: { name: string } | null      // State name (can be null if no state found)
     vendor_testimonials: BackendVendorTestimonial[] | null
     tags: BackendVendorTag[] | null
+    distance_miles?: number | null // Optional distance in miles for sorting
   };
 ;
 
@@ -63,7 +64,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   'longitude': number | null,
 };
 
-export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor {
+export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   const coordinates = parseCoordinates(vendor.location_coordinates);
 
@@ -95,6 +96,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): Vendor 
     metro_region: vendor.regions?.name ?? null, // Safely access region name
     testimonials: vendor.vendor_testimonials ?? [],
     tags: vendor.tags ?? [],
+    distance_miles: vendor.distance_miles ?? null,
   };
 }
 

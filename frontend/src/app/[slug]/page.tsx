@@ -64,6 +64,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
     redirect(`/`);
   }
 
+  const uniqueTags = getUniqueVisibleTagNames(vendors);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -94,10 +95,8 @@ export default async function LocationPage({ params }: LocationPageProps) {
     }))
   };
 
-  const uniqueTags = getUniqueVisibleTagNames(vendors);
 
   // const breadcrumbs = await buildBreadcrumbs(location);
-
   return (
     <>
       <section>
@@ -106,7 +105,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </section>
-      <title>Asian Wedding Makeup in {location.display_name}| The Best Artists for Asian Features</title>
+      <title>{`Asian Wedding Makeup in ${location.display_name}| The Best Artists for Asian Features`}</title>
       <Directory vendors={vendors} tags={uniqueTags} selectedLocation={location} />
     </>
   );

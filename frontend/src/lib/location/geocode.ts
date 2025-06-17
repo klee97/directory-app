@@ -1,4 +1,4 @@
-import { GeocodeResponse, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
 import { getDisplayName } from "./locationNames";
 
 const PHOTON_TIMEOUT_MS = 2000;
@@ -30,12 +30,16 @@ async function rawPhotonFetch(query: string): Promise<LocationResult[]> {
     if (feature.properties.type === LOCATION_TYPE_STATE) {
       state = feature.properties.state || feature.properties.name;
     }
+    let city = feature.properties.city;
+    if (feature.properties.type === LOCATION_TYPE_CITY) {
+      city = feature.properties.city || feature.properties.name;
+    }
     return ({
-      display_name: getDisplayName(feature.properties.name, feature.properties.city, state, feature.properties.country, feature.properties.type),
+      display_name: getDisplayName(city, state, feature.properties.country, feature.properties.type),
       lat: feature.geometry.coordinates[1],
       lon: feature.geometry.coordinates[0],
       address: {
-        city: feature.properties.city,
+        city: city,
         state: state,
         country: feature.properties.country,
       },
