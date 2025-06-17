@@ -7,8 +7,9 @@ import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import Divider from '@mui/material/Divider';
 import { LocationResult } from '@/types/location';
+
+
 interface DirectoryProps {
   vendors: Vendor[];
   tags: string[];
@@ -51,7 +52,7 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
     <Container
       maxWidth="lg"
       component="main"
-      sx={{ display: 'flex', flexDirection: 'column', my: 12, gap: 2 }}
+      sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4, sm: 8, md: 12 }, gap: 2 }}
     >
       <Typography variant="h2" gutterBottom>
         The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
@@ -59,7 +60,6 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
-      <Divider />
       <Suspense fallback={<div>Loading...</div>}>
         <FilterableVendorTable
           vendors={vendors}

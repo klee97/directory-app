@@ -150,7 +150,7 @@ export default function InputWithDebounce({
 
 
   return (
-    <Box sx={{ position: 'relative', width: '100%', maxWidth: { md: 400 } }}>
+    <Box sx={{ position: 'relative', width: '100%' }}>
       <FormControl fullWidth variant="outlined">
         <OutlinedInput
           size="small"
@@ -160,6 +160,22 @@ export default function InputWithDebounce({
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
+          sx={{
+            backgroundColor: 'background.paper',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'divider',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+              borderColor: 'primary.main',
+            },
+            '& input::placeholder': {
+              color: 'text.secondary',
+              opacity: 1,
+            },
+          }}
           startAdornment={
             <InputAdornment position="start">
               {isLocationInput ? (
