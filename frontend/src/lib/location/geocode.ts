@@ -14,7 +14,7 @@ async function rawPhotonFetch(query: string): Promise<LocationResult[]> {
     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=en&limit=3&layer=city&layer=state&layer=country`,
     {
       headers: {
-        "User-Agent": "DirectoryApp/1.0 (katrina@asianweddingmakeup.com)",
+        "User-Agent": "AsianWeddingMakeup/1.0 (katrina@asianweddingmakeup.com)",
       },
     }
   );
