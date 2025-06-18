@@ -8,16 +8,29 @@ export function getTodaySeed() {
 
 // Deterministic shuffle function
 export function shuffleWithSeed(array: Vendor[], seed: string) {
-  const arrayCopy = [...array];
+  // Separate vendors with and without pictures
+  const withPictures = array.filter(vendor => vendor.cover_image);
+  const withoutPictures = array.filter(vendor => !vendor.cover_image);
+
   let seedValue = hashString(seed);
-  
-  for (let i = arrayCopy.length - 1; i > 0; i--) {
-    seedValue = (seedValue * 9301 + 49297) % 233280;
-    const j = Math.floor((seedValue / 233280) * (i + 1));
-    [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
-  }
-  
-  return arrayCopy;
+
+  // Function to shuffle a single array with the current seed state
+  const shuffleArray = (arr: Vendor[]) => {
+    const arrayCopy = [...arr];
+    for (let i = arrayCopy.length - 1; i > 0; i--) {
+      seedValue = (seedValue * 9301 + 49297) % 233280;
+      const j = Math.floor((seedValue / 233280) * (i + 1));
+      [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
+    }
+    return arrayCopy;
+  };
+
+  // Shuffle both groups
+  const shuffledWithPictures = shuffleArray(withPictures);
+  const shuffledWithoutPictures = shuffleArray(withoutPictures);
+
+  // Combine with pictures first
+  return [...shuffledWithPictures, ...shuffledWithoutPictures];
 }
 
 function hashString(str: string) {

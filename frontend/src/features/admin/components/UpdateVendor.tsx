@@ -69,6 +69,15 @@ export const AdminUpdateVendorManagement = () => {
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Helper function to handle text field changes - prevents empty strings
+  const handleTextFieldChange = (value: string, field: keyof UpdateVendorInput) => {
+    const trimmedValue = value.trim();
+    setNewVendor({ 
+      ...newVendor, 
+      [field]: trimmedValue === '' ? null : value // Store new value if not empty after trim
+    });
+  };
+
   const updateExistingVendor = async () => {
     setIsSubmitting(true);
 
@@ -78,9 +87,10 @@ export const AdminUpdateVendorManagement = () => {
 
       if (data) {
         addNotification("Vendor updated successfully!");
+        // Reset all form fields
         setNewVendor(UPDATE_VENDOR_INPUT_DEFAULT);
-        setFirstName("");
-        setLastName("");
+        setFirstName(null);
+        setLastName(null);
         setSelectedRegion(null);
         setSelectedTags([]);
       } else {
@@ -100,14 +110,14 @@ export const AdminUpdateVendorManagement = () => {
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof UpdateVendorInput) => {
-    const value = e.target.value;
+    const value = e.target.value.trim();
     const numberValue = value === '' ? null : Number(value);
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
   };
 
   const handleRegionChange = (value: RegionOption | null) => {
     setSelectedRegion(value);
-    setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
+    setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? null });
   };
 
   const handleTagChange = (value: TagOption[]) => {
@@ -135,35 +145,35 @@ export const AdminUpdateVendorManagement = () => {
             label="Vendor ID"
             helperText="HMUA-123"
             variant="outlined"
-            value={newVendor.id ?? null}
-            onChange={(e) => setNewVendor({ ...newVendor, id: e.target.value })}
+            value={newVendor.id ?? ''}
+            onChange={(e) => handleTextFieldChange(e.target.value, 'id')}
           />
           <TextField
             fullWidth
             label="Vendor Business Name"
             variant="outlined"
-            value={newVendor.business_name ?? null}
-            onChange={(e) => setNewVendor({ ...newVendor, business_name: e.target.value })}
+            value={newVendor.business_name ?? ''}
+            onChange={(e) => handleTextFieldChange(e.target.value, 'business_name')}
           />
           <Grid container spacing={3} columns={3}>
             <TextField
               label="Website"
               variant="outlined"
-              value={newVendor.website ?? null}
-              onChange={(e) => setNewVendor({ ...newVendor, website: e.target.value })}
+              value={newVendor.website ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'website')}
             />
             <TextField
               label="Email"
               variant="outlined"
-              value={newVendor.email ?? null}
-              onChange={(e) => setNewVendor({ ...newVendor, email: e.target.value })}
+              value={newVendor.email ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
             />
             <TextField
               label="Instagram Handle"
               helperText="e.g., @yourhandle"
               variant="outlined"
-              value={newVendor.ig_handle ?? null}
-              onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
+              value={newVendor.ig_handle ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'ig_handle')}
             />
           </Grid>
 
@@ -173,8 +183,12 @@ export const AdminUpdateVendorManagement = () => {
                 fullWidth
                 label="First Name"
                 variant="outlined"
-                value={firstName ?? null}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={firstName ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const trimmedValue = value.trim();
+                  setFirstName(trimmedValue === '' ? null : value);
+                }}
               />
             </Grid>
             <Grid size={6}>
@@ -182,8 +196,12 @@ export const AdminUpdateVendorManagement = () => {
                 fullWidth
                 label="Last Name"
                 variant="outlined"
-                value={lastName ?? null}
-                onChange={(e) => setLastName(e.target.value)}
+                value={lastName ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const trimmedValue = value.trim();
+                  setLastName(trimmedValue === '' ? null : value);
+                }}
               />
             </Grid>
             <Grid size={6}>
@@ -204,8 +222,8 @@ export const AdminUpdateVendorManagement = () => {
                 label="Location Coordinates"
                 helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
                 variant="outlined"
-                value={newVendor.location_coordinates ?? null}
-                onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
+                value={newVendor.location_coordinates ?? ''}
+                onChange={(e) => handleTextFieldChange(e.target.value, 'location_coordinates')}
               />
             </Grid>
           </Grid>
@@ -216,7 +234,7 @@ export const AdminUpdateVendorManagement = () => {
               <RadioGroup
                 aria-labelledby="demo-controlled-radio-buttons-group"
                 name="controlled-radio-buttons-group"
-                value={newVendor.travels_world_wide ?? null}
+                value={newVendor.travels_world_wide === null ? 'null' : String(newVendor.travels_world_wide)}
                 onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: parseBooleanString(e.target.value) })}
               >
                 <FormControlLabel value="true" control={<Radio />} label="True" />
@@ -228,8 +246,8 @@ export const AdminUpdateVendorManagement = () => {
               fullWidth
               label="Google Maps Place link"
               variant="outlined"
-              value={newVendor.google_maps_place ?? null}
-              onChange={(e) => setNewVendor({ ...newVendor, google_maps_place: e.target.value })}
+              value={newVendor.google_maps_place ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'google_maps_place')}
             />
           </Grid>
           <Grid container spacing={3}>
@@ -237,19 +255,19 @@ export const AdminUpdateVendorManagement = () => {
             <TextField
               label="Bridal Hair Price"
               variant="outlined"
-              value={newVendor.bridal_hair_price ?? null}
+              value={newVendor.bridal_hair_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
             />
             <TextField
               label="Bridal Makeup Price"
               variant="outlined"
-              value={newVendor.bridal_makeup_price ?? null}
+              value={newVendor.bridal_makeup_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
             />
             <TextField
               label="Bridal Hair & Makeup Price"
               variant="outlined"
-              value={newVendor["bridal_hair_&_makeup_price"] ?? null}
+              value={newVendor["bridal_hair_&_makeup_price"] ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
             />
           </Grid>
@@ -258,19 +276,19 @@ export const AdminUpdateVendorManagement = () => {
             <TextField
               label="Bridesmaid Hair Price"
               variant="outlined"
-              value={newVendor.bridesmaid_hair_price ?? null}
+              value={newVendor.bridesmaid_hair_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
             />
             <TextField
               label="Bridesmaid Makeup Price"
               variant="outlined"
-              value={newVendor.bridesmaid_makeup_price ?? null}
+              value={newVendor.bridesmaid_makeup_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
             />
             <TextField
               label="Bridesmaid Hair & Makeup Price"
               variant="outlined"
-              value={newVendor["bridesmaid_hair_&_makeup_price"] ?? null}
+              value={newVendor["bridesmaid_hair_&_makeup_price"] ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
             />
           </Grid>
