@@ -22,9 +22,6 @@ export function getDisplayName(
  * Generate slug for location page
  */
 export function generateLocationSlug(city: string, state: string, country: string): string {
-  // const countryAbbr = COUNTRY_ABBREVIATIONS[country] || country;
-  // const stateAbbr = STATE_ABBREVIATIONS[state] || state;
-  // const cityAbbr = CITY_ABBREVIATIONS[city] || city;
   const cleanCity = city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const cleanState = state.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const cleanCountry = country.toLowerCase().replace(/[^a-z0-9]+/g, '-');
