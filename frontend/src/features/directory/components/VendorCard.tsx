@@ -15,12 +15,13 @@ import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
-import { STATE_ABBREVIATIONS } from '@/types/location';
+import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
+  const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
   const state = vendor.state ? STATE_ABBREVIATIONS[vendor.state] || vendor.state : null;
-  const location = [vendor.city, state, vendor.country].filter(Boolean).join(', ');
+  const location = [city, state, vendor.country].filter(Boolean).join(', ');
   return location || 'Location not specified';
 }
 
@@ -63,7 +64,7 @@ export const VendorCard = ({
         variant: variant,
       });
     }
-  }, [inView, vendor.cover_image, vendor.slug, positionIndex]);
+  }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;

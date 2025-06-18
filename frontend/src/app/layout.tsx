@@ -23,6 +23,7 @@ const alice = Alice({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.asianweddingmakeup.com'),
   title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
   description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
   openGraph: {

@@ -7,13 +7,16 @@ import { Suspense, useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { LocationResult } from '@/types/location';
+
 
 interface DirectoryProps {
   vendors: Vendor[];
   tags: string[];
+  selectedLocation?: LocationResult;
 }
 
-export function Directory({ vendors, tags }: DirectoryProps) {
+export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const supabase = createClient();
@@ -52,7 +55,7 @@ export function Directory({ vendors, tags }: DirectoryProps) {
       sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4, sm: 8, md: 12 }, gap: 2 }}
     >
       <Typography variant="h2" gutterBottom>
-        The Best Wedding Makeup Artists for Asian Features
+        The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
       </Typography>
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
@@ -62,6 +65,8 @@ export function Directory({ vendors, tags }: DirectoryProps) {
           vendors={vendors}
           favoriteVendorIds={favoriteVendorIds}
           tags={tags}
+          preselectedLocation={selectedLocation}
+          useLocationPages={!!selectedLocation}
         />
       </Suspense>
     </Container>

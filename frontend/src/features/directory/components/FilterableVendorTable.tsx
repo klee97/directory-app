@@ -16,27 +16,33 @@ import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
 import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
+import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
+const locationPageGenerator = new LocationPageGenerator();
 
 interface FilterableVendorTableContentProps {
   tags: string[];
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
+  preselectedLocation: LocationResult | null;
+  useLocationPages?: boolean;
 }
 
 export function FilterableVendorTableContent({
   tags,
   vendors,
   favoriteVendorIds,
+  preselectedLocation = null,
+  useLocationPages = false,
 }: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -52,8 +58,9 @@ export function FilterableVendorTableContent({
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(preselectedLocation);
   const [loading, setLoading] = useState(false);
+  const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   useScrollRestoration(true);
@@ -82,6 +89,14 @@ export function FilterableVendorTableContent({
     };
   }, [selectedLocation, vendors]);
 
+  // Fetch valid slugs on mount
+  useEffect(() => {
+    let mounted = true;
+    locationPageGenerator.getValidLocationSlugs().then((slugs) => {
+      if (mounted) setValidLocationSlugs(slugs);
+    });
+    return () => { mounted = false; };
+  }, []);
 
   // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {
@@ -125,8 +140,6 @@ export function FilterableVendorTableContent({
         });
         break;
     }
-
-    console.log("Searched and sorted vendors:", sortedVendors);
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 
@@ -210,6 +223,32 @@ export function FilterableVendorTableContent({
     router.push(`?${newParams.toString()}`, { scroll: false });
     trackFilterReset();
   };
+
+  // Handle clear location selection for location-specific pages
+  useEffect(() => {
+    // go home when no location is selected
+    if (preselectedLocation && selectedLocation === null) {
+      const params = searchParams.toString();
+      const url = params ? `/?${params}` : '/';
+      router.push(url, { scroll: false });
+      return;
+    }
+
+    if (validLocationSlugs === null) return;
+    if (preselectedLocation?.display_name === selectedLocation?.display_name) return;
+
+    // If a new location is selected and useLocationPages is enabled, check for a location page
+    if (useLocationPages && selectedLocation) {
+      const slug = locationPageGenerator.getSlugFromLocation(selectedLocation);
+      if (slug && validLocationSlugs.has(slug)) {
+        console.debug("Found location page for:", selectedLocation.display_name);
+        const params = searchParams.toString();
+        const url = params ? `/${slug}?${params}` : `/${slug}`;
+        router.push(`${url}`, { scroll: false });
+        return;
+      }
+    }
+  }, [preselectedLocation, selectedLocation, router, searchParams, useLocationPages, validLocationSlugs]);
 
   // Reset visible vendors when filtered list changes
   useEffect(() => {
@@ -344,10 +383,11 @@ export function FilterableVendorTableContent({
                   component="span"
                   onClick={() => {
                     const params = new URLSearchParams(searchParams.toString());
-                    setSelectedLocation(null);
-                    params.delete(LOCATION_PARAM);
                     params.set(TRAVEL_PARAM, 'true');
-                    router.push(`?${params.toString()}`, { scroll: false });
+                    if (!preselectedLocation) {
+                      setSelectedLocation(null);
+                    }
+                    router.push(`/?${params.toString()}`);
                   }}
                   sx={{
                     color: 'primary.main',
@@ -355,8 +395,8 @@ export function FilterableVendorTableContent({
                     cursor: 'pointer',
                   }}
                 >
-                  artists who travel worldwide
-                </Typography>{' '}
+                artists who travel worldwide
+                </Typography>{''}
                 , or broaden your search.
               </Typography>
               <Typography variant="body1">
@@ -405,11 +445,17 @@ export function FilterableVendorTableContent({
 export default function FilterableVendorTable(props: {
   tags: string[],
   vendors: VendorByDistance[],
-  favoriteVendorIds: VendorId[]
+  favoriteVendorIds: VendorId[],
+  preselectedLocation?: LocationResult | null,
+  useLocationPages?: boolean,
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FilterableVendorTableContent {...props} />
+      <FilterableVendorTableContent
+        {...props}
+        preselectedLocation={props.preselectedLocation ?? null}
+        useLocationPages={props.useLocationPages ?? false}
+      />
     </Suspense>
   );
 }

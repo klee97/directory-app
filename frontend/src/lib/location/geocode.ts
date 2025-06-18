@@ -1,4 +1,5 @@
-import { COUNTRY_ABBREVIATIONS, GeocodeResponse, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, STATE_ABBREVIATIONS } from "@/types/location";
+import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { getDisplayName } from "./locationNames";
 
 const PHOTON_TIMEOUT_MS = 2000;
 
@@ -29,12 +30,16 @@ async function rawPhotonFetch(query: string): Promise<LocationResult[]> {
     if (feature.properties.type === LOCATION_TYPE_STATE) {
       state = feature.properties.state || feature.properties.name;
     }
+    let city = feature.properties.city;
+    if (feature.properties.type === LOCATION_TYPE_CITY) {
+      city = feature.properties.city || feature.properties.name;
+    }
     return ({
-      display_name: getDisplayName(feature.properties.name, feature.properties.city, state, feature.properties.country, feature.properties.type),
+      display_name: getDisplayName(city, state, feature.properties.country, feature.properties.type),
       lat: feature.geometry.coordinates[1],
       lon: feature.geometry.coordinates[0],
       address: {
-        city: feature.properties.city,
+        city: city,
         state: state,
         country: feature.properties.country,
       },
@@ -56,24 +61,5 @@ export async function fetchPhotonResults(query: string): Promise<LocationResult[
       console.error("Photon retry failed:", retryErr);
       return [];
     }
-  }
-}
-
-export function getDisplayName(
-  name: string | null,
-  city: string | null,
-  state: string | null,
-  country: string | null,
-  type: string
-): string {
-  const countryName = country ? COUNTRY_ABBREVIATIONS[country] || country : "";
-  const stateName = state ? STATE_ABBREVIATIONS[state] || state : "";
-  const cityName = city || name || "";
-  if (type === LOCATION_TYPE_COUNTRY) {
-    return countryName;
-  } else if (type === LOCATION_TYPE_STATE) {
-    return [state || cityName, countryName].filter(Boolean).join(", ");
-  } else {
-    return [cityName, stateName, countryName].filter(Boolean).join(", ");
   }
 }

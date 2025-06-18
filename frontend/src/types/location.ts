@@ -45,6 +45,9 @@ export interface LocationSearchOptions {
   namedetails?: boolean;
 }
 
+export const CITY_ABBREVIATIONS: Record<string, string> = {
+  "City of New York": "New York City",
+}
 
 export const STATE_ABBREVIATIONS: Record<string, string> = {
   "Alabama": "AL",

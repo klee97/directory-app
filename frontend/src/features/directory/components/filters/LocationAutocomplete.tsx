@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Typography from '@mui/material/Typography';
@@ -16,15 +16,23 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
   const cache = useRef(new Map<string, LocationResult[]>());
   const MAX_CACHE_SIZE = 10;
 
+  // Track last selected value to detect real changes
+  const lastFetchedQuery = useRef<string | null>(null);
+
   useEffect(() => {
-    setQuery(value || ""); // Update query when the value prop changes
-  }, [value]);
+    if (value !== null && value !== query) {
+      setQuery(value);
+    }
+  }, [value, query]);
 
   const fetchSuggestions = async (q: string) => {
-    if (value) {
-      // Skip fetching suggestions if a location is already selected
+    const trimmed = q.trim().toLowerCase();
+    if (!trimmed || trimmed === lastFetchedQuery.current) {
       return;
     }
+    lastFetchedQuery.current = trimmed;
+
+    console.log("Fetching location suggestions for query:", q);
     setLoading(true);
     const cached = cache.current.get(q);
     if (cached && cached.length > 0) {
