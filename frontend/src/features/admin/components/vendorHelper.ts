@@ -94,7 +94,7 @@ async function convertToPostgisPoint(coordInput: string | null) {
         lon: lon
       },
       headers: {
-        'User-Agent': 'AsianWeddingMakeup/1.0 (asianweddingmakeup@example.com)',
+        'User-Agent': 'AsianWeddingMakeup/1.0 (katrina@asianweddingmakeup.com)',
         'Accept': 'application/json'
       }
     });
