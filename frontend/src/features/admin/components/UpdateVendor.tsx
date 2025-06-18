@@ -74,7 +74,7 @@ export const AdminUpdateVendorManagement = () => {
     const trimmedValue = value.trim();
     setNewVendor({ 
       ...newVendor, 
-      [field]: trimmedValue === '' ? null : value // Store original value if not empty after trim
+      [field]: trimmedValue === '' ? null : value // Store new value if not empty after trim
     });
   };
 
