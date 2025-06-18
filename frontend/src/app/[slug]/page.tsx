@@ -96,7 +96,6 @@ export default async function LocationPage({ params }: LocationPageProps) {
   };
 
 
-  // const breadcrumbs = await buildBreadcrumbs(location);
   return (
     <>
       <section>
