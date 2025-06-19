@@ -8,6 +8,7 @@ import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites'
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LocationResult } from '@/types/location';
+import Scroll from './Scroll';
 
 
 interface DirectoryProps {
@@ -54,6 +55,7 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       component="main"
       sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4, sm: 8, md: 12 }, gap: 2 }}
     >
+      <Scroll showBelow={250} />
       <Typography variant="h2" gutterBottom>
         The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
       </Typography>
