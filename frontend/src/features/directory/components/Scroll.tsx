@@ -29,17 +29,21 @@ const Scroll = (
   return (
     <>
       {show &&
-        <IconButton onClick={handleClick} sx={{
-          position: "fixed",
-          bottom: 32,
-          right: 32,
-          zIndex: 100,
-          backgroundColor: "primary.main",
-          color: "background.default",
-          "&:hover": {
-            backgroundColor: "primary.dark"
-          }
-        }}>
+        <IconButton
+          size="large"
+          onClick={handleClick}
+          sx={{
+            boxShadow: 3,
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            zIndex: 3,
+            backgroundColor: "primary.main",
+            color: "background.default",
+            "&:hover": {
+              backgroundColor: "primary.dark"
+            }
+          }}>
           <ExpandLessIcon />
         </IconButton>
       }
