@@ -46,6 +46,18 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
+  const resolvedLocation = vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region;
+
+  const resolvedLowestPrice = Math.min(
+    vendor.bridal_hair_makeup_price ?? Infinity,
+    vendor.bridal_hair_price ?? Infinity,
+    vendor.bridal_makeup_price ?? Infinity,
+    vendor.bridesmaid_hair_makeup_price ?? Infinity,
+    vendor.bridesmaid_hair_price ?? Infinity,
+    vendor.bridesmaid_makeup_price ?? Infinity
+  )
+
+  const hasPricing = resolvedLowestPrice < Infinity;
 
   useEffect(() => {
     startTime.current = performance.now();
@@ -93,131 +105,115 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     <>
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg" sx={{ py: 8 }}>
-          <Grid container rowSpacing={4} columnSpacing={8}>
-            {/* Image & Contact Card */}
-            {vendor.cover_image && (
-              <Grid size={{ xs: 8, md: 4 }}>
-                <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden' }}>
-                  {/* Vendor Image */}
-                  <Box
-                    component="img"
-                    src={vendor.cover_image}
-                    alt={vendor.business_name ?? ''}
-                    sx={{
-                      display: 'block',
-                      width: '100%',
-                      height: 300,
-                      objectFit: 'cover', // Ensures it doesn't stretch
-                    }}
-                  />
-                </Card>
-              </Grid>
-            )}
-
-            {/* Vendor Info */}
-            <Grid size={{ xs: 12, md: 7 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif' }}>
-                  {vendor.business_name}
-                </Typography>
-                {/* Favorite Button */}
-                {(process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true') && (
-                  <FavoriteButton
-                    vendorId={vendor.id}
-                    initialIsFavorited={isFavorite}
-                  />
-                )}
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LocationOn fontSize="small" />
-                  <Typography variant="subtitle1">{vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}</Typography>
-                </Box>
-                {vendor.travels_world_wide && (
-                  <Chip
-                    icon={<Public />}
-                    label="Travels Worldwide"
-                    size="small"
-                  />
-                )}
-                {tags.length > 0 &&
-                  tags
-                    .filter((tag) => tag.is_visible && tag.display_name !== null)
-                    .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
-                    .map((tag) => (
-                      <Chip
-                        key={tag.id}
-                        label={`${tag.display_name}`}
-                        size="small"
-                        color={tag.style === 'primary' ? 'primary' : 'default'}
-                      />
-                    ))}
-              </Box>
-              <Box
-                sx={{
-                  pt: 3,
-                  mt: 6,
-                  borderTop: `1px solid ${theme.palette.divider}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
-              />
-              {/* Links Section */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                {vendor.website && (
-                  <Button
-                    href={vendor.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    startIcon={<Link />}
-                    sx={{ textTransform: 'none' }}
-                    color='secondary'
-                  >
-                    Website
-                  </Button>
-                )}
-                {vendor.instagram && (
-                  <Button
-                    href={vendor.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    startIcon={<Instagram />}
-                    sx={{ textTransform: 'none' }}
-                    color='secondary'
-                  >
-                    Instagram
-                  </Button>
-                )}
-                {vendor.google_maps_place && (
-                  <Button
-                    href={vendor.google_maps_place}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    startIcon={<Place />}
-                    sx={{ textTransform: 'none' }}
-                    color='secondary'
-                  >
-                    Google Maps
-                  </Button>
-                )}
-              </Box>
-            </Grid>
-          </Grid>
-
           {/* Main Content */}
           <Grid container spacing={4} sx={{ mt: 4 }}>
             {/* Left Column - Details */}
             <Grid size={{ xs: 12, md: 8 }}>
+              {/* Vendor Info */}
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif' }}>
+                  {vendor.business_name}
+                </Typography>
+
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                  {/* Location */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <LocationOn fontSize="small" />
+                    <Typography variant="subtitle1">{resolvedLocation}</Typography>
+                  </Box>
+                  {vendor.travels_world_wide && (
+                    <Chip
+                      icon={<Public />}
+                      label="Travels Worldwide"
+                      size="small"
+                    />
+                  )}
+                </Box>
+                {hasPricing && (
+                  <Typography variant="body1">
+                    Prices starting at ${resolvedLowestPrice}
+                  </Typography>
+                )}
+                {/* Specialty Tags */}
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                  {tags.length > 0 &&
+                    tags
+                      .filter((tag) => tag.is_visible && tag.display_name !== null)
+                      .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
+                      .map((tag) => (
+                        <Chip
+                          key={tag.id}
+                          label={`${tag.display_name}`}
+                          size="medium"
+                          color={tag.style === 'primary' ? 'primary' : 'default'}
+                          sx={{ paddingX: 1 }}
+                        />
+                      ))}
+                </Box>
+              </Box>
+              <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
+              {/* About & Links Section */}
+              <Box>
+                <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+                  About
+                </Typography>
+                <Typography variant="body1" component="p" sx={{ mb: 2 }}>
+                  {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
+                  specializing in Asian features. They are based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {vendor.website && (
+                    <Button
+                      href={vendor.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<Link />}
+                      sx={{ textTransform: 'none' }}
+                      color='secondary'
+                    >
+                      Website
+                    </Button>
+                  )}
+                  {vendor.instagram && (
+                    <Button
+                      href={vendor.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<Instagram />}
+                      sx={{ textTransform: 'none' }}
+                      color='secondary'
+                    >
+                      Instagram
+                    </Button>
+                  )}
+                  {vendor.google_maps_place && (
+                    <Button
+                      href={vendor.google_maps_place}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<Place />}
+                      sx={{ textTransform: 'none' }}
+                      color='secondary'
+                    >
+                      Google Maps
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+              <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {/* Services & Pricing */}
+                {/* Pricing */}
+                <Typography variant="h5" component="h2">
+                  Pricing
+                </Typography>
                 <Paper elevation={0} sx={{ p: 4, }}>
-                  <Typography variant="h5" component="h2">
-                    Services & Pricing
-                  </Typography>
-                  <Typography variant="body1" component="h3">
-                    Please note, these are estimates only. Contact the artist directly for the most up-to-date information.
-                  </Typography>
+                  {hasPricing && (
+                    <Typography variant="body1" component="h3">
+                      Please note, these are estimates only. Contact the artist directly for the most up-to-date information.
+                    </Typography>
+                  )}
                   {vendor.bridal_hair_makeup_price && (
                     <Box sx={{
                       display: 'flex',
@@ -340,50 +336,77 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   )}
                 </Paper>
               </Box>
-            </Grid>
-
-            {/* Right Column - Contact Card */}
-            {vendor.email && (
-              <Grid size={{ xs: 12, md: 4 }}>
-                <StickyCard elevation={0} >
-                  <CardContent sx={{ p: 4 }}>
-                    <Typography variant="h5" component="h2" sx={{
-                      mb: 3,
-                      textAlign: 'center'
-                    }}>
-                      Get in Touch
-                    </Typography>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      fullWidth
-                      startIcon={<Mail />}
-                      sx={{ mb: 3 }}
-                      href={`mailto:${vendor.email}`}
-                    >
-                      Contact Vendor
-                    </Button>
-                  </CardContent>
-                </StickyCard>
-              </Grid>
-            )}
-            {/* Bottom - Testimonials */}
-            {vendor.testimonials && vendor.testimonials[0] && (
-              <Grid>
-                <Paper elevation={0} sx={{ p: 4, }}>
+              {/* Testimonials */}
+              {vendor.testimonials && vendor.testimonials[0] && (
+                // <Grid>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
                   <Typography variant="h5" component="h2">
                     Testimonials
                   </Typography>
-                  <br />
-                  <Typography variant="body1" component="h3">
-                    {vendor.testimonials[0].review}
+                  <Paper elevation={0} sx={{ p: 4, }}>
+                    <Typography variant="body1" component="h3">
+                      {vendor.testimonials[0].review}
+                    </Typography>
+                    {(vendor.testimonials[0].author) &&
+                      (<Typography variant="body1" component="h3" textAlign="right">
+                        - {vendor.testimonials[0].author}
+                      </Typography>)
+                    }
+                  </Paper>
+                </Box>
+                // </Grid>
+              )}
+            </Grid>
+
+            {/* Image & Contact Card */}
+            <Grid size={{ xs: 8, md: 4 }}>
+              {vendor.cover_image && (
+                <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+                  {/* Vendor Image */}
+                  <Box
+                    component="img"
+                    src={vendor.cover_image}
+                    alt={vendor.business_name ?? ''}
+                    sx={{
+                      display: 'block',
+                      width: '100%',
+                      height: 400,
+                      objectFit: 'cover', // Ensures it doesn't stretch
+                    }}
+                  />
+                </Card>
+              )}
+              {/* Right Column - Contact Card */}
+              <StickyCard elevation={0} >
+                <CardContent >
+                  <Typography variant="h5" component="h2" sx={{
+                    mt: 2,
+                    mb: 2,
+                    textAlign: 'center'
+                  }}>
+                    Love their work?
                   </Typography>
-                  <Typography variant="body1" component="h3" textAlign="right">
-                    - {vendor.testimonials[0].author}
-                  </Typography>
-                </Paper>
-              </Grid>
-            )}
+                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
+                    {vendor.email && (
+                      <Button
+                        variant="contained"
+                        startIcon={<Mail />}
+                        sx={{ borderRadius: 6, paddingY: 1 }}
+                        href={`mailto:${vendor.email}`}
+                      >
+                        Get a quote
+                      </Button>
+                    )}
+                    {/* Favorite Button */}
+                    <FavoriteButton
+                      vendorId={vendor.id}
+                      initialIsFavorited={isFavorite}
+                      sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid' }}
+                    />
+                  </Box>
+                </CardContent>
+              </StickyCard>
+            </Grid>
           </Grid>
           {nearbyVendors && nearbyVendors.length > 0 && (
             <Box>
