@@ -42,3 +42,10 @@ next-env.d.ts
 
 # graphql generated files
 **/src/lib/generated/
+
+# Supabase
+supabase/.temp/
+supabase/logs/
+supabase/.branches/
+supabase/.env
+supabase/volumes/
