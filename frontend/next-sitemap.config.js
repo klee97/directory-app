@@ -24,7 +24,7 @@ async function getLocationSlugs() {
 export default {
   siteUrl: 'https://www.asianweddingmakeup.com',
   generateRobotsTxt: true,
-  sitemapSize: 200,
+  sitemapSize: 500,
   changefreq: 'monthly',
   priority: 0.8,
   exclude: [
