@@ -92,7 +92,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
-        <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Container maxWidth="lg" sx={{ pb: 8, pt: 2 }}>
           <Grid container rowSpacing={4} columnSpacing={8}>
             {/* Image & Contact Card */}
             {vendor.cover_image && (

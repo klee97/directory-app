@@ -10,7 +10,8 @@ import { VendorSpecialty } from '@/types/tag';
 import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
 import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { getLocationString } from '@/lib/location/displayLocation';
-
+import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
+import Container from '@mui/material/Container';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -66,7 +67,7 @@ export default async function VendorPage({ params }: PageProps) {
 
   // Get nearby vendors using your existing function
   let nearbyVendors: Vendor[] = [];
-  
+
   if (vendor.latitude && vendor.longitude) {
     const allNearbyVendors = await getVendorsByDistanceWithFallback(
       vendor.latitude,
@@ -74,10 +75,16 @@ export default async function VendorPage({ params }: PageProps) {
       SEARCH_RADIUS_MILES_DEFAULT,
       10  // Get more results to filter from
     );
-    
+
     // Filter out the current vendor and limit results
     nearbyVendors = allNearbyVendors
       .filter(v => v.id !== vendor.id);
+  }
+
+  const address = {
+    city: vendor.city,
+    state: vendor.state,
+    country: vendor.country,
   }
 
   // Define JSON-LD schema for the vendor
@@ -109,8 +116,11 @@ export default async function VendorPage({ params }: PageProps) {
       </section>
       <Suspense fallback={<div>Loading...</div>}>
         <BackButton />
+        <Container sx={{ pt: 4 }}>
+          <LocationBreadcrumbs address={address} />
+        </Container>
       </Suspense>
-      <VendorDetails vendor={vendor} nearbyVendors={nearbyVendors}/>
+      <VendorDetails vendor={vendor} nearbyVendors={nearbyVendors} />
     </>
   );
 }
