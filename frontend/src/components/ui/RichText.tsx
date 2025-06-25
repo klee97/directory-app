@@ -189,7 +189,7 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
     },
     renderNode: {
       [BLOCKS.PARAGRAPH]: (_node: Block | Inline, children: React.ReactNode) => {
-        return <Typography variant='body1' gutterBottom>{children}</Typography>;
+        return <Typography variant='body1' sx={{ py: 2 }}>{children}</Typography>;
       },
 
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
