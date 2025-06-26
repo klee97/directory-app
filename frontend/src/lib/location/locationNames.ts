@@ -17,14 +17,3 @@ export function getDisplayName(
     return [cityName, stateName, countryName].filter(Boolean).join(", ");
   }
 }
-
-/**
- * Generate slug for location page
- */
-export function generateLocationSlug(city: string, state: string, country: string): string {
-  const cleanCity = city.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const cleanState = state.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const cleanCountry = country.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
-  return `${cleanCity}-${cleanState}-${cleanCountry}`;
-}
