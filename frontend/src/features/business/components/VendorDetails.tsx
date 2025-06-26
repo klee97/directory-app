@@ -29,9 +29,7 @@ import { getLocationString } from '@/lib/location/displayLocation';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
-  position: 'sticky',
   top: theme.spacing(2),
-  boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
 }));
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
@@ -78,18 +76,18 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWide, setIsWide] = useState(window.innerWidth > theme.breakpoints.values.sm);
+  const [isWide, setIsWide] = useState(window.innerWidth > theme.breakpoints.values.md);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
 
   useEffect(() => {
     const handleResize = () => {
-      setIsWide(window.innerWidth > theme.breakpoints.values.sm);
+      setIsWide(window.innerWidth > theme.breakpoints.values.md);
     };
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [theme.breakpoints.values.sm]);
+  }, [theme.breakpoints.values.md]);
 
   const resolvedLocation = vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region;
 
@@ -151,9 +149,9 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg" sx={{ py: 8 }}>
           {/* Main Content */}
-          <Grid container flexDirection={{ xs: 'column-reverse', sm: 'row' }} spacing={4} sx={{ mt: 4 }}>
+          <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={4} sx={{ mt: 4 }}>
             {/* Left Column - Details */}
-            <Grid size={{ xs: 12, sm: 6, md: 8 }}>
+            <Grid size={{ xs: 12, md: 8 }}>
               {/* Vendor Info */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif' }}>
@@ -409,9 +407,9 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               )}
             </Grid>
             {/* Image & Contact Card */}
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} >
+            <Grid size={{ xs: 12, md: 4 }} >
               {vendor.cover_image && (
-                <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+                <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
                   <Box
                     component="img"
