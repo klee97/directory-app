@@ -154,7 +154,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
             <Grid size={{ xs: 12, md: 8 }}>
               {/* Vendor Info */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h2" component="h1" sx={{ fontFamily: 'serif' }}>
+                <Typography variant="h2" component="h1" >
                   {vendor.business_name}
                 </Typography>
               </Box>
