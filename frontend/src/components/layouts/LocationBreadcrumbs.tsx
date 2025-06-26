@@ -12,8 +12,8 @@ export async function LocationBreadcrumbs({ address }: { address: { city: string
         <Box key={crumb.href} sx={{ display: 'flex', alignItems: 'center' }}>
           <Link component={NextLink}
             href={crumb.href}
-            variant="body2"
-            color="primary"
+            variant="body1"
+            color="secondary"
             underline="hover"
           >
             {crumb.label}
