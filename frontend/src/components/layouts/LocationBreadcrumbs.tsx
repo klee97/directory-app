@@ -2,7 +2,7 @@ import NextLink from 'next/link';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { generateBreadcrumbSlugs } from '@/lib/location/locationNames';
+import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
 
 export async function LocationBreadcrumbs({ address }: { address: { city: string | null; state: string | null; country: string | null } }) {
   const crumbs: { label: string; href: string }[] = await generateBreadcrumbSlugs(address)
