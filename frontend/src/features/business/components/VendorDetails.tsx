@@ -15,6 +15,7 @@ import Grid from '@mui/system/Grid';
 import Public from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
 import Mail from '@mui/icons-material/Mail';
+import Send from '@mui/icons-material/Send';
 import Link from '@mui/icons-material/Link';
 import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
@@ -33,6 +34,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
 }));
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
+  const contactText = "Get a quote"
   return (<StickyCard elevation={0} >
     <CardContent >
       <Typography variant="h5" component="h2" sx={{
@@ -50,7 +52,19 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
             sx={{ borderRadius: 6, paddingY: 1 }}
             href={`mailto:${vendor.email}`}
           >
-            Get a quote
+            {contactText}
+          </Button>
+        )}
+        {!vendor.email && vendor.instagram && (
+          <Button
+            variant="contained"
+            startIcon={<Send />}
+            sx={{ borderRadius: 6, paddingY: 1 }}
+            href={`https://ig.me/m/${vendor.instagram}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {contactText}
           </Button>
         )}
         {/* Favorite Button */}
@@ -89,7 +103,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, [theme.breakpoints.values.md]);
 
-  const resolvedLocation = vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region;
+  const resolvedLocation = getLocationString(vendor);
 
   const resolvedLowestPrice = Math.min(
     vendor.bridal_hair_makeup_price ?? Infinity,
@@ -147,9 +161,9 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
-        <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Container maxWidth="lg">
           {/* Main Content */}
-          <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={4} sx={{ mt: 4 }}>
+          <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
             {/* Left Column - Details */}
             <Grid size={{ xs: 12, md: 8 }}>
               {/* Vendor Info */}
@@ -220,7 +234,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   )}
                   {vendor.instagram && (
                     <Button
-                      href={vendor.instagram}
+                      href={`https://instagram.com/${vendor.instagram}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       startIcon={<Instagram />}
@@ -387,23 +401,24 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               </Box>
               {/* Testimonials */}
               {vendor.testimonials && vendor.testimonials[0] && (
-                // <Grid>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
-                  <Typography variant="h5" component="h2">
-                    Testimonials
-                  </Typography>
-                  <Paper elevation={0} sx={{ p: 4, }}>
-                    <Typography variant="body1" component="h3">
-                      {vendor.testimonials[0].review}
+                <>
+                  <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+                    <Typography variant="h5" component="h2">
+                      Testimonials
                     </Typography>
-                    {(vendor.testimonials[0].author) &&
-                      (<Typography variant="body1" component="h3" textAlign="right">
-                        - {vendor.testimonials[0].author}
-                      </Typography>)
-                    }
-                  </Paper>
-                </Box>
-                // </Grid>
+                    <Paper elevation={0} sx={{ p: 4, }}>
+                      <Typography variant="body1" component="h3">
+                        {vendor.testimonials[0].review}
+                      </Typography>
+                      {(vendor.testimonials[0].author) &&
+                        (<Typography variant="body1" component="h3" textAlign="right">
+                          - {vendor.testimonials[0].author}
+                        </Typography>)
+                      }
+                    </Paper>
+                  </Box>
+                </>
               )}
             </Grid>
             {/* Image & Contact Card */}
