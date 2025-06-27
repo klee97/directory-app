@@ -116,7 +116,7 @@ export default async function VendorPage({ params }: PageProps) {
       </section>
       <Suspense fallback={<div>Loading...</div>}>
         <BackButton />
-        <Container sx={{ pt: 4 }}>
+        <Container sx={{ py: 4 }}>
           <LocationBreadcrumbs address={address} />
         </Container>
       </Suspense>

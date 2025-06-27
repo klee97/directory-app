@@ -73,7 +73,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     business_name: vendor.business_name,
     email: vendor.email,
     website: vendor.website,
-    instagram: `https://instagram.com/${(vendor.ig_handle ?? '').replace('@', '')}`,
+    instagram: (vendor.ig_handle ?? '').replace('@', ''),
     google_maps_place: vendor.google_maps_place,
     latitude: coordinates?.latitude ?? null,
     longitude: coordinates?.longitude ?? null,
