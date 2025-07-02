@@ -129,7 +129,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           event: 'profile_view_duration',
           vendorSlug: vendor.slug,
           duration: durationSeconds,
-          hasTestimonials: vendor.testimonials && vendor.testimonials.length > 0,
+          testimonialCount: vendor.testimonials.length,
           photoCount: vendor.cover_image ? 1 : 0,
         });
       }
