@@ -129,6 +129,8 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           event: 'profile_view_duration',
           vendorSlug: vendor.slug,
           duration: durationSeconds,
+          testimonialCount: vendor.testimonials.length,
+          photoCount: vendor.cover_image ? 1 : 0,
         });
       }
     };
