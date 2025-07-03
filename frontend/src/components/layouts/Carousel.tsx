@@ -103,7 +103,10 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
           {/* Arrows */}
           {!!showLeftFade && (
             <IconButton
-              onClick={() => scroll('left')}
+              onClick={e => {
+                e.stopPropagation();
+                scroll('left');
+              }}
               sx={{
                 position: 'absolute',
                 top: '50%',
@@ -121,7 +124,10 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
           )}
           {!!showRightFade && (
             <IconButton
-              onClick={() => scroll('right')}
+              onClick={e => {
+                e.stopPropagation();
+                scroll('right');
+              }}
               sx={{
                 position: 'absolute',
                 top: '50%',
