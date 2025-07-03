@@ -17,6 +17,7 @@ import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
 import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
+import { Carousel } from '@/components/layouts/Carousel';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -48,6 +49,7 @@ export const VendorCard = ({
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
 }) => {
+  const isPremiumVendor = positionIndex % 2 == 0; // Placeholder for premium vendor logic
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true, // Only fire once
@@ -103,18 +105,58 @@ export const VendorCard = ({
           data-position={positionIndex}
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
-            <CardMedia
-              component="img"
-              src={vendor.cover_image ?? placeholderImage.src}
-              alt={`${vendor.business_name} preview`}
-              sx={{
-                height: variant === 'compact' ? 180 : 300,
-                width: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                zIndex: 1
-              }}
-            />
+            {isPremiumVendor && (<Carousel isCompact={true}>
+              <CardMedia
+                component="img"
+                src={vendor.cover_image ?? placeholderImage.src}
+                alt={`${vendor.business_name} preview`}
+                sx={{
+                  height: variant === 'compact' ? 180 : 300,
+                  width: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  zIndex: 1
+                }}
+              />
+              <CardMedia
+                component="img"
+                src={vendor.cover_image ?? placeholderImage.src}
+                alt={`${vendor.business_name} preview`}
+                sx={{
+                  height: variant === 'compact' ? 180 : 300,
+                  width: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  zIndex: 1
+                }}
+              />
+              <CardMedia
+                component="img"
+                src={vendor.cover_image ?? placeholderImage.src}
+                alt={`${vendor.business_name} preview`}
+                sx={{
+                  height: variant === 'compact' ? 180 : 300,
+                  width: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  zIndex: 1
+                }}
+              />
+            </Carousel>)}
+            {!isPremiumVendor && (
+              <CardMedia
+                component="img"
+                src={vendor.cover_image ?? placeholderImage.src}
+                alt={`${vendor.business_name} preview`}
+                sx={{
+                  height: variant === 'compact' ? 180 : 300,
+                  width: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  zIndex: 1
+                }}
+              />
+            )}
             {/* Price Container */}
             <Box
               sx={{
@@ -125,6 +167,7 @@ export const VendorCard = ({
                 flexDirection: 'column',
                 gap: 1, // Adjust spacing between chips
                 alignItems: 'flex-end',
+                zIndex: 2,
               }}
             >
               {vendor.bridal_hair_price && (
@@ -217,6 +260,7 @@ export const VendorCard = ({
             position: 'absolute',
             top: 8,
             right: 8,
+            zIndex: 2,
           }}>
             <FavoriteButton
               vendorId={vendor.id}

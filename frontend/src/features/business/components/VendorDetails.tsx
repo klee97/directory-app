@@ -27,6 +27,7 @@ import { VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
+import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -134,7 +135,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
         });
       }
     };
-  }, [vendor.slug]);
+  }, [vendor.cover_image, vendor.slug, vendor.testimonials.length]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -160,10 +161,17 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     };
   }, [vendor.id, supabase.auth]);
 
+  const photo = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jen_lim_cover_photo.jpg'
+  const isPremiumVendor = true;
+
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg">
+          {isPremiumVendor && (<PhotoCarousel
+            photos={[photo, photo, photo, photo, photo, photo, photo]}
+          />
+          )}
           {/* Main Content */}
           <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
             {/* Left Column - Details */}
@@ -425,7 +433,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
             </Grid>
             {/* Image & Contact Card */}
             <Grid size={{ xs: 12, md: 4 }} >
-              {vendor.cover_image && (
+              {!isPremiumVendor && vendor.cover_image && (
                 <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
                   <Box
