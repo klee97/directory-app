@@ -1,7 +1,6 @@
 import type { Database } from "@/types/supabase";
 import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 
-
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/';
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   & {
@@ -11,12 +10,14 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
     vendor_testimonials: BackendVendorTestimonial[] | null
     tags: BackendVendorTag[] | null
     distance_miles?: number | null // Optional distance in miles for sorting
+    vendor_media: BackendVendorMedia[] | null // Array of image URLs for the vendor
   };
 ;
 
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 export type BackendVendorTestimonial = Database['public']['Tables']['vendor_testimonials']['Row']
+export type BackendVendorMedia = Database['public']['Tables']['vendor_media']['Row'];
 export type VendorId = string;
 
 export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
@@ -30,6 +31,10 @@ export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'is_visible'
   | 'style'
   | 'name'
+>
+
+export type VendorMedia = Pick<BackendVendorMedia, 'id'
+  | 'media_url'
 >
 
 export type Vendor = Pick<BackendVendor, 'id'
@@ -49,6 +54,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'bridesmaid_makeup_price'
   | 'gis'
   | 'google_maps_place'
+  | 'profile_image'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
@@ -62,14 +68,23 @@ export type Vendor = Pick<BackendVendor, 'id'
   'tags': VendorTag[],
   'latitude': number | null,
   'longitude': number | null,
+  'images': string[],
+  'is_premium': boolean,
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   const coordinates = parseCoordinates(vendor.location_coordinates);
+  const images = vendor.vendor_media
+    ?.map((image) =>
+      image.media_url.startsWith(IMAGE_PREFIX) ? image.media_url : null
+    ).filter(url => url !== null);
+
+  const isPremiumVendor = vendor.vendor_type === 'PREMIUM';
 
   return {
     id: vendor.id,
+    is_premium: isPremiumVendor,
     business_name: vendor.business_name,
     email: vendor.email,
     website: vendor.website,
@@ -83,7 +98,6 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     country: vendor.country,
     travels_world_wide: vendor.travels_world_wide,
     slug: vendor.slug,
-    cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
     bridal_hair_makeup_price: vendor['bridal_hair_&_makeup_price'],
     bridal_hair_price: vendor.bridal_hair_price,
     bridal_makeup_price: vendor.bridal_makeup_price,
@@ -97,8 +111,11 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     testimonials: vendor.vendor_testimonials ?? [],
     tags: vendor.tags ?? [],
     distance_miles: vendor.distance_miles ?? null,
-  };
-}
+    images: images ?? [],
+    profile_image: vendor.profile_image && vendor.profile_image.startsWith(IMAGE_PREFIX) ? vendor.profile_image : null,
+    cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
+  }
+};
 
 export type VendorByDistance = Vendor & {
   distance_miles?: number | null

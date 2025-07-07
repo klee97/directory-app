@@ -49,7 +49,7 @@ export const VendorCard = ({
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
 }) => {
-  const isPremiumVendor = positionIndex % 2 == 0; // Placeholder for premium vendor logic
+  const isPremiumVendor = vendor.is_premium
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true, // Only fire once
@@ -106,43 +106,23 @@ export const VendorCard = ({
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
             {isPremiumVendor && (<Carousel isCompact={true}>
-              <CardMedia
-                component="img"
-                src={vendor.cover_image ?? placeholderImage.src}
-                alt={`${vendor.business_name} preview`}
-                sx={{
-                  height: variant === 'compact' ? 180 : 300,
-                  width: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  zIndex: 1
-                }}
-              />
-              <CardMedia
-                component="img"
-                src={vendor.cover_image ?? placeholderImage.src}
-                alt={`${vendor.business_name} preview`}
-                sx={{
-                  height: variant === 'compact' ? 180 : 300,
-                  width: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  zIndex: 1
-                }}
-              />
-              <CardMedia
-                component="img"
-                src={vendor.cover_image ?? placeholderImage.src}
-                alt={`${vendor.business_name} preview`}
-                sx={{
-                  height: variant === 'compact' ? 180 : 300,
-                  width: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  zIndex: 1
-                }}
-              />
-            </Carousel>)}
+              {vendor.images.length > 0 && vendor.images.map((image, index) => (
+                <CardMedia
+                  key={index}
+                  component="img"
+                  src={image ?? placeholderImage.src}
+                  alt={`${vendor.business_name} preview`}
+                  sx={{
+                    height: variant === 'compact' ? 180 : 300,
+                    width: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                    zIndex: 1
+                  }}
+                />
+              ))}
+            </Carousel>
+            )}
             {!isPremiumVendor && (
               <CardMedia
                 component="img"

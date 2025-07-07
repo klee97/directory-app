@@ -161,15 +161,14 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     };
   }, [vendor.id, supabase.auth]);
 
-  const photo = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jen_lim_cover_photo.jpg'
-  const isPremiumVendor = true;
+  const isPremiumVendor = vendor.is_premium;
 
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg">
-          {isPremiumVendor && (<PhotoCarousel
-            photos={[photo, photo, photo, photo, photo, photo, photo]}
+          {isPremiumVendor && vendor.images.length > 0 && (<PhotoCarousel
+            photos={vendor.images}
           />
           )}
           {/* Main Content */}
