@@ -6,7 +6,7 @@ import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
-import { VendorSpecialty } from '@/types/tag';
+import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
 import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
 import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { getLocationString } from '@/lib/location/displayLocation';
@@ -27,8 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const isHairStylist = vendor.specialties?.has(VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getLocationString(vendor);
-  const title = `${vendor.business_name} - Wedding ${Array.from(vendor.specialties).join(' & ')} Artist for Asian Brides
-        ${locationString && ` in ${locationString}`}`;
+  const title = `${vendor.business_name} - Wedding ${
+    Array.from(vendor.specialties)
+    .map((specialty) => VendorSpecialtyDisplayNames[specialty])
+    .join(' & ')
+  } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
   return {
     title: title,
     description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
