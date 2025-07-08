@@ -95,6 +95,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
+  const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
 
   useEffect(() => {
     const handleResize = () => {
@@ -219,51 +220,76 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               </Box>
               <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
               {/* About & Links Section */}
-              <Box>
-                <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-                  About
-                </Typography>
-                <Typography variant="body1" component="p" sx={{ mb: 2 }}>
-                  {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
-                  specializing in Asian features. They are based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {vendor.website && (
-                    <Button
-                      href={vendor.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Link />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Website
-                    </Button>
-                  )}
-                  {vendor.instagram && (
-                    <Button
-                      href={`https://instagram.com/${vendor.instagram}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Instagram />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Instagram
-                    </Button>
-                  )}
-                  {vendor.google_maps_place && (
-                    <Button
-                      href={vendor.google_maps_place}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Place />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Google Maps
-                    </Button>
-                  )}
+              <Box flexDirection={{ xs: 'column', sm: 'row' }} display='flex' gap={4}>
+                {/* Profile Image */}
+                {showProfileImage && (
+                  <Card elevation={0}
+                    sx={{
+                      // center the image in the card
+                      display: 'flex',
+                      justifyContent: 'center',
+                      borderRadius: 2, overflow: 'hidden', minWidth: 200, marginX: 'auto'
+                    }}>
+                    {/* Vendor Image */}
+                    <Box
+                      component="img"
+                      src={vendor.profile_image ?? ''}
+                      alt={vendor.business_name ?? ''}
+                      maxHeight={{ xs: 400, sm: 300 }}
+                      sx={{
+                        display: 'block',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </Card>
+                )}
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+                    About
+                  </Typography>
+                  {/* Description */}
+                  <Typography variant="body1" component="p" sx={{ mb: 2 }}>
+                    {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
+                    specializing in Asian features. They are based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {vendor.website && (
+                      <Button
+                        href={vendor.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Link />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Website
+                      </Button>
+                    )}
+                    {vendor.instagram && (
+                      <Button
+                        href={`https://instagram.com/${vendor.instagram}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Instagram />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Instagram
+                      </Button>
+                    )}
+                    {vendor.google_maps_place && (
+                      <Button
+                        href={vendor.google_maps_place}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Place />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Google Maps
+                      </Button>
+                    )}
+                  </Box>
                 </Box>
               </Box>
               {/* Contact Card */}
