@@ -49,7 +49,6 @@ export const VendorCard = ({
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
 }) => {
-  const isPremiumVendor = vendor.is_premium
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true, // Only fire once
@@ -70,6 +69,7 @@ export const VendorCard = ({
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
+  const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
 
   return (
     <>
@@ -105,25 +105,26 @@ export const VendorCard = ({
           data-position={positionIndex}
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
-            {isPremiumVendor && (<Carousel isCompact={true}>
-              {vendor.images.length > 0 && vendor.images.map((image, index) => (
-                <CardMedia
-                  key={index}
-                  component="img"
-                  src={image ?? placeholderImage.src}
-                  alt={`${vendor.business_name} preview`}
-                  sx={{
-                    height: variant === 'compact' ? 180 : 300,
-                    width: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center',
-                    zIndex: 1
-                  }}
-                />
-              ))}
-            </Carousel>
+            {showImageCarousel && (
+              <Carousel isCompact={true}>
+                {vendor.images.map((image, index) => (
+                  <CardMedia
+                    key={index}
+                    component="img"
+                    src={image}
+                    alt={`${vendor.business_name} preview`}
+                    sx={{
+                      height: variant === 'compact' ? 180 : 300,
+                      width: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      zIndex: 1
+                    }}
+                  />
+                ))}
+              </Carousel>
             )}
-            {!isPremiumVendor && (
+            {!showImageCarousel && (
               <CardMedia
                 component="img"
                 src={vendor.cover_image ?? placeholderImage.src}

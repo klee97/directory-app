@@ -94,6 +94,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const [isWide, setIsWide] = useState(window.innerWidth > theme.breakpoints.values.md);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
+  const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
 
   useEffect(() => {
     const handleResize = () => {
@@ -161,13 +162,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     };
   }, [vendor.id, supabase.auth]);
 
-  const isPremiumVendor = vendor.is_premium;
-
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg">
-          {isPremiumVendor && vendor.images.length > 0 && (<PhotoCarousel
+          {showImageCarousel && (<PhotoCarousel
             photos={vendor.images}
           />
           )}
@@ -432,7 +431,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
             </Grid>
             {/* Image & Contact Card */}
             <Grid size={{ xs: 12, md: 4 }} >
-              {!isPremiumVendor && vendor.cover_image && (
+              {!showImageCarousel && vendor.cover_image && (
                 <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
                   <Box
