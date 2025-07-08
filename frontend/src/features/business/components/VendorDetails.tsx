@@ -31,7 +31,10 @@ import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
-  top: theme.spacing(2),
+  [theme.breakpoints.up('md')]: {
+    position: 'sticky',
+    top: theme.spacing(2),
+  },
 }));
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
