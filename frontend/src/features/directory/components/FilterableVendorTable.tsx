@@ -16,7 +16,7 @@ import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
