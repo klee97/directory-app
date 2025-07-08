@@ -60,7 +60,7 @@ const FeedbackPopup = () => {
           sx={{
             position: 'absolute',
             top: 8,
-            right: 8,
+            right: 16,
           }}
         >
           <CloseIcon />
@@ -103,14 +103,13 @@ const FeedbackPopup = () => {
           onChange={(e) => setComment(e.target.value)}
         />
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ marginBottom: 1 }}>
         <Button onClick={handleClose} color="primary">
           Close
         </Button>
-        <Button onClick={handleSubmit} color="primary" variant="contained">
+        <Button onClick={handleSubmit} color="primary" variant="contained" sx={{ marginRight: 2 }} disabled={!rating || !comment.trim()}>
           Submit
         </Button>
-
       </DialogActions>
     </Dialog>
   );
