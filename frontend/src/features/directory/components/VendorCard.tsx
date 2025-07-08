@@ -96,7 +96,10 @@ export const VendorCard = ({
       >
         <Link
           key={vendor.slug}
-          href={`/vendors/${vendor.slug}?${searchParams}`}
+          href={searchParams
+            ? `/vendors/${vendor.slug}?${searchParams}`
+            : `/vendors/${vendor.slug}`
+          }
           passHref
           style={{ textDecoration: 'none', color: 'inherit' }}
           data-has-photo={!!vendor.cover_image}
