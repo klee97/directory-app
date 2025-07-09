@@ -99,6 +99,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
+  const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
 
   useEffect(() => {
     const handleResize = () => {
@@ -136,11 +137,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           vendorSlug: vendor.slug,
           duration: durationSeconds,
           testimonialCount: vendor.testimonials.length,
-          photoCount: vendor.cover_image ? 1 : 0,
+          photoCount: resolvedImageCount,
         });
       }
     };
-  }, [vendor.cover_image, vendor.slug, vendor.testimonials.length]);
+  }, [resolvedImageCount, vendor.cover_image, vendor.slug, vendor.testimonials.length]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
