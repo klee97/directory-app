@@ -27,11 +27,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const isHairStylist = vendor.specialties?.has(VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getLocationString(vendor);
-  const title = `${vendor.business_name} - Wedding ${
-    Array.from(vendor.specialties)
-    .map((specialty) => VendorSpecialtyDisplayNames[specialty])
-    .join(' & ')
-  } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
+  const title = `${vendor.business_name} - Wedding ${Array.from(vendor.specialties)
+      .map((specialty) => VendorSpecialtyDisplayNames[specialty])
+      .join(' & ')
+    } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
   return {
     title: title,
     description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.`,
@@ -50,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${vendor.business_name} - ${specialtyTitle} experienced with Asian features`,
+      title: title,
       description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
       images: [vendor.cover_image || previewImage.src],
     },
@@ -93,7 +92,9 @@ export default async function VendorPage({ params }: PageProps) {
   // Define JSON-LD schema for the vendor
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Service",  // For a wedding vendor, "Service" may be appropriate
+    "@type": "LocalBusiness",
+    "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+    "additionalType": "https://schema.org/BeautySalon",
     "name": vendor.business_name,
     "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
     "image": vendor.cover_image,

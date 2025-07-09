@@ -6,8 +6,9 @@ import { getCachedVendors } from '@/features/directory/api/fetchVendors';
 import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 
 export const metadata: Metadata = {
+  title: 'Asian Wedding Makeup | The Best Artists for Asian Features in NYC, Toronto & More',
   openGraph: {
-    title: 'Asian Wedding Makeup - Find trusted makeup artists in NYC, LA & beyond',
+    title: 'Asian Wedding Makeup | The Best Artists for Asian Features in NYC, Toronto & More',
     description: 'Discover wedding makeup artists experienced with Asian features · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.',
     url: 'https://www.asianweddingmakeup.com',
     type: 'website',
@@ -36,7 +37,9 @@ export default async function Home() {
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "MakeupArtist",
+        "@type": "Local Business",
+        "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        "additionalType": "https://schema.org/BeautySalon",
         "name": vendor.business_name,
         "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
         "image": vendor.cover_image,
@@ -72,7 +75,6 @@ export default async function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </section>
-      <title>Asian Wedding Makeup | The Best Artists for Asian Features</title>
       <Directory vendors={shuffledVendors} tags={uniqueTags} />
     </>
   );
