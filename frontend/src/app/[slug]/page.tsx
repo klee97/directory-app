@@ -72,7 +72,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "MakeupArtist",
+        "@type": "Local Business",
+        "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        "additionalType": "https://schema.org/BeautySalon",
         "name": vendor.business_name,
         "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
         "image": vendor.cover_image,
@@ -95,7 +97,6 @@ export default async function LocationPage({ params }: LocationPageProps) {
     }))
   };
 
-
   return (
     <>
       <section>
@@ -104,7 +105,6 @@ export default async function LocationPage({ params }: LocationPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </section>
-      <title>{`Asian Wedding Makeup in ${location.display_name}| The Best Artists for Asian Features`}</title>
       <Directory vendors={vendors} tags={uniqueTags} selectedLocation={location} />
     </>
   );
@@ -120,12 +120,13 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
       title: 'Location Not Found'
     };
   }
+  const title = `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features`;
 
   return {
-    title: `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features in ${location.display_name}`,
+    title: title,
     description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
     openGraph: {
-      title: `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features in ${location.display_name}`,
+      title: title,
       description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
       url: `https://www.asianweddingmakeup.com/${slug}`,
       type: 'website',
