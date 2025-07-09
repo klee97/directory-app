@@ -37,7 +37,7 @@ export default async function Home() {
       "@type": "ListItem",
       "position": index + 1,
       "item": {
-        "@type": "Local Business",
+        "@type": "LocalBusiness",
         "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
         "additionalType": "https://schema.org/BeautySalon",
         "name": vendor.business_name,
