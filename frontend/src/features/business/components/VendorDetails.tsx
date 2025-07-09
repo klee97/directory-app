@@ -90,7 +90,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWide, setIsWide] = useState(window.innerWidth > theme.breakpoints.values.md);
+  const [isWide, setIsWide] = useState(false); // default safe for SSR
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
 
