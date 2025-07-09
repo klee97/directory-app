@@ -104,6 +104,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
           {!!showLeftFade && (
             <IconButton
               onClick={e => {
+                e.preventDefault();
                 e.stopPropagation();
                 scroll('left');
               }}
@@ -125,6 +126,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
           {!!showRightFade && (
             <IconButton
               onClick={e => {
+                e.preventDefault();
                 e.stopPropagation();
                 scroll('right');
               }}

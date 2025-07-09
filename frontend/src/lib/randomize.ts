@@ -8,8 +8,9 @@ export function getTodaySeed() {
 
 // Deterministic shuffle function
 export function shuffleWithSeed(array: Vendor[], seed: string) {
-  // Separate vendors with and without pictures
-  const withPictures = array.filter(vendor => vendor.cover_image);
+  // Separate vendors into different buckets
+  const premiumVendorsWithPictures = array.filter(vendor => vendor.is_premium && vendor.cover_image);
+  const withPictures = array.filter(vendor => !vendor.is_premium && vendor.cover_image);
   const withoutPictures = array.filter(vendor => !vendor.cover_image);
 
   let seedValue = hashString(seed);
@@ -25,12 +26,13 @@ export function shuffleWithSeed(array: Vendor[], seed: string) {
     return arrayCopy;
   };
 
-  // Shuffle both groups
+  // Shuffle all groups
+  const shuffledPremiumWithPictures = shuffleArray(premiumVendorsWithPictures);
   const shuffledWithPictures = shuffleArray(withPictures);
   const shuffledWithoutPictures = shuffleArray(withoutPictures);
 
   // Combine with pictures first
-  return [...shuffledWithPictures, ...shuffledWithoutPictures];
+  return [...shuffledPremiumWithPictures, ...shuffledWithPictures, ...shuffledWithoutPictures];
 }
 
 function hashString(str: string) {

@@ -236,7 +236,7 @@ export const VendorCard = ({
           </CardContent>
         </Link>
         {/* Favorite Button */}
-        {(process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && showFavoriteButton) && (
+        {showFavoriteButton && (
           <Box sx={{
             position: 'absolute',
             top: 8,
