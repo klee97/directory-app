@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/api-client';
+import { isDevelopment } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 import { unstable_cache } from 'next/cache';
 
@@ -23,6 +24,6 @@ export async function fetchAllVendors() {
   }
 }
 
-export const getCachedVendors = unstable_cache(fetchAllVendors, ["all-vendors"], {
-  revalidate: 86400,
-});
+export const getCachedVendors = isDevelopment()
+  ? fetchAllVendors
+  : unstable_cache(fetchAllVendors, ["all-vendors"], { revalidate: 86400 });
