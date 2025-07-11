@@ -1,6 +1,5 @@
 import { Block, BLOCKS, Inline, MARKS } from '@contentful/rich-text-types'
 import { documentToReactComponents, Options } from '@contentful/rich-text-react-renderer'
-import Link from 'next/link'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
