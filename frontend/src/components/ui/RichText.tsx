@@ -1,6 +1,5 @@
 import { Block, BLOCKS, Inline, MARKS } from '@contentful/rich-text-types'
 import { documentToReactComponents, Options } from '@contentful/rich-text-react-renderer'
-import Link from 'next/link'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
@@ -50,18 +49,15 @@ export function renderCaption(description: string) {
   // Check if the description contains source information
   if (description.includes('Source:')) {
     const [mainText, sourceInfo] = description.split('Source:');
-    const sourceUrl = sourceInfo?.includes('www.') ?
-      `https://${sourceInfo.trim().match(/www\.[^\s]+/)?.[0]}` :
-      '#';
+    const urlMatch = sourceInfo?.trim().match(/(?:https?:\/\/)?([^\s]+)/);
+    const sourceUrl = urlMatch ? `https://${urlMatch[1]}` : '#';
 
     return (
       <>
         {mainText}
-        <Link
-          href={sourceUrl}
-        >
+        <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
           Source
-        </Link>
+        </a>
       </>
     );
   }
@@ -226,10 +222,10 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
 
     for (let i = 0; i < blocks.length; i++) {
       const block = blocks[i];
-      
+
       if (isImageBlock(block)) {
         currentImageGroup.push(block);
-        
+
         // If this is the last block or next block is not an image, render the group
         if (i === blocks.length - 1 || !isImageBlock(blocks[i + 1])) {
           if (currentImageGroup.length > 1) {
