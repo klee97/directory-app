@@ -1,4 +1,4 @@
-import { Block, BLOCKS, Inline, MARKS } from '@contentful/rich-text-types'
+import { Block, BLOCKS, Inline, INLINES, MARKS } from '@contentful/rich-text-types'
 import { documentToReactComponents, Options } from '@contentful/rich-text-react-renderer'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import Box from '@mui/material/Box'
@@ -208,6 +208,15 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
 
       [BLOCKS.EMBEDDED_ASSET]: (node: Block | Inline) => {
         return renderImage(node);
+      },
+
+      [INLINES.HYPERLINK]: (node, children) => {
+        const url = node.data.uri;
+        return (
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            {children}
+          </a>
+        );
       }
     }
   };
