@@ -1,7 +1,6 @@
 import { Carousel } from './Carousel';
 import CardMedia from '@mui/material/CardMedia';
 import Box from '@mui/material/Box';
-// import { CardMedia } from '@mui/material';
 
 export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
   return (

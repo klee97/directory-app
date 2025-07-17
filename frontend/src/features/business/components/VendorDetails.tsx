@@ -94,12 +94,13 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWide, setIsWide] = useState(window.innerWidth > theme.breakpoints.values.md);
+  const [isWide, setIsWide] = useState(false);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,6 +108,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     };
 
     window.addEventListener('resize', handleResize);
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, [theme.breakpoints.values.md]);
 

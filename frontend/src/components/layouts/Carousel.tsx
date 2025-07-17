@@ -25,15 +25,20 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
     if (!el) return;
 
     const updateFade = () => {
+      console.log('scrollLeft:', el.scrollLeft, 'scrollWidth:', el.scrollWidth, 'clientWidth:', el.clientWidth);
       const { scrollLeft, scrollWidth, clientWidth } = el;
       setShowLeftFade(scrollLeft > 50);
       setShowRightFade(scrollLeft < scrollWidth - clientWidth - 1);
     };
 
     el.addEventListener('scroll', updateFade);
+    window.addEventListener('resize', updateFade);
     updateFade();
 
-    return () => el.removeEventListener('scroll', updateFade);
+    return () => {
+      el.removeEventListener('scroll', updateFade);
+      window.removeEventListener('resize', updateFade);
+    };
   }, []);
 
   const scroll = (direction: 'left' | 'right') => {
