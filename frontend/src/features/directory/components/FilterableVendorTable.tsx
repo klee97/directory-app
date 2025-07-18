@@ -185,6 +185,7 @@ export function FilterableVendorTableContent({
     setPrevParams(currentParams);
   }, [
     prevParams,
+    searchParams,
     searchParamsString,
     searchQuery,
     selectedLocation?.display_name,

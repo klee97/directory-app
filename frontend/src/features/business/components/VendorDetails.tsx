@@ -27,10 +27,14 @@ import { VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
+import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
-  top: theme.spacing(2),
+  [theme.breakpoints.up('md')]: {
+    position: 'sticky',
+    top: theme.spacing(2),
+  },
 }));
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
@@ -90,9 +94,13 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWide, setIsWide] = useState(false); // default safe for SSR
+  const [isWide, setIsWide] = useState(false);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
+  const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
+  const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
+  const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -100,6 +108,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     };
 
     window.addEventListener('resize', handleResize);
+    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, [theme.breakpoints.values.md]);
 
@@ -130,11 +139,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           vendorSlug: vendor.slug,
           duration: durationSeconds,
           testimonialCount: vendor.testimonials.length,
-          photoCount: vendor.cover_image ? 1 : 0,
+          photoCount: resolvedImageCount,
         });
       }
     };
-  }, [vendor.slug]);
+  }, [resolvedImageCount, vendor.cover_image, vendor.slug, vendor.testimonials.length]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -164,6 +173,10 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
     <>
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg">
+          {showImageCarousel && (<PhotoCarousel
+            photos={vendor.images}
+          />
+          )}
           {/* Main Content */}
           <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
             {/* Left Column - Details */}
@@ -213,51 +226,76 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               </Box>
               <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
               {/* About & Links Section */}
-              <Box>
-                <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
-                  About
-                </Typography>
-                <Typography variant="body1" component="p" sx={{ mb: 2 }}>
-                  {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
-                  specializing in Asian features and based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  {vendor.website && (
-                    <Button
-                      href={vendor.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Link />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Website
-                    </Button>
-                  )}
-                  {vendor.instagram && (
-                    <Button
-                      href={`https://instagram.com/${vendor.instagram}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Instagram />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Instagram
-                    </Button>
-                  )}
-                  {vendor.google_maps_place && (
-                    <Button
-                      href={vendor.google_maps_place}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<Place />}
-                      sx={{ textTransform: 'none' }}
-                      color='secondary'
-                    >
-                      Google Maps
-                    </Button>
-                  )}
+              <Box flexDirection={{ xs: 'column', sm: 'row' }} display='flex' gap={4}>
+                {/* Profile Image */}
+                {showProfileImage && (
+                  <Card elevation={0}
+                    sx={{
+                      // center the image in the card
+                      display: 'flex',
+                      justifyContent: 'center',
+                      borderRadius: 2, overflow: 'hidden', minWidth: 200, marginX: 'auto'
+                    }}>
+                    {/* Vendor Image */}
+                    <Box
+                      component="img"
+                      src={vendor.profile_image ?? ''}
+                      alt={vendor.business_name ?? ''}
+                      maxHeight={{ xs: 400, sm: 300 }}
+                      sx={{
+                        display: 'block',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </Card>
+                )}
+                <Box sx={{ flexGrow: 1 }}>
+                  <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+                    About
+                  </Typography>
+                  {/* Description */}
+                  <Typography variant="body1" component="p" sx={{ mb: 2 }}>
+                    {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
+                    specializing in Asian features and based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {vendor.website && (
+                      <Button
+                        href={vendor.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Link />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Website
+                      </Button>
+                    )}
+                    {vendor.instagram && (
+                      <Button
+                        href={`https://instagram.com/${vendor.instagram}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Instagram />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Instagram
+                      </Button>
+                    )}
+                    {vendor.google_maps_place && (
+                      <Button
+                        href={vendor.google_maps_place}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        startIcon={<Place />}
+                        sx={{ textTransform: 'none' }}
+                        color='secondary'
+                      >
+                        Google Maps
+                      </Button>
+                    )}
+                  </Box>                
                 </Box>
               </Box>
               {/* Contact Card */}
@@ -425,7 +463,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
             </Grid>
             {/* Image & Contact Card */}
             <Grid size={{ xs: 12, md: 4 }} >
-              {vendor.cover_image && (
+              {!showImageCarousel && vendor.cover_image && (
                 <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
                   <Box
