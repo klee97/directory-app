@@ -31,14 +31,14 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
     checkWidth();
 
     // Use ResizeObserver for responsive detection
-    const resizeObserver = new (window as any).ResizeObserver(checkWidth);
+    const resizeObserver = new window.ResizeObserver(checkWidth);
     resizeObserver.observe(el);
     window.addEventListener('resize', checkWidth);
     return () => {
       resizeObserver.disconnect();
       window.removeEventListener('resize', checkWidth);
     }
-  }, []);
+  }, [theme.breakpoints.values.sm]);
 
   useEffect(() => {
     const el = scrollRef.current;

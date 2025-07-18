@@ -256,7 +256,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   {/* Description */}
                   <Typography variant="body1" component="p" sx={{ mb: 2 }}>
                     {vendor.business_name} is a {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}{vendor.specialties.size == 2 ? ' and ' : ' '}{vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist
-                    specializing in Asian features. They are based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
+                    specializing in Asian features and based in {resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} {resolvedLocation}.
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     {vendor.website && (
@@ -295,7 +295,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                         Google Maps
                       </Button>
                     )}
-                  </Box>
+                  </Box>                
                 </Box>
               </Box>
               {/* Contact Card */}

@@ -45,6 +45,7 @@ export function FilterableVendorTableContent({
   useLocationPages = false,
 }: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
+  const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
   const router = useRouter();
 
   // Extract search parameters
@@ -155,7 +156,7 @@ export function FilterableVendorTableContent({
   const [prevParams, setPrevParams] = useState<string | null>(null);
 
   useEffect(() => {
-    const currentParams = searchParams.toString();
+    const currentParams = searchParamsString;
 
     if (prevParams !== null && currentParams !== prevParams) {
       const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
@@ -185,6 +186,7 @@ export function FilterableVendorTableContent({
   }, [
     prevParams,
     searchParams,
+    searchParamsString,
     searchQuery,
     selectedLocation?.display_name,
     selectedSkills,
@@ -215,7 +217,7 @@ export function FilterableVendorTableContent({
 
   // Clear filters
   const handleClearFilters = () => {
-    const newParams = new URLSearchParams(searchParams.toString());
+    const newParams = new URLSearchParams(searchParamsString);
     newParams.delete(SKILL_PARAM);
     newParams.delete(TRAVEL_PARAM);
 
@@ -228,7 +230,7 @@ export function FilterableVendorTableContent({
   useEffect(() => {
     // go home when no location is selected
     if (preselectedLocation && selectedLocation === null) {
-      const params = searchParams.toString();
+      const params = searchParamsString;
       const url = params ? `/?${params}` : '/';
       router.push(url, { scroll: false });
       return;
@@ -242,13 +244,13 @@ export function FilterableVendorTableContent({
       const slug = locationPageGenerator.getSlugFromLocation(selectedLocation);
       if (slug && validLocationSlugs.has(slug)) {
         console.debug("Found location page for:", selectedLocation.display_name);
-        const params = searchParams.toString();
+        const params = searchParamsString;
         const url = params ? `/${slug}?${params}` : `/${slug}`;
         router.push(`${url}`, { scroll: false });
         return;
       }
     }
-  }, [preselectedLocation, selectedLocation, router, searchParams, useLocationPages, validLocationSlugs]);
+  }, [preselectedLocation, selectedLocation, router, searchParamsString, useLocationPages, validLocationSlugs]);
 
   // Reset visible vendors when filtered list changes
   useEffect(() => {
@@ -359,7 +361,7 @@ export function FilterableVendorTableContent({
 
             <FormControl sx={{ minWidth: 200 }}>
               <Select
-                value={sortOption}
+                value={sortOption.name}
                 onChange={(e) => {
                   const selected = Object.values(SORT_OPTIONS).find(opt => opt.name === e.target.value);
                   if (selected) setSortOption(selected);
@@ -382,7 +384,7 @@ export function FilterableVendorTableContent({
                 <Typography
                   component="span"
                   onClick={() => {
-                    const params = new URLSearchParams(searchParams.toString());
+                    const params = new URLSearchParams(searchParamsString);
                     params.set(TRAVEL_PARAM, 'true');
                     if (!preselectedLocation) {
                       setSelectedLocation(null);
@@ -395,7 +397,7 @@ export function FilterableVendorTableContent({
                     cursor: 'pointer',
                   }}
                 >
-                artists who travel worldwide
+                  artists who travel worldwide
                 </Typography>{''}
                 , or broaden your search.
               </Typography>
@@ -422,7 +424,7 @@ export function FilterableVendorTableContent({
             handleBlur={handleBlur}
             focusedCardIndex={focusedCardIndex}
             vendors={visibleVendors}
-            searchParams={searchParams.toString()}
+            searchParams={searchParamsString}
             favoriteVendorIds={favoriteVendorIds}
             showFavoriteButton={true}
           />
