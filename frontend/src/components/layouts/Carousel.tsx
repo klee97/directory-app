@@ -18,14 +18,33 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(true);
+  const [isNarrow, setIsNarrow] = useState(false);
   const theme = useTheme();
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
 
+    const checkWidth = () => {
+      setIsNarrow(el.clientWidth < theme.breakpoints.values.sm);
+    };
+    checkWidth();
+
+    // Use ResizeObserver for responsive detection
+    const resizeObserver = new (window as any).ResizeObserver(checkWidth);
+    resizeObserver.observe(el);
+    window.addEventListener('resize', checkWidth);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', checkWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
     const updateFade = () => {
-      console.log('scrollLeft:', el.scrollLeft, 'scrollWidth:', el.scrollWidth, 'clientWidth:', el.clientWidth);
       const { scrollLeft, scrollWidth, clientWidth } = el;
       setShowLeftFade(scrollLeft > 50);
       setShowRightFade(scrollLeft < scrollWidth - clientWidth - 1);
@@ -43,8 +62,11 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
-    const scrollAmount = 300;
-    scrollRef.current.scrollBy({
+
+    const container = scrollRef.current;
+    const scrollAmount = container.clientWidth;
+    
+    container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     });
@@ -99,7 +121,19 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
             overflowX: 'auto',
             display: 'flex',
             gap: 2,
-            scrollSnapType: 'x mandatory',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            ...(isNarrow && {
+              '& > *': {
+                scrollSnapAlign: 'start',
+                flex: '0 0 auto',
+                minWidth: '100%',
+              },
+            }),
+            ...(!isNarrow && {
+              scrollSnapType: 'x mandatory',
+            }),
             scrollBehavior: 'smooth',
             px: 2,
           }}
@@ -157,7 +191,6 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
             sx={{
               display: 'flex',
               overflowX: 'auto',
-              scrollSnapType: 'x mandatory',
               gap: 2,
               scrollPaddingX: '1rem',
               '&::-webkit-scrollbar': { display: 'none' },
