@@ -60,6 +60,19 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
     };
   }, []);
 
+  // Ensure fade is updated after children change (e.g. on first load)
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    // Use rAF to ensure layout is complete
+    const raf = requestAnimationFrame(() => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      setShowLeftFade(scrollLeft > 50);
+      setShowRightFade(scrollLeft < scrollWidth - clientWidth - 1);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [children]);
+
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return;
 
@@ -72,7 +85,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
     });
   };
 
-  const scrollArrowsOffset = isCompact ? 10 : -20; // Adjust offset based on compact mode
+  const scrollArrowsOffset = isCompact ? 10 : -10; // Adjust offset based on compact mode
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
 
   return (
