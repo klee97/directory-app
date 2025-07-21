@@ -101,13 +101,20 @@ export const VendorCard = ({
         }}
       >
         <Link
+
           key={vendor.slug}
           href={searchParams
             ? `/vendors/${vendor.slug}?${searchParams}`
             : `/vendors/${vendor.slug}`
           }
           passHref
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            textDecoration: 'none',
+            color: 'inherit'
+          }}
           data-has-photo={!!vendor.cover_image}
           data-position={positionIndex}
         >
@@ -131,6 +138,8 @@ export const VendorCard = ({
               flexDirection: 'column',
               gap: 1,
               p: variant === 'compact' ? 1 : 3,
+              flex: '1 1 auto',
+              minHeight: 0,
               flexGrow: 1,
               '&:last-child': { pb: variant === 'compact' ? 2 : 3 },
             }}
@@ -150,7 +159,7 @@ export const VendorCard = ({
               {formatVendorLocation(vendor)}
             </Typography>
 
-            <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+            <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
               {/* Pricing */}
               {hasPricing && <Stack direction="row" alignItems="center" spacing={0.5}>
                 <PaidOutlinedIcon fontSize='small' />
@@ -172,7 +181,7 @@ export const VendorCard = ({
                   fontWeight={'bold'}
                   noWrap
                 >
-                  Travels abroad
+                  Will Travel
                 </Typography>
               </Stack>
               }
