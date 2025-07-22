@@ -6,7 +6,8 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
+import LocationOn from '@mui/icons-material/LocationOn';
+import PaidIconOutlined from '@mui/icons-material/PaidOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import { useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
@@ -151,37 +152,39 @@ export const VendorCard = ({
             >
               {vendor.business_name}
             </Typography>
-
-            {/* Location */}
-            <Typography
-              variant="subtitle2"
-            >
-              {formatVendorLocation(vendor)}
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              {/* Location */}
+              <LocationOn fontSize='small' color='primary' />
+              <Typography
+                variant="subtitle2"
+              >
+                {formatVendorLocation(vendor)}
+              </Typography>
+            </Stack>
 
             <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
               {/* Pricing */}
               {hasPricing && <Stack direction="row" alignItems="center" spacing={0.5}>
-                <PaidOutlinedIcon fontSize='small' />
+                <PaidIconOutlined fontSize='small' color='primary' />
                 <Typography
                   variant="body2"
                   fontWeight={'bold'}
                   noWrap
                 >
-                  From ${lowestServicePrice}+
+                  Starts at ${lowestServicePrice}
                 </Typography>
               </Stack>
               }
 
               {/* Worldwide travel */}
               {vendor.travels_world_wide && <Stack direction="row" alignItems="center" spacing={0.5}>
-                <PublicIcon fontSize='small' />
+                <PublicIcon fontSize='small' color='primary' />
                 <Typography
                   variant="body2"
                   fontWeight={'bold'}
                   noWrap
                 >
-                  Will Travel
+                  Travels
                 </Typography>
               </Stack>
               }
