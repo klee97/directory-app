@@ -1,10 +1,10 @@
-import { Carousel } from './Carousel';
 import CardMedia from '@mui/material/CardMedia';
 import Box from '@mui/material/Box';
+import { SwiperCarousel } from './SwiperCarousel';
 
 export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
   return (
-    <Carousel>
+    <SwiperCarousel>
       {photos.map((photo, index) => (
         <Box
           key={index}
@@ -30,6 +30,6 @@ export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
           </CardMedia>
         </Box>
       ))}
-    </Carousel>
+    </SwiperCarousel>
   );
 };

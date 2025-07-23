@@ -80,7 +80,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
       image.media_url.startsWith(IMAGE_PREFIX) ? image.media_url : null
     ).filter(url => url !== null);
 
-  const isPremiumVendor = vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true';
+  const isPremiumVendor = vendor.vendor_type === 'PREMIUM';
 
   return {
     id: vendor.id,

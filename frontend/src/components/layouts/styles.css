@@ -1,0 +1,14 @@
+/* 
+.swiper {
+  width: 100%;
+  height: 100%;
+  --swiper-navigation-color: 'palette.background.paper';
+  --swiper-pagination-color: 'palette.primary.main'; 
+}
+
+.swiper-slide {
+  background: theme('palette.background.paper');
+  display: flex;
+  justify-content: center;
+  align-items: center;
+} */

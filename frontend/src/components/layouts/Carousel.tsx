@@ -78,7 +78,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
 
     const container = scrollRef.current;
     const scrollAmount = container.clientWidth;
-    
+
     container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',

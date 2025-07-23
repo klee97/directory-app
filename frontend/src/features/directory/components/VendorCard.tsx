@@ -17,7 +17,7 @@ import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
 import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
-import { Carousel } from '@/components/layouts/Carousel';
+import { SwiperCarousel } from '@/components/layouts/SwiperCarousel';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -122,7 +122,7 @@ export const VendorCard = ({
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
             {showImageCarousel && (
-              <Carousel isCompact={true}>
+              <SwiperCarousel isCompact={true}>
                 {vendor.images.map((image, index) => (
                   <CardMedia
                     key={index}
@@ -138,7 +138,7 @@ export const VendorCard = ({
                     }}
                   />
                 ))}
-              </Carousel>
+              </SwiperCarousel>
             )}
             {!showImageCarousel && (
               <CardMedia
