@@ -168,7 +168,7 @@ export const VendorCard = ({
                   fontWeight={'bold'}
                   noWrap
                 >
-                  From ${lowestServicePrice}+
+                  Starts at ${lowestServicePrice}
                 </Typography>
               </Stack>
               }
@@ -181,7 +181,7 @@ export const VendorCard = ({
                   fontWeight={'bold'}
                   noWrap
                 >
-                  Will Travel
+                  Travels Worldwide
                 </Typography>
               </Stack>
               }
