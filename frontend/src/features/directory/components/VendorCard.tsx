@@ -6,7 +6,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import LocationOnIconOutlined from '@mui/icons-material/LocationOnOutlined';
+import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import { useTheme } from '@mui/material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
@@ -69,6 +69,12 @@ export const VendorCard = ({
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
+  const lowestServicePrice = Math.min(
+    vendor.bridal_hair_price ?? Infinity,
+    vendor.bridal_makeup_price ?? Infinity
+  )
+
+  const hasPricing = lowestServicePrice < Infinity;
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
 
   return (
@@ -97,13 +103,20 @@ export const VendorCard = ({
         }}
       >
         <Link
+
           key={vendor.slug}
           href={searchParams
             ? `/vendors/${vendor.slug}?${searchParams}`
             : `/vendors/${vendor.slug}`
           }
           passHref
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            textDecoration: 'none',
+            color: 'inherit'
+          }}
           data-has-photo={!!vendor.cover_image}
           data-position={positionIndex}
         >
@@ -141,40 +154,6 @@ export const VendorCard = ({
                 }}
               />
             )}
-            {/* Price Container */}
-            <Box
-              sx={{
-                position: 'absolute',
-                bottom: 12,
-                right: 12,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 1, // Adjust spacing between chips
-                alignItems: 'flex-end',
-                zIndex: 2,
-              }}
-            >
-              {vendor.bridal_hair_price && (
-                <Chip
-                  label={`✂️ from $${vendor.bridal_hair_price}`}
-                  sx={{
-                    backgroundColor: 'background.paper',
-                    fontWeight: 'medium',
-                    textAlign: 'right',
-                  }}
-                />
-              )}
-              {vendor.bridal_makeup_price && (
-                <Chip
-                  label={`💄 from $${vendor.bridal_makeup_price}`}
-                  sx={{
-                    backgroundColor: 'background.paper',
-                    fontWeight: 'medium',
-                    textAlign: 'right'
-                  }}
-                />
-              )}
-            </Box>
           </Box>
           <CardContent
             sx={{
@@ -182,6 +161,8 @@ export const VendorCard = ({
               flexDirection: 'column',
               gap: 1,
               p: variant === 'compact' ? 1 : 3,
+              flex: '1 1 auto',
+              minHeight: 0,
               flexGrow: 1,
               '&:last-child': { pb: variant === 'compact' ? 2 : 3 },
             }}
@@ -193,26 +174,42 @@ export const VendorCard = ({
             >
               {vendor.business_name}
             </Typography>
-            <Stack direction="row" alignItems="top" spacing={0.5}>
-              <LocationOnIconOutlined fontSize='small' color='primary' />
-              <Typography
-                variant={variant === 'compact' ? "subtitle2" : "subtitle1"}
-              >
-                {formatVendorLocation(vendor)}
-              </Typography>
+
+            {/* Location */}
+            <Typography
+              variant="subtitle2"
+            >
+              {formatVendorLocation(vendor)}
+            </Typography>
+
+            <Stack direction="row" alignItems="center" gap={1.5} flexWrap="wrap">
+              {/* Pricing */}
+              {hasPricing && <Stack direction="row" alignItems="center" spacing={0.5}>
+                <PaidOutlinedIcon fontSize='small' />
+                <Typography
+                  variant="body2"
+                  fontWeight={'bold'}
+                  noWrap
+                >
+                  Starts at ${lowestServicePrice}
+                </Typography>
+              </Stack>
+              }
+
+              {/* Worldwide travel */}
+              {vendor.travels_world_wide && <Stack direction="row" alignItems="center" spacing={0.5}>
+                <PublicIcon fontSize='small' />
+                <Typography
+                  variant="body2"
+                  fontWeight={'bold'}
+                  noWrap
+                >
+                  Travels Worldwide
+                </Typography>
+              </Stack>
+              }
 
             </Stack>
-
-            {/* Location Tags */}
-            {vendor.travels_world_wide && (
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                <Chip
-                  icon={<PublicIcon color='primary' />}
-                  label="Travels Worldwide"
-                  size="small"
-                />
-              </Box>
-            )}
             {/* Specialty Tags (e.g. makeup or hair) and Skill Tags */}
             {variant === 'default' && (
               <Box sx={{
