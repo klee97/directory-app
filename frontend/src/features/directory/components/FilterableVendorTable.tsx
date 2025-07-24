@@ -23,6 +23,7 @@ import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/u
 import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
+import { FilterContext } from './filters/FilterContext';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -160,25 +161,18 @@ export function FilterableVendorTableContent({
 
     if (prevParams !== null && currentParams !== prevParams) {
       const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
-
-      if (hasSearchChanged) {
-        debouncedTrackSearch({
-          selectedLocation: selectedLocation?.display_name,
+      const filterContext: FilterContext = {
+          selectedLocationName: selectedLocation?.display_name ?? null,
           selectedSkills,
           travelsWorldwide,
           searchQuery,
-          sortOption,
+          sortOptionName: sortOption.name,
           resultCount: searchedAndSortedVendors.length,
-        });
+        }
+      if (hasSearchChanged) {
+        debouncedTrackSearch(filterContext);
       } else {
-        trackFiltersApplied(
-          selectedLocation?.display_name || "",
-          selectedSkills,
-          travelsWorldwide,
-          searchQuery,
-          sortOption.name,
-          searchedAndSortedVendors.length
-        );
+        trackFiltersApplied(filterContext);
       }
     }
 
@@ -427,6 +421,16 @@ export function FilterableVendorTableContent({
             searchParams={searchParamsString}
             favoriteVendorIds={favoriteVendorIds}
             showFavoriteButton={true}
+            filterContext={
+              {
+                selectedLocationName: selectedLocation?.display_name ?? null,
+                selectedSkills,
+                travelsWorldwide,
+                searchQuery,
+                sortOptionName: sortOption.name,
+                resultCount: searchedAndSortedVendors.length,
+              }
+            }
           />
 
           {/* Loading Spinner */}
