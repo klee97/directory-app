@@ -64,3 +64,57 @@ export async function fetchPhotonResults(query: string): Promise<LocationResult[
     }
   }
 }
+
+async function rawPhotonSingleLocation(encodedQuery: string): Promise<LocationResult[]> {
+  const res = await fetch(
+    `https://photon.komoot.io/api/?q=${encodedQuery}&lang=en&limit=1&layer=city&layer=state&layer=country`,
+    {
+      headers: {
+        "User-Agent": "AsianWeddingMakeup/1.0 (katrina@asianweddingmakeup.com)",
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error(`Photon API error: ${res.status}`);
+  }
+
+  const data = await res.json() as { features: GeocodeResponse[] };
+  return data.features.map((feature) => {
+    let state = feature.properties.state;
+    if (feature.properties.type === LOCATION_TYPE_STATE) {
+      state = feature.properties.state || feature.properties.name;
+    }
+    let city = feature.properties.city;
+    if (feature.properties.type === LOCATION_TYPE_CITY) {
+      city = feature.properties.city || feature.properties.name;
+    }
+    return ({
+      display_name: getDisplayName(city, state, feature.properties.country, feature.properties.type),
+      lat: feature.geometry.coordinates[1],
+      lon: feature.geometry.coordinates[0],
+      address: {
+        city: city,
+        state: state,
+        country: feature.properties.country,
+      },
+      type: feature.properties.type || "unknown",
+    })
+  });
+}
+
+export async function resolveLocationFromDisplayName(encodedLocationName: string): Promise<LocationResult[]> {
+  const tryFetch = async () => await fetchWithTimeout(rawPhotonSingleLocation(encodedLocationName), PHOTON_TIMEOUT_MS);
+
+  try {
+    return await tryFetch();
+  } catch (err) {
+    console.warn("Photon API failed, retrying once:", err);
+    try {
+      return await tryFetch();
+    } catch (retryErr) {
+      console.error("Photon retry failed:", retryErr);
+      return [];
+    }
+  }
+}

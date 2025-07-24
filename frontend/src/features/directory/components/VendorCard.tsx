@@ -51,7 +51,7 @@ export const VendorCard = ({
   isFavorite?: boolean;
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
-  filterContext: FilterContext
+  filterContext?: FilterContext
 }) => {
   const [swiperIndex, setSwiperIndex] = useState(0);
   const router = useRouter();
@@ -74,10 +74,10 @@ export const VendorCard = ({
         variant: variant,
         isPremium: vendor.is_premium,
         photoCount: resolvedImageCount,
-        searchQuery: filterContext.searchQuery,
-        selectedSkills: filterContext.selectedSkills,
-        travelsWorldwide: filterContext.travelsWorldwide,
-        selectedLocation: filterContext.selectedLocationName,
+        searchQuery: filterContext?.searchQuery,
+        selectedSkills: filterContext?.selectedSkills,
+        travelsWorldwide: filterContext?.travelsWorldwide,
+        selectedLocation: filterContext?.selectedLocationName,
       });
     }
   }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);
