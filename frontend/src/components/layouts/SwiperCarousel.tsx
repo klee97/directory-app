@@ -4,12 +4,10 @@ import 'swiper/css';
 import 'swiper/css/free-mode';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 
-import './styles.css';
-
-import { FreeMode, Navigation, Pagination } from 'swiper/modules';
-import { ReactNode } from 'react';
+import { Navigation, Pagination } from 'swiper/modules';
+import { ReactNode, useEffect, useState } from 'react';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 
@@ -26,13 +24,6 @@ const StyledSwiper = styled(Swiper)(({ theme }) => ({
   '--swiper-pagination-color': theme.palette.primary.main,
 }));
 
-const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
-  background: theme.palette.background.default,
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-}));
-
 const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
   width: '100%',
   height: '100%',
@@ -41,8 +32,33 @@ const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
   '--swiper-pagination-color': theme.palette.background.default,
 }));
 
+const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
+  width: 'auto',
+  background: theme.palette.background.default,
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  boxSizing: 'border-box',
+}));
+
 export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselProps) => {
+  const [slidesPerView, setSlidesPerView] = useState<number | 'auto'>('auto');
+  const theme = useTheme();
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < theme.breakpoints.values.sm) {
+        setSlidesPerView(1);
+      } else {
+        setSlidesPerView('auto');
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, [theme.breakpoints.values.sm]);
 
   return (
     <Box sx={{
@@ -56,11 +72,13 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
       )}
       {isCompact && (
         <StyledSwiperCompact
+          slidesPerView={1}
+          spaceBetween={50}
           navigation={true}
           pagination={{
             clickable: true,
           }}
-          modules={[FreeMode, Navigation, Pagination]}
+          modules={[Navigation, Pagination]}
           className="mySwiper"
         >
           {children.map((child, index) => (
@@ -72,11 +90,13 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
       )}
       {!isCompact && (
         <StyledSwiper
+          slidesPerView={slidesPerView}
+          spaceBetween={10}
           navigation={true}
           pagination={{
             clickable: true,
           }}
-          modules={[FreeMode, Navigation, Pagination]}
+          modules={[Navigation, Pagination]}
           className="mySwiper"
         >
           {children.map((child, index) => (

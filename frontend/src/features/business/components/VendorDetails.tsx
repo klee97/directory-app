@@ -101,7 +101,6 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
 
-
   useEffect(() => {
     const handleResize = () => {
       setIsWide(window.innerWidth > theme.breakpoints.values.md);
@@ -295,7 +294,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                         Google Maps
                       </Button>
                     )}
-                  </Box>                
+                  </Box>
                 </Box>
               </Box>
               {/* Contact Card */}

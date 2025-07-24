@@ -19,7 +19,7 @@ export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
             alt={`Photo ${index + 1}`}
             sx={{
               borderRadius: 2,
-              maxWidth: { sm: 600 },
+              maxWidth: { xs: '90vw', sm: 600 },
               width: '100%',
               height: { xs: 300, sm: 400 },
               objectFit: 'cover',
