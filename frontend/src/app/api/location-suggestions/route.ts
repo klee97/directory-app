@@ -4,6 +4,7 @@ import { getCachedVendors } from "@/features/directory/api/fetchVendors";
 import { unstable_cache } from "next/cache";
 import { LOCATION_TYPE_PRESET_REGION, LocationResult } from "@/types/location";
 import { fetchPhotonResults } from "@/lib/location/geocode";
+import { serverLocationCache } from "@/lib/location/ServerLocationCache";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -47,6 +48,9 @@ export async function GET(request: NextRequest) {
   if (query.length >= 3) {
     try {
       matchingLocations = await fetchPhotonResults(query);
+      matchingLocations.forEach(location => {
+        serverLocationCache.set(encodeURIComponent(location.display_name), location, 'user_selection');
+      });
     } catch (error) {
       console.error("Photon error:", error);
       return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -21,7 +21,7 @@ export function VendorGrid({
   searchParams: string,
   favoriteVendorIds: VendorId[],
   showFavoriteButton?: boolean,
-  filterContext: FilterContext
+  filterContext?: FilterContext
 }) {
   return (
     <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>

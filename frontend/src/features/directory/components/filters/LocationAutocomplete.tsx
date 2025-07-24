@@ -32,7 +32,7 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
     }
     lastFetchedQuery.current = trimmed;
 
-    console.log("Fetching location suggestions for query:", q);
+    console.debug("Fetching location suggestions for query:", q);
     setLoading(true);
     const cached = cache.current.get(q);
     if (cached && cached.length > 0) {
