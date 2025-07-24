@@ -42,21 +42,21 @@ const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
 }));
 
 export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselProps) => {
-  const [slidesPerView, setSlidesPerView] = useState<number | 'auto'>('auto');
+  const [isSmallScreen, setIsSmallScreen] = useState(isCompact)
   const theme = useTheme();
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
 
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < theme.breakpoints.values.sm) {
-        setSlidesPerView(1);
+        setIsSmallScreen(true);
       } else {
-        setSlidesPerView('auto');
+        setIsSmallScreen(false);
       }
     };
 
-    window.addEventListener('resize', handleResize);
     handleResize();
+    window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [theme.breakpoints.values.sm]);
 
@@ -73,7 +73,7 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
       {isCompact && (
         <StyledSwiperCompact
           slidesPerView={1}
-          spaceBetween={50}
+          spaceBetween={10}
           navigation={true}
           pagination={{
             clickable: true,
@@ -88,10 +88,27 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
           ))}
         </StyledSwiperCompact>
       )}
-      {!isCompact && (
+      {!isCompact && !isSmallScreen && (
         <StyledSwiper
-          slidesPerView={slidesPerView}
+          slidesPerView={'auto'}
           spaceBetween={10}
+          navigation={true}
+          pagination={{
+            clickable: true,
+          }}
+          modules={[Navigation, Pagination]}
+          className="mySwiper"
+        >
+          {children.map((child, index) => (
+            <StyledSwiperSlide key={index} style={{ margin }}>
+              {child}
+            </StyledSwiperSlide>
+          ))}
+        </StyledSwiper>
+      )}
+      {!isCompact && isSmallScreen && (
+        <StyledSwiper
+          slidesPerView={1}
           navigation={true}
           pagination={{
             clickable: true,
