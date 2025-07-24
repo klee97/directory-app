@@ -140,6 +140,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           duration: durationSeconds,
           testimonialCount: vendor.testimonials.length,
           photoCount: resolvedImageCount,
+          isPremium: vendor.is_premium,
         });
       }
     };

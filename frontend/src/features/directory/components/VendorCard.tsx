@@ -54,6 +54,8 @@ export const VendorCard = ({
     triggerOnce: true, // Only fire once
   });
 
+  const resolvedImageCount = vendor.is_premium ? vendor.images.length : (vendor.cover_image ? 1 : 0);
+
   useEffect(() => {
     if (inView) {
       window.dataLayer = window.dataLayer || [];
@@ -63,6 +65,8 @@ export const VendorCard = ({
         position: positionIndex,
         hasPhoto: !!vendor.cover_image,
         variant: variant,
+        isPremium: vendor.is_premium,
+        photoCount: resolvedImageCount,
       });
     }
   }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);
