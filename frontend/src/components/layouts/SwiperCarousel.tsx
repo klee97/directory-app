@@ -22,6 +22,12 @@ const StyledSwiper = styled(Swiper)(({ theme }) => ({
   height: '100%',
   '--swiper-navigation-color': theme.palette.primary.main,
   '--swiper-pagination-color': theme.palette.primary.main,
+  '.swiper-button-next.swiper-button-disabled': {
+    opacity: 0,
+  },
+  '.swiper-button-prev.swiper-button-disabled': {
+    opacity: 0,
+  },
 }));
 
 const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
@@ -30,6 +36,12 @@ const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
   '--swiper-navigation-size': '24px',
   '--swiper-navigation-color': theme.palette.background.default,
   '--swiper-pagination-color': theme.palette.background.default,
+  '.swiper-button-next.swiper-button-disabled': {
+    opacity: 0,
+  },
+  '.swiper-button-prev.swiper-button-disabled': {
+    opacity: 0,
+  },
 }));
 
 const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
@@ -43,6 +55,7 @@ const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
 
 export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselProps) => {
   const [isSmallScreen, setIsSmallScreen] = useState(isCompact)
+  const [swiperIndex, setSwiperIndex] = useState(0)
   const theme = useTheme();
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
 
@@ -98,6 +111,8 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
           }}
           modules={[Navigation, Pagination]}
           className="mySwiper"
+          initialSlide={swiperIndex}
+          onRealIndexChange={(swiper) => setSwiperIndex(swiper.realIndex)}
         >
           {children.map((child, index) => (
             <StyledSwiperSlide key={index} style={{ margin }}>
@@ -109,12 +124,15 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
       {!isCompact && isSmallScreen && (
         <StyledSwiper
           slidesPerView={1}
+          spaceBetween={10}
           navigation={true}
           pagination={{
             clickable: true,
           }}
           modules={[Navigation, Pagination]}
           className="mySwiper"
+          initialSlide={swiperIndex}
+          onRealIndexChange={(swiper) => setSwiperIndex(swiper.realIndex)}
         >
           {children.map((child, index) => (
             <StyledSwiperSlide key={index} style={{ margin }}>
