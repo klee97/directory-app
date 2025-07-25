@@ -1,10 +1,10 @@
-import { Carousel } from './Carousel';
 import CardMedia from '@mui/material/CardMedia';
 import Box from '@mui/material/Box';
+import { SwiperCarousel } from './SwiperCarousel';
 
 export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
   return (
-    <Carousel>
+    <SwiperCarousel>
       {photos.map((photo, index) => (
         <Box
           key={index}
@@ -19,7 +19,7 @@ export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
             alt={`Photo ${index + 1}`}
             sx={{
               borderRadius: 2,
-              maxWidth: { sm: 600 },
+              maxWidth: { xs: '70vw', sm: 600 },
               width: '100%',
               height: { xs: 300, sm: 400 },
               objectFit: 'cover',
@@ -30,6 +30,6 @@ export const PhotoCarousel = ({ photos }: { photos: string[] }) => {
           </CardMedia>
         </Box>
       ))}
-    </Carousel>
+    </SwiperCarousel>
   );
 };

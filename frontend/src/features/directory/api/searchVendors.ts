@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/api-client";
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_RESULTS_MINIMUM, SEARCH_VENDORS_LIMIT_DEFAULT } from "@/types/location";
-import { VendorByDistance } from "@/types/vendor";
+import { transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 
 export function searchVendors(searchQuery: string, vendors: VendorByDistance[]): VendorByDistance[] {
   const regex = new RegExp(searchQuery, "i"); // "i" makes it case-insensitive
@@ -106,7 +106,7 @@ export async function getVendorsByDistance(
     console.error("Error fetching artists by distance:", error);
   }
 
-  return data;
+  return data.map(transformBackendVendorToFrontend) || [];
 }
 
 function isStateSelection(location: LocationResult) {
