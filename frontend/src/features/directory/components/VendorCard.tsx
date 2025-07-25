@@ -87,7 +87,7 @@ export const VendorCard = ({
 
   const trackSearchQuery = () => {
     window.dataLayer?.push({
-      event: 'vendor_card_click_carousel',
+      event: 'vendor_card_click_v2',
       vendorSlug: vendor.slug,
       position: positionIndex,
       hasPhoto: !!vendor.cover_image,
