@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
 import { Carousel } from '@/components/layouts/Carousel';
+import { FilterContext } from './filters/FilterContext';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -37,6 +38,7 @@ export const VendorCard = ({
   isFavorite,
   showFavoriteButton = false,
   variant = 'default',
+  filterContext
 }: {
   vendor: VendorByDistance;
   searchParams: string;
@@ -48,6 +50,7 @@ export const VendorCard = ({
   isFavorite?: boolean;
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
+  filterContext?: FilterContext
 }) => {
   const { ref, inView } = useInView({
     threshold: 0.5,
@@ -67,6 +70,10 @@ export const VendorCard = ({
         variant: variant,
         isPremium: vendor.is_premium,
         photoCount: resolvedImageCount,
+        searchQuery: filterContext?.searchQuery,
+        selectedSkills: filterContext?.selectedSkills,
+        travelsWorldwide: filterContext?.travelsWorldwide,
+        selectedLocation: filterContext?.selectedLocationName,
       });
     }
   }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);

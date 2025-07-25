@@ -2,6 +2,7 @@ import { Grid as SystemGrid } from '@mui/system';
 import Grid from '@mui/material/Grid2';
 import { VendorCard } from './VendorCard';
 import { Vendor, VendorId } from '@/types/vendor';
+import { FilterContext } from './filters/FilterContext';
 
 export function VendorGrid({
   handleFocus,
@@ -10,7 +11,8 @@ export function VendorGrid({
   vendors,
   searchParams,
   favoriteVendorIds,
-  showFavoriteButton = false
+  showFavoriteButton = false,
+  filterContext
 }: {
   handleFocus: (index: number) => void,
   handleBlur: () => void,
@@ -18,7 +20,8 @@ export function VendorGrid({
   vendors: Vendor[],
   searchParams: string,
   favoriteVendorIds: VendorId[],
-  showFavoriteButton?: boolean
+  showFavoriteButton?: boolean,
+  filterContext?: FilterContext
 }) {
   return (
     <SystemGrid container spacing={2} sx={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
@@ -35,6 +38,7 @@ export function VendorGrid({
             className={focusedCardIndex === index ? 'Mui-focused' : ''}
             isFavorite={favoriteVendorIds.includes(vendor.id)}
             showFavoriteButton={showFavoriteButton}
+            filterContext={filterContext}
           >
           </VendorCard>
         </Grid>
