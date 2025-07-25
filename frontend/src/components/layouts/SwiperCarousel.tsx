@@ -28,6 +28,17 @@ const StyledSwiper = styled(Swiper)(({ theme }) => ({
   '.swiper-button-prev.swiper-button-disabled': {
     opacity: 0,
   },
+  // Prevent navigation clicks from bubbling up
+  '.swiper-button-next, .swiper-button-prev, .swiper-pagination': {
+    pointerEvents: 'auto',
+    zIndex: 10,
+  },
+  // Prevent the swiper container from being clickable
+  pointerEvents: 'none',
+  // But allow slides to be clickable
+  '.swiper-wrapper, .swiper-slide': {
+    pointerEvents: 'auto',
+  },
 }));
 
 const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
@@ -42,6 +53,17 @@ const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
   '.swiper-button-prev.swiper-button-disabled': {
     opacity: 0,
   },
+  // Prevent navigation clicks from bubbling up
+  '.swiper-button-next, .swiper-button-prev, .swiper-pagination': {
+    pointerEvents: 'auto',
+    zIndex: 10,
+  },
+  // Prevent the swiper container from being clickable
+  pointerEvents: 'none',
+  // But allow slides to be clickable
+  '.swiper-wrapper, .swiper-slide': {
+    pointerEvents: 'auto',
+  }
 }));
 
 const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
@@ -149,7 +171,7 @@ export const SwiperCarousel = ({ children, title, isCompact = false, vendorSlug,
           modules={[Navigation, Pagination]}
           className="mySwiper"
           initialSlide={swiperIndex}
-          onRealIndexChange={(swiper) => setSwiperIndex(swiper.realIndex)}
+          onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
             <StyledSwiperSlide key={index} style={{ margin }}>
