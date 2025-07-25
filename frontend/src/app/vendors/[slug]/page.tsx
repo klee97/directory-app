@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getLocationString(vendor);
   const title = `${vendor.business_name} - Wedding ${Array.from(vendor.specialties)
-      .map((specialty) => VendorSpecialtyDisplayNames[specialty])
-      .join(' & ')
+    .map((specialty) => VendorSpecialtyDisplayNames[specialty])
+    .join(' & ')
     } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
   return {
     title: title,
@@ -78,9 +78,10 @@ export default async function VendorPage({ params }: PageProps) {
       10  // Get more results to filter from
     );
 
-    // Filter out the current vendor and limit results
+    // Filter out the current vendor and sort by premium status
     nearbyVendors = allNearbyVendors
-      .filter(v => v.id !== vendor.id);
+      .filter(v => v.id !== vendor.id)
+      .sort((a, b) => Number(b.is_premium) - Number(a.is_premium))
   }
 
   const address = {

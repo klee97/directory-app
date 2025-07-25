@@ -1271,6 +1271,7 @@ export type Database = {
           metro_id: number
           metro_region_id: number
           distance_miles: number
+          vendor_type: Database["public"]["Enums"]["vendor_type"]
           tags: Json
         }[]
       }
