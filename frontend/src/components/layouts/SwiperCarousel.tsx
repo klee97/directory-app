@@ -1,3 +1,4 @@
+"use client";
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
@@ -13,8 +14,12 @@ import Box from '@mui/material/Box';
 
 type CarouselProps = {
   children: ReactNode[];
+  onSlideClick?: () => void;
   title?: string;
   isCompact?: boolean; // Optional prop to control compact mode
+  vendorSlug: string | null;
+  swiperIndex: number;
+  setSwiperIndex: (index: number) => void;
 };
 
 const StyledSwiper = styled(Swiper)(({ theme }) => ({
@@ -75,12 +80,15 @@ const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
   boxSizing: 'border-box',
 }));
 
-export const SwiperCarousel = ({ children, title, isCompact = false, vendorSlug, swiperIndex, setSwiperIndex }:
-  CarouselProps & {
-    vendorSlug: string | null;
-    swiperIndex: number;
-    setSwiperIndex: (index: number) => void;
-  }) => {
+export const SwiperCarousel = ({
+  children,
+  onSlideClick,
+  title,
+  isCompact = false,
+  vendorSlug,
+  swiperIndex,
+  setSwiperIndex
+}: CarouselProps) => {
   const [isSmallScreen, setIsSmallScreen] = useState(isCompact)
   const theme = useTheme();
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
@@ -112,6 +120,19 @@ export const SwiperCarousel = ({ children, title, isCompact = false, vendorSlug,
     }
   }
 
+  const handleSlideClick = (e: React.MouseEvent) => {
+    // Avoid triggering if clicking on a Swiper control
+    const target = e.target as HTMLElement;
+    if (
+      target.closest('.swiper-button-next') ||
+      target.closest('.swiper-button-prev') ||
+      target.closest('.swiper-pagination')
+    ) {
+      return;
+    }
+    onSlideClick?.();
+  };
+
   return (
     <Box sx={{
       paddingY: margin,
@@ -134,7 +155,7 @@ export const SwiperCarousel = ({ children, title, isCompact = false, vendorSlug,
           className="mySwiper"
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
               {child}
             </StyledSwiperSlide>
           ))}
@@ -154,7 +175,7 @@ export const SwiperCarousel = ({ children, title, isCompact = false, vendorSlug,
           onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
               {child}
             </StyledSwiperSlide>
           ))}
