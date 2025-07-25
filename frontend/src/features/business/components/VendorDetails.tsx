@@ -175,6 +175,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
         <Container maxWidth="lg">
           {showImageCarousel && (<PhotoCarousel
             photos={vendor.images}
+            vendorSlug={vendor.slug}
           />
           )}
           {/* Main Content */}

@@ -14,7 +14,7 @@ import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
 import { SwiperCarousel } from '@/components/layouts/SwiperCarousel';
@@ -49,6 +49,8 @@ export const VendorCard = ({
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
 }) => {
+  const [swiperIndex, setSwiperIndex] = useState(0);
+
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true, // Only fire once
@@ -123,10 +125,18 @@ export const VendorCard = ({
           }}
           data-has-photo={!!vendor.cover_image}
           data-position={positionIndex}
+          data-is-premium={vendor.is_premium}
+          data-photo-index={showImageCarousel ? swiperIndex : 0}
+          data-variant={variant}
         >
           <Box sx={{ position: 'relative', mb: 1 }}>
             {showImageCarousel && (
-              <SwiperCarousel isCompact={true}>
+              <SwiperCarousel
+                isCompact={true}
+                vendorSlug={vendor.slug}
+                swiperIndex={swiperIndex}
+                setSwiperIndex={setSwiperIndex}
+              >
                 {vendor.images.map((image, index) => (
                   <CardMedia
                     key={index}
