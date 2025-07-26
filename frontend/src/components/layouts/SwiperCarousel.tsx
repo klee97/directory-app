@@ -1,4 +1,5 @@
-import { Swiper, SwiperSlide } from 'swiper/react';
+"use client";
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -13,8 +14,12 @@ import Box from '@mui/material/Box';
 
 type CarouselProps = {
   children: ReactNode[];
+  onSlideClick?: () => void;
   title?: string;
   isCompact?: boolean; // Optional prop to control compact mode
+  vendorSlug: string | null;
+  swiperIndex: number;
+  setSwiperIndex: (index: number) => void;
 };
 
 const StyledSwiper = styled(Swiper)(({ theme }) => ({
@@ -53,9 +58,16 @@ const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
   boxSizing: 'border-box',
 }));
 
-export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselProps) => {
+export const SwiperCarousel = ({
+  children,
+  onSlideClick,
+  title,
+  isCompact = false,
+  vendorSlug,
+  swiperIndex,
+  setSwiperIndex
+}: CarouselProps) => {
   const [isSmallScreen, setIsSmallScreen] = useState(isCompact)
-  const [swiperIndex, setSwiperIndex] = useState(0)
   const theme = useTheme();
   const margin = isCompact ? 0 : 2; // Adjust margin for compact mode
 
@@ -72,6 +84,19 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [theme.breakpoints.values.sm]);
+
+  const onRealIndexChange = (swiper: SwiperClass) => {
+    setSwiperIndex(swiper.realIndex);
+
+    if (vendorSlug && typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'photo_swipe',
+        vendorSlug: vendorSlug,
+        photoIndex: swiper.realIndex,
+        isCompact: isCompact
+      });
+    }
+  }
 
   return (
     <Box sx={{
@@ -93,9 +118,10 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
           }}
           modules={[Navigation, Pagination]}
           className="mySwiper"
+          onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}
@@ -112,10 +138,10 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
           modules={[Navigation, Pagination]}
           className="mySwiper"
           initialSlide={swiperIndex}
-          onRealIndexChange={(swiper) => setSwiperIndex(swiper.realIndex)}
+          onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}
@@ -132,10 +158,10 @@ export const SwiperCarousel = ({ children, title, isCompact = false }: CarouselP
           modules={[Navigation, Pagination]}
           className="mySwiper"
           initialSlide={swiperIndex}
-          onRealIndexChange={(swiper) => setSwiperIndex(swiper.realIndex)}
+          onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}

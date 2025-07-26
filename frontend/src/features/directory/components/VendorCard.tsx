@@ -14,10 +14,11 @@ import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import Link from 'next/link';
 import { useInView } from 'react-intersection-observer';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { CITY_ABBREVIATIONS, STATE_ABBREVIATIONS } from '@/types/location';
 import Stack from '@mui/system/Stack';
 import { SwiperCarousel } from '@/components/layouts/SwiperCarousel';
+import { useRouter } from 'next/navigation';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -49,6 +50,9 @@ export const VendorCard = ({
   showFavoriteButton?: boolean;
   variant?: 'default' | 'compact';
 }) => {
+  const [swiperIndex, setSwiperIndex] = useState(0);
+  const router = useRouter();
+
   const { ref, inView } = useInView({
     threshold: 0.5,
     triggerOnce: true, // Only fire once
@@ -81,6 +85,17 @@ export const VendorCard = ({
   const hasPricing = lowestServicePrice < Infinity;
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
 
+  const trackSearchQuery = () => {
+    window.dataLayer?.push({
+      event: 'vendor_card_click_v2',
+      vendorSlug: vendor.slug,
+      position: positionIndex,
+      hasPhoto: !!vendor.cover_image,
+      variant: variant,
+      isPremium: vendor.is_premium,
+      photoIndex: showImageCarousel ? swiperIndex : 0,
+    });
+  }
   return (
     <>
       <Card
@@ -106,6 +121,52 @@ export const VendorCard = ({
           zIndex: 0
         }}
       >
+        <Box sx={{ position: 'relative', mb: 1 }}>
+          {showImageCarousel && (
+            <SwiperCarousel
+              isCompact={true}
+              vendorSlug={vendor.slug}
+              onSlideClick={() => {
+                trackSearchQuery();
+                router.push(searchParams
+                  ? `/vendors/${vendor.slug}?${searchParams}`
+                  : `/vendors/${vendor.slug}`)
+              }}
+              swiperIndex={swiperIndex}
+              setSwiperIndex={setSwiperIndex}
+            >
+              {vendor.images.map((image, index) => (
+                <CardMedia
+                  key={index}
+                  component="img"
+                  src={image}
+                  alt={`${vendor.business_name} preview`}
+                  sx={{
+                    height: variant === 'compact' ? 180 : 300,
+                    width: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                    zIndex: 1
+                  }}
+                />
+              ))}
+            </SwiperCarousel>
+          )}
+          {!showImageCarousel && (
+            <CardMedia
+              component="img"
+              src={vendor.cover_image ?? placeholderImage.src}
+              alt={`${vendor.business_name} preview`}
+              sx={{
+                height: variant === 'compact' ? 180 : 300,
+                width: '100%',
+                objectFit: 'cover',
+                objectPosition: 'center',
+                zIndex: 1
+              }}
+            />
+          )}
+        </Box>
         <Link
 
           key={vendor.slug}
@@ -123,42 +184,14 @@ export const VendorCard = ({
           }}
           data-has-photo={!!vendor.cover_image}
           data-position={positionIndex}
+          data-is-premium={vendor.is_premium}
+          data-photo-index={showImageCarousel ? swiperIndex : 0}
+          data-variant={variant}
+          onClick={() => {
+            trackSearchQuery();
+          }}
         >
-          <Box sx={{ position: 'relative', mb: 1 }}>
-            {showImageCarousel && (
-              <SwiperCarousel isCompact={true}>
-                {vendor.images.map((image, index) => (
-                  <CardMedia
-                    key={index}
-                    component="img"
-                    src={image}
-                    alt={`${vendor.business_name} preview`}
-                    sx={{
-                      height: variant === 'compact' ? 180 : 300,
-                      width: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center',
-                      zIndex: 1
-                    }}
-                  />
-                ))}
-              </SwiperCarousel>
-            )}
-            {!showImageCarousel && (
-              <CardMedia
-                component="img"
-                src={vendor.cover_image ?? placeholderImage.src}
-                alt={`${vendor.business_name} preview`}
-                sx={{
-                  height: variant === 'compact' ? 180 : 300,
-                  width: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  zIndex: 1
-                }}
-              />
-            )}
-          </Box>
+
           <CardContent
             sx={{
               display: 'flex',
