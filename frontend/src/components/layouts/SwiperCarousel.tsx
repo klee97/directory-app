@@ -195,7 +195,7 @@ export const SwiperCarousel = ({
           onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
               {child}
             </StyledSwiperSlide>
           ))}
