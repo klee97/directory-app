@@ -33,17 +33,6 @@ const StyledSwiper = styled(Swiper)(({ theme }) => ({
   '.swiper-button-prev.swiper-button-disabled': {
     opacity: 0,
   },
-  // Prevent navigation clicks from bubbling up
-  '.swiper-button-next, .swiper-button-prev, .swiper-pagination': {
-    pointerEvents: 'auto',
-    zIndex: 10,
-  },
-  // Prevent the swiper container from being clickable
-  pointerEvents: 'none',
-  // But allow slides to be clickable
-  '.swiper-wrapper, .swiper-slide': {
-    pointerEvents: 'auto',
-  },
 }));
 
 const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
@@ -58,17 +47,6 @@ const StyledSwiperCompact = styled(Swiper)(({ theme }) => ({
   '.swiper-button-prev.swiper-button-disabled': {
     opacity: 0,
   },
-  // Prevent navigation clicks from bubbling up
-  '.swiper-button-next, .swiper-button-prev, .swiper-pagination': {
-    pointerEvents: 'auto',
-    zIndex: 10,
-  },
-  // Prevent the swiper container from being clickable
-  pointerEvents: 'none',
-  // But allow slides to be clickable
-  '.swiper-wrapper, .swiper-slide': {
-    pointerEvents: 'auto',
-  }
 }));
 
 const StyledSwiperSlide = styled(SwiperSlide)(({ theme }) => ({
@@ -120,19 +98,6 @@ export const SwiperCarousel = ({
     }
   }
 
-  const handleSlideClick = (e: React.MouseEvent) => {
-    // Avoid triggering if clicking on a Swiper control
-    const target = e.target as HTMLElement;
-    if (
-      target.closest('.swiper-button-next') ||
-      target.closest('.swiper-button-prev') ||
-      target.closest('.swiper-pagination')
-    ) {
-      return;
-    }
-    onSlideClick?.();
-  };
-
   return (
     <Box sx={{
       paddingY: margin,
@@ -156,7 +121,7 @@ export const SwiperCarousel = ({
           onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}
@@ -176,7 +141,7 @@ export const SwiperCarousel = ({
           onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}
@@ -196,7 +161,7 @@ export const SwiperCarousel = ({
           onRealIndexChange={onRealIndexChange}
         >
           {children.map((child, index) => (
-            <StyledSwiperSlide key={index} style={{ margin }} onClick={handleSlideClick}>
+            <StyledSwiperSlide key={index} style={{ margin }} onClick={onSlideClick ? onSlideClick : undefined}>
               {child}
             </StyledSwiperSlide>
           ))}
