@@ -1,7 +1,7 @@
 import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
 import { getDisplayName } from "./locationNames";
 
-const PHOTON_TIMEOUT_MS = 2000;
+const PHOTON_TIMEOUT_MS = 8000;
 
 async function fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   return Promise.race([
