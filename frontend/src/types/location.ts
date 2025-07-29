@@ -46,7 +46,7 @@ export interface LocationSearchOptions {
 }
 
 export const CITY_ABBREVIATIONS: Record<string, string> = {
-  "City of New York": "New York City",
+  "New York": "New York City",
 }
 
 export const STATE_ABBREVIATIONS: Record<string, string> = {

@@ -7,59 +7,119 @@ import { fileURLToPath } from 'url';
 
 // Popular wedding destinations to geocode
 const DESTINATIONS_TO_GEOCODE = [
-  // Major Cities
-  'New York City, NY, USA',
-  'Los Angeles, CA, USA',
-  'San Francisco, CA,  USA',
-  'Fremont, CA, USA',
-  'San Diego, CA, USA',
-  'San Jose, CA, USA',
-  'Sacramento, CA, USA',
-  'San Gabriel, CA, USA',
-  'Chicago, IL, USA',
-  'Miami, FL, USA',
-  'Manassas, VA, USA',
-  'Seattle, WA, USA',
-  'Austin, TX, USA',
-  'Houston, TX, USA',
-  'Dallas, TX, USA',
-  'Atlanta, GA, USA',
-  'Boston, MA, USA',
-  'Philadelphia, PA, USA',
-  'Pittsburgh, PA, USA',
-  'Cleveland, OH, USA',
-  'Detroit, MI, USA',
-  'Minneapolis, MN, USA',
-  'Denver, CO, USA',
-  'Portland, OR, USA',
-  'Phoenix, AZ, USA',
-  'Washington DC, USA',
+  // Top searches
+  'New York City, NY, United States',
+  'San Francisco, CA, United States',
   'Toronto, Canada',
+  'Boston, MA, United States',
+  'Los Angeles, CA, United States',
+
+  // Major Cities
+  'Chicago, IL, United States',
+  'Houston, TX, United States',
+  'Seattle, WA, United States',
+  'Washington DC, DC, United States',
+  'Philadelphia, PA, United States',
+  'San Antonio, TX, United States',
+  'San Diego, CA, United States',
+  'Dallas, TX, United States',
+  'Jacksonville, FL, United States',
+  'Austin, TX, United States',
+  'Fort Worth, TX, United States',
+  'San Jose, CA, United States',
+  'Columbus, OH, United States',
+  'Charlotte, NC, United States',
+  'Indianapolis, IN, United States',
+  'Denver, CO, United States',
+  'Oklahoma City, OK, United States',
+  'Fremont, CA, United States',
+  'Phoenix, AZ, United States',
+  'Sacramento, CA, United States',
+  'San Gabriel, CA, United States',
+  'Miami, FL, United States',
+  'Manassas, VA, United States',
+  'Fairfax, VA, United States',
+  'Sterling, VA, United States',
+  'Atlanta, GA, United States',
+  'Raleigh, NC, United States',
+  'Pittsburgh, PA, United States',
+  'Cleveland, OH, United States',
+  'Detroit, MI, United States',
+  'Minneapolis, MN, United States',
+  'Portland, OR, United States',
+  'North Reading, MA, United States',
+  'Nashville, TN, United States',
+  'Orlando, FL, United States',
+  'Tampa, FL, United States',
+  'St. Louis, MO, United States',
+  'Baltimore, MD, United States',
+  'Richmond, VA, United States',
+  'Cincinnati, OH, United States',
+
   'Vancouver, Canada',
   'Montreal, Canada',
   'Ontario, Canada',
+  'Brampton, Ontario, Canada',
   'Calgary, Canada',
   'Paris, France',
   'London, United Kingdom',
+  'Elsinore, United Kingdom',
+
   'Lisbon, Portugal',
-  // 'Sydney, Australia',
-  // 'Melbourne, Australia',
+  'Barcelona, Spain',
 
 
   // States
   'California, United States',
   'Texas, United States',
   'Florida, United States',
-  'Connecticut, United States',
-  'Massachusetts, United States',
-  'Illinois, United States',
-  'Washington, United States',
-  'Virginia, United States',
-  'New Jersey, United States',
-  'Pennsylvania, United States',
   'New York, United States',
+  'Pennsylvania, United States',
+  'Illinois, United States',
+  'Ohio, United States',
+  'Georgia, United States',
+  'North Carolina, United States',
+  'Michigan, United States',
+  'New Jersey, United States',
+  'Virginia, United States',
+  'Washington, United States',
+  'Arizona, United States',
+  'Tennessee, United States',
+  'Massachusetts, United States',
+  'Indiana, United States',
+  'Missouri, United States',
+  'Maryland, United States',
+  'Wisconsin, United States',
+  'Colorado, United States',
+  'Minnesota, United States',
+  'South Carolina, United States',
+  'Alabama, United States',
+  'Louisiana, United States',
+  'Kentucky, United States',
+  'Oregon, United States',
   'Oklahoma, United States',
+  'Connecticut, United States',
+  'Utah, United States',
+  'Iowa, United States',
+  'Nevada, United States',
+  'Arkansas, United States',
+  'Mississippi, United States',
+  'New Mexico, United States',
+  'Nebraska, United States',
+  'Idaho, United States',
+  'West Virginia, United States',
   'Hawaii, United States',
+  'New Hampshire, United States',
+  'Maine, United States',
+  'Montana, United States',
+  'Rhode Island, United States',
+  'Delaware, United States',
+  'South Dakota, United States',
+  'North Dakota, United States',
+  'Alaska, United States',
+  'Vermont, United States',
+  'Wyoming, United States',
+
   'British Columbia, Canada',
   'Quebec, Canada',
   'Ontario, Canada',
@@ -71,7 +131,10 @@ const DESTINATIONS_TO_GEOCODE = [
   'United States',
   'Australia',
   'Spain',
-  'Portugal'
+  'Portugal',
+  'Italy',
+  'Switzerland',
+  'Norway'
 ];
 
 interface PopulatedLocation extends LocationResult {
@@ -189,7 +252,7 @@ function generateTSFile(successful: PopulatedLocation[], failed: PopulatedLocati
 
 import { LocationResult } from '@/types/location';
 
-export const POPULATED_WEDDING_DESTINATIONS: LocationResult[] = [
+export const POPULATED_LOCATIONS: LocationResult[] = [
 ${successfulCode}
 ];
 
@@ -197,7 +260,7 @@ ${successfulCode}
 ${failedQueries.length > 0 ? `// ${failedQueries.join('\n// ')}` : '// All locations successfully geocoded!'}
 
 export function findLocationByName(name: string): LocationResult | undefined {
-  return POPULATED_WEDDING_DESTINATIONS.find(
+  return POPULATED_LOCATIONS.find(
     location => location.display_name.toLowerCase().includes(name.toLowerCase()) ||
                 location.address?.city?.toLowerCase().includes(name.toLowerCase())
   );
