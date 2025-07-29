@@ -1,7 +1,7 @@
 import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
 import { getDisplayName } from "./locationNames";
 
-const PHOTON_TIMEOUT_MS = 8000;
+const PHOTON_TIMEOUT_MS = 5000;
 
 async function fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   return Promise.race([
@@ -10,9 +10,10 @@ async function fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Prom
   ]);
 }
 
-async function rawPhotonFetch(query: string): Promise<LocationResult[]> {
+async function rawPhotonFetch(encodedLocation: string): Promise<LocationResult[]> {
+  console.debug(`Fetching Photon results for query: "${encodedLocation}"`);
   const res = await fetch(
-    `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&lang=en&limit=3&layer=city&layer=state&layer=country`,
+    `https://photon.komoot.io/api/?q=${encodedLocation}&lang=en&limit=3&layer=city&layer=state&layer=country`,
     {
       headers: {
         "User-Agent": "AsianWeddingMakeup/1.0 (katrina@asianweddingmakeup.com)",

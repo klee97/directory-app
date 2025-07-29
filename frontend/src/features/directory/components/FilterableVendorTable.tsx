@@ -301,7 +301,7 @@ export function FilterableVendorTableContent({
           <Box minWidth={FILTER_MIN_WIDTH + SEARCH_FILTER_GAP} />
           <SearchBar searchParams={searchParams} />
           <LocationAutocomplete
-            value={selectedLocation?.display_name || ""}
+            value={selectedLocation}
             onSelect={setSelectedLocation}
           />
         </Box>

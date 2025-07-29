@@ -17,6 +17,7 @@ import ClearRoundedIcon from '@mui/icons-material/ClearRounded';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import { useEffect, useRef, useState } from 'react';
+import { LocationResult } from '@/types/location';
 
 interface InputWithDebounceProps {
   value: string;
@@ -29,8 +30,7 @@ interface InputWithDebounceProps {
   withDropdown?: boolean;
   loading?: boolean;
   results?: Array<{ display_name: string, type?: string | undefined }>;
-  fetchResults?: (query: string) => Promise<void>;
-  onSelect?: (result: { display_name: string, type?: string | undefined }) => void;
+  onSelect?: (result: LocationResult) => void;
   renderResult?: (result: { display_name: string, type?: string | undefined }) => React.ReactNode;
 }
 
@@ -45,7 +45,6 @@ export default function InputWithDebounce({
   withDropdown = false,
   loading = false,
   results = [],
-  fetchResults,
   onSelect,
   renderResult,
 }: InputWithDebounceProps) {
@@ -142,9 +141,6 @@ export default function InputWithDebounce({
   const handleFocus = () => {
     if (withDropdown && !hasSelected) {
       setDropdownVisible(true);
-      if (inputValue.trim() === '' && fetchResults) {
-        fetchResults(''); // Fetch suggestions when the input is focused and empty
-      }
     }
   };
 
@@ -209,13 +205,10 @@ export default function InputWithDebounce({
             mt: 0.5,
           }}
         >
-          {loading ? (
-            <Box sx={{ p: 1 }} alignContent={'center'}>
-              <CircularProgress size={20} />
-            </Box>
-          ) : results.length > 0 ? (
+          {/* Show results if any */}
+          {results.length > 0 && (
             <List dense disablePadding>
-              {results.map((result, index) => (
+              {results.map((result: LocationResult, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemButton
                     onClick={() => {
@@ -223,7 +216,7 @@ export default function InputWithDebounce({
                       setInputValue(result.display_name);
                       setHasSelected(true);
                       setDropdownVisible(false);
-                      onSelect?.({ ...result, type: result.type || '' });
+                      onSelect?.(result);
                     }}
                     onMouseDown={(e) => e.preventDefault()}
                   >
@@ -236,7 +229,15 @@ export default function InputWithDebounce({
                 </ListItem>
               ))}
             </List>
-          ) : (
+          )}
+          {loading && (
+            <Box sx={{ p: 1 }} display="flex" justifyContent="center">
+              <CircularProgress size={20} />
+            </Box>
+          )}
+
+          {/* Show empty state if no results and not loading */}
+          {!loading && inputValue.trim() !== '' && results.length === 0 && (
             <Box sx={{ p: 1 }}>
               <Typography variant="body2" color="text.secondary" align="center">
                 No results found
