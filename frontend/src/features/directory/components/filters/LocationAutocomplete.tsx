@@ -1,72 +1,51 @@
-import React, { useState, useRef, useEffect } from 'react';
+'use client';
+
+import React, { useState, useMemo, useEffect } from 'react';
 import ListItemText from '@mui/material/ListItemText';
-import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_COUNTRY_DISPLAY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LOCATION_TYPE_STATE_DISPLAY, LocationResult } from '@/types/location';
 import Typography from '@mui/material/Typography';
+import {
+  LOCATION_TYPE_COUNTRY,
+  LOCATION_TYPE_COUNTRY_DISPLAY,
+  LOCATION_TYPE_PRESET_REGION,
+  LOCATION_TYPE_STATE,
+  LOCATION_TYPE_STATE_DISPLAY,
+  LocationResult,
+} from '@/types/location';
 import InputWithDebounce from '@/components/ui/InputWithDebounce';
+import { useSearch } from '@/features/directory/api/useSearch';
 
 interface LocationAutocompleteProps {
-  value: string | null;
+  value: LocationResult | null;
   onSelect: (location: LocationResult | null) => void;
 }
 
 export default function LocationAutocomplete({ value, onSelect }: LocationAutocompleteProps) {
-  const [query, setQuery] = useState(value || "");
-  const [results, setResults] = useState<LocationResult[]>([]);
-  const [loading, setLoading] = useState(false);
-  const cache = useRef(new Map<string, LocationResult[]>());
-  const MAX_CACHE_SIZE = 10;
+  const [inputQuery, setInputQuery] = useState(value?.display_name || '');
+  const [searchQuery, setSearchQuery] = useState(value?.display_name || '');
 
-  // Track last selected value to detect real changes
-  const lastFetchedQuery = useRef<string | null>(null);
+  const {
+    instantLocations,
+    detailedLocations,
+    isInstantLoading,
+    isDetailedLoading,
+  } = useSearch(searchQuery); // only updates on debounce
 
-  useEffect(() => {
-    if (value !== null && value !== query) {
-      setQuery(value);
-    }
-  }, [value, query]);
+  const combinedResults = useMemo(() => {
+    console.debug('Combining results:', {
+      instantCount: instantLocations.length,
+      detailedCount: detailedLocations.length,
+    });
+    const ids = new Set(instantLocations.map((r) => r.display_name));
+    return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
+  }, [instantLocations, detailedLocations]);
 
-  const fetchSuggestions = async (q: string) => {
-    const trimmed = q.trim().toLowerCase();
-    if (!trimmed || trimmed === lastFetchedQuery.current) {
-      return;
-    }
-    lastFetchedQuery.current = trimmed;
-
-    console.log("Fetching location suggestions for query:", q);
-    setLoading(true);
-    const cached = cache.current.get(q);
-    if (cached && cached.length > 0) {
-      setResults(cached);
-      setLoading(false);
-      return;
-    } else {
-      try {
-        const res = await fetch(`/api/location-suggestions?q=${encodeURIComponent(q)}`);
-        if (res.ok) {
-          const { matchingRegions, matchingLocations } = await res.json();
-          console.debug("Nominatim regions:", matchingRegions);
-          console.debug("Nominatim locations:", matchingLocations);
-          const fullResults = [...matchingRegions, ...matchingLocations];
-          if (cache.current.size >= MAX_CACHE_SIZE) {
-            const firstKey = cache.current.keys().next().value;
-            if (firstKey !== undefined) {
-              cache.current.delete(firstKey);
-            }
-          }
-          cache.current.set(q, fullResults);
-          setResults(fullResults);
-        } else {
-          setResults([]);
-        }
-
-      } catch (err) {
-        console.error(err);
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
+useEffect(() => {
+  const displayName = value?.display_name || '';
+  if (displayName !== inputQuery) {
+    setInputQuery(displayName);
+    setSearchQuery(displayName);
+  }
+}, [value, inputQuery]);
 
   const renderResult = (result: LocationResult) => (
     <ListItemText
@@ -106,26 +85,26 @@ export default function LocationAutocomplete({ value, onSelect }: LocationAutoco
 
   return (
     <InputWithDebounce
-      value={query}
-      onChange={(val) => {
-        setQuery(val);
-      }}
+      value={inputQuery}
+      onChange={setInputQuery}
       onDebouncedChange={(val) => {
-        fetchSuggestions(val);
+        setSearchQuery(val); // triggers useSearch
       }}
       onClear={() => {
-        setQuery('');
-        setResults([]);
+        setInputQuery('');
+        setSearchQuery('');
         onSelect(null);
       }}
       placeholder="Search a city, state, or country"
       debounceMs={300}
       isLocationInput={true}
       withDropdown={true}
-      loading={loading}
-      results={results}
-      fetchResults={fetchSuggestions}
-      onSelect={onSelect}
+      loading={(isInstantLoading || isDetailedLoading)}
+      results={combinedResults}
+      onSelect={(result) => {
+        if (result) setInputQuery(result.display_name);
+        onSelect(result);
+      }}
       renderResult={renderResult}
     />
   );

@@ -15,7 +15,8 @@
     "lint": "next lint",
     "generate": "graphql-codegen --require dotenv/config --config codegen.yml",
     "db:pull": "supabase db pull --schema public",
-    "db:diff": "supabase db diff --schema public"
+    "db:diff": "supabase db diff --schema public",
+    "populate-locations": "npx tsx scripts/populate_location_coordinates.ts"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^16.0.1",
@@ -62,6 +63,7 @@
     "@types/react-google-recaptcha": "^2.1.9",
     "eslint": "^9",
     "eslint-config-next": "15.1.5",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   },
   "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
