@@ -335,6 +335,17 @@ export const POPULATED_LOCATIONS: LocationResult[] = [
     },
   },
   {
+    "display_name": "Calgary, Alberta, Canada",
+    "lat": 51.0456064,
+    "lon": -114.057541,
+    "type": "city",
+    "address": {
+      "city": "Calgary",
+      "state": "Alberta",
+      "country": "Canada"
+    },
+  },
+  {
     "display_name": "Paris, Ile-de-France, France",
     "lat": 48.8534951,
     "lon": 2.3483915,
@@ -619,7 +630,7 @@ export const POPULATED_LOCATIONS: LocationResult[] = [
 export function findLocationByName(name: string): LocationResult | undefined {
   return POPULATED_LOCATIONS.find(
     location => location.display_name.toLowerCase().includes(name.toLowerCase()) ||
-                location.address?.city?.toLowerCase().includes(name.toLowerCase())
+      location.address?.city?.toLowerCase().includes(name.toLowerCase())
   );
 }
 
