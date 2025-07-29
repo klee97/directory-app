@@ -1,3 +1,4 @@
+import { FilterContext } from '@/features/directory/components/filters/FilterContext';
 import debounce from 'lodash.debounce';
 
 export const LOCATION_FILTER_NAME = 'region';
@@ -24,36 +25,24 @@ export const trackFilterEvent = (
 };
 
 export const trackFiltersApplied = (
-  region: string,
-  skills: string[],
-  travelsWorldwide: boolean,
-  searchTerm: string,
-  sortOption: string,
-  resultCount: number
+  filterContext: FilterContext
 ) => {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({
       event: 'filters_applied',
-      region: region,
-      skill: skills,
-      travels_worldwide: travelsWorldwide,
-      search_term: searchTerm,
-      sort_option: sortOption,
-      result_count: resultCount ?? 0,
-      has_results: resultCount ? resultCount > 0 : false,
+      region: filterContext.selectedLocationName || "",
+      skill: filterContext.selectedSkills,
+      travels_worldwide: filterContext.travelsWorldwide,
+      search_term: filterContext.searchQuery || "",
+      sort_option: filterContext.sortOptionName || "",
+      result_count: filterContext.resultCount ?? 0,
+      has_results: filterContext.resultCount ? filterContext.resultCount > 0 : false,
     });
   }
 }
 
-export const debouncedTrackSearch = debounce((params) => {
-  trackFiltersApplied(
-    params.selectedLocation,
-    params.selectedSkill,
-    params.travelsWorldwide,
-    params.searchQuery,
-    params.sortOption,
-    params.resultCount
-  );
+export const debouncedTrackSearch = debounce((filterContext: FilterContext) => {
+  trackFiltersApplied(filterContext);
 }, 500);
 
 export const trackSearchQuery = (
