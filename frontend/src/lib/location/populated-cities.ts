@@ -4,7 +4,7 @@
 
 import { LocationResult } from '@/types/location';
 
-export const POPULATED_WEDDING_DESTINATIONS: LocationResult[] = [
+export const POPULATED_LOCATIONS: LocationResult[] = [
   {"display_name":"New York City, NY, USA","lat":40.7127281,"lon":-74.0060152,"type":"city","address":{"city":"New York","state":"New York","country":"United States"}},
   {"display_name":"San Francisco, CA, USA","lat":37.7792588,"lon":-122.4193286,"type":"city","address":{"city":"San Francisco","state":"California","country":"United States"}},
   {"display_name":"Toronto, Ontario, Canada","lat":43.6534817,"lon":-79.3839347,"type":"city","address":{"city":"Toronto","state":"Ontario","country":"Canada"}},
@@ -128,7 +128,7 @@ export const POPULATED_WEDDING_DESTINATIONS: LocationResult[] = [
 // All locations successfully geocoded!
 
 export function findLocationByName(name: string): LocationResult | undefined {
-  return POPULATED_WEDDING_DESTINATIONS.find(
+  return POPULATED_LOCATIONS.find(
     location => location.display_name.toLowerCase().includes(name.toLowerCase()) ||
                 location.address?.city?.toLowerCase().includes(name.toLowerCase())
   );

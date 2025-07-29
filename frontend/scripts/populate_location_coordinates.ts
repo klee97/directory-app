@@ -252,7 +252,7 @@ function generateTSFile(successful: PopulatedLocation[], failed: PopulatedLocati
 
 import { LocationResult } from '@/types/location';
 
-export const POPULATED_WEDDING_DESTINATIONS: LocationResult[] = [
+export const POPULATED_LOCATIONS: LocationResult[] = [
 ${successfulCode}
 ];
 
@@ -260,7 +260,7 @@ ${successfulCode}
 ${failedQueries.length > 0 ? `// ${failedQueries.join('\n// ')}` : '// All locations successfully geocoded!'}
 
 export function findLocationByName(name: string): LocationResult | undefined {
-  return POPULATED_WEDDING_DESTINATIONS.find(
+  return POPULATED_LOCATIONS.find(
     location => location.display_name.toLowerCase().includes(name.toLowerCase()) ||
                 location.address?.city?.toLowerCase().includes(name.toLowerCase())
   );
