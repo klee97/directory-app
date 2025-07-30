@@ -2,7 +2,9 @@ export type FilterContext = {
   searchQuery: string | null;
   selectedSkills: string[];
   travelsWorldwide: boolean;
-  selectedLocationName: string | null;
+  selectedLocationName?: string | null;
+  lat?: number | null;
+  lon?: number | null;
   sortOptionName?: string;
   resultCount?: number;
 };

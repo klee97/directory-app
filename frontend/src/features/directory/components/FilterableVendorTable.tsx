@@ -16,7 +16,7 @@ import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LOCATION_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
@@ -24,12 +24,13 @@ import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 import { FilterContext } from './filters/FilterContext';
-import { resolveLocationFromDisplayName } from '../api/resolveLocation';
+import { parseLatLonFromParams, serializeLocation } from '@/lib/location/serializer';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
 const locationPageGenerator = new LocationPageGenerator();
+const reverseGeocodeCache = new Map<string, LocationResult>();
 
 interface FilterableVendorTableContentProps {
   tags: string[];
@@ -50,7 +51,7 @@ export function FilterableVendorTableContent({
   const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
   const router = useRouter();
 
-  // Extract other search parameters
+  // Extract search parameters
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
@@ -64,84 +65,50 @@ export function FilterableVendorTableContent({
   const [loading, setLoading] = useState(false);
   const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
   const observerRef = useRef<HTMLDivElement | null>(null);
-  const clientLocationCache = useRef(new Map<string, LocationResult>());
-
-  // Sync selectedLocation with URL parameter
-  useEffect(() => {
-    const locationName = searchParams.get(LOCATION_PARAM);
-
-    if (locationName) {
-      if (selectedLocation?.display_name === locationName) {
-        return; // Already have the right location
-      }
-      const cached = clientLocationCache.current.get(locationName);
-      if (cached) {
-        setSelectedLocation(cached);
-        return;
-      }
-
-      // Resolve via server-side cache/API
-      resolveLocationFromDisplayName(locationName).then(resolvedLocation => {
-        setSelectedLocation(resolvedLocation);
-      });
-    } else if (!preselectedLocation) {
-      setSelectedLocation(null);
-    }
-  }, [searchParams]);
 
   useScrollRestoration(true);
 
-  // Update URL and state when location changes
-  const updateLocationInUrl = useCallback((location: LocationResult | null) => {
-    const newParams = new URLSearchParams(searchParamsString);
+  useEffect(() => {
 
-    // Update component state with full location object
-    setSelectedLocation(location);
+    const coords = parseLatLonFromParams(searchParams);
+    if (!coords || selectedLocation) return;
 
-    if (location) {
-      newParams.set(LOCATION_PARAM, location.display_name);
-      clientLocationCache.current.set(location.display_name, location);
+    const cacheKey = `${coords.lat.toFixed(4)},${coords.lon.toFixed(4)}`;
+    const cached = reverseGeocodeCache.get(cacheKey);
 
-    } else {
-      newParams.delete(LOCATION_PARAM);
+    if (cached) {
+      console.debug("Used cached reverse geocode:", cached);
+      setSelectedLocation(cached);
+      return;
     }
 
-    trackFiltersApplied({
-      selectedLocationName: selectedLocation?.display_name ?? null,
-      selectedSkills,
-      travelsWorldwide,
-      searchQuery,
-      sortOptionName: sortOption.name,
-      resultCount: searchedAndSortedVendors.length,
-    });
+    const resolveLocation = async () => {
+      // Use your existing `/detailed` API or photon to geocode lat/lon
 
-    // Check if we should navigate to a location-specific page
-    if (useLocationPages && location && validLocationSlugs) {
-      const slug = locationPageGenerator.getSlugFromLocation(location);
-      if (slug && validLocationSlugs.has(slug)) {
-        newParams.delete(LOCATION_PARAM); // Remove param since it's in the URL path
-        const url = newParams.toString() ? `/${slug}?${newParams.toString()}` : `/${slug}`;
-        router.push(url, { scroll: false });
-        return;
+      const res = await fetch(`/api/search/reverse?lat=${coords.lat}&lon=${coords.lon}`);
+      const data: LocationResult | null = await res.json();
+      if (data) {
+        reverseGeocodeCache.set(cacheKey, data);
+
+        setSelectedLocation(data);
+        console.debug("Resolved location from lat/lon:", data);
+
       }
-    }
+    };
 
-    // Navigate to general page with location parameter
-    const url = newParams.toString() ? `/?${newParams.toString()}` : '/';
-    router.push(url, { scroll: false });
-  }, [searchParamsString, useLocationPages, validLocationSlugs, router]);
-
+    resolveLocation();
+  }, [searchParams, selectedLocation]);
   // Load vendors based on location filter
   useEffect(() => {
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
       if (!selectedLocation) {
+        // If no location is selected, show all vendors by default
         setVendorsInRadius(vendors);
         return;
       }
       setLoading(true);
-      console.log("Fetching vendors by location:", selectedLocation);
       const results = await getVendorsByLocation(selectedLocation, vendors);
       if (!cancelled) {
         setVendorsInRadius(results);
@@ -170,6 +137,7 @@ export function FilterableVendorTableContent({
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       const matchesAnySkill = selectedSkills.length > 0 ? selectedSkills
         .map(skill => vendor.tags.some((tag: VendorTag) =>
+          // does the vendor have a tag that matches the skill?
           tag.display_name?.toLowerCase() === skill.toLowerCase())
         ).includes(true) : true;
       return matchesTravel && matchesAnySkill;
@@ -208,7 +176,7 @@ export function FilterableVendorTableContent({
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 
-  // Set default sort option based on location
+  // set default sort option. If location is selected, default to distance sort
   useEffect(() => {
     if (selectedLocation) {
       setSortOption(SORT_OPTIONS.DISTANCE_ASC);
@@ -272,15 +240,44 @@ export function FilterableVendorTableContent({
     setLoading(false);
   }, [loading, searchedAndSortedVendors]);
 
-  // SIMPLIFIED: Clear filters
+  // Clear filters
   const handleClearFilters = () => {
     const newParams = new URLSearchParams(searchParamsString);
     newParams.delete(SKILL_PARAM);
     newParams.delete(TRAVEL_PARAM);
 
+    // Use router.push() to update the URL while keeping other params
     router.push(`?${newParams.toString()}`, { scroll: false });
     trackFilterReset();
   };
+
+  // Handle clear location selection for location-specific pages
+  useEffect(() => {
+    // go home when no location is selected
+    if (preselectedLocation && selectedLocation === null) {
+      const newParams = new URLSearchParams(searchParamsString);
+      newParams.delete(LATITUDE_PARAM);
+      newParams.delete(LONGITUDE_PARAM);
+      const url = newParams ? `/?${newParams.toString}` : '/';
+      router.push(url, { scroll: false });
+      return;
+    }
+
+    if (validLocationSlugs === null) return;
+    if (preselectedLocation?.display_name === selectedLocation?.display_name) return;
+
+    // If a new location is selected and useLocationPages is enabled, check for a location page
+    if (useLocationPages && selectedLocation) {
+      const slug = locationPageGenerator.getSlugFromLocation(selectedLocation);
+      if (slug && validLocationSlugs.has(slug)) {
+        console.debug("Found location page for:", selectedLocation.display_name);
+        const params = searchParamsString;
+        const url = params ? `/${slug}?${params}` : `/${slug}`;
+        router.push(`${url}`, { scroll: false });
+        return;
+      }
+    }
+  }, [preselectedLocation, selectedLocation, router, searchParamsString, useLocationPages, validLocationSlugs]);
 
   // Reset visible vendors when filtered list changes
   useEffect(() => {
@@ -314,6 +311,24 @@ export function FilterableVendorTableContent({
     setFocusedCardIndex(null);
   };
 
+  const handleSelectLocation = (location: LocationResult | null) => {
+    setSelectedLocation(location);
+
+    const params = new URLSearchParams(searchParamsString);
+    if (location) {
+      const serialized = serializeLocation(location);
+      if (serialized) {
+        const { lat, lon } = serialized;
+        params.set(LATITUDE_PARAM, String(lat));
+        params.set(LONGITUDE_PARAM, String(lon));
+      }
+    } else {
+      params.delete(LATITUDE_PARAM);
+      params.delete(LONGITUDE_PARAM);
+    }
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
       {/* Filters and Search Section */}
@@ -332,10 +347,7 @@ export function FilterableVendorTableContent({
           <SearchBar searchParams={searchParams} />
           <LocationAutocomplete
             value={selectedLocation}
-            onSelect={(location) => {
-              setSelectedLocation(location);
-              updateLocationInUrl(location);
-            }}
+            onSelect={handleSelectLocation}
           />
         </Box>
       </Box>
@@ -419,6 +431,11 @@ export function FilterableVendorTableContent({
                   onClick={() => {
                     const params = new URLSearchParams(searchParamsString);
                     params.set(TRAVEL_PARAM, 'true');
+                    if (!preselectedLocation) {
+                      params.delete("lat");
+                      params.delete("lon");
+                      setSelectedLocation(null);
+                    }
                     router.push(`/?${params.toString()}`);
                   }}
                   sx={{

@@ -29,7 +29,7 @@ import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
-import { LOCATION_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LATITUDE_PARAM, LOCATION_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -104,7 +104,8 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
 
   const searchParams = useSearchParams();
-  const selectedLocationName = searchParams.get(LOCATION_PARAM);
+  const lat = searchParams.get(LATITUDE_PARAM);
+  const lon = searchParams.get(LONGITUDE_PARAM);
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
   const searchQuery = searchParams.get(SEARCH_PARAM);
@@ -502,7 +503,8 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                 vendors={nearbyVendors}
                 title={`More wedding makeup artists for Asian features near ${getLocationString(vendor)}`}
                 filterContext={{
-                  selectedLocationName: selectedLocationName || null,
+                  lat: lat ? parseFloat(lat) : null,
+                  lon: lon ? parseFloat(lon) : null,
                   selectedSkills: selectedSkills,
                   travelsWorldwide: travelsWorldwide,
                   searchQuery: searchQuery || null
