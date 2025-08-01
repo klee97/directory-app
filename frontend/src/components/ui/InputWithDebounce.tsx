@@ -32,6 +32,7 @@ interface InputWithDebounceProps {
   results?: Array<{ display_name: string, type?: string | undefined }>;
   onSelect?: (result: LocationResult) => void;
   renderResult?: (result: { display_name: string, type?: string | undefined }) => React.ReactNode;
+  hasSelected?: boolean;
 }
 
 export default function InputWithDebounce({
@@ -47,10 +48,10 @@ export default function InputWithDebounce({
   results = [],
   onSelect,
   renderResult,
+  hasSelected = false,
 }: InputWithDebounceProps) {
   const [inputValue, setInputValue] = useState(value);
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [hasSelected, setHasSelected] = useState(false);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isTypingRef = useRef(false);
@@ -91,8 +92,8 @@ export default function InputWithDebounce({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     isTypingRef.current = true;
+    // Always show dropdown when typing, regardless of hasSelected
     setDropdownVisible(true);
-    setHasSelected(false); // user is typing again, so reset selection
     const val = e.target.value;
     setInputValue(val);
     onChange(val);
@@ -110,7 +111,6 @@ export default function InputWithDebounce({
     setInputValue(clearedValue);
     onChange(clearedValue);
     prevValueRef.current = clearedValue;
-    setHasSelected(false);
 
     // Trigger immediate suggestion fetch for empty input
     if (onDebouncedChange) {
@@ -139,8 +139,12 @@ export default function InputWithDebounce({
   };
 
   const handleFocus = () => {
-    if (withDropdown && !hasSelected) {
-      setDropdownVisible(true);
+    if (withDropdown) {
+      // Show dropdown on focus if:
+      // 1. We don't have a selection, OR
+      // 2. The input doesn't match the selection (user is editing)
+      const shouldShowDropdown = !hasSelected || inputValue.trim() === '';
+      setDropdownVisible(shouldShowDropdown);
     }
   };
 
@@ -214,7 +218,6 @@ export default function InputWithDebounce({
                     onClick={() => {
                       resultWasClickedRef.current = true;
                       setInputValue(result.display_name);
-                      setHasSelected(true);
                       setDropdownVisible(false);
                       onSelect?.(result);
                     }}

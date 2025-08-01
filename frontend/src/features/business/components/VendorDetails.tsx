@@ -29,7 +29,7 @@ import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
-import { LATITUDE_PARAM, LOCATION_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({

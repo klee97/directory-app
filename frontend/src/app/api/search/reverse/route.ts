@@ -25,6 +25,7 @@ export async function GET(req: Request) {
     }
 
     const props = topResult.properties || {};
+    // todo: use standardized display name function
     const displayName = [
       props.name,
       props.city,

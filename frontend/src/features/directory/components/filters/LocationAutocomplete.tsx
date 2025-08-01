@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import {
@@ -12,41 +12,34 @@ import {
   LocationResult,
 } from '@/types/location';
 import InputWithDebounce from '@/components/ui/InputWithDebounce';
-import { useSearch } from '@/features/directory/api/useSearch';
 
 interface LocationAutocompleteProps {
-  value: LocationResult | null;
+  inputValue: string;
+  onInputChange: (value: string) => void;
+  onDebouncedChange: (value: string, prev: string) => void;
+  selectedLocation: LocationResult | null;
   onSelect: (location: LocationResult | null) => void;
+  results: LocationResult[];
+  loading: boolean;
 }
 
-export default function LocationAutocomplete({ value, onSelect }: LocationAutocompleteProps) {
-  const [inputQuery, setInputQuery] = useState(value?.display_name || '');
-  const [searchQuery, setSearchQuery] = useState(value?.display_name || '');
-
-  const {
-    instantLocations,
-    detailedLocations,
-    isInstantLoading,
-    isDetailedLoading,
-  } = useSearch(searchQuery); // only updates on debounce
-
-  const combinedResults = useMemo(() => {
-    console.debug('Combining results:', {
-      instantCount: instantLocations.length,
-      detailedCount: detailedLocations.length,
-    });
-    const ids = new Set(instantLocations.map((r) => r.display_name));
-    return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
-  }, [instantLocations, detailedLocations]);
-
-useEffect(() => {
-  const displayName = value?.display_name || '';
-  if (displayName !== inputQuery) {
-    setInputQuery(displayName);
-    setSearchQuery(displayName);
-  }
-}, [value, inputQuery]);
-
+export default function LocationAutocomplete({ 
+  inputValue,
+  onInputChange,
+  onDebouncedChange,
+  selectedLocation,
+  onSelect,
+  results,
+  loading
+}: LocationAutocompleteProps) {
+  // Consider it selected only if we have a location and the input exactly matches
+  // But also check if input is empty (for clearing behavior)
+  const hasSelected = Boolean(
+    selectedLocation && 
+    inputValue && 
+    inputValue.trim() !== '' && 
+    inputValue === selectedLocation.display_name
+  );
   const renderResult = (result: LocationResult) => (
     <ListItemText
       primary={
@@ -85,27 +78,19 @@ useEffect(() => {
 
   return (
     <InputWithDebounce
-      value={inputQuery}
-      onChange={setInputQuery}
-      onDebouncedChange={(val) => {
-        setSearchQuery(val); // triggers useSearch
-      }}
-      onClear={() => {
-        setInputQuery('');
-        setSearchQuery('');
-        onSelect(null);
-      }}
+      value={inputValue}
+      onChange={onInputChange}
+      onDebouncedChange={onDebouncedChange}
+      onClear={() => onSelect(null)}
       placeholder="Search a city, state, or country"
       debounceMs={300}
       isLocationInput={true}
       withDropdown={true}
-      loading={(isInstantLoading || isDetailedLoading)}
-      results={combinedResults}
-      onSelect={(result) => {
-        if (result) setInputQuery(result.display_name);
-        onSelect(result);
-      }}
+      loading={loading}
+      results={results}
+      onSelect={onSelect}
       renderResult={renderResult}
+      hasSelected={hasSelected}
     />
   );
 }
