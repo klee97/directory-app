@@ -24,15 +24,15 @@ import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 import { FilterContext } from './filters/FilterContext';
-import { parseLatLonFromParams, serializeLocation } from '@/lib/location/serializer';
+import { serializeLocation } from '@/lib/location/serializer';
 import useResolvedLocation from '@/hooks/useResolvedLocation';
 import { useSearch } from '@/hooks/useSearch';
+import { createGeocodeKey } from '@/lib/location/reverseGeocode';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
 const locationPageGenerator = new LocationPageGenerator();
-const reverseGeocodeCache = new Map<string, LocationResult>();
 
 interface FilterableVendorTableContentProps {
   tags: string[];
@@ -65,16 +65,18 @@ export function FilterableVendorTableContent({
   const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
   const [loading, setLoading] = useState(false);
   const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
-  
+
   // Location input state
   const [locationInputValue, setLocationInputValue] = useState('');
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
-  
+  const [immediateLocation, setImmediateLocation] = useState<LocationResult | null>(null);
+
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const reverseGeocodeCache = new Map<string, LocationResult>();
 
   useScrollRestoration(true);
 
-  const selectedLocation = useResolvedLocation({ preselectedLocation, searchParams });
+  const selectedLocation = useResolvedLocation({ preselectedLocation, immediateLocation, searchParams, reverseGeocodeCache });
 
   // Debug logging to track location changes
   useEffect(() => {
@@ -115,7 +117,6 @@ export function FilterableVendorTableContent({
     if (prevSelectedLocationRef.current !== selectedLocation) {
       const displayName = selectedLocation?.display_name || '';
       setLocationInputValue(displayName);
-      setLocationSearchQuery(displayName);
       prevSelectedLocationRef.current = selectedLocation;
     }
   }, [selectedLocation]);
@@ -126,9 +127,9 @@ export function FilterableVendorTableContent({
 
     const fetchVendorsByDistance = async () => {
       // Check if we have a valid location with required properties
-      const hasValidLocation = selectedLocation && 
-        selectedLocation.display_name && 
-        selectedLocation.lat !== undefined && 
+      const hasValidLocation = selectedLocation &&
+        selectedLocation.display_name &&
+        selectedLocation.lat !== undefined &&
         selectedLocation.lon !== undefined;
 
       if (!hasValidLocation) {
@@ -138,10 +139,36 @@ export function FilterableVendorTableContent({
         setLoading(false);
         return;
       }
-      
+
+      // Check if the current location matches the URL params to avoid stale fetches
+      const urlLat = searchParams.get(LATITUDE_PARAM);
+      const urlLon = searchParams.get(LONGITUDE_PARAM);
+
+      if (urlLat && urlLon) {
+        const urlLatNum = parseFloat(urlLat);
+        const urlLonNum = parseFloat(urlLon);
+        const locationLat = selectedLocation?.lat;
+        const locationLon = selectedLocation?.lon;
+
+        // Only proceed if locationLat and locationLon are defined
+        if (locationLat === undefined || locationLon === undefined) {
+          console.debug('Location latitude or longitude is undefined, skipping fetch.');
+          return;
+        }
+
+        // Allow for small floating point differences
+        const latMatch = Math.abs(urlLatNum - locationLat) < 0.0001;
+        const lonMatch = Math.abs(urlLonNum - locationLon) < 0.0001;
+
+        if (!latMatch || !lonMatch) {
+          console.debug('Location/URL mismatch, skipping fetch. URL:', { urlLatNum, urlLonNum }, 'Location:', { locationLat, locationLon });
+          return; // Skip fetch, location is still resolving
+        }
+      }
+
       console.debug('Fetching vendors for location:', selectedLocation.display_name);
       setLoading(true);
-      
+
       try {
         const results = await getVendorsByLocation(selectedLocation, vendors);
         if (!cancelled) {
@@ -164,7 +191,7 @@ export function FilterableVendorTableContent({
     return () => {
       cancelled = true;
     };
-  }, [selectedLocation?.display_name, selectedLocation?.lat, selectedLocation?.lon, vendors]);
+  }, [selectedLocation?.display_name, selectedLocation?.lat, selectedLocation?.lon, vendors, searchParams]);
 
   // Fetch valid slugs on mount
   useEffect(() => {
@@ -297,12 +324,17 @@ export function FilterableVendorTableContent({
 
   // Handle location selection
   const handleSelectLocation = (location: LocationResult | null) => {
-    console.debug('handleSelectLocation called with:', location?.display_name);
+    console.debug('handleSelectLocation called with:', location);
     const params = new URLSearchParams(searchParamsString);
+    setImmediateLocation(location);
     if (location) {
+
       // Update local state immediately for UX, but let the URL change handle the real state
       setLocationInputValue(location.display_name);
-      
+      if (location.lat && location.lon) {
+        console.debug('Adding location to reverse geocode cache:', location);
+        reverseGeocodeCache.set(createGeocodeKey(location.lat, location.lon), location);
+      }
       const serialized = serializeLocation(location);
       console.debug('Serialized location:', serialized);
       if (serialized) {
@@ -330,7 +362,7 @@ export function FilterableVendorTableContent({
   };
 
   // Handle debounced location search
-  const handleLocationDebouncedChange = (value: string, prev: string) => {
+  const handleLocationDebouncedChange = (value: string) => {
     setLocationSearchQuery(value);
   };
 

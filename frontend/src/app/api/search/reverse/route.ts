@@ -1,4 +1,14 @@
+import { createGeocodeKey } from '@/lib/location/reverseGeocode';
+import { fetchPhotonResult } from '@/lib/location/photonUtils';
+import { rawReversePhotonFetch } from '@/lib/location/reverseGeocode';
+import { LocationResult } from '@/types/location';
+import { LRUCache } from 'lru-cache';
 import { NextResponse } from 'next/server';
+
+const reverseGeocodeCache = new LRUCache<string, { location: LocationResult, success: boolean }>({
+  max: 100,
+  ttl: 1000 * 60 * 60 * 24, // 24 hours for successful results
+});
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -9,40 +19,31 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Missing lat or lon' }, { status: 400 });
   }
 
+  const latNum = parseFloat(lat);
+  const lonNum = parseFloat(lon);
+  const geocodeKey = createGeocodeKey(latNum, lonNum);
+
+  // Check cache first
+  const cached = reverseGeocodeCache.get(geocodeKey);
+  if (cached) {
+    return NextResponse.json(cached.location);
+  }
+
   try {
-    const photonUrl = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
-    const res = await fetch(photonUrl);
+    const location = await fetchPhotonResult(() => rawReversePhotonFetch(latNum, lonNum));
 
-    if (!res.ok) {
-      throw new Error(`Photon error: ${res.statusText}`);
-    }
-
-    const data = await res.json();
-    const topResult = data.features?.[0];
-
-    if (!topResult) {
+    if (location) {
+      reverseGeocodeCache.set(geocodeKey, { location, success: true });
+      console.debug(`Reverse geocode success for (${lat}, ${lon}):`, location);
+      return NextResponse.json(location);
+    } else {
+      console.warn(`Reverse geocode found no results for (${lat}, ${lon})`);
       return NextResponse.json({ error: 'No results found' }, { status: 404 });
     }
-
-    const props = topResult.properties || {};
-    // todo: use standardized display name function
-    const displayName = [
-      props.name,
-      props.city,
-      props.state,
-      props.country
-    ].filter(Boolean).join(', ');
-
-    const locationResult = {
-      display_name: displayName,
-      lat: parseFloat(lat),
-      lon: parseFloat(lon),
-      address: props
-    };
-
-    return NextResponse.json(locationResult);
   } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: 'Failed to resolve location' }, { status: 500 });
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    console.warn(`Reverse search failed for (${lat}, ${lon}):`, errorMessage);
+
+    return NextResponse.json({ error: 'Failed to reverse geocode location' }, { status: 500 });
   }
 }

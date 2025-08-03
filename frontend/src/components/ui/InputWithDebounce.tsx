@@ -59,6 +59,7 @@ export default function InputWithDebounce({
   const resultWasClickedRef = useRef(false);
   const clearWasClickedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const wasManuallyEnteredRef = useRef(true);
 
   useEffect(() => {
     // Sync from parent value only when not typing
@@ -76,7 +77,9 @@ export default function InputWithDebounce({
       isTypingRef.current = false;
 
       if (onDebouncedChange && inputValue !== prevValueRef.current) {
-        onDebouncedChange(inputValue, prevValueRef.current);
+        if (wasManuallyEnteredRef.current) {
+          onDebouncedChange(inputValue, prevValueRef.current);
+        }
         prevValueRef.current = inputValue;
       }
 
@@ -92,10 +95,11 @@ export default function InputWithDebounce({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     isTypingRef.current = true;
+
     // Always show dropdown when typing, regardless of hasSelected
     setDropdownVisible(true);
     const val = e.target.value;
-    setInputValue(val);
+    handleManualInput(val);
     onChange(val);
   };
 
@@ -148,6 +152,10 @@ export default function InputWithDebounce({
     }
   };
 
+  const handleManualInput = (value: string) => {
+    wasManuallyEnteredRef.current = true;
+    setInputValue(value);
+  };
 
   return (
     <Box sx={{ position: 'relative', width: '100%' }}>
@@ -218,6 +226,7 @@ export default function InputWithDebounce({
                     onClick={() => {
                       resultWasClickedRef.current = true;
                       setInputValue(result.display_name);
+                      wasManuallyEnteredRef.current = false;
                       setDropdownVisible(false);
                       onSelect?.(result);
                     }}
