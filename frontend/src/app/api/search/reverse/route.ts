@@ -40,10 +40,9 @@ export async function GET(req: Request) {
       console.warn(`Reverse geocode found no results for (${lat}, ${lon})`);
       return NextResponse.json({ error: 'No results found' }, { status: 404 });
     }
-  } catch (error: any) {
+  } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : String(error);
-    console.warn(`Reverse search failed for (${lat}, ${lon}):`, errorMessage);
-
-    return NextResponse.json({ error: 'Failed to reverse geocode location' }, { status: 500 });
+    console.warn(`Reverse search failed for "${lat}, ${lon}":`, errorMessage);
+    return NextResponse.json({ error: 'Failed to resolve location' }, { status: 500 });
   }
 }
