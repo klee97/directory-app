@@ -43,8 +43,3 @@ export async function rawReversePhotonFetch(lat: number, lon: number): Promise<L
   })
 
 }
-
-
-export function createGeocodeKey(lat: number, lon: number): string {
-    return `${lat.toFixed(4)},${lon.toFixed(4)}`;
-}

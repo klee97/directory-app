@@ -1,21 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { LocationResult } from '@/types/location';
 import { parseLatLonFromParams } from '@/lib/location/serializer';
-import { createGeocodeKey } from '@/lib/location/reverseGeocode';
+import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
+import reverseGeocodeCache from '@/features/directory/components/reverseGeocodeCache';
 
 export default function useResolvedLocation({
     preselectedLocation,
     searchParams,
-    reverseGeocodeCache,
     immediateLocation,
     clearImmediateLocation
 }: {
     preselectedLocation: LocationResult | null,
     searchParams: URLSearchParams,
-    reverseGeocodeCache: Map<string, LocationResult>,
     immediateLocation?: LocationResult | null,
     clearImmediateLocation?: () => void
 }): LocationResult | null {
+    console.debug('useResolvedLocation: Hook initialized with preselectedLocation:', preselectedLocation, 'immediateLocation:', immediateLocation);
     const [resolvedLocation, setResolvedLocation] = useState<LocationResult | null>(preselectedLocation);
     const lastCoordsRef = useRef<string | null>(null);
     const isResolvingRef = useRef<boolean>(false);
@@ -40,7 +40,7 @@ export default function useResolvedLocation({
         }
 
         const coords = parseLatLonFromParams(searchParams);
-        
+
         // If no coordinates, clear the location and reset
         if (!coords) {
             setResolvedLocation(null);
@@ -48,15 +48,15 @@ export default function useResolvedLocation({
             isResolvingRef.current = false;
             return;
         }
-        
+
         const coordsKey = createGeocodeKey(coords.lat, coords.lon);
-        
+
         // If we've already resolved these exact coordinates, don't resolve again
         if (lastCoordsRef.current === coordsKey) {
             return;
         }
 
-        // Check cache first - this is the key optimization
+        // Check cache first
         const cached = reverseGeocodeCache.get(coordsKey);
         if (cached) {
             console.debug('useResolvedLocation: Using cached location for', coordsKey);
@@ -71,7 +71,7 @@ export default function useResolvedLocation({
             return;
         }
 
-        console.debug('useResolvedLocation: Fetching location for', coordsKey);
+        console.debug('useResolvedLocation: Using reverse API to fetch location for', coordsKey);
         isResolvingRef.current = true;
 
         const resolve = async () => {
@@ -85,7 +85,6 @@ export default function useResolvedLocation({
                     reverseGeocodeCache.set(coordsKey, data);
                     setResolvedLocation(data);
                     lastCoordsRef.current = coordsKey;
-                    console.debug('useResolvedLocation: Resolved and cached location for', coordsKey);
                 }
             } catch (error) {
                 console.error('Error resolving location:', error);
@@ -96,7 +95,7 @@ export default function useResolvedLocation({
         };
 
         resolve();
-    }, [searchParams, preselectedLocation, reverseGeocodeCache, immediateLocation, clearImmediateLocation]);
+    }, [searchParams, preselectedLocation, immediateLocation, clearImmediateLocation]);
 
     return resolvedLocation;
 }

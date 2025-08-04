@@ -1,4 +1,4 @@
-import { createGeocodeKey } from '@/lib/location/reverseGeocode';
+import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
 import { fetchPhotonResult } from '@/lib/location/photonUtils';
 import { rawReversePhotonFetch } from '@/lib/location/reverseGeocode';
 import { LocationResult } from '@/types/location';

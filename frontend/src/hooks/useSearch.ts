@@ -30,7 +30,7 @@ export function useSearch(query: string): SearchResults {
     const currentQueryRef = useRef<string>('');
 
     const fetchInstantResults = async (encodedQuery: string, originalQuery: string) => {
-        console.log('Fetching instant results for encoded query:', encodedQuery);
+        console.debug('Fetching instant results for encoded query:', encodedQuery);
 
         try {
             const response = await fetch(`/api/search/instant?q=${encodedQuery}`);
@@ -57,7 +57,7 @@ export function useSearch(query: string): SearchResults {
     };
 
     const fetchDetailedResults = async (encodedQuery: string, originalQuery: string) => {
-        console.log('Fetching detailed results for query:', encodedQuery);
+        console.debug('Fetching detailed results for query:', encodedQuery);
 
         try {
             const response = await fetch(`/api/search/detailed?q=${encodedQuery}`);
