@@ -106,9 +106,3 @@ export const STATE_ABBREVIATIONS: Record<string, string> = {
 export const COUNTRY_ABBREVIATIONS: Record<string, string> = {
   "United States": "USA",
 };
-
-export interface LocationCacheEntry {
-  location: LocationResult;
-  timestamp: number;
-  source: 'geocoding' | 'preloaded' | 'user_selection';
-}

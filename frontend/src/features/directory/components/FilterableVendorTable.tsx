@@ -535,8 +535,8 @@ export function FilterableVendorTableContent({
                     const params = new URLSearchParams(searchParamsString);
                     params.set(TRAVEL_PARAM, 'true');
                     if (!preselectedLocation) {
-                      params.delete("lat");
-                      params.delete("lon");
+                      params.delete(LATITUDE_PARAM);
+                      params.delete(LONGITUDE_PARAM);
                       handleSelectLocation(null);
                     }
                     router.push(`/?${params.toString()}`);
@@ -548,7 +548,7 @@ export function FilterableVendorTableContent({
                   }}
                 >
                   artists who travel worldwide
-                </Typography>
+                </Typography>{''}
                 , or broaden your search.
               </Typography>
               <Typography variant="body1">
