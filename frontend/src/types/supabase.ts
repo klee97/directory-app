@@ -2582,7 +2582,7 @@ export type Database = {
       }
     }
     Enums: {
-      vendor_type: "BASIC" | "PREMIUM"
+      vendor_type: "BASIC" | "PREMIUM" | "TRIAL"
     }
     CompositeTypes: {
       geometry_dump: {

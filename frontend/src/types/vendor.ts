@@ -1,5 +1,6 @@
 import type { Database } from "@/types/supabase";
 import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
+import { isDevOrPreview } from "@/lib/env/env";
 
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/';
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
@@ -80,7 +81,8 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
       image.media_url.startsWith(IMAGE_PREFIX) ? image.media_url : null
     ).filter(url => url !== null);
 
-  const isPremiumVendor = vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true';
+  const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
+    || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
 
   return {
     id: vendor.id,
