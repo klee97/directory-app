@@ -1,16 +1,8 @@
 import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
 import { getDisplayName } from "./locationNames";
 
-const PHOTON_TIMEOUT_MS = 5000;
 
-async function fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) => setTimeout(() => reject(new Error("Photon API timeout")), timeoutMs)),
-  ]);
-}
-
-async function rawPhotonFetch(encodedLocation: string): Promise<LocationResult[]> {
+export async function rawPhotonFetch(encodedLocation: string): Promise<LocationResult[]> {
   console.debug(`Fetching Photon results for query: "${encodedLocation}"`);
   const res = await fetch(
     `https://photon.komoot.io/api/?q=${encodedLocation}&lang=en&limit=3&layer=city&layer=state&layer=country`,
@@ -47,20 +39,4 @@ async function rawPhotonFetch(encodedLocation: string): Promise<LocationResult[]
       type: feature.properties.type || "unknown",
     })
   });
-}
-
-export async function fetchPhotonResults(query: string): Promise<LocationResult[]> {
-  const tryFetch = async () => await fetchWithTimeout(rawPhotonFetch(query), PHOTON_TIMEOUT_MS);
-
-  try {
-    return await tryFetch();
-  } catch (err) {
-    console.warn("Photon API failed, retrying once:", err);
-    try {
-      return await tryFetch();
-    } catch (retryErr) {
-      console.error("Photon retry failed:", retryErr);
-      return [];
-    }
-  }
 }

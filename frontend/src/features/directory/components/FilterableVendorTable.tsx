@@ -16,13 +16,19 @@ import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
 import TravelFilter from './filters/TravelFilter';
 import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
 import LocationAutocomplete from './filters/LocationAutocomplete';
 import { SORT_OPTIONS, SortOption } from '@/types/sort';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
+import { FilterContext } from './filters/FilterContext';
+import { serializeLocation } from '@/lib/location/serializer';
+import useResolvedLocation from '@/hooks/useResolvedLocation';
+import { useSearch } from '@/hooks/useSearch';
+import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
+import reverseGeocodeCache from '@/features/directory/components/reverseGeocodeCache';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -51,7 +57,6 @@ export function FilterableVendorTableContent({
   // Extract search parameters
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
-
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
 
   // State management
@@ -59,36 +64,134 @@ export function FilterableVendorTableContent({
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(preselectedLocation);
   const [loading, setLoading] = useState(false);
   const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
+
+  // Location input state
+  const [locationInputValue, setLocationInputValue] = useState('');
+  const [locationSearchQuery, setLocationSearchQuery] = useState('');
+  const [immediateLocation, setImmediateLocation] = useState<LocationResult | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
+
   const observerRef = useRef<HTMLDivElement | null>(null);
 
   useScrollRestoration(true);
+
+  const clearImmediateLocation = useCallback(() => {
+    setImmediateLocation(null);
+  }, []);
+
+  const selectedLocation = useResolvedLocation({ preselectedLocation, immediateLocation, searchParams, clearImmediateLocation });
+
+  // Location search results
+  const {
+    instantLocations,
+    detailedLocations,
+    isInstantLoading,
+    isDetailedLoading,
+  } = useSearch(locationSearchQuery);
+
+  const combinedLocationResults = useMemo(() => {
+    console.debug('Combining results:', {
+      instantCount: instantLocations.length,
+      detailedCount: detailedLocations.length,
+    });
+    const ids = new Set(instantLocations.map((r) => r.display_name));
+    return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
+  }, [instantLocations, detailedLocations]);
+
+  // Sync location input value with selected location
+  // Only sync when selectedLocation actually changes, not when search query changes
+  const prevSelectedLocationRef = useRef<LocationResult | null>(null);
+  useEffect(() => {
+    // Only sync if selectedLocation actually changed
+    if (prevSelectedLocationRef.current !== selectedLocation) {
+      const displayName = selectedLocation?.display_name || '';
+      setLocationInputValue(displayName);
+      prevSelectedLocationRef.current = selectedLocation;
+    }
+  }, [selectedLocation]);
 
   // Load vendors based on location filter
   useEffect(() => {
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
-      if (!selectedLocation) {
-        // If no location is selected, show all vendors by default
-        setVendorsInRadius(vendors);
+
+      const urlLat = searchParams.get(LATITUDE_PARAM);
+      const urlLon = searchParams.get(LONGITUDE_PARAM);
+
+      // If we have URL params but no resolved location yet, show loading
+      if ((urlLat && urlLon) && !selectedLocation && initialLoad) {
+        setLoading(true);
         return;
       }
-      setLoading(true);
-      const results = await getVendorsByLocation(selectedLocation, vendors);
-      if (!cancelled) {
-        setVendorsInRadius(results);
+
+      // Check if the current location matches the URL params to avoid stale fetches
+      if (urlLat && urlLon) {
+        const urlLatNum = parseFloat(urlLat);
+        const urlLonNum = parseFloat(urlLon);
+        const locationLat = selectedLocation?.lat;
+        const locationLon = selectedLocation?.lon;
+
+        // Only proceed if locationLat and locationLon are defined
+        if (locationLat === undefined || locationLon === undefined) {
+          console.debug('Location latitude or longitude is undefined, skipping fetch.');
+          return;
+        }
+
+        // Allow for small floating point differences
+        const latMatch = Math.abs(urlLatNum - locationLat) < 0.0001;
+        const lonMatch = Math.abs(urlLonNum - locationLon) < 0.0001;
+
+        if (!latMatch || !lonMatch) {
+          console.debug('Location/URL mismatch, skipping fetch. URL:', { urlLatNum, urlLonNum }, 'Location:', { locationLat, locationLon });
+          return; // Skip fetch, location is still resolving
+        }
       }
-      setLoading(false);
+
+      // Check if we have a valid location with required properties
+      const hasValidLocation = selectedLocation &&
+        selectedLocation.display_name &&
+        selectedLocation.lat !== undefined &&
+        selectedLocation.lon !== undefined;
+
+      if (!hasValidLocation) {
+        // If no valid location is selected, show all vendors by default
+        console.debug('No valid location, showing all vendors');
+        setVendorsInRadius(vendors);
+        setLoading(false);
+        setInitialLoad(false);
+        return;
+      }
+
+      setLoading(true);
+      console.debug('Fetching vendors for location:', selectedLocation.display_name);
+
+      try {
+        const results = await getVendorsByLocation(selectedLocation, vendors);
+        if (!cancelled) {
+          console.debug('Vendors loaded:', results.length);
+          setVendorsInRadius(results);
+        }
+      } catch (error) {
+        console.error('Error loading vendors by location:', error);
+        if (!cancelled) {
+          setVendorsInRadius(vendors); // fallback to all vendors
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+          setInitialLoad(false);
+        }
+      }
     };
 
     fetchVendorsByDistance();
     return () => {
       cancelled = true;
     };
-  }, [selectedLocation, vendors]);
+  }, [selectedLocation?.display_name, selectedLocation?.lat, selectedLocation?.lon, vendors, searchParams, initialLoad]);
 
   // Fetch valid slugs on mount
   useEffect(() => {
@@ -160,25 +263,18 @@ export function FilterableVendorTableContent({
 
     if (prevParams !== null && currentParams !== prevParams) {
       const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
-
+      const filterContext: FilterContext = {
+        selectedLocationName: selectedLocation?.display_name ?? null,
+        selectedSkills,
+        travelsWorldwide,
+        searchQuery,
+        sortOptionName: sortOption.name,
+        resultCount: searchedAndSortedVendors.length,
+      }
       if (hasSearchChanged) {
-        debouncedTrackSearch({
-          selectedLocation: selectedLocation?.display_name,
-          selectedSkills,
-          travelsWorldwide,
-          searchQuery,
-          sortOption,
-          resultCount: searchedAndSortedVendors.length,
-        });
+        debouncedTrackSearch(filterContext);
       } else {
-        trackFiltersApplied(
-          selectedLocation?.display_name || "",
-          selectedSkills,
-          travelsWorldwide,
-          searchQuery,
-          sortOption.name,
-          searchedAndSortedVendors.length
-        );
+        trackFiltersApplied(filterContext);
       }
     }
 
@@ -226,12 +322,64 @@ export function FilterableVendorTableContent({
     trackFilterReset();
   };
 
+  // Handle location selection
+  const handleSelectLocation = (location: LocationResult | null) => {
+    console.debug('handleSelectLocation called with:', location);
+    const params = new URLSearchParams(searchParamsString);
+    setImmediateLocation(location);
+    if (location) {
+
+      // Update local state immediately for UX, but let the URL change handle the real state
+      setLocationInputValue(location.display_name);
+      if (location.lat && location.lon) {
+        const cacheKey = createGeocodeKey(location.lat, location.lon);
+        console.debug(`Adding location to reverse geocode cache with key:"${cacheKey}" for location:`, location);
+        reverseGeocodeCache.set(cacheKey, location);
+      }
+      const serialized = serializeLocation(location);
+      console.debug('Serialized location:', serialized);
+      if (serialized) {
+        const { lat, lon } = serialized;
+        params.set(LATITUDE_PARAM, String(lat));
+        params.set(LONGITUDE_PARAM, String(lon));
+        console.debug('Setting URL params:', { lat, lon });
+      }
+    } else {
+      // Clear everything immediately
+      setLocationInputValue('');
+      setLocationSearchQuery('');
+      params.delete(LATITUDE_PARAM);
+      params.delete(LONGITUDE_PARAM);
+      console.debug('Clearing location params');
+    }
+
+    // close keyboard
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    const newUrl = `?${params.toString()}`;
+    console.debug('Pushing new URL:', newUrl);
+    router.push(newUrl, { scroll: false });
+  };
+
+  // Handle location input change
+  const handleLocationInputChange = (value: string) => {
+    setLocationInputValue(value);
+  };
+
+  // Handle debounced location search
+  const handleLocationDebouncedChange = (value: string) => {
+    setLocationSearchQuery(value);
+  };
+
   // Handle clear location selection for location-specific pages
   useEffect(() => {
     // go home when no location is selected
     if (preselectedLocation && selectedLocation === null) {
-      const params = searchParamsString;
-      const url = params ? `/?${params}` : '/';
+      const newParams = new URLSearchParams(searchParamsString);
+      newParams.delete(LATITUDE_PARAM);
+      newParams.delete(LONGITUDE_PARAM);
+      const url = newParams.toString() ? `/?${newParams.toString()}` : '/';
       router.push(url, { scroll: false });
       return;
     }
@@ -246,7 +394,7 @@ export function FilterableVendorTableContent({
         console.debug("Found location page for:", selectedLocation.display_name);
         const params = searchParamsString;
         const url = params ? `/${slug}?${params}` : `/${slug}`;
-        router.push(`${url}`, { scroll: false });
+        router.push(url, { scroll: false });
         return;
       }
     }
@@ -301,8 +449,13 @@ export function FilterableVendorTableContent({
           <Box minWidth={FILTER_MIN_WIDTH + SEARCH_FILTER_GAP} />
           <SearchBar searchParams={searchParams} />
           <LocationAutocomplete
-            value={selectedLocation}
-            onSelect={setSelectedLocation}
+            inputValue={locationInputValue}
+            onInputChange={handleLocationInputChange}
+            onDebouncedChange={handleLocationDebouncedChange}
+            selectedLocation={selectedLocation}
+            onSelect={handleSelectLocation}
+            results={combinedLocationResults}
+            loading={isInstantLoading || isDetailedLoading}
           />
         </Box>
       </Box>
@@ -387,7 +540,9 @@ export function FilterableVendorTableContent({
                     const params = new URLSearchParams(searchParamsString);
                     params.set(TRAVEL_PARAM, 'true');
                     if (!preselectedLocation) {
-                      setSelectedLocation(null);
+                      params.delete(LATITUDE_PARAM);
+                      params.delete(LONGITUDE_PARAM);
+                      handleSelectLocation(null);
                     }
                     router.push(`/?${params.toString()}`);
                   }}
@@ -427,6 +582,16 @@ export function FilterableVendorTableContent({
             searchParams={searchParamsString}
             favoriteVendorIds={favoriteVendorIds}
             showFavoriteButton={true}
+            filterContext={
+              {
+                selectedLocationName: selectedLocation?.display_name ?? null,
+                selectedSkills,
+                travelsWorldwide,
+                searchQuery,
+                sortOptionName: sortOption.name,
+                resultCount: searchedAndSortedVendors.length,
+              }
+            }
           />
 
           {/* Loading Spinner */}

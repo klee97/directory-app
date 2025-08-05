@@ -1,4 +1,5 @@
-import { fetchPhotonResults } from "@/lib/location/geocode";
+import { rawPhotonFetch } from "@/lib/location/geocode";
+import { fetchPhotonResults } from "@/lib/location/photonUtils";
 import { LocationResult } from "@/types/location";
 import fs from 'fs/promises';
 import path from 'path';
@@ -151,7 +152,7 @@ async function geocodeLocation(query: string): Promise<PopulatedLocation> {
   console.log(`Geocoding: ${query}`);
 
   try {
-    const results = await fetchPhotonResults(query);
+    const results = await fetchPhotonResults(() => rawPhotonFetch(query));
 
     if (results.length === 0) {
       console.warn(`  ❌ No results for: ${query}`);

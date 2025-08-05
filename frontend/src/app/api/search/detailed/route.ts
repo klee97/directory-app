@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
-import { fetchPhotonResults } from "@/lib/location/geocode";
+import { rawPhotonFetch } from "@/lib/location/geocode";
 import { LocationResult } from "@/types/location";
+import { fetchPhotonResults } from "@/lib/location/photonUtils";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -27,18 +28,8 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  try {
-    console.time(`photon-${normalizedQuery}`);
-    
-    // 5 second timeout for detailed search
-    const photonPromise = fetchPhotonResults(query);
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error("Detailed search timeout")), 5000)
-    );
-
-    const locations = await Promise.race([photonPromise, timeoutPromise]);
-    
-    console.timeEnd(`photon-${normalizedQuery}`);
+  try {    
+    const locations = await fetchPhotonResults(() => rawPhotonFetch(query));
     console.debug(`Detailed search success for "${query}":`, locations.length, "results");
 
     const result = { locations, success: true };
@@ -52,7 +43,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.timeEnd(`photon-${normalizedQuery}`);
     const errorMessage = (error instanceof Error) ? error.message : String(error);
     console.warn(`Detailed search failed for "${query}":`, errorMessage);
 

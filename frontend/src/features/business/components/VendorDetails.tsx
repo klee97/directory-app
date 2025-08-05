@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -28,6 +28,8 @@ import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
+import { useSearchParams } from 'next/navigation';
+import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -100,6 +102,14 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
+
+  const searchParams = useSearchParams();
+  const lat = searchParams.get(LATITUDE_PARAM);
+  const lon = searchParams.get(LONGITUDE_PARAM);
+  const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
+  const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const searchQuery = searchParams.get(SEARCH_PARAM);
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -491,11 +501,19 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               <Divider sx={{ mt: 20, mb: 4 }} />
               <VendorCarousel
                 vendors={nearbyVendors}
-                title={`More wedding makeup artists for Asian features near ${getLocationString(vendor)}`}>
+                title={`More wedding makeup artists for Asian features near ${getLocationString(vendor)}`}
+                filterContext={{
+                  lat: lat ? parseFloat(lat) : null,
+                  lon: lon ? parseFloat(lon) : null,
+                  selectedSkills: selectedSkills,
+                  travelsWorldwide: travelsWorldwide,
+                  searchQuery: searchQuery || null
+                }}
+              >
               </VendorCarousel>
             </Box>
           )}
-        </Container>
+        </Container >
       </Box >
     </>
   );
