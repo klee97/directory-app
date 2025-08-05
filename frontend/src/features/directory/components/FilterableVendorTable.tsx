@@ -352,6 +352,11 @@ export function FilterableVendorTableContent({
       params.delete(LONGITUDE_PARAM);
       console.debug('Clearing location params');
     }
+
+    // close keyboard
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
     const newUrl = `?${params.toString()}`;
     console.debug('Pushing new URL:', newUrl);
     router.push(newUrl, { scroll: false });
