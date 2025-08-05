@@ -74,10 +74,10 @@ export const VendorCard = ({
         variant: variant,
         isPremium: vendor.is_premium,
         photoCount: resolvedImageCount,
-        searchQuery: filterContext?.searchQuery,
-        selectedSkills: filterContext?.selectedSkills,
-        travelsWorldwide: filterContext?.travelsWorldwide,
-        selectedLocation: filterContext?.selectedLocationName,
+        search_term: filterContext?.searchQuery || "",
+        skill: filterContext?.selectedSkills,
+        travels_worldwide: filterContext?.travelsWorldwide,
+        region: filterContext?.selectedLocationName || "",
       });
     }
   }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant]);
@@ -101,6 +101,10 @@ export const VendorCard = ({
       variant: variant,
       isPremium: vendor.is_premium,
       photoIndex: showImageCarousel ? swiperIndex : 0,
+      search_term: filterContext?.searchQuery || "",
+      skill: filterContext?.selectedSkills,
+      travels_worldwide: filterContext?.travelsWorldwide,
+      region: filterContext?.selectedLocationName || "",
     });
   }
   return (
