@@ -22,7 +22,7 @@ export const PhotoCarousel = ({ photos, vendorSlug }: { photos: string[], vendor
             alt={`Photo ${index + 1}`}
             sx={{
               borderRadius: 2,
-              maxWidth: { xs: '70vw', sm: 600 },
+              maxWidth: { xs: '70vw', sm: 400 },
               width: '100%',
               height: { xs: 300, sm: 400 },
               objectFit: 'cover',
