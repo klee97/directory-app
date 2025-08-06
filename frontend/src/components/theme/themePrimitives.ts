@@ -103,6 +103,15 @@ export const getDesignTokens = () => {
           },
         },
       },
+      MuiCssBaseline: {
+        styleOverrides: {
+          // Black slide fixes for Safari
+          '.swiper-slide img, .swiper-slide video, .swiper-slide canvas': {
+            transform: 'translateZ(0)',
+            WebkitTransform: 'translateZ(0)',
+          },
+        }
+      },
     },
   }
 };
