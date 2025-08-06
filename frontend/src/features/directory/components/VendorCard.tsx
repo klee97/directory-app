@@ -120,7 +120,7 @@ export const VendorCard = ({
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          maxWidth: 600,
+          maxWidth: { xs: 300, sm: 400, md: 600 },
           marginX: 'auto',
           position: 'relative',
           transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
@@ -157,8 +157,8 @@ export const VendorCard = ({
                     height: variant === 'compact' ? 180 : 300,
                     width: '100%',
                     objectFit: 'cover',
-                    objectPosition: 'center',
-                    zIndex: 1
+                    objectPosition: 'center 30%',
+                    zIndex: 1,
                   }}
                 />
               ))}
