@@ -93,7 +93,7 @@ export async function getVendorsByDistance(
 )
   : Promise<VendorByDistance[]> {
   const { data, error } = await supabase
-    .rpc("get_vendors_by_location_with_tags",
+    .rpc("get_vendors_by_location_with_tags_and_media",
       {
         lat: lat,
         lon: lon,

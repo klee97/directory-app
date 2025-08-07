@@ -1275,6 +1275,38 @@ export type Database = {
           tags: Json
         }[]
       }
+      get_vendors_by_location_with_tags_and_media: {
+        Args: {
+          lon: number
+          lat: number
+          radius_miles: number
+          limit_results: number
+        }
+        Returns: {
+          business_name: string
+          bridal_hair_price: number
+          bridal_makeup_price: number
+          cover_image: string
+          id: string
+          lists_prices: boolean
+          location_coordinates: string
+          region: string
+          specialization: string
+          travels_world_wide: boolean
+          city: string
+          state: string
+          country: string
+          slug: string
+          gis: unknown
+          state_id: number
+          metro_id: number
+          metro_region_id: number
+          distance_miles: number
+          vendor_type: string
+          tags: Json
+          vendor_media: Json
+        }[]
+      }
       gettransactionid: {
         Args: Record<PropertyKey, never>
         Returns: unknown
@@ -2721,7 +2753,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      vendor_type: ["BASIC", "PREMIUM"],
+      vendor_type: ["BASIC", "PREMIUM", "TRIAL"],
     },
   },
 } as const
