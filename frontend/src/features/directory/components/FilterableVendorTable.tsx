@@ -9,7 +9,7 @@ import { SearchBar } from './filters/SearchBar';
 import { VendorId, VendorByDistance } from '@/types/vendor';
 import { LocationResult } from '@/types/location';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM, SERVICE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { trackFilterReset } from '@/utils/analytics/trackFilterEvents';
@@ -51,6 +51,7 @@ export function FilterableVendorTableContent({
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
 
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
