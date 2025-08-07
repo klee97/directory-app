@@ -226,10 +226,6 @@ export function FilterableVendorTableContent({
     switch (sortOption) {
       case SORT_OPTIONS.PRICE_ASC:
         sortedVendors.sort((a, b) => {
-          // Still keep premium first
-          if (a.is_premium && !b.is_premium) return -1;
-          if (!a.is_premium && b.is_premium) return 1;
-
           if (a.bridal_makeup_price === null) return 1;
           if (b.bridal_makeup_price === null) return -1;
           return a.bridal_makeup_price - b.bridal_makeup_price;
@@ -238,10 +234,6 @@ export function FilterableVendorTableContent({
 
       case SORT_OPTIONS.PRICE_DESC:
         sortedVendors.sort((a, b) => {
-          // Still keep premium first
-          if (a.is_premium && !b.is_premium) return -1;
-          if (!a.is_premium && b.is_premium) return 1;
-
           if (a.bridal_makeup_price === null) return 1;
           if (b.bridal_makeup_price === null) return -1;
           return b.bridal_makeup_price - a.bridal_makeup_price;
