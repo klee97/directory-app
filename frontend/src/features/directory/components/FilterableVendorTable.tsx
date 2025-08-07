@@ -218,9 +218,18 @@ export function FilterableVendorTableContent({
   // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {
     const sortedVendors = searchVendors(searchQuery, filteredVendors);
+    sortedVendors.sort((a, b) => {
+      if (a.is_premium && !b.is_premium) return -1;
+      if (!a.is_premium && b.is_premium) return 1;
+      return 0; // both same premium status, move on to next sort
+    });
     switch (sortOption) {
       case SORT_OPTIONS.PRICE_ASC:
         sortedVendors.sort((a, b) => {
+          // Still keep premium first
+          if (a.is_premium && !b.is_premium) return -1;
+          if (!a.is_premium && b.is_premium) return 1;
+
           if (a.bridal_makeup_price === null) return 1;
           if (b.bridal_makeup_price === null) return -1;
           return a.bridal_makeup_price - b.bridal_makeup_price;
@@ -229,6 +238,10 @@ export function FilterableVendorTableContent({
 
       case SORT_OPTIONS.PRICE_DESC:
         sortedVendors.sort((a, b) => {
+          // Still keep premium first
+          if (a.is_premium && !b.is_premium) return -1;
+          if (!a.is_premium && b.is_premium) return 1;
+
           if (a.bridal_makeup_price === null) return 1;
           if (b.bridal_makeup_price === null) return -1;
           return b.bridal_makeup_price - a.bridal_makeup_price;
@@ -237,6 +250,10 @@ export function FilterableVendorTableContent({
 
       case SORT_OPTIONS.DISTANCE_ASC:
         sortedVendors.sort((a, b) => {
+          // Still keep premium first
+          if (a.is_premium && !b.is_premium) return -1;
+          if (!a.is_premium && b.is_premium) return 1;
+
           if (!a.distance_miles && !b.distance_miles) return 0;
           if (!a.distance_miles) return 1;
           if (!b.distance_miles) return -1;
