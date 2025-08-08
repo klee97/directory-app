@@ -111,6 +111,8 @@ export default function InputWithDebounce({
     }
 
     isTypingRef.current = false;
+    wasManuallyEnteredRef.current = false;
+
     const clearedValue = '';
     setInputValue(clearedValue);
     onChange(clearedValue);
