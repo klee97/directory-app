@@ -1,25 +1,24 @@
 "use client"
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SKILL_PARAM } from "@/lib/constants";
-import { ReadonlyURLSearchParams } from "next/navigation";
 import { SKILL_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Checkbox, FormControlLabel, Typography } from "@mui/material";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
-export function SkillFilter({ tags, searchParams, filterMinWidth }:
+export function SkillFilter({ tags, filterMinWidth }:
   {
     tags: string[];
-    searchParams: ReadonlyURLSearchParams;
     filterMinWidth: number;
   }
 ) {
-  const router = useRouter();
+  const { getAllParams, setParams } = useURLFiltersContext();
+
   // Get the selected skills from URL params
-  const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedSkills = useMemo(() => getAllParams(SKILL_PARAM) || [], [getAllParams]);
   const [skills, setSkills] = useState<boolean[]>(tags.map((skill) => selectedSkills.includes(skill)));
 
   useEffect(() => {
@@ -31,16 +30,11 @@ export function SkillFilter({ tags, searchParams, filterMinWidth }:
     newSkills[index] = newState;
     setSkills(newSkills);
 
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.delete(SKILL_PARAM);
-    tags.map((skill, index) => {
-      if (newSkills[index]) {
-        newParams.append(SKILL_PARAM, skill);
-      }
+    const selectedSkills = tags.filter((_, i) => newSkills[i]);
+    setParams({
+      [SKILL_PARAM]: selectedSkills.length > 0 ? selectedSkills.join(",") : null
     });
 
-    // Use router.push() to update the URL while keeping other params
-    router.push(`?${newParams.toString()}`, { scroll: false });
     trackFilterEvent(SKILL_FILTER_NAME, skill);
   };
 

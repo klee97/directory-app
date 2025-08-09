@@ -1,39 +1,32 @@
 "use client"
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import Box from "@mui/material/Box";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
 import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './filters/SearchBar';
-import { VendorId, VendorTag, VendorByDistance } from '@/types/vendor';
+import { VendorId, VendorByDistance } from '@/types/vendor';
 import { LocationResult } from '@/types/location';
-import { getVendorsByLocation, searchVendors } from '../api/searchVendors';
-import TravelFilter from './filters/TravelFilter';
-import { SkillFilter } from './filters/SkillFilter';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
-import { debouncedTrackSearch, trackFilterReset, trackFiltersApplied } from '@/utils/analytics/trackFilterEvents';
+import { trackFilterReset } from '@/utils/analytics/trackFilterEvents';
 import LocationAutocomplete from './filters/LocationAutocomplete';
-import { SORT_OPTIONS, SortOption } from '@/types/sort';
-import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
-import { FilterContext } from './filters/FilterContext';
-import { serializeLocation } from '@/lib/location/serializer';
-import useResolvedLocation from '@/hooks/useResolvedLocation';
-import { useSearch } from '@/hooks/useSearch';
-import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
-import reverseGeocodeCache from '@/features/directory/components/reverseGeocodeCache';
+import { useVendorFiltering } from '../hooks/useVendorFiltering';
+import { useLocationManagement } from '../hooks/useLocationManagement';
+import { useSearchManagement } from '../hooks/useSearchManagement';
+import { usePagination } from '../hooks/usePagination';
+import { useAnalyticsTracking } from '../hooks/useAnalyticsTracking';
+import { FilterSection } from './tableLayout/FilterSection';
+import { ResultsHeader } from './tableLayout/ResultsHeader';
+import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
+import { useURLFilters } from '@/hooks/useURLFilters';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
-const locationPageGenerator = new LocationPageGenerator();
 
 interface FilterableVendorTableContentProps {
   tags: string[];
@@ -60,378 +53,47 @@ export function FilterableVendorTableContent({
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
 
   // State management
-  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
-  const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
-  const [visibleVendors, setVisibleVendors] = useState<VendorByDistance[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
-
-  // Location input state
-  const [locationInputValue, setLocationInputValue] = useState('');
-  const [locationSearchQuery, setLocationSearchQuery] = useState('');
-  const [immediateLocation, setImmediateLocation] = useState<LocationResult | null>(null);
-  const [initialLoad, setInitialLoad] = useState(true);
-
-  const observerRef = useRef<HTMLDivElement | null>(null);
+  const { setParams } = useURLFilters();
 
   useScrollRestoration(true);
 
-  const clearImmediateLocation = useCallback(() => {
-    setImmediateLocation(null);
-  }, []);
+  const locationManagement = useLocationManagement({ preselectedLocation, useLocationPages });
 
-  const selectedLocation = useResolvedLocation({ preselectedLocation, immediateLocation, searchParams, clearImmediateLocation });
-
-  // Location search results
-  const {
-    instantLocations,
-    detailedLocations,
-    isInstantLoading,
-    isDetailedLoading,
-  } = useSearch(locationSearchQuery);
-
-  const combinedLocationResults = useMemo(() => {
-    console.debug('Combining results:', {
-      instantCount: instantLocations.length,
-      detailedCount: detailedLocations.length,
-    });
-    const ids = new Set(instantLocations.map((r) => r.display_name));
-    return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
-  }, [instantLocations, detailedLocations]);
-
-  // Sync location input value with selected location
-  // Only sync when selectedLocation actually changes, not when search query changes
-  const prevSelectedLocationRef = useRef<LocationResult | null>(null);
-  useEffect(() => {
-    // Only sync if selectedLocation actually changed
-    if (prevSelectedLocationRef.current !== selectedLocation) {
-      const displayName = selectedLocation?.display_name || '';
-      setLocationInputValue(displayName);
-      prevSelectedLocationRef.current = selectedLocation;
-    }
-  }, [selectedLocation]);
-
-  // Load vendors based on location filter
-  useEffect(() => {
-    let cancelled = false;
-
-    const fetchVendorsByDistance = async () => {
-
-      const urlLat = searchParams.get(LATITUDE_PARAM);
-      const urlLon = searchParams.get(LONGITUDE_PARAM);
-
-      // If we have URL params but no resolved location yet, show loading
-      if ((urlLat && urlLon) && !selectedLocation && initialLoad) {
-        setLoading(true);
-        return;
-      }
-
-      // Check if the current location matches the URL params to avoid stale fetches
-      if (urlLat && urlLon) {
-        const urlLatNum = parseFloat(urlLat);
-        const urlLonNum = parseFloat(urlLon);
-        const locationLat = selectedLocation?.lat;
-        const locationLon = selectedLocation?.lon;
-
-        // Only proceed if locationLat and locationLon are defined
-        if (locationLat === undefined || locationLon === undefined) {
-          console.debug('Location latitude or longitude is undefined, skipping fetch.');
-          return;
-        }
-
-        // Allow for small floating point differences
-        const latMatch = Math.abs(urlLatNum - locationLat) < 0.0001;
-        const lonMatch = Math.abs(urlLonNum - locationLon) < 0.0001;
-
-        if (!latMatch || !lonMatch) {
-          console.debug('Location/URL mismatch, skipping fetch. URL:', { urlLatNum, urlLonNum }, 'Location:', { locationLat, locationLon });
-          return; // Skip fetch, location is still resolving
-        }
-      }
-
-      // Check if we have a valid location with required properties
-      const hasValidLocation = selectedLocation &&
-        selectedLocation.display_name &&
-        selectedLocation.lat !== undefined &&
-        selectedLocation.lon !== undefined;
-
-      if (!hasValidLocation) {
-        // If no valid location is selected, show all vendors by default
-        console.debug('No valid location, showing all vendors');
-        setVendorsInRadius(vendors);
-        setLoading(false);
-        setInitialLoad(false);
-        return;
-      }
-
-      setLoading(true);
-      console.debug('Fetching vendors for location:', selectedLocation.display_name);
-
-      try {
-        const results = await getVendorsByLocation(selectedLocation, vendors);
-        if (!cancelled) {
-          console.debug('Vendors loaded:', results.length);
-          setVendorsInRadius(results);
-        }
-      } catch (error) {
-        console.error('Error loading vendors by location:', error);
-        if (!cancelled) {
-          setVendorsInRadius(vendors); // fallback to all vendors
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-          setInitialLoad(false);
-        }
-      }
-    };
-
-    fetchVendorsByDistance();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedLocation?.display_name, selectedLocation?.lat, selectedLocation?.lon, vendors, searchParams, initialLoad]);
-
-  // Fetch valid slugs on mount
-  useEffect(() => {
-    let mounted = true;
-    locationPageGenerator.getValidLocationSlugs().then((slugs) => {
-      if (mounted) setValidLocationSlugs(slugs);
-    });
-    return () => { mounted = false; };
-  }, []);
-
-  // Filter vendors based on all criteria
-  const filteredVendors = useMemo(() => {
-    return vendorsInRadius.filter((vendor) => {
-      const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
-      const matchesAnySkill = selectedSkills.length > 0 ? selectedSkills
-        .map(skill => vendor.tags.some((tag: VendorTag) =>
-          // does the vendor have a tag that matches the skill?
-          tag.display_name?.toLowerCase() === skill.toLowerCase())
-        ).includes(true) : true;
-      return matchesTravel && matchesAnySkill;
-    });
-  }, [vendorsInRadius, travelsWorldwide, selectedSkills]);
-
-  // Apply sorting
-  const searchedAndSortedVendors = useMemo(() => {
-    const sortedVendors = searchVendors(searchQuery, filteredVendors);
-    sortedVendors.sort((a, b) => {
-      if (a.is_premium && !b.is_premium) return -1;
-      if (!a.is_premium && b.is_premium) return 1;
-      return 0; // both same premium status, move on to next sort
-    });
-    switch (sortOption) {
-      case SORT_OPTIONS.PRICE_ASC:
-        sortedVendors.sort((a, b) => {
-          if (a.bridal_makeup_price === null) return 1;
-          if (b.bridal_makeup_price === null) return -1;
-          return a.bridal_makeup_price - b.bridal_makeup_price;
-        });
-        break;
-
-      case SORT_OPTIONS.PRICE_DESC:
-        sortedVendors.sort((a, b) => {
-          if (a.bridal_makeup_price === null) return 1;
-          if (b.bridal_makeup_price === null) return -1;
-          return b.bridal_makeup_price - a.bridal_makeup_price;
-        });
-        break;
-
-      case SORT_OPTIONS.DISTANCE_ASC:
-        sortedVendors.sort((a, b) => {
-          // Still keep premium first
-          if (a.is_premium && !b.is_premium) return -1;
-          if (!a.is_premium && b.is_premium) return 1;
-
-          if (!a.distance_miles && !b.distance_miles) return 0;
-          if (!a.distance_miles) return 1;
-          if (!b.distance_miles) return -1;
-          return a.distance_miles - b.distance_miles;
-        });
-        break;
-    }
-    return sortedVendors;
-  }, [searchQuery, filteredVendors, sortOption]);
-
-  // set default sort option. If location is selected, default to distance sort
-  useEffect(() => {
-    if (selectedLocation) {
-      setSortOption(SORT_OPTIONS.DISTANCE_ASC);
-    } else {
-      setSortOption(SORT_OPTIONS.DEFAULT);
-    }
-  }, [selectedLocation]);
-
-  const [prevParams, setPrevParams] = useState<string | null>(null);
-
-  useEffect(() => {
-    const currentParams = searchParamsString;
-
-    if (prevParams !== null && currentParams !== prevParams) {
-      const hasSearchChanged = searchQuery !== (searchParams.get(SEARCH_PARAM) || "");
-      const filterContext: FilterContext = {
-        selectedLocationName: selectedLocation?.display_name ?? null,
-        selectedSkills,
-        travelsWorldwide,
-        searchQuery,
-        sortOptionName: sortOption.name,
-        resultCount: searchedAndSortedVendors.length,
-      }
-      if (hasSearchChanged) {
-        debouncedTrackSearch(filterContext);
-      } else {
-        trackFiltersApplied(filterContext);
-      }
-    }
-
-    setPrevParams(currentParams);
-  }, [
-    prevParams,
-    searchParams,
-    searchParamsString,
+  const vendorFiltering = useVendorFiltering({
+    vendors,
+    selectedLocation: locationManagement.selectedLocation,
+    travelsWorldwide,
+    selectedSkills,
     searchQuery,
-    selectedLocation?.display_name,
+  });
+
+  const searchManagement = useSearchManagement();
+
+  useAnalyticsTracking({
+    searchParams,
+    searchQuery,
+    selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
     selectedSkills,
     travelsWorldwide,
-    sortOption,
-    searchedAndSortedVendors.length,
-  ]);
+    sortOptionName: vendorFiltering.sortOption.name,
+    resultCount: vendorFiltering.searchedAndSortedVendors.length,
+  });
 
-  // Load more vendors for infinite scroll
-  const loadMoreVendors = useCallback(() => {
-    if (loading) return;
-    setLoading(true);
+  const pagination = usePagination({
+    items: vendorFiltering.searchedAndSortedVendors,
+    pageSize: PAGE_SIZE,
+    loading: vendorFiltering.loading,
+    onLoadingChange: vendorFiltering.setLoading
+  });
 
-    setVisibleVendors((prevVendors) => {
-      const currentLength = prevVendors.length;
-      const nextVendors = searchedAndSortedVendors.slice(currentLength, currentLength + PAGE_SIZE);
-
-      if (nextVendors.length === 0) {
-        setLoading(false);
-        return prevVendors;
-      }
-
-      return [...prevVendors, ...nextVendors];
-    });
-
-    setLoading(false);
-  }, [loading, searchedAndSortedVendors]);
-
-  // Clear filters
   const handleClearFilters = () => {
-    const newParams = new URLSearchParams(searchParamsString);
-    newParams.delete(SKILL_PARAM);
-    newParams.delete(TRAVEL_PARAM);
-
-    // Use router.push() to update the URL while keeping other params
-    router.push(`?${newParams.toString()}`, { scroll: false });
+    setParams({
+      [SKILL_PARAM]: null,
+      [TRAVEL_PARAM]: null
+    });
     trackFilterReset();
   };
-
-  // Handle location selection
-  const handleSelectLocation = (location: LocationResult | null) => {
-    console.debug('handleSelectLocation called with:', location);
-    const params = new URLSearchParams(searchParamsString);
-    setImmediateLocation(location);
-    if (location) {
-
-      // Update local state immediately for UX, but let the URL change handle the real state
-      setLocationInputValue(location.display_name);
-      if (location.lat && location.lon) {
-        const cacheKey = createGeocodeKey(location.lat, location.lon);
-        console.debug(`Adding location to reverse geocode cache with key:"${cacheKey}" for location:`, location);
-        reverseGeocodeCache.set(cacheKey, location);
-      }
-      const serialized = serializeLocation(location);
-      console.debug('Serialized location:', serialized);
-      if (serialized) {
-        const { lat, lon } = serialized;
-        params.set(LATITUDE_PARAM, String(lat));
-        params.set(LONGITUDE_PARAM, String(lon));
-        console.debug('Setting URL params:', { lat, lon });
-      }
-    } else {
-      // Clear everything immediately
-      setLocationInputValue('');
-      setLocationSearchQuery('');
-      params.delete(LATITUDE_PARAM);
-      params.delete(LONGITUDE_PARAM);
-      console.debug('Clearing location params');
-    }
-
-    // close keyboard
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    const newUrl = `?${params.toString()}`;
-    console.debug('Pushing new URL:', newUrl);
-    router.push(newUrl, { scroll: false });
-  };
-
-  // Handle location input change
-  const handleLocationInputChange = (value: string) => {
-    setLocationInputValue(value);
-  };
-
-  // Handle debounced location search
-  const handleLocationDebouncedChange = (value: string) => {
-    setLocationSearchQuery(value);
-  };
-
-  // Handle clear location selection for location-specific pages
-  useEffect(() => {
-    // go home when no location is selected
-    if (preselectedLocation && selectedLocation === null) {
-      const newParams = new URLSearchParams(searchParamsString);
-      newParams.delete(LATITUDE_PARAM);
-      newParams.delete(LONGITUDE_PARAM);
-      const url = newParams.toString() ? `/?${newParams.toString()}` : '/';
-      router.push(url, { scroll: false });
-      return;
-    }
-
-    if (validLocationSlugs === null) return;
-    if (preselectedLocation?.display_name === selectedLocation?.display_name) return;
-
-    // If a new location is selected and useLocationPages is enabled, check for a location page
-    if (useLocationPages && selectedLocation) {
-      const slug = locationPageGenerator.getSlugFromLocation(selectedLocation);
-      if (slug && validLocationSlugs.has(slug)) {
-        console.debug("Found location page for:", selectedLocation.display_name);
-        const params = searchParamsString;
-        const url = params ? `/${slug}?${params}` : `/${slug}`;
-        router.push(url, { scroll: false });
-        return;
-      }
-    }
-  }, [preselectedLocation, selectedLocation, router, searchParamsString, useLocationPages, validLocationSlugs]);
-
-  // Reset visible vendors when filtered list changes
-  useEffect(() => {
-    setVisibleVendors(searchedAndSortedVendors.slice(0, PAGE_SIZE));
-  }, [searchedAndSortedVendors]);
-
-  // Intersection Observer for infinite scroll
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMoreVendors();
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    const observerCurrent = observerRef.current;
-    if (observerCurrent) observer.observe(observerCurrent);
-
-    return () => {
-      if (observerCurrent) observer.unobserve(observerCurrent);
-    };
-  }, [loadMoreVendors]);
 
   const handleFocus = (index: number) => {
     setFocusedCardIndex(index);
@@ -456,15 +118,18 @@ export function FilterableVendorTableContent({
           }}
         >
           <Box minWidth={FILTER_MIN_WIDTH + SEARCH_FILTER_GAP} />
-          <SearchBar searchParams={searchParams} />
+          <SearchBar
+            value={searchManagement.searchQuery}
+            onChange={searchManagement.updateSearchQuery}
+          />
           <LocationAutocomplete
-            inputValue={locationInputValue}
-            onInputChange={handleLocationInputChange}
-            onDebouncedChange={handleLocationDebouncedChange}
-            selectedLocation={selectedLocation}
-            onSelect={handleSelectLocation}
-            results={combinedLocationResults}
-            loading={isInstantLoading || isDetailedLoading}
+            inputValue={locationManagement.locationInputValue}
+            onInputChange={locationManagement.handleLocationInputChange}
+            onDebouncedChange={locationManagement.handleLocationDebouncedChange}
+            selectedLocation={locationManagement.selectedLocation}
+            onSelect={locationManagement.handleSelectLocation}
+            results={locationManagement.combinedLocationResults}
+            loading={locationManagement.isInstantLoading || locationManagement.isDetailedLoading}
           />
         </Box>
       </Box>
@@ -473,73 +138,24 @@ export function FilterableVendorTableContent({
         display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2
       }}>
         {/* Other Filters */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            alignItems: 'stretch',
-            flexWrap: 'wrap',
-          }}
-        >
-          <SkillFilter tags={tags} searchParams={searchParams} filterMinWidth={FILTER_MIN_WIDTH} />
-          <TravelFilter searchParams={searchParams} filterMinWidth={FILTER_MIN_WIDTH} />
-          {/* Second Row: Clear Button */}
-          <Button
-            variant="contained"
-            onClick={handleClearFilters}
-            size="small"
-            sx={{ width: { xs: '100%', sm: 'auto' } }}
-          >
-            Clear Filters
-          </Button>
-        </Box>
+        <FilterSection
+          tags={tags}
+          onClearFilters={handleClearFilters}
+          filterMinWidth={FILTER_MIN_WIDTH}
+        />
         <Divider />
 
         {/* Results Count and Sorting */}
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', md: 'center' },
-              gap: 2,
-            }}
-          >
-            <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-              {loading ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={20} />
-                  Loading artists...
-                </Box>
-              ) : (
-                <>
-                  {searchedAndSortedVendors.length} Wedding Beauty Artist{searchedAndSortedVendors.length === 1 ? '' : 's'} found
-                  {!!selectedLocation && ` near ${selectedLocation.display_name}`}
-                </>
-              )}
-            </Typography>
+          <ResultsHeader
+            loading={vendorFiltering.loading}
+            resultCount={vendorFiltering.searchedAndSortedVendors.length}
+            selectedLocation={locationManagement.selectedLocation}
+            sortOption={vendorFiltering.sortOption}
+            onSortChange={vendorFiltering.setSortOption}
+          />
 
-            <FormControl sx={{ minWidth: 200 }}>
-              <Select
-                value={sortOption.name}
-                onChange={(e) => {
-                  const selected = Object.values(SORT_OPTIONS).find(opt => opt.name === e.target.value);
-                  if (selected) setSortOption(selected);
-                }}
-                renderValue={() => `Sort by: ${sortOption.display}`}
-                size="small"
-              >
-                {Object.values(SORT_OPTIONS).map((option) => (
-                  <MenuItem key={option.name} value={option.name}>
-                    {option.display}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-          {searchedAndSortedVendors.length === 0 && (
+          {vendorFiltering.searchedAndSortedVendors.length === 0 && (
             <Box sx={{ textAlign: 'center', padding: 4 }}>
               <Typography variant="body1" gutterBottom>
                 Try looking at{' '}
@@ -551,7 +167,7 @@ export function FilterableVendorTableContent({
                     if (!preselectedLocation) {
                       params.delete(LATITUDE_PARAM);
                       params.delete(LONGITUDE_PARAM);
-                      handleSelectLocation(null);
+                      locationManagement.handleSelectLocation(null);
                     }
                     router.push(`/?${params.toString()}`);
                   }}
@@ -587,31 +203,31 @@ export function FilterableVendorTableContent({
             handleFocus={handleFocus}
             handleBlur={handleBlur}
             focusedCardIndex={focusedCardIndex}
-            vendors={visibleVendors}
+            vendors={pagination.visibleItems}
             searchParams={searchParamsString}
             favoriteVendorIds={favoriteVendorIds}
             showFavoriteButton={true}
             filterContext={
               {
-                selectedLocationName: selectedLocation?.display_name ?? null,
+                selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
                 selectedSkills,
                 travelsWorldwide,
                 searchQuery,
-                sortOptionName: sortOption.name,
-                resultCount: searchedAndSortedVendors.length,
+                sortOptionName: vendorFiltering.sortOption.name,
+                resultCount: vendorFiltering.searchedAndSortedVendors.length,
               }
             }
           />
 
           {/* Loading Spinner */}
-          {loading && (
+          {pagination.isLoading || vendorFiltering.loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
               <CircularProgress />
             </Box>
           )}
 
           {/* Intersection observer target */}
-          <div ref={observerRef} style={{ height: 1 }} />
+          <div ref={pagination.observerRef} style={{ height: 1 }} />
         </Box>
       </Box>
     </Box >
@@ -627,11 +243,13 @@ export default function FilterableVendorTable(props: {
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FilterableVendorTableContent
-        {...props}
-        preselectedLocation={props.preselectedLocation ?? null}
-        useLocationPages={props.useLocationPages ?? false}
-      />
+      <URLFiltersProvider>
+        <FilterableVendorTableContent
+          {...props}
+          preselectedLocation={props.preselectedLocation ?? null}
+          useLocationPages={props.useLocationPages ?? false}
+        />
+      </URLFiltersProvider>
     </Suspense>
   );
 }
