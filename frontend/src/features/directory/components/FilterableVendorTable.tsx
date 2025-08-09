@@ -16,13 +16,13 @@ import { trackFilterReset } from '@/utils/analytics/trackFilterEvents';
 import LocationAutocomplete from './filters/LocationAutocomplete';
 import { useVendorFiltering } from '../hooks/useVendorFiltering';
 import { useLocationManagement } from '../hooks/useLocationManagement';
-import { clearFiltersFromURL } from '@/lib/url/urlHelpers';
 import { useSearchManagement } from '../hooks/useSearchManagement';
 import { usePagination } from '../hooks/usePagination';
 import { useAnalyticsTracking } from '../hooks/useAnalyticsTracking';
 import { FilterSection } from './tableLayout/FilterSection';
 import { ResultsHeader } from './tableLayout/ResultsHeader';
 import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
+import { useURLFilters } from '@/hooks/useURLFilters';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -54,6 +54,7 @@ export function FilterableVendorTableContent({
 
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
+  const { setParams } = useURLFilters();
 
   useScrollRestoration(true);
 
@@ -87,7 +88,10 @@ export function FilterableVendorTableContent({
   });
 
   const handleClearFilters = () => {
-    clearFiltersFromURL(searchParams, router.push);
+    setParams({
+      [SKILL_PARAM]: null,
+      [TRAVEL_PARAM]: null
+    });
     trackFilterReset();
   };
 
