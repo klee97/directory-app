@@ -1,15 +1,11 @@
-import { useRouter } from 'next/navigation';
 import { SEARCH_PARAM } from '@/lib/constants';
 import { useEffect, useState } from 'react';
+import { useURLFiltersContext } from '@/contexts/URLFiltersContext';
 
-export const useSearchManagement = ({
-  searchParams
-}: {
-  searchParams: URLSearchParams,
-}) => {
-  const router = useRouter();
+export const useSearchManagement = () => {
+  const { getParam, setParam } = useURLFiltersContext();
 
-  const urlSearchQuery = searchParams.get(SEARCH_PARAM) || '';
+  const urlSearchQuery = getParam(SEARCH_PARAM) || "";
   const [immediateSearchQuery, setImmediateSearchQuery] = useState<string | null>(null);
 
   // The effective search query - immediate takes priority, then URL
@@ -18,17 +14,7 @@ export const useSearchManagement = ({
   const updateSearchQuery = (newQuery: string) => {
     console.trace('useSearchManagement URL update stack trace');
     setImmediateSearchQuery(newQuery);
-
-    const params = new URLSearchParams(searchParams);
-    if (newQuery) {
-      params.set(SEARCH_PARAM, newQuery);
-    } else {
-      params.delete(SEARCH_PARAM);
-    }
-
-    const newUrl = `?${params.toString()}`;
-    console.debug('Pushing new URL:', newUrl);
-    router.push(newUrl, { scroll: false });
+    setParam(SEARCH_PARAM, newQuery || null);
   };
 
   // Clear immediate state when URL catches up

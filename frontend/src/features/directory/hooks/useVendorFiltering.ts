@@ -4,17 +4,16 @@ import { getVendorsByLocation, searchVendors } from "../api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
 import { SORT_OPTIONS, SortOption } from "@/types/sort";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
 export const useVendorFiltering = ({
   vendors,
-  searchParams,
   selectedLocation,
   travelsWorldwide,
   selectedSkills,
   searchQuery,
 }: {
   vendors: VendorByDistance[],
-  searchParams: URLSearchParams,
   selectedLocation: LocationResult | null,
   travelsWorldwide: boolean,
   selectedSkills: string[],
@@ -25,14 +24,16 @@ export const useVendorFiltering = ({
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [initialLoad, setInitialLoad] = useState(true);
 
+  const { getParam } = useURLFiltersContext();
+  const urlLat = getParam(LATITUDE_PARAM);
+  const urlLon = getParam(LONGITUDE_PARAM);
+
   // Load vendors based on location filter
   useEffect(() => {
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
 
-      const urlLat = searchParams.get(LATITUDE_PARAM);
-      const urlLon = searchParams.get(LONGITUDE_PARAM);
 
       // If we have URL params but no resolved location yet, show loading
       if ((urlLat && urlLon) && !selectedLocation && initialLoad) {
@@ -104,7 +105,7 @@ export const useVendorFiltering = ({
     return () => {
       cancelled = true;
     };
-  }, [selectedLocation, vendors, searchParams, initialLoad]);
+  }, [urlLat, urlLon, selectedLocation, vendors, initialLoad]);
 
   // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {
@@ -162,15 +163,15 @@ export const useVendorFiltering = ({
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 
-    // set default sort option. If location is selected, default to distance sort
-    useEffect(() => {
-      if (selectedLocation) {
-        setSortOption(SORT_OPTIONS.DISTANCE_ASC);
-      } else {
-        setSortOption(SORT_OPTIONS.DEFAULT);
-      }
-    }, [selectedLocation]);
-  
+  // set default sort option. If location is selected, default to distance sort
+  useEffect(() => {
+    if (selectedLocation) {
+      setSortOption(SORT_OPTIONS.DISTANCE_ASC);
+    } else {
+      setSortOption(SORT_OPTIONS.DEFAULT);
+    }
+  }, [selectedLocation]);
+
 
   return {
     vendorsInRadius,

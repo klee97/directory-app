@@ -22,6 +22,7 @@ import { usePagination } from '../hooks/usePagination';
 import { useAnalyticsTracking } from '../hooks/useAnalyticsTracking';
 import { FilterSection } from './tableLayout/FilterSection';
 import { ResultsHeader } from './tableLayout/ResultsHeader';
+import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -56,18 +57,17 @@ export function FilterableVendorTableContent({
 
   useScrollRestoration(true);
 
-  const locationManagement = useLocationManagement({ preselectedLocation, searchParams, searchParamsString, useLocationPages });
+  const locationManagement = useLocationManagement({ preselectedLocation, useLocationPages });
 
   const vendorFiltering = useVendorFiltering({
     vendors,
-    searchParams,
     selectedLocation: locationManagement.selectedLocation,
     travelsWorldwide,
     selectedSkills,
     searchQuery,
   });
 
-  const searchManagement = useSearchManagement({ searchParams });
+  const searchManagement = useSearchManagement();
 
   useAnalyticsTracking({
     searchParams,
@@ -136,7 +136,6 @@ export function FilterableVendorTableContent({
         {/* Other Filters */}
         <FilterSection
           tags={tags}
-          searchParams={searchParams}
           onClearFilters={handleClearFilters}
           filterMinWidth={FILTER_MIN_WIDTH}
         />
@@ -240,11 +239,13 @@ export default function FilterableVendorTable(props: {
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FilterableVendorTableContent
-        {...props}
-        preselectedLocation={props.preselectedLocation ?? null}
-        useLocationPages={props.useLocationPages ?? false}
-      />
+      <URLFiltersProvider>
+        <FilterableVendorTableContent
+          {...props}
+          preselectedLocation={props.preselectedLocation ?? null}
+          useLocationPages={props.useLocationPages ?? false}
+        />
+      </URLFiltersProvider>
     </Suspense>
   );
 }

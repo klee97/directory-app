@@ -17,6 +17,14 @@ interface SearchResults {
     detailedError?: string;
 }
 
+const defaultEmptyResults = {
+    instantLocations: [],
+    detailedLocations: [],
+    isInstantLoading: false,
+    isDetailedLoading: false,
+    detailedSuccess: false,
+};
+
 export function useLocationSearch(query: string): SearchResults {
     const [results, setResults] = useState<SearchResults>({
         instantLocations: [],
@@ -85,14 +93,6 @@ export function useLocationSearch(query: string): SearchResults {
                 }));
             }
         }
-    };
-
-    const defaultEmptyResults = {
-        instantLocations: [],
-        detailedLocations: [],
-        isInstantLoading: false,
-        isDetailedLoading: false,
-        detailedSuccess: false,
     };
 
     useEffect(() => {

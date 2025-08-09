@@ -7,15 +7,14 @@ import reverseGeocodeCache, { createGeocodeKey } from "../components/reverseGeoc
 import { serializeLocation } from "@/lib/location/serializer";
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
 const locationPageGenerator = new LocationPageGenerator();
 
 export const useLocationManagement = ({
-  preselectedLocation, searchParams, searchParamsString, useLocationPages
+  preselectedLocation, useLocationPages
 }: {
   preselectedLocation: LocationResult | null,
-  searchParams: URLSearchParams,
-  searchParamsString: string,
   useLocationPages: boolean,
 }) => {
 
@@ -24,8 +23,11 @@ export const useLocationManagement = ({
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
   const [validLocationSlugs, setValidLocationSlugs] = useState<Set<string> | null>(null);
 
-  const router = useRouter();
+  const { getParam, setParams } = useURLFiltersContext();
+  const lat = getParam(LATITUDE_PARAM);
+  const lon = getParam(LONGITUDE_PARAM);
 
+  const router = useRouter();
   // Move location sync, selection, and URL management here
   const clearImmediateLocation = useCallback(() => {
     setImmediateLocation(null);
@@ -34,8 +36,8 @@ export const useLocationManagement = ({
   const selectedLocation: LocationResult | null = useResolvedLocation({
     preselectedLocation,
     immediateLocation,
-    searchParams,
-    clearImmediateLocation });
+    clearImmediateLocation
+  });
 
   // Location search results
   const {
@@ -70,10 +72,9 @@ export const useLocationManagement = ({
   // Handle location selection
   const handleSelectLocation = (location: LocationResult | null) => {
     console.debug('handleSelectLocation called with:', location);
-    const params = new URLSearchParams(searchParamsString);
     setImmediateLocation(location);
-    if (location) {
 
+    if (location) {
       // Update local state immediately for UX, but let the URL change handle the real state
       setLocationInputValue(location.display_name);
       if (location.lat && location.lon) {
@@ -85,16 +86,20 @@ export const useLocationManagement = ({
       console.debug('Serialized location:', serialized);
       if (serialized) {
         const { lat, lon } = serialized;
-        params.set(LATITUDE_PARAM, String(lat));
-        params.set(LONGITUDE_PARAM, String(lon));
-        console.debug('Setting URL params:', { lat, lon });
+        console.debug('Setting URL params via useURLFilters:', { lat, lon });
+        setParams({
+          [LATITUDE_PARAM]: String(lat),
+          [LONGITUDE_PARAM]: String(lon)
+        });
       }
     } else {
       // Clear everything immediately
       setLocationInputValue('');
       setLocationSearchQuery('');
-      params.delete(LATITUDE_PARAM);
-      params.delete(LONGITUDE_PARAM);
+      setParams({
+        [LATITUDE_PARAM]: null,
+        [LONGITUDE_PARAM]: null
+      });
       console.debug('Clearing location params');
     }
 
@@ -102,20 +107,16 @@ export const useLocationManagement = ({
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
-    const newUrl = `?${params.toString()}`;
-    console.debug('Pushing new URL:', newUrl);
-    router.push(newUrl, { scroll: false });
   };
 
   // Handle clear location selection for location-specific pages
   useEffect(() => {
     // go home when no location is selected
     if (preselectedLocation && selectedLocation === null) {
-      const newParams = new URLSearchParams(searchParamsString);
-      newParams.delete(LATITUDE_PARAM);
-      newParams.delete(LONGITUDE_PARAM);
-      const url = newParams.toString() ? `/?${newParams.toString()}` : '/';
-      router.push(url, { scroll: false });
+      setParams({
+        [LATITUDE_PARAM]: null,
+        [LONGITUDE_PARAM]: null
+      });
       return;
     }
 
@@ -127,13 +128,17 @@ export const useLocationManagement = ({
       const slug = locationPageGenerator.getSlugFromLocation(selectedLocation);
       if (slug && validLocationSlugs.has(slug)) {
         console.debug("Found location page for:", selectedLocation.display_name);
-        const params = searchParamsString;
-        const url = params ? `/${slug}?${params}` : `/${slug}`;
-        router.push(url, { scroll: false });
-        return;
+        const newParams = new URLSearchParams();
+        if (lat) newParams.set(LATITUDE_PARAM, lat);
+        if (lon) newParams.set(LONGITUDE_PARAM, lon);
+        const paramsString = newParams.toString
+        router.push(
+          paramsString ? `/${slug}?${paramsString}` : `/${slug}`,
+          { scroll: false }
+        );
       }
     }
-  }, [preselectedLocation, selectedLocation, router, searchParamsString, useLocationPages, validLocationSlugs]);
+  }, [preselectedLocation, selectedLocation, router, lat, lon, useLocationPages, validLocationSlugs, setParams]);
 
   // Fetch valid slugs on mount
   useEffect(() => {

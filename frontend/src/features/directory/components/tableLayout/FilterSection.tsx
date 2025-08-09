@@ -2,13 +2,11 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { SkillFilter } from "../filters/SkillFilter";
 import TravelFilter from "../filters/TravelFilter";
-import { ReadonlyURLSearchParams } from "next/navigation";
 
 
-export const FilterSection = ({ tags, searchParams, onClearFilters, filterMinWidth }:
+export const FilterSection = ({ tags, onClearFilters, filterMinWidth }:
   {
     tags: string[];
-    searchParams: ReadonlyURLSearchParams;
     onClearFilters: () => void;
     filterMinWidth: number;
   }
@@ -22,8 +20,8 @@ export const FilterSection = ({ tags, searchParams, onClearFilters, filterMinWid
       flexWrap: 'wrap',
     }}
   >
-    <SkillFilter tags={tags} searchParams={searchParams} filterMinWidth={filterMinWidth} />
-    <TravelFilter searchParams={searchParams} filterMinWidth={filterMinWidth} />
+    <SkillFilter tags={tags} filterMinWidth={filterMinWidth} />
+    <TravelFilter filterMinWidth={filterMinWidth} />
     {/* Second Row: Clear Button */}
     <Button
       variant="contained"
