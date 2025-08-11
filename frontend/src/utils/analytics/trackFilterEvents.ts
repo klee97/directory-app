@@ -33,6 +33,7 @@ export const trackFiltersApplied = (
       event: 'filters_applied',
       region: filterContext.selectedLocationName || "",
       skill: filterContext.selectedSkills,
+      service: filterContext.selectedServices,
       travels_worldwide: filterContext.travelsWorldwide,
       search_term: filterContext.searchQuery || "",
       sort_option: filterContext.sortOptionName || "",

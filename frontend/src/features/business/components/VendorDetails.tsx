@@ -29,7 +29,7 @@ import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
-import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -108,6 +108,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const lon = searchParams.get(LONGITUDE_PARAM);
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams.get(SEARCH_PARAM);
 
 
@@ -506,6 +507,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   lat: lat ? parseFloat(lat) : null,
                   lon: lon ? parseFloat(lon) : null,
                   selectedSkills: selectedSkills,
+                  selectedServices: selectedServices,
                   travelsWorldwide: travelsWorldwide,
                   searchQuery: searchQuery || null
                 }}

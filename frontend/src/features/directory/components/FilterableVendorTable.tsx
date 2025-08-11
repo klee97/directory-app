@@ -23,13 +23,14 @@ import { FilterSection } from './tableLayout/FilterSection';
 import { ResultsHeader } from './tableLayout/ResultsHeader';
 import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 import { useURLFilters } from '@/hooks/useURLFilters';
+import { FilterTags } from '@/lib/directory/filterTags';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
 
 interface FilterableVendorTableContentProps {
-  tags: string[];
+  tags: FilterTags;
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
   preselectedLocation: LocationResult | null;
@@ -66,6 +67,7 @@ export function FilterableVendorTableContent({
     selectedLocation: locationManagement.selectedLocation,
     travelsWorldwide,
     selectedSkills,
+    selectedServices,
     searchQuery,
   });
 
@@ -76,6 +78,7 @@ export function FilterableVendorTableContent({
     searchQuery,
     selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
     selectedSkills,
+    selectedServices,
     travelsWorldwide,
     sortOptionName: vendorFiltering.sortOption.name,
     resultCount: vendorFiltering.searchedAndSortedVendors.length,
@@ -212,6 +215,7 @@ export function FilterableVendorTableContent({
               {
                 selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
                 selectedSkills,
+                selectedServices,
                 travelsWorldwide,
                 searchQuery,
                 sortOptionName: vendorFiltering.sortOption.name,
@@ -236,7 +240,7 @@ export function FilterableVendorTableContent({
 }
 
 export default function FilterableVendorTable(props: {
-  tags: string[],
+  tags: FilterTags,
   vendors: VendorByDistance[],
   favoriteVendorIds: VendorId[],
   preselectedLocation?: LocationResult | null,

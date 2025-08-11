@@ -9,11 +9,12 @@ import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LocationResult } from '@/types/location';
 import Scroll from './Scroll';
+import { FilterTags } from '@/lib/directory/filterTags';
 
 
 interface DirectoryProps {
   vendors: Vendor[];
-  tags: string[];
+  tags: FilterTags;
   selectedLocation?: LocationResult;
 }
 

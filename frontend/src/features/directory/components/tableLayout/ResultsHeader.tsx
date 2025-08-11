@@ -1,44 +1,127 @@
-
 import { LocationResult } from "@/types/location";
 import { SORT_OPTIONS, SortOption } from "@/types/sort";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
+import Chip from "@mui/material/Chip";
+import { SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from "@/lib/constants";
 
 export const ResultsHeader = ({
   loading,
   resultCount,
   selectedLocation,
   sortOption,
-  onSortChange
+  onSortChange,
 }: {
   loading: boolean,
   resultCount: number,
   selectedLocation: LocationResult | null,
   sortOption: SortOption,
-  onSortChange: (sortOption: SortOption) => void
-}) => (
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: { xs: 'flex-start', md: 'center' },
-      gap: 2,
-    }}
-  >
-    <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
-      {loading ? <LoadingText /> : <ResultCountText count={resultCount} location={selectedLocation} />}
-    </Typography>
-    <SortDropdown sortOption={sortOption} onChange={onSortChange} />
-  </Box>
-);
+  onSortChange: (sortOption: SortOption) => void,
+}) => {
+  const { getAllParams, setParams } = useURLFiltersContext();
 
+  // Get selected filters from URL params
+  const selectedServices = getAllParams(SERVICE_PARAM) || [];
+  const selectedSkills = getAllParams(SKILL_PARAM) || [];
+  const selectedTravel = getAllParams(TRAVEL_PARAM) || [];
 
-const SortDropdown = ({sortOption, onChange } : {
+  const hasFilters = selectedServices.length > 0 || selectedSkills.length > 0 || selectedTravel.length > 0;
+
+  // Function to remove a specific filter
+  const handleRemoveFilter = (filterType: string, valueToRemove: string) => {
+    const currentValues = getAllParams(filterType) || [];
+    const newValues = currentValues.filter(value => value !== valueToRemove);
+
+    setParams({
+      [filterType]: newValues.length > 0 ? newValues.join(",") : null
+    });
+  };
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+      }}
+    >
+      {/* Filter Pills Row */}
+      {hasFilters && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>
+            Filters:
+          </Typography>
+
+          {/* Service Pills */}
+          {selectedServices.map((service) => (
+            <Chip
+              key={`service-${service}`}
+              label={service}
+              size="small"
+              onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
+              color="primary"
+              variant="outlined"
+            />
+          ))}
+
+          {/* Skill Pills */}
+          {selectedSkills.map((skill) => (
+            <Chip
+              key={`skill-${skill}`}
+              label={skill}
+              size="small"
+              onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
+              color="secondary"
+              variant="outlined"
+            />
+          ))}
+
+          {/* Travel Pills */}
+          {selectedTravel.map((travel) => (
+            <Chip
+              key={`travel-${travel}`}
+              label={travel}
+              size="small"
+              onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
+              color="info"
+              variant="outlined"
+            />
+          ))}
+        </Box>
+      )}
+
+      {/* Original Header Row */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: { xs: 'flex-start', md: 'center' },
+          gap: 2,
+        }}
+      >
+        <Typography variant="h6" sx={{ color: 'text.secondary', fontStyle: 'italic' }}>
+          {loading ? <LoadingText /> : <ResultCountText count={resultCount} location={selectedLocation} />}
+        </Typography>
+        <SortDropdown sortOption={sortOption} onChange={onSortChange} />
+      </Box>
+    </Box>
+  );
+};
+
+const SortDropdown = ({ sortOption, onChange }: {
   sortOption: SortOption,
   onChange: (sortOption: SortOption) => void,
 }) => (
@@ -59,7 +142,8 @@ const SortDropdown = ({sortOption, onChange } : {
       ))}
     </Select>
   </FormControl>
-)
+);
+
 const LoadingText = () => (
   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
     <CircularProgress size={20} />

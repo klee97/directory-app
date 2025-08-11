@@ -1,25 +1,24 @@
 "use client"
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SERVICE_PARAM } from "@/lib/constants";
-import { ReadonlyURLSearchParams } from "next/navigation";
 import { SERVICE_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Checkbox, FormControlLabel, Typography } from "@mui/material";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
-export function ServiceFilter({ tags, searchParams, filterMinWidth }:
+export function ServiceFilter({ tags, filterMinWidth }:
   {
     tags: string[];
-    searchParams: ReadonlyURLSearchParams;
     filterMinWidth: number;
   }
 ) {
-  const router = useRouter();
+  const { getAllParams, setParams } = useURLFiltersContext();
+
   // Get the selected services from URL params
-  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => getAllParams(SERVICE_PARAM) || [], [getAllParams]);
   const [services, setServices] = useState<boolean[]>(tags.map((service) => selectedServices.includes(service)));
 
   useEffect(() => {
@@ -31,16 +30,11 @@ export function ServiceFilter({ tags, searchParams, filterMinWidth }:
     newServices[index] = newState;
     setServices(newServices);
 
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.delete(SERVICE_PARAM);
-    tags.map((service, index) => {
-      if (newServices[index]) {
-        newParams.append(SERVICE_PARAM, service);
-      }
+    const selectedServices = tags.filter((_, i) => newServices[i]);
+    setParams({
+      [SERVICE_PARAM]: selectedServices.length > 0 ? selectedServices.join(",") : null
     });
 
-    // Use router.push() to update the URL while keeping other params
-    router.push(`?${newParams.toString()}`, { scroll: false });
     trackFilterEvent(SERVICE_FILTER_NAME, service);
   };
 
