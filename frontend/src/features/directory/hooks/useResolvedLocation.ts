@@ -3,15 +3,15 @@ import { LocationResult } from '@/types/location';
 import { parseLatLonFromParams } from '@/lib/location/serializer';
 import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
 import reverseGeocodeCache from '@/features/directory/components/reverseGeocodeCache';
+import { LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
+import { useURLFiltersContext } from '@/contexts/URLFiltersContext';
 
 export default function useResolvedLocation({
     preselectedLocation,
-    searchParams,
     immediateLocation,
     clearImmediateLocation
 }: {
     preselectedLocation: LocationResult | null,
-    searchParams: URLSearchParams,
     immediateLocation?: LocationResult | null,
     clearImmediateLocation?: () => void
 }): LocationResult | null {
@@ -19,6 +19,10 @@ export default function useResolvedLocation({
     const [resolvedLocation, setResolvedLocation] = useState<LocationResult | null>(preselectedLocation);
     const lastCoordsRef = useRef<string | null>(null);
     const isResolvingRef = useRef<boolean>(false);
+
+    const { getParam } = useURLFiltersContext();
+    const lat = getParam(LATITUDE_PARAM);
+    const lon = getParam(LONGITUDE_PARAM);
 
     useEffect(() => {
         // Handle immediate location (from user selection) - highest priority
@@ -39,7 +43,10 @@ export default function useResolvedLocation({
             return;
         }
 
-        const coords = parseLatLonFromParams(searchParams);
+        const coords = parseLatLonFromParams({
+            lat,
+            lon
+        });
 
         // If no coordinates, clear the location and reset
         if (!coords) {
@@ -95,7 +102,7 @@ export default function useResolvedLocation({
         };
 
         resolve();
-    }, [searchParams, preselectedLocation, immediateLocation, clearImmediateLocation]);
+    }, [lat, lon, preselectedLocation, immediateLocation, clearImmediateLocation]);
 
     return resolvedLocation;
 }

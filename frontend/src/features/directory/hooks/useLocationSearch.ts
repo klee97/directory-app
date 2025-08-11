@@ -25,7 +25,7 @@ const defaultEmptyResults = {
     detailedSuccess: false,
 };
 
-export function useSearch(query: string): SearchResults {
+export function useLocationSearch(query: string): SearchResults {
     const [results, setResults] = useState<SearchResults>({
         instantLocations: [],
         detailedLocations: [],

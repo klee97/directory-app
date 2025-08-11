@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter, usePathname, ReadonlyURLSearchParams } from "next/navigation";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import { TRAVEL_PARAM } from "@/lib/constants";
@@ -11,18 +10,17 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import React, { useEffect } from "react";
+import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
 export default function TravelFilter({
-  searchParams,
   filterMinWidth
 }: {
-  searchParams: ReadonlyURLSearchParams,
   filterMinWidth: number
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
+  const { getParam, setParams } = useURLFiltersContext();
+
   // Get the current value from URL (default to false if not set)
-  const travelsWorldwideDefault = searchParams.get(TRAVEL_PARAM)?.toLowerCase() === "true";
+  const travelsWorldwideDefault = getParam(TRAVEL_PARAM)?.toLowerCase() === "true";
   const [travelsWorldwide, setTravelsWorldwide] = React.useState<boolean>(travelsWorldwideDefault);
 
   useEffect(() => {
@@ -32,17 +30,12 @@ export default function TravelFilter({
   // Function to update the URL param
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTravelsWorldwide = event.target.checked;
-    const params = new URLSearchParams(searchParams);
+    setTravelsWorldwide(newTravelsWorldwide);
 
-    if (newTravelsWorldwide) {
-      setTravelsWorldwide(true);
-      params.set(TRAVEL_PARAM, "true");
-    } else {
-      setTravelsWorldwide(false);
-      params.delete(TRAVEL_PARAM); // Remove param if false
-    }
+    setParams({
+      [TRAVEL_PARAM]: newTravelsWorldwide ? "true" : null
+    });
 
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
     trackFilterEvent(TRAVEL_FILTER_NAME, newTravelsWorldwide.toString());
   };
 

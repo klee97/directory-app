@@ -12,11 +12,11 @@ export const serializeLocation = (location: LocationResult) => {
   };
 };
 
-export const parseLatLonFromParams = (params: URLSearchParams) => {
-  const lat = parseFloat(params.get("lat") || "");
-  const lon = parseFloat(params.get("lon") || "");
-  if (isFinite(lat) && isFinite(lon)) {
-    return { lat, lon };
+export const parseLatLonFromParams = ({ lat, lon }: { lat: string | null; lon: string | null }) => {
+  const latNum = parseFloat(lat ?? "");
+  const lonNum = parseFloat(lon ?? "");
+  if (isFinite(latNum) && isFinite(lonNum)) {
+    return { lat: latNum, lon: lonNum };
   }
   return null;
 };
