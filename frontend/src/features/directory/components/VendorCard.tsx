@@ -102,6 +102,7 @@ export const VendorCard = ({
       isPremium: vendor.is_premium,
       photoIndex: showImageCarousel ? swiperIndex : 0,
       search_term: filterContext?.searchQuery || "",
+      service: filterContext?.selectedServices,
       skill: filterContext?.selectedSkills,
       travels_worldwide: filterContext?.travelsWorldwide,
       region: filterContext?.selectedLocationName || "",
