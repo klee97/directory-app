@@ -83,6 +83,7 @@ export const ResultsHeader = ({
               onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
               color={'primary'}
               size={'small'}
+              disabled={loading}
             />
           ))}
 
@@ -94,6 +95,7 @@ export const ResultsHeader = ({
               onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
               color={'info'}
               size={'small'}
+              disabled={loading}
             />
           ))}
 
@@ -105,6 +107,7 @@ export const ResultsHeader = ({
               onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
               color={'default'}
               size={'small'}
+              disabled={loading}
             />
           ))}
         </Box>
