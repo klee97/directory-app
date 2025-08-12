@@ -2,6 +2,8 @@ export const SEARCH_PARAM = 'query';
 export const LOCATION_PARAM = 'region';
 export const TRAVEL_PARAM = 'travelsWorldwide';
 export const SKILL_PARAM = 'skill';
+export const SERVICE_PARAM = 'service';
+
 export const LATITUDE_PARAM = 'lat';
 export const LONGITUDE_PARAM = 'lon';
 

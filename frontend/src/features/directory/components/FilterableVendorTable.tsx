@@ -9,7 +9,7 @@ import { SearchBar } from './filters/SearchBar';
 import { VendorId, VendorByDistance } from '@/types/vendor';
 import { LocationResult } from '@/types/location';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM } from '@/lib/constants';
+import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM, SERVICE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
 import { trackFilterReset } from '@/utils/analytics/trackFilterEvents';
@@ -23,13 +23,14 @@ import { FilterSection } from './tableLayout/FilterSection';
 import { ResultsHeader } from './tableLayout/ResultsHeader';
 import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 import { useURLFilters } from '@/hooks/useURLFilters';
+import { FilterTags } from '@/lib/directory/filterTags';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
 const SEARCH_FILTER_GAP = 16;
 
 interface FilterableVendorTableContentProps {
-  tags: string[];
+  tags: FilterTags;
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
   preselectedLocation: LocationResult | null;
@@ -51,6 +52,7 @@ export function FilterableVendorTableContent({
   const searchQuery = searchParams.get(SEARCH_PARAM) || "";
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
 
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
@@ -65,6 +67,7 @@ export function FilterableVendorTableContent({
     selectedLocation: locationManagement.selectedLocation,
     travelsWorldwide,
     selectedSkills,
+    selectedServices,
     searchQuery,
   });
 
@@ -75,6 +78,7 @@ export function FilterableVendorTableContent({
     searchQuery,
     selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
     selectedSkills,
+    selectedServices,
     travelsWorldwide,
     sortOptionName: vendorFiltering.sortOption.name,
     resultCount: vendorFiltering.searchedAndSortedVendors.length,
@@ -211,6 +215,7 @@ export function FilterableVendorTableContent({
               {
                 selectedLocationName: locationManagement.selectedLocation?.display_name ?? null,
                 selectedSkills,
+                selectedServices,
                 travelsWorldwide,
                 searchQuery,
                 sortOptionName: vendorFiltering.sortOption.name,
@@ -235,7 +240,7 @@ export function FilterableVendorTableContent({
 }
 
 export default function FilterableVendorTable(props: {
-  tags: string[],
+  tags: FilterTags,
   vendors: VendorByDistance[],
   favoriteVendorIds: VendorId[],
   preselectedLocation?: LocationResult | null,

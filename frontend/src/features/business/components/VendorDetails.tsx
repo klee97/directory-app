@@ -6,13 +6,12 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { useTheme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
 import Grid from '@mui/system/Grid';
-import Public from '@mui/icons-material/Public';
+import PublicIcon from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
 import Mail from '@mui/icons-material/Mail';
 import Send from '@mui/icons-material/Send';
@@ -29,7 +28,8 @@ import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
-import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import FilterChip from '@/components/ui/FilterChip';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -108,6 +108,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const lon = searchParams.get(LONGITUDE_PARAM);
   const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams.get(SEARCH_PARAM);
 
 
@@ -205,13 +206,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                     <LocationOn fontSize="small" />
                     <Typography variant="subtitle1">{resolvedLocation}</Typography>
                   </Box>
-                  {vendor.travels_world_wide && (
-                    <Chip
-                      icon={<Public />}
-                      label="Travels Worldwide"
-                      size="small"
-                    />
-                  )}
+                  {vendor.travels_world_wide && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <PublicIcon fontSize="small" />
+                    <Typography variant="subtitle1">Travels Worldwide</Typography>
+                  </Box>
+                  }
                 </Box>
                 {hasPricing && (
                   <Typography variant="body1">
@@ -225,11 +224,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                       .filter((tag) => tag.is_visible && tag.display_name !== null)
                       .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                       .map((tag) => (
-                        <Chip
+                        <FilterChip
                           key={tag.id}
                           label={`${tag.display_name}`}
                           size="medium"
-                          color={tag.style === 'primary' ? 'primary' : 'default'}
+                          color={tag.style === 'primary' ? 'primary' : 'info'}
                           sx={{ paddingX: 1 }}
                         />
                       ))}
@@ -506,6 +505,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   lat: lat ? parseFloat(lat) : null,
                   lon: lon ? parseFloat(lon) : null,
                   selectedSkills: selectedSkills,
+                  selectedServices: selectedServices,
                   travelsWorldwide: travelsWorldwide,
                   searchQuery: searchQuery || null
                 }}

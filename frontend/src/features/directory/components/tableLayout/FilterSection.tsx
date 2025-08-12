@@ -2,11 +2,13 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import { SkillFilter } from "../filters/SkillFilter";
 import TravelFilter from "../filters/TravelFilter";
+import { ServiceFilter } from "../filters/ServiceFilter";
+import { FilterTags } from "@/lib/directory/filterTags";
 
 
 export const FilterSection = ({ tags, onClearFilters, filterMinWidth }:
   {
-    tags: string[];
+    tags: FilterTags;
     onClearFilters: () => void;
     filterMinWidth: number;
   }
@@ -20,7 +22,8 @@ export const FilterSection = ({ tags, onClearFilters, filterMinWidth }:
       flexWrap: 'wrap',
     }}
   >
-    <SkillFilter tags={tags} filterMinWidth={filterMinWidth} />
+    <ServiceFilter tags={tags.services} filterMinWidth={filterMinWidth} />
+    <SkillFilter tags={tags.skills} filterMinWidth={filterMinWidth} />
     <TravelFilter filterMinWidth={filterMinWidth} />
     {/* Second Row: Clear Button */}
     <Button

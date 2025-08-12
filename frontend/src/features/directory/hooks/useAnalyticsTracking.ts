@@ -7,6 +7,7 @@ interface UseAnalyticsTrackingProps {
   searchQuery: string;
   selectedLocationName: string | null;
   selectedSkills: string[];
+  selectedServices: string[];
   travelsWorldwide: boolean;
   sortOptionName: string;
   resultCount: number;
@@ -17,6 +18,7 @@ export function useAnalyticsTracking({
   searchQuery,
   selectedLocationName,
   selectedSkills,
+  selectedServices,
   travelsWorldwide,
   sortOptionName,
   resultCount,
@@ -30,6 +32,7 @@ export function useAnalyticsTracking({
   const filterContext: FilterContext = useMemo(() => ({
     selectedLocationName,
     selectedSkills,
+    selectedServices,
     travelsWorldwide,
     searchQuery,
     sortOptionName,
@@ -37,6 +40,7 @@ export function useAnalyticsTracking({
   }), [
     selectedLocationName,
     selectedSkills,
+    selectedServices,
     travelsWorldwide,
     searchQuery,
     sortOptionName,

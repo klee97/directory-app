@@ -62,7 +62,7 @@ export const colorSchemes = {
   dark: {
     palette: {
       primary: {
-        main: '#edecef',
+        main: '#d18f90',
       },
       secondary: {
         main: '#a8a6a9',

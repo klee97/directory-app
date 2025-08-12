@@ -11,12 +11,14 @@ export const useVendorFiltering = ({
   selectedLocation,
   travelsWorldwide,
   selectedSkills,
+  selectedServices,
   searchQuery,
 }: {
   vendors: VendorByDistance[],
   selectedLocation: LocationResult | null,
   travelsWorldwide: boolean,
   selectedSkills: string[],
+  selectedServices: string[],
   searchQuery: string,
 }) => {
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
@@ -111,6 +113,8 @@ export const useVendorFiltering = ({
   const filteredVendors = useMemo(() => {
     return vendorsInRadius.filter((vendor) => {
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
+      if (!matchesTravel) return false; // short circuit if travel doesn't match
+      
       const matchesAnySkill = selectedSkills.length > 0
         ? selectedSkills.some(skill =>
           vendor.tags.some((tag: VendorTag) =>
@@ -118,9 +122,18 @@ export const useVendorFiltering = ({
           )
         )
         : true;
-      return matchesTravel && matchesAnySkill;
+      if (!matchesAnySkill) return false;
+      
+      const matchesAnyService = selectedServices.length > 0
+        ? selectedServices.some(service =>
+          vendor.tags.some((tag: VendorTag) =>
+            tag.display_name?.toLowerCase() === service.toLowerCase()
+          )
+        )
+        : true;
+      return matchesAnyService;
     });
-  }, [vendorsInRadius, travelsWorldwide, selectedSkills]);
+  }, [vendorsInRadius, travelsWorldwide, selectedSkills, selectedServices]);
 
   // Apply sorting
   const searchedAndSortedVendors = useMemo(() => {

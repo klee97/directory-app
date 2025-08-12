@@ -4,6 +4,7 @@ import debounce from 'lodash.debounce';
 export const LOCATION_FILTER_NAME = 'region';
 export const TRAVEL_FILTER_NAME = 'travelsWorldwide';
 export const SKILL_FILTER_NAME = 'skill';
+export const SERVICE_FILTER_NAME = 'service';
 
 /**
  * Track filter changes in GTM
@@ -32,6 +33,7 @@ export const trackFiltersApplied = (
       event: 'filters_applied',
       region: filterContext.selectedLocationName || "",
       skill: filterContext.selectedSkills,
+      service: filterContext.selectedServices,
       travels_worldwide: filterContext.travelsWorldwide,
       search_term: filterContext.searchQuery || "",
       sort_option: filterContext.sortOptionName || "",
