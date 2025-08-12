@@ -43,12 +43,27 @@ export function useURLFilters() {
     [setParams]
   );
 
+  const setArrayParam = useCallback(
+    (key: string, values: string[] | null) => {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete(key);
+      if (values && values.length > 0) {
+        values.forEach(value => newParams.append(key, value));
+      }
+      const search = newParams.toString();
+      const newUrl = search ? `${pathname}?${search}` : pathname;
+      router.push(newUrl, { scroll: false });
+    },
+    [router, searchParams, pathname]
+  );
+
   return {
     searchParams,
     paramsString,
     getParam,
     getAllParams,
     setParam,
-    setParams
+    setParams,
+    setArrayParam
   };
 }

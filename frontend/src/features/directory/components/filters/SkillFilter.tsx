@@ -15,7 +15,7 @@ export function SkillFilter({ tags, filterMinWidth }:
     filterMinWidth: number;
   }
 ) {
-  const { getAllParams, setParams } = useURLFiltersContext();
+  const { getAllParams, setArrayParam } = useURLFiltersContext();
 
   // Get the selected skills from URL params
   const selectedSkills = useMemo(() => getAllParams(SKILL_PARAM) || [], [getAllParams]);
@@ -31,9 +31,7 @@ export function SkillFilter({ tags, filterMinWidth }:
     setSkills(newSkills);
 
     const selectedSkills = tags.filter((_, i) => newSkills[i]);
-    setParams({
-      [SKILL_PARAM]: selectedSkills.length > 0 ? selectedSkills.join(",") : null
-    });
+    setArrayParam(SKILL_PARAM, selectedSkills.length > 0 ? selectedSkills : null);
 
     trackFilterEvent(SKILL_FILTER_NAME, skill);
   };
