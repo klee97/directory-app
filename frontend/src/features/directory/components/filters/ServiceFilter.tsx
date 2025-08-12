@@ -15,7 +15,7 @@ export function ServiceFilter({ tags, filterMinWidth }:
     filterMinWidth: number;
   }
 ) {
-  const { getAllParams, setParams } = useURLFiltersContext();
+  const { getAllParams, setArrayParam } = useURLFiltersContext();
 
   // Get the selected services from URL params
   const selectedServices = useMemo(() => getAllParams(SERVICE_PARAM) || [], [getAllParams]);
@@ -31,9 +31,7 @@ export function ServiceFilter({ tags, filterMinWidth }:
     setServices(newServices);
 
     const selectedServices = tags.filter((_, i) => newServices[i]);
-    setParams({
-      [SERVICE_PARAM]: selectedServices.length > 0 ? selectedServices.join(",") : null
-    });
+    setArrayParam(SERVICE_PARAM, selectedServices.length > 0 ? selectedServices : null);
 
     trackFilterEvent(SERVICE_FILTER_NAME, service);
   };

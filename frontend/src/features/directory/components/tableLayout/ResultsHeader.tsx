@@ -7,8 +7,8 @@ import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
-import Chip from "@mui/material/Chip";
 import { SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from "@/lib/constants";
+import FilterChip from "@/components/ui/FilterChip";
 
 export const ResultsHeader = ({
   loading,
@@ -50,59 +50,7 @@ export const ResultsHeader = ({
         gap: 2,
       }}
     >
-      {/* Filter Pills Row */}
-      {hasFilters && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 1,
-            alignItems: 'center',
-          }}
-        >
-          <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>
-            Filters:
-          </Typography>
-
-          {/* Service Pills */}
-          {selectedServices.map((service) => (
-            <Chip
-              key={`service-${service}`}
-              label={service}
-              size="small"
-              onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
-              color="primary"
-              variant="outlined"
-            />
-          ))}
-
-          {/* Skill Pills */}
-          {selectedSkills.map((skill) => (
-            <Chip
-              key={`skill-${skill}`}
-              label={skill}
-              size="small"
-              onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
-              color="secondary"
-              variant="outlined"
-            />
-          ))}
-
-          {/* Travel Pills */}
-          {selectedTravel.map((travel) => (
-            <Chip
-              key={`travel-${travel}`}
-              label={travel}
-              size="small"
-              onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
-              color="info"
-              variant="outlined"
-            />
-          ))}
-        </Box>
-      )}
-
-      {/* Original Header Row */}
+      {/* Results Header Row */}
       <Box
         sx={{
           display: 'flex',
@@ -117,6 +65,50 @@ export const ResultsHeader = ({
         </Typography>
         <SortDropdown sortOption={sortOption} onChange={onSortChange} />
       </Box>
+      {/* Filter Pills Row */}
+      {hasFilters && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
+            paddingBottom: 1
+          }}
+        >
+          {/* Service Pills */}
+          {selectedServices.map((service) => (
+            <FilterChip
+              key={`service-${service}`}
+              label={service}
+              onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
+              color={'primary'}
+              size={'small'}
+            />
+          ))}
+
+          {/* Skill Pills */}
+          {selectedSkills.map((skill) => (
+            <FilterChip
+              key={`skill-${skill}`}
+              label={skill}
+              onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
+              color={'info'}
+              size={'small'}
+            />
+          ))}
+
+          {/* Travel Pills */}
+          {selectedTravel.map((travel) => (
+            <FilterChip
+              key={`travel-${travel}`}
+              label={'Travels Worldwide'}
+              onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
+              color={'default'}
+              size={'small'}
+            />
+          ))}
+        </Box>
+      )}
     </Box>
   );
 };

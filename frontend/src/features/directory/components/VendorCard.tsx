@@ -5,7 +5,6 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
 import PublicIcon from '@mui/icons-material/Public';
 import { useTheme } from '@mui/material';
@@ -20,6 +19,7 @@ import Stack from '@mui/system/Stack';
 import { SwiperCarousel } from '@/components/layouts/SwiperCarousel';
 import { useRouter } from 'next/navigation';
 import { FilterContext } from './filters/FilterContext';
+import FilterChip from '@/components/ui/FilterChip';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -272,12 +272,10 @@ export const VendorCard = ({
                   .filter((tag) => tag.is_visible && tag.display_name !== null)
                   .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                   .map((tag) =>
-                    <Chip
+                    <FilterChip
                       key={tag.id}
                       label={`${tag.display_name}`}
-                      variant="outlined"
-                      sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 1 }}
-                      color={tag.style === 'primary' ? 'primary' : 'default'}
+                      color={tag.style === 'primary' ? 'primary' : 'info'}
                     />
                   ))}
               </Box>
