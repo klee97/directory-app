@@ -3,7 +3,7 @@ import Chip, { ChipProps } from '@mui/material/Chip';
 
 
 interface FilterChipProps extends ChipProps {
-  label: string; // required
+  label: string;
   color?: "primary" | "secondary" | "info" | "default";
 }
 
@@ -18,7 +18,26 @@ export default function FilterChip({
       key={key}
       label={label}
       variant="outlined"
-      sx={{ fontSize: '0.875rem', fontWeight: 'medium', mt: 1 }}
+      sx={{
+        fontSize: '0.875rem',
+        fontWeight: 'medium',
+        mt: 1,
+        cursor: 'pointer',
+        transition: 'all 0.1s ease-out',
+
+        ...(props.onDelete && {
+          '& .MuiChip-deleteIcon': {
+            transition: 'all 0.1s ease-out',
+            '&:hover': {
+              transform: 'scale(1.1)',
+            },
+            '&:active': {
+              transform: 'scale(0.9)',
+              opacity: 0.85,
+            }
+          }
+        })
+      }}
       color={color}
       {...props}
     />

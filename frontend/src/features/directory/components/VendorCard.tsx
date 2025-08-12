@@ -130,6 +130,12 @@ export const VendorCard = ({
             boxShadow: '0 12px 24px rgba(0,0,0,0.15)',
             cursor: 'pointer',
           },
+          '&:active': {
+            transform: 'scale(0.98) translateY(-2px)',
+            opacity: 0.85,
+            backgroundColor: 'action.selected',
+            transition: 'all 0.1s ease-out'
+          },
           zIndex: 0
         }}
       >
