@@ -76,17 +76,6 @@ export default function DevTools() {
         <Typography variant="caption" color="text.secondary">
           Cache revalidates every 24h in prod
         </Typography>
-        
-        {/* Easy to add more dev tools here */}
-        {/* 
-        <Divider sx={{ my: 1 }} />
-        <Button variant="outlined" size="small">
-          Clear All Storage
-        </Button>
-        <Button variant="outlined" size="small">
-          Mock Data Mode
-        </Button>
-        */}
       </Box>
     </FormControl>
   );
