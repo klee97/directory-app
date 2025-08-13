@@ -2,7 +2,6 @@
 import { VendorByDistance } from '@/types/vendor';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
@@ -20,6 +19,7 @@ import { SwiperCarousel } from '@/components/layouts/SwiperCarousel';
 import { useRouter } from 'next/navigation';
 import { FilterContext } from './filters/FilterContext';
 import FilterChip from '@/components/ui/FilterChip';
+import VendorCardImage from './VendorCardImage';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -155,18 +155,11 @@ export const VendorCard = ({
               setSwiperIndex={setSwiperIndex}
             >
               {vendor.images.map((image, index) => (
-                <CardMedia
-                  key={index}
-                  component="img"
-                  src={image}
-                  alt={`${vendor.business_name} preview`}
-                  sx={{
-                    height: variant === 'compact' ? 180 : 300,
-                    width: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center 30%',
-                    zIndex: 1,
-                  }}
+                <VendorCardImage
+                  vendorImage={image}
+                  vendorBusinessName={vendor.business_name}
+                  placeholderImage={placeholderImage}
+                  variant={variant}
                 />
               ))}
             </SwiperCarousel>
@@ -197,17 +190,11 @@ export const VendorCard = ({
           }}
         >
           {!showImageCarousel && (
-            <CardMedia
-              component="img"
-              src={vendor.cover_image ?? placeholderImage.src}
-              alt={`${vendor.business_name} preview`}
-              sx={{
-                height: variant === 'compact' ? 180 : 300,
-                width: '100%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                zIndex: 1
-              }}
+            <VendorCardImage
+              vendorImage={vendor.cover_image}
+              vendorBusinessName={vendor.business_name}
+              placeholderImage={placeholderImage}
+              variant={variant}
             />
 
           )}
