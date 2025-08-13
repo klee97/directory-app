@@ -36,7 +36,8 @@ import Favorite from "@mui/icons-material/Favorite";
 import Logout from "@mui/icons-material/Logout";
 import { createClient } from '@/lib/supabase/client';
 import { useNotification } from '@/contexts/NotificationContext';
-import { isDevOrPreview } from '@/lib/env/env';
+import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
+import DevTools from './DevTools';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const resources = ["Blog"];
@@ -446,6 +447,9 @@ export default function Navbar() {
             </Menu>
           </Box>
 
+          {isDevelopment() && (
+            <DevTools/>
+          )}
           {isDevOrPreview() && (
             <FormControl>
               <FormLabel id="demo-theme-toggle">Theme</FormLabel>
