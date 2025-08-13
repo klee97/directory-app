@@ -30,7 +30,7 @@ import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import FilterChip from '@/components/ui/FilterChip';
-
+import Image from 'next/image';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -477,16 +477,25 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                 <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
                   <Box
-                    component="img"
-                    src={vendor.cover_image}
-                    alt={vendor.business_name ?? ''}
                     sx={{
-                      display: 'block',
+                      position: 'relative',
                       width: '100%',
                       height: 400,
-                      objectFit: 'cover', // Ensures it doesn't stretch
+                      overflow: 'hidden'
                     }}
-                  />
+                  >
+                    <Image
+                      src={vendor.cover_image}
+                      alt={vendor.business_name ?? ''}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 600px"
+                      style={{
+                        objectFit: 'cover'
+                      }}
+                      quality={80}
+                      priority={true}
+                    />
+                  </Box>
                 </Card>
               )}
               {/* Right Column - Contact Card */}

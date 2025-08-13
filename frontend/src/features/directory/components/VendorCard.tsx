@@ -157,6 +157,7 @@ export const VendorCard = ({
               {vendor.images.map((image, index) => (
                 <VendorCardImage
                   key={index}
+                  cardPosition={positionIndex}
                   vendorImage={image}
                   vendorBusinessName={vendor.business_name}
                   placeholderImage={placeholderImage}
@@ -192,6 +193,7 @@ export const VendorCard = ({
         >
           {!showImageCarousel && (
             <VendorCardImage
+              cardPosition={positionIndex}
               vendorImage={vendor.cover_image}
               vendorBusinessName={vendor.business_name}
               placeholderImage={placeholderImage}
