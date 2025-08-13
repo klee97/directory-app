@@ -156,6 +156,7 @@ export const VendorCard = ({
             >
               {vendor.images.map((image, index) => (
                 <VendorCardImage
+                  key={index}
                   vendorImage={image}
                   vendorBusinessName={vendor.business_name}
                   placeholderImage={placeholderImage}
