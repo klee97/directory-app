@@ -8,12 +8,14 @@ interface FilterChipProps extends ChipProps {
 }
 
 export default function FilterChip({
+  key,
   label,
   color = "default",
   ...props
 }: FilterChipProps) {
   return (
     <Chip
+      key={key}
       label={label}
       variant="outlined"
       sx={{
