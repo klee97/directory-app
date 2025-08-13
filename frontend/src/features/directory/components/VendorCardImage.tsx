@@ -1,8 +1,15 @@
 import Image, { StaticImageData } from 'next/image';
 import { Box } from '@mui/material';
 
-export default function VendorCardImage({ vendorImage, vendorBusinessName, placeholderImage, variant }: {
+export default function VendorCardImage({
+  vendorImage,
+  cardPosition,
+  vendorBusinessName,
+  placeholderImage,
+  variant
+}: {
   vendorImage: string | null | undefined;
+  cardPosition?: number;
   vendorBusinessName: string | null;
   placeholderImage: StaticImageData;
   variant?: 'default' | 'compact';
@@ -27,7 +34,7 @@ export default function VendorCardImage({ vendorImage, vendorBusinessName, place
           objectPosition: 'center'
         }}
         quality={75}
-        priority={false} // can set to true for above-the-fold images
+        priority={cardPosition ? cardPosition < 3 : false}
       />
     </Box>
   );
