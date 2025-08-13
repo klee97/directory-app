@@ -21,7 +21,7 @@ module.exports = {
       },
       {
         protocol: 'https',
-        hostname: 'xbsnelpjukudknfvmnnj.supabase.co', // Matches your Supabase Storage domain
+        hostname: 'xbsnelpjukudknfvmnnj.supabase.co',
         pathname: '/storage/v1/object/public/**'
       }
     ],
