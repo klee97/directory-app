@@ -225,7 +225,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                       .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                       .map((tag) => (
                         <FilterChip
-                          chipKey={tag.id}
+                          key={tag.id}
                           label={`${tag.display_name}`}
                           size="medium"
                           color={tag.style === 'primary' ? 'primary' : 'info'}

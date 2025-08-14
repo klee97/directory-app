@@ -15,9 +15,7 @@ export const PhotoCarousel = ({ photos, vendorSlug }: { photos: string[], vendor
             flex: '0 0 auto',
             scrollSnapAlign: 'start',
             height: { xs: 300, sm: 400 },
-            aspectRatio: '3/4', // Or whatever ratio you prefer (3/4 for portrait, 16/9 for landscape, etc.)
-            minWidth: 200, // Prevent slides from being too narrow
-            maxWidth: 600, // Prevent slides from being too wide
+            aspectRatio: '3/4',
           }}
         >
           <Box

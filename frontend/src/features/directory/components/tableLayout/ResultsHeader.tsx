@@ -90,7 +90,7 @@ export const ResultsHeader = ({
           {/* Skill Pills */}
           {selectedSkills.map((skill) => (
             <FilterChip
-              chipKey={`skill-${skill}`}
+              key={`skill-${skill}`}
               label={skill}
               onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
               color={'info'}
@@ -102,7 +102,7 @@ export const ResultsHeader = ({
           {/* Travel Pills */}
           {selectedTravel.map((travel) => (
             <FilterChip
-              chipKey={`travel-${travel}`}
+              key={`travel-${travel}`}
               label={'Travels Worldwide'}
               onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
               color={'default'}
