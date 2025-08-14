@@ -78,7 +78,7 @@ export const ResultsHeader = ({
           {/* Service Pills */}
           {selectedServices.map((service) => (
             <FilterChip
-              chipKey={`service-${service}`}
+              key={`service-${service}`}
               label={service}
               onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
               color={'primary'}
