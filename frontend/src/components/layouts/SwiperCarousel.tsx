@@ -25,8 +25,8 @@ type CarouselProps = {
 const StyledSwiper = styled(Swiper)(({ theme }) => ({
   width: '100%',
   height: '100%',
-  '--swiper-navigation-color': theme.palette.primary.main,
-  '--swiper-pagination-color': theme.palette.primary.main,
+  '--swiper-navigation-color': theme.palette.background.default,
+  '--swiper-pagination-color': theme.palette.background.default,
   '.swiper-button-next.swiper-button-disabled': {
     opacity: 0,
   },

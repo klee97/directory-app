@@ -78,7 +78,7 @@ export const ResultsHeader = ({
           {/* Service Pills */}
           {selectedServices.map((service) => (
             <FilterChip
-              key={`service-${service}`}
+              chipKey={`service-${service}`}
               label={service}
               onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
               color={'primary'}
@@ -90,7 +90,7 @@ export const ResultsHeader = ({
           {/* Skill Pills */}
           {selectedSkills.map((skill) => (
             <FilterChip
-              key={`skill-${skill}`}
+              chipKey={`skill-${skill}`}
               label={skill}
               onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
               color={'info'}
@@ -102,7 +102,7 @@ export const ResultsHeader = ({
           {/* Travel Pills */}
           {selectedTravel.map((travel) => (
             <FilterChip
-              key={`travel-${travel}`}
+              chipKey={`travel-${travel}`}
               label={'Travels Worldwide'}
               onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
               color={'default'}

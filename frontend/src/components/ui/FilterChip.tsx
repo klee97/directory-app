@@ -3,19 +3,20 @@ import Chip, { ChipProps } from '@mui/material/Chip';
 
 
 interface FilterChipProps extends ChipProps {
+  chipKey: string | number;
   label: string;
   color?: "primary" | "secondary" | "info" | "default";
 }
 
 export default function FilterChip({
-  key,
+  chipKey,
   label,
   color = "default",
   ...props
 }: FilterChipProps) {
   return (
     <Chip
-      key={key}
+      key={chipKey}
       label={label}
       variant="outlined"
       sx={{

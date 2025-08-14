@@ -270,7 +270,7 @@ export const VendorCard = ({
                   .sort((a, b) => a.display_name!.localeCompare(b.display_name!))
                   .map((tag) =>
                     <FilterChip
-                      key={tag.id}
+                      chipKey={tag.id}
                       label={`${tag.display_name}`}
                       color={tag.style === 'primary' ? 'primary' : 'info'}
                     />
