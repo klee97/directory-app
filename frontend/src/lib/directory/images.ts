@@ -6,19 +6,19 @@ const URL_MIGRATION_MAP = new Map([
   //   "https://images.asianweddingmakeup.com/test-portraits/hmua_jane_c_cover_photo.jpg"
   // ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_lyndsey_ariel_pozo_cover_photo2.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_lyndsey_ariel_pozo_cover_photo2.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo2.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_lyndsey_ariel_pozo_cover_photo3.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_lyndsey_ariel_pozo_cover_photo3.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo3.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_lyndsey_ariel_pozo_cover_photo4.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_lyndsey_ariel_pozo_cover_photo4.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo4.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_lyndsey_ariel_pozo_cover_photo5.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_lyndsey_ariel_pozo_cover_photo5.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo5.jpg"
   ],
   [
@@ -26,31 +26,31 @@ const URL_MIGRATION_MAP = new Map([
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo6.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_mable_pang_cover_photo_2.jpeg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_mable_pang_cover_photo_2.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_mable_pang_cover_photo_2.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_mable_pang_cover_photo_3.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_mable_pang_cover_photo_3.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_mable_pang_cover_photo_3.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_mable_pang_cover_photo_4.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmau_mable_pang_cover_photo_4.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_mable_pang_cover_photo_4.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jenny_nguyen_cover_image_2.jpeg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jenny_nguyen_cover_image_2.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jenny_nguyen_cover_image_2.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jenny_nguyen_cover_image_3.jpeg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jenny_nguyen_cover_image_3.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jenny_nguyen_cover_image_3.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jenny_nguyen_cover_image_4.jpeg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jenny_nguyen_cover_image_4.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jenny_nguyen_cover_image_4.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jenny_nguyen_cover_image_5.jpeg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jenny_nguyen_cover_image_5.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jenny_nguyen_cover_image_5.jpg"
   ],
   [
@@ -90,7 +90,7 @@ const URL_MIGRATION_MAP = new Map([
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jennifer_le_cover_photo.jpg"
   ],
   [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jenny_le_cover_photo.jpg",
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos//hmua_jenny_le_cover_photo.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_jenny_le_cover_photo.jpg"
   ],
   [
