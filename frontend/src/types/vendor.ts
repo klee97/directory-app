@@ -1,7 +1,7 @@
 import type { Database } from "@/types/supabase";
 import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 import { isDevOrPreview } from "@/lib/env/env";
-import { processVendorImages } from "@/lib/directory/images";
+import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
 
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/';
 export const R2_IMAGE_PREFIX = 'https://images.asianweddingmakeup.com/test-portraits/';
@@ -85,6 +85,8 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
   const procesedImages = processVendorImages(vendor, { preferR2: true, fallbackToSupabase: true });
   console.debug(`Processed ${procesedImages.length} images for vendor ${vendor.business_name}`);
   const images = procesedImages.map(img => img.media_url).filter((url): url is string => typeof url === 'string');
+  const coverImage = getMigratedUrl(vendor.cover_image);
+
   const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
     || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
 
@@ -121,9 +123,9 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     profile_image: vendor.profile_image
       && (vendor.profile_image.startsWith(IMAGE_PREFIX) || vendor.profile_image.startsWith(R2_IMAGE_PREFIX))
       ? vendor.profile_image : null,
-    cover_image: vendor.cover_image
-      && (vendor.cover_image.startsWith(IMAGE_PREFIX) || vendor.cover_image.startsWith(R2_IMAGE_PREFIX))
-      ? vendor.cover_image : null,
+    cover_image: coverImage
+      && (coverImage.startsWith(IMAGE_PREFIX) || coverImage.startsWith(R2_IMAGE_PREFIX))
+      ? coverImage : null,
   }
 };
 
