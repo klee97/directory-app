@@ -1,10 +1,10 @@
 import { BackendVendor, IMAGE_PREFIX, R2_IMAGE_PREFIX } from "@/types/vendor";
 
 const URL_MIGRATION_MAP = new Map([
-  [
-    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jane_c_cover_photo.jpeg",
-    "https://images.asianweddingmakeup.com/test-portraits/hmua_jane_c_cover_photo.jpg"
-  ],
+  // [
+  //   "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_jane_c_cover_photo.jpeg",
+  //   "https://images.asianweddingmakeup.com/test-portraits/hmua_jane_c_cover_photo.jpg"
+  // ],
   [
     "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmau_lyndsey_ariel_pozo_cover_photo2.jpg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_lyndsey_ariel_pozo_cover_photo2.jpg"
@@ -103,6 +103,7 @@ export function getMigratedUrl(originalUrl: string) {
   console.debug(`Checking migration status for URL: ${originalUrl}`);
   // Check if URL is in our migration allowlist
   if (URL_MIGRATION_MAP.has(originalUrl)) {
+    console.debug(`Found migration for URL: ${originalUrl}`);
     return URL_MIGRATION_MAP.get(originalUrl);
   }
 
