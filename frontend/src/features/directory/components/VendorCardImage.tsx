@@ -1,5 +1,6 @@
 import Image, { StaticImageData } from 'next/image';
 import { Box } from '@mui/material';
+import { IMAGE_PREFIX, R2_IMAGE_PREFIX } from '@/types/vendor';
 
 export default function VendorCardImage({
   vendorImage,
@@ -25,7 +26,9 @@ export default function VendorCardImage({
       }}
     >
       <Image
-        src={vendorImage ?? placeholderImage.src}
+        src={vendorImage?.startsWith(IMAGE_PREFIX) || vendorImage?.startsWith(R2_IMAGE_PREFIX)
+          ? vendorImage
+          : placeholderImage.src}
         alt={`${vendorBusinessName} preview`}
         fill
         sizes="(max-width: 600px) 100vw, 400px"

@@ -1,8 +1,13 @@
 import type { Database } from "@/types/supabase";
 import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
 import { isDevOrPreview } from "@/lib/env/env";
+import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
 
-export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/';
+export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/';
+export const R2_IMAGE_PREFIX = 'https://images.asianweddingmakeup.com/test-portraits/';
+
+export const PREFIXES: Set<string> = new Set<string>([IMAGE_PREFIX, R2_IMAGE_PREFIX]);
+
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   & {
     usmetro: { display_name: string } | null // Metro name (can be null if no metro region found)
@@ -74,12 +79,13 @@ export type Vendor = Pick<BackendVendor, 'id'
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
+  console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
   const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   const coordinates = parseCoordinates(vendor.location_coordinates);
-  const images = vendor.vendor_media
-    ?.map((image) =>
-      image.media_url.startsWith(IMAGE_PREFIX) ? image.media_url : null
-    ).filter(url => url !== null);
+  const procesedImages = processVendorImages(vendor, { preferR2: true, fallbackToSupabase: true });
+  console.debug(`Processed ${procesedImages.length} images for vendor ${vendor.business_name}`);
+  const images = procesedImages.map(img => img.media_url).filter((url): url is string => typeof url === 'string');
+  const coverImage = getMigratedUrl(vendor.cover_image);
 
   const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
     || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
@@ -114,8 +120,12 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     tags: vendor.tags ?? [],
     distance_miles: vendor.distance_miles ?? null,
     images: images ?? [],
-    profile_image: vendor.profile_image && vendor.profile_image.startsWith(IMAGE_PREFIX) ? vendor.profile_image : null,
-    cover_image: vendor.cover_image && vendor.cover_image.startsWith(IMAGE_PREFIX) ? vendor.cover_image : null,
+    profile_image: vendor.profile_image
+      && (vendor.profile_image.startsWith(IMAGE_PREFIX) || vendor.profile_image.startsWith(R2_IMAGE_PREFIX))
+      ? vendor.profile_image : null,
+    cover_image: coverImage
+      && (coverImage.startsWith(IMAGE_PREFIX) || coverImage.startsWith(R2_IMAGE_PREFIX))
+      ? coverImage : null,
   }
 };
 

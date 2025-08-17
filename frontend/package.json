@@ -16,7 +16,10 @@
     "generate": "graphql-codegen --require dotenv/config --config codegen.yml",
     "db:pull": "supabase db pull --schema public",
     "db:diff": "supabase db diff --schema public",
-    "populate-locations": "npx tsx scripts/populate_location_coordinates.ts"
+    "populate-locations": "npx tsx scripts/populate_location_coordinates.ts",
+    "test-r2": "node scripts/test_r2_connection.js",
+    "test-image-processing": "node scripts/test_image_processing.js",
+    "migrate-images": "node scripts/migrate_images_to_r2.js"
   },
   "dependencies": {
     "@contentful/rich-text-react-renderer": "^16.0.1",
