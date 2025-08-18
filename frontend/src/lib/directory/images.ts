@@ -203,6 +203,38 @@ const URL_MIGRATION_MAP = new Map([
   [
     "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_teresa_snowball_cover_photo.jpeg",
     "https://images.asianweddingmakeup.com/test-portraits/hmua_teresa_snowball_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_glitter_glam_sarah_cover_photo.jpg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_glitter_glam_sarah_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_kathy_kho_cover_photo.jpeg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_kathy_kho_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_khloe_nguyen_cover_photo.jpg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_khloe_nguyen_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_krimse_cover_photo_1.jpeg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_krimse_cover_photo_1.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_m_villanueva_cover_photo.jpeg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_m_villanueva_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_mai_tokioka_cover_photo_2.jpeg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_mai_tokioka_cover_photo_2.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_serena_park_cover_photo.jpg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_serena_park_cover_photo.jpg"
+  ],
+  [
+    "https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/hmua_shannon_le_cover_photo.jpg",
+    "https://images.asianweddingmakeup.com/test-portraits/hmua_shannon_le_cover_photo.jpg"
   ]
 ]);
 
