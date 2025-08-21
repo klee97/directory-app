@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -19,24 +19,37 @@ import StepLabel from '@mui/material/StepLabel';
 import useTheme from '@mui/material/styles/useTheme';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import CircularProgress from '@mui/material/CircularProgress';
-import Grid from '@mui/material/Grid';
+import Grid from '@mui/material/Grid2';
+import IconButton from '@mui/material/IconButton';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import ArrowBack from '@mui/icons-material/ArrowBack';
+import Close from '@mui/icons-material/Close';
+
+interface LeadCaptureFormProps {
+  onClose?: () => void;
+  vendor: {
+    name: string;
+    slug: string;
+    services: string[];
+    id: string;
+    email?: string;
+  };
+  isModal?: boolean;
+}
 
 interface FormData {
   // Step 1: Services
   services: string[];
-  
+
   // Step 2: Location & Guest Count
   location: string;
-  guestCount: string;
-  
-  // Step 3: Cultural Preferences (Asian-specific)
-  culturalBackground: string[];
-  ceremonyType: string;
+  partySize: string;
+
+  // Step 3: Skills
+  makeupStyles: string[];
   languages: string[];
-  
+
   // Step 4: Personal Details
   name: string;
   email: string;
@@ -49,18 +62,21 @@ interface FormErrors {
   [key: string]: string | null;
 }
 
-const LeadCaptureForm: React.FC = () => {
+const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
+  onClose,
+  vendor,
+  isModal = false
+}) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    services: [],
+    services: vendor.services || [],
     location: '',
-    guestCount: '',
-    culturalBackground: [],
-    ceremonyType: '',
+    partySize: '',
+    makeupStyles: [],
     languages: [],
     name: '',
     email: '',
@@ -70,26 +86,26 @@ const LeadCaptureForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const steps = ['Services', 'Location & Size', 'Cultural Details', 'Contact Info'];
+  // Update services when vendor changes
+  useEffect(() => {
+    if (vendor.services && vendor.services.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        services: vendor.services
+      }));
+    }
+  }, [vendor.services]);
+
+  const steps = ['Services', 'Location & Size', 'Makeup Styles', 'Contact Info'];
 
   const serviceOptions = [
-    'Hair & Makeup',
-    'Photography',
-    'Videography',
-    'Catering',
-    'DJ/Music',
-    'Venue',
-    'Flowers',
-    'Decoration',
-    'Wedding Planning',
-    'Henna Artist',
-    'Traditional Attire',
-    'Cultural Entertainment'
+    'Hair',
+    'Makeup'
   ];
 
   const guestCountOptions = [
     '1-25 guests',
-    '26-50 guests', 
+    '26-50 guests',
     '51-100 guests',
     '101-200 guests',
     '201-300 guests',
@@ -98,26 +114,16 @@ const LeadCaptureForm: React.FC = () => {
     'Flexible depending on venue'
   ];
 
-  const culturalBackgrounds = [
-    'Indian',
-    'Pakistani',
-    'Bangladeshi',
-    'Sri Lankan',
-    'Chinese',
-    'Korean',
-    'Japanese',
+  const makeupStyles = [
     'Thai',
-    'Vietnamese',
-    'Filipino',
-    'Indonesian',
-    'Malaysian',
-    'Mixed Heritage',
-    'Other Asian'
-  ];
-
+    'South Asian',
+    'Soft glam',
+    'Natural',
+    'Not sure yet',
+  ]
   const ceremonyTypes = [
     'Traditional Only',
-    'Western Only', 
+    'Western Only',
     'Fusion (Traditional + Western)',
     'Multiple Ceremonies',
     'Still Deciding'
@@ -142,18 +148,6 @@ const LeadCaptureForm: React.FC = () => {
     'Japanese',
     'Indonesian',
     'Malay'
-  ];
-
-  const budgetRanges = [
-    'Under $5,000',
-    '$5,000 - $15,000',
-    '$15,000 - $30,000',
-    '$30,000 - $50,000',
-    '$50,000 - $100,000',
-    'Over $100,000',
-    'Still researching costs',
-    'Flexible - depends on venue/vendors',
-    'Prefer not to say'
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -195,7 +189,7 @@ const LeadCaptureForm: React.FC = () => {
 
   const validateCurrentStep = (): boolean => {
     const newErrors: FormErrors = {};
-    
+
     switch (activeStep) {
       case 0: // Services
         if (formData.services.length === 0) {
@@ -204,13 +198,12 @@ const LeadCaptureForm: React.FC = () => {
         break;
       case 1: // Location & Guest Count
         if (!formData.location.trim()) newErrors.location = 'Location is required';
-        if (!formData.guestCount) newErrors.guestCount = 'Guest count is required';
+        if (!formData.partySize) newErrors.guestCount = 'Guest count is required';
         break;
       case 2: // Cultural Details
-        if (formData.culturalBackground.length === 0) {
+        if (formData.makeupStyles.length === 0) {
           newErrors.culturalBackground = 'Please select your cultural background';
         }
-        if (!formData.ceremonyType) newErrors.ceremonyType = 'Please select ceremony type';
         break;
       case 3: // Personal Details
         if (!formData.name.trim()) newErrors.name = 'Name is required';
@@ -241,19 +234,26 @@ const LeadCaptureForm: React.FC = () => {
     // Replace with your actual HubSpot portal ID and form GUID
     const portalId = 'YOUR_PORTAL_ID';
     const formGuid = 'YOUR_FORM_GUID';
-    
+
     const submitData = new FormData();
     submitData.append('email', data.email);
     submitData.append('firstname', data.name);
     submitData.append('wedding_date', data.weddingDate);
     submitData.append('location', data.location);
-    submitData.append('guest_count', data.guestCount);
+    submitData.append('party_size', data.partySize);
+    submitData.append('makeup_styles', data.makeupStyles.join(', '));
     submitData.append('services', data.services.join(', '));
-    submitData.append('cultural_background', data.culturalBackground.join(', '));
-    submitData.append('ceremony_type', data.ceremonyType);
     submitData.append('languages', data.languages.join(', '));
     submitData.append('budget', data.budget);
     submitData.append('additional_details', data.additionalDetails);
+
+    // Add vendor information
+    submitData.append('vendor_name', vendor.name);
+    submitData.append('vendor_slug', vendor.slug);
+    submitData.append('vendor_services', vendor.services.join(', '));
+    if (vendor.email) {
+      submitData.append('vendor_email', vendor.email);
+    }
 
     try {
       const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formGuid}`, {
@@ -261,7 +261,7 @@ const LeadCaptureForm: React.FC = () => {
         body: submitData,
         mode: 'cors'
       });
-      
+
       return response.ok;
     } catch (error) {
       console.error('HubSpot submission error:', error);
@@ -273,25 +273,27 @@ const LeadCaptureForm: React.FC = () => {
     if (!validateCurrentStep()) return;
 
     setIsSubmitting(true);
-    
+
     try {
       const success = await submitToHubSpot(formData);
-      
+
       if (success) {
         setSubmitted(true);
         // Track conversion with GTM
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
-          event: 'form_submission',
-          form_type: 'vendor_recommendations',
+          event: 'vendor_contact_form_submission',
+          form_type: 'vendor_contact',
+          vendor_name: vendor.name,
+          vendor_slug: vendor.slug,
           services: formData.services.join(', '),
           location: formData.location,
-          guest_count: formData.guestCount,
-          cultural_background: formData.culturalBackground.join(', '),
-          ceremony_type: formData.ceremonyType,
+          party_size: formData.partySize,
+          makeup_styles: formData.makeupStyles.join(', '),
           languages: formData.languages.join(', '),
           budget: formData.budget,
           wedding_date: formData.weddingDate,
+          is_modal: isModal,
         });
       } else {
         throw new Error('Submission failed');
@@ -307,41 +309,53 @@ const LeadCaptureForm: React.FC = () => {
   if (submitted) {
     return (
       <Container maxWidth="sm">
-        <Box sx={{ mt: isMobile ? 4 : 8, mb: 4 }}>
+        <Box sx={{ mt: isMobile ? 2 : 4, mb: 4 }}>
+          {isModal && onClose && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+              <IconButton onClick={onClose} size="small">
+                <Close />
+              </IconButton>
+            </Box>
+          )}
           <Paper elevation={2} sx={{ p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
             <CheckCircle sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
             <Typography variant="h3" component="h2" gutterBottom color="success.main">
-              Perfect! We're on it.
+              Message sent to {vendor.name}!
             </Typography>
             <Typography variant="h6" sx={{ mb: 2 }}>
-              Your request has been received
+              Your inquiry has been sent
             </Typography>
             <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              We'll email you 2-3 qualified vendor recommendations within 24 hours. 
-              Our vendors specialize in {formData.culturalBackground.join(' & ')} weddings and understand your cultural needs.
+              {vendor.name} will receive your wedding details and contact you directly within 24-48 hours.
             </Typography>
-            <Button 
-              variant="outlined" 
-              onClick={() => {
-                setSubmitted(false);
-                setActiveStep(0);
-                setFormData({
-                  services: [],
-                  location: '',
-                  guestCount: '',
-                  culturalBackground: [],
-                  ceremonyType: '',
-                  languages: [],
-                  name: '',
-                  email: '',
-                  weddingDate: '',
-                  budget: '',
-                  additionalDetails: ''
-                });
-              }}
-            >
-              Submit Another Request
-            </Button>
+            <Stack direction={isMobile ? 'column' : 'row'} spacing={2} justifyContent="center">
+              {onClose && (
+                <Button variant="contained" onClick={onClose}>
+                  Close
+                </Button>
+              )}
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setSubmitted(false);
+                  setActiveStep(0);
+                  setFormData({
+                    services: vendor.services || [],
+                    location: '',
+                    partySize: '',
+                    makeupStyles: [],
+                    languages: [],
+                    name: '',
+                    email: '',
+                    weddingDate: '',
+                    budget: '',
+                    additionalDetails: ''
+                  });
+                }}
+              >
+                Submit Another Request
+              </Button>
+            </Stack>
           </Paper>
         </Box>
       </Container>
@@ -411,13 +425,13 @@ const LeadCaptureForm: React.FC = () => {
                 placeholder="e.g., Los Angeles, CA or 'Still deciding between SF and LA'"
                 variant="outlined"
               />
-              
-              <FormControl fullWidth error={!!errors.guestCount}>
-                <InputLabel>Expected Number of Guests *</InputLabel>
+
+              <FormControl fullWidth error={!!errors.partySize}>
+                <InputLabel>Number of people requiring services</InputLabel>
                 <Select
-                  value={formData.guestCount}
-                  onChange={handleSelectChange('guestCount')}
-                  label="Expected Number of Guests *"
+                  value={formData.partySize}
+                  onChange={handleSelectChange('partySize')}
+                  label="Number of people requiring services"
                 >
                   {guestCountOptions.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -425,9 +439,9 @@ const LeadCaptureForm: React.FC = () => {
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.guestCount && (
+                {errors.partySize && (
                   <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                    {errors.guestCount}
+                    {errors.partySize}
                   </Typography>
                 )}
               </FormControl>
@@ -446,11 +460,11 @@ const LeadCaptureForm: React.FC = () => {
             </Typography>
             <Stack spacing={3}>
               <FormControl fullWidth error={!!errors.culturalBackground}>
-                <InputLabel>Cultural Background *</InputLabel>
+                <InputLabel>Makeup Styles</InputLabel>
                 <Select
                   multiple
-                  value={formData.culturalBackground}
-                  onChange={handleMultiSelectChange('culturalBackground')}
+                  value={formData.makeupStyles}
+                  onChange={handleMultiSelectChange('makeupStyles')}
                   input={<OutlinedInput label="Cultural Background *" />}
                   renderValue={(selected) => (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -460,35 +474,15 @@ const LeadCaptureForm: React.FC = () => {
                     </Box>
                   )}
                 >
-                  {culturalBackgrounds.map((background) => (
-                    <MenuItem key={background} value={background}>
-                      {background}
+                  {makeupStyles.map((style) => (
+                    <MenuItem key={style} value={style}>
+                      {style}
                     </MenuItem>
                   ))}
                 </Select>
-                {errors.culturalBackground && (
+                {errors.makeupStyles && (
                   <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                    {errors.culturalBackground}
-                  </Typography>
-                )}
-              </FormControl>
-
-              <FormControl fullWidth error={!!errors.ceremonyType}>
-                <InputLabel>Ceremony Style *</InputLabel>
-                <Select
-                  value={formData.ceremonyType}
-                  onChange={handleSelectChange('ceremonyType')}
-                  label="Ceremony Style *"
-                >
-                  {ceremonyTypes.map((type) => (
-                    <MenuItem key={type} value={type}>
-                      {type}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.ceremonyType && (
-                  <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                    {errors.ceremonyType}
+                    {errors.makeupStyles}
                   </Typography>
                 )}
               </FormControl>
@@ -530,7 +524,7 @@ const LeadCaptureForm: React.FC = () => {
             </Typography>
             <Stack spacing={3}>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     required
                     fullWidth
@@ -542,7 +536,7 @@ const LeadCaptureForm: React.FC = () => {
                     helperText={errors.name}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     required
                     fullWidth
@@ -558,7 +552,7 @@ const LeadCaptureForm: React.FC = () => {
               </Grid>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <TextField
                     required
                     fullWidth
@@ -571,13 +565,13 @@ const LeadCaptureForm: React.FC = () => {
                     placeholder="e.g., 'June 2024', 'Fall 2025', or 'Flexible - looking at 2024-2025'"
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid size={{ xs: 12, sm: 6 }}>
                   <FormControl fullWidth>
-                    <InputLabel>Budget Range (Optional)</InputLabel>
+                    <InputLabel>Budget Estimate</InputLabel>
                     <Select
                       value={formData.budget}
                       onChange={handleSelectChange('budget')}
-                      label="Budget Range (Optional)"
+                      label="Budget Estimate (Optional)"
                     >
                       {budgetRanges.map((range) => (
                         <MenuItem key={range} value={range}>
@@ -610,11 +604,20 @@ const LeadCaptureForm: React.FC = () => {
 
   return (
     <Container maxWidth="md">
-      <Box sx={{ mt: isMobile ? 2 : 6, mb: 4 }}>
+      <Box sx={{ mt: isModal ? 2 : (isMobile ? 2 : 6), mb: 4 }}>
+        {/* Close button for modal */}
+        {isModal && onClose && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <IconButton onClick={onClose} size="small">
+              <Close />
+            </IconButton>
+          </Box>
+        )}
+
         {/* Header */}
-        <Paper 
-          elevation={3} 
-          sx={{ 
+        <Paper
+          elevation={3}
+          sx={{
             p: isMobile ? 3 : 4,
             mb: 3,
             textAlign: 'center',
@@ -623,24 +626,24 @@ const LeadCaptureForm: React.FC = () => {
             borderColor: 'primary.main'
           }}
         >
-          <Typography 
-            variant={isMobile ? "h3" : "h2"} 
+          <Typography
+            variant={isMobile ? "h3" : "h2"}
             component="h1"
           >
-            Get Recommendations from Vendors Perfect for Asian Weddings
+            Contact {vendor.name}
           </Typography>
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             color="text.secondary"
           >
-            Tell us about your wedding and we'll connect you with 2-3 vetted vendors in your area.
+            Tell {vendor.name} about your wedding so they can provide you with a personalized quote and recommendations.
           </Typography>
         </Paper>
 
         {/* Stepper */}
         <Paper elevation={1} sx={{ p: 3, mb: 3, bgcolor: 'background.paper' }}>
-          <Stepper 
-            activeStep={activeStep} 
+          <Stepper
+            activeStep={activeStep}
             alternativeLabel={!isMobile}
             sx={{
               '& .MuiStepLabel-root .Mui-completed': {
@@ -689,7 +692,7 @@ const LeadCaptureForm: React.FC = () => {
                 variant="contained"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                sx={{ 
+                sx={{
                   py: 1.5,
                   px: 4,
                   fontSize: '1.1rem',
@@ -706,7 +709,7 @@ const LeadCaptureForm: React.FC = () => {
                     Submitting...
                   </>
                 ) : (
-                  'Get My Recommendations'
+                  'Contact ' + vendor.name
                 )}
               </Button>
             ) : (
@@ -728,13 +731,13 @@ const LeadCaptureForm: React.FC = () => {
 
           {/* Bottom text */}
           {activeStep === steps.length - 1 && (
-            <Typography 
-              variant="body2" 
-              align="center" 
+            <Typography
+              variant="body2"
+              align="center"
               color="text.secondary"
               sx={{ mt: 2 }}
             >
-              We'll email you 2-3 qualified vendor recommendations within 24 hours.
+              {vendor.name} will receive your details and contact you directly within 24-48 hours.
             </Typography>
           )}
         </Paper>

@@ -13,8 +13,9 @@ import { styled } from '@mui/material/styles';
 import Grid from '@mui/system/Grid';
 import PublicIcon from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
-import Mail from '@mui/icons-material/Mail';
-import Send from '@mui/icons-material/Send';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import ContactSupport from '@mui/icons-material/ContactSupport';
 import Link from '@mui/icons-material/Link';
 import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
@@ -24,13 +25,16 @@ import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
-import { Divider } from '@mui/material';
+import { Divider, useMediaQuery } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import FilterChip from '@/components/ui/FilterChip';
 import Image from 'next/image';
+// import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
+import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm2';
+
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -40,7 +44,10 @@ const StickyCard = styled(Card)(({ theme }) => ({
 }));
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
-  const contactText = "Get a quote"
+  const [formOpen, setFormOpen] = useState(false);
+  const services = Array.from(vendor.specialties);
+  const defaultLocation = getLocationString(vendor);
+
   return (<StickyCard elevation={0} >
     <CardContent >
       <Typography variant="h5" component="h2" sx={{
@@ -51,7 +58,37 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
         Love their work?
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-        {vendor.email && (
+        <Button
+          variant="contained"
+          startIcon={<ContactSupport />}
+          sx={{ borderRadius: 6, paddingY: 1 }}
+          onClick={() => setFormOpen(true)}
+        >
+          Get a Quote
+        </Button>
+
+        <Dialog
+          open={formOpen}
+          onClose={() => setFormOpen(false)}
+          maxWidth="md"
+          fullWidth
+        // fullScreen={isMobile} // Optional: full screen on mobile
+        >
+          <DialogContent sx={{ p: 0 }}>
+            <LeadCaptureForm
+              onClose={() => setFormOpen(false)}
+              vendor={{
+                name: vendor.business_name ?? '',
+                slug: vendor.slug ?? '',
+                id: vendor.id,
+                services: services,
+                location: defaultLocation ?? '',
+              }}
+              isModal={true}
+            />
+          </DialogContent>
+        </Dialog>
+        {/* {vendor.email && (
           <Button
             variant="contained"
             startIcon={<Mail />}
@@ -72,7 +109,7 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
           >
             {contactText}
           </Button>
-        )}
+        )} */}
         {/* Favorite Button */}
         <FavoriteButton
           vendorId={vendor.id}
@@ -96,7 +133,6 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isWide, setIsWide] = useState(false);
   const supabase = createClient();
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
@@ -111,16 +147,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams.get(SEARCH_PARAM);
 
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsWide(window.innerWidth > theme.breakpoints.values.md);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, [theme.breakpoints.values.md]);
+  const isWide = useMediaQuery(theme.breakpoints.up('md'));
 
   const resolvedLocation = getLocationString(vendor);
 
@@ -192,7 +219,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
           {/* Main Content */}
           <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
             {/* Left Column - Details */}
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 2, md: 1 } }}>
               {/* Vendor Info */}
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h2" component="h1" >
@@ -308,13 +335,13 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   </Box>
                 </Box>
               </Box>
-              {/* Contact Card */}
+              {/* Contact Card
               {!isWide &&
                 <>
                   <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
                   <ContactCard vendor={vendor} isFavorite={isFavorite} />
                 </>
-              }
+              } */}
               <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {/* Pricing */}
@@ -472,7 +499,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
               )}
             </Grid>
             {/* Image & Contact Card */}
-            <Grid size={{ xs: 12, md: 4 }} >
+            <Grid size={{ xs: 12, md: 4 }} sx={{ order: { xs: 1, md: 2 } }}>
               {!showImageCarousel && vendor.cover_image && (
                 <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
                   {/* Vendor Image */}
@@ -498,10 +525,14 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   </Box>
                 </Card>
               )}
-              {/* Right Column - Contact Card */}
-              {isWide &&
-                <ContactCard vendor={vendor} isFavorite={isFavorite} />
-              }
+              <Divider
+                sx={{
+                  mt: 4,
+                  mb: 4,
+                  display: { xs: 'block', md: 'none' }, // show only when stacked
+                }}
+              />
+              <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Grid>
           </Grid>
           {nearbyVendors && nearbyVendors.length > 0 && (
