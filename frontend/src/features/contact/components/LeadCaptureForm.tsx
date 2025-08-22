@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Chip from '@mui/material/Chip';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Stepper from '@mui/material/Stepper';
@@ -25,42 +18,119 @@ import CheckCircle from '@mui/icons-material/CheckCircle';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import Close from '@mui/icons-material/Close';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
+import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
+import { alpha, styled } from '@mui/material/styles';
+import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
   vendor: {
     name: string;
     slug: string;
-    services: string[];
+    services: VendorSpecialty[];
     id: string;
     email?: string;
+    location: string;
   };
   isModal?: boolean;
 }
 
 interface FormData {
-  // Step 1: Services
+  // Step 1: Services & Event Details
   services: string[];
+  peopleCount: string;
+  flexibleCount: boolean;
 
-  // Step 2: Location & Guest Count
-  location: string;
-  partySize: string;
-
-  // Step 3: Skills
-  makeupStyles: string[];
-  languages: string[];
-
-  // Step 4: Personal Details
-  name: string;
+  // Step 2: Event details
+  firstName: string;
+  lastName: string;
   email: string;
+  location: string;
   weddingDate: string;
+  flexibleDate: boolean;
   budget: string;
   additionalDetails: string;
+
+  // Step 3: Style & Preferences
+  makeupStyles: string[];
+  languages: string;
 }
 
 interface FormErrors {
   [key: string]: string | null;
 }
+
+const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  gap: '12px',
+  display: 'flex',
+  flexWrap: 'wrap',
+
+  '& .MuiToggleButton-root': {
+    textTransform: 'none',
+    borderRadius: '12px',
+    padding: '12px 20px',
+    transition: 'all 0.2s ease-in-out',
+    fontWeight: 400, // Start with normal weight
+    minWidth: '120px',
+    backgroundColor: theme.palette.background.paper, // Clean white background
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.primary,
+
+    // Subtle hover effects
+    '&:hover': {
+      transform: 'translateY(-1px)', // Reduced from -2px
+      boxShadow: theme.shadows[2], // Lighter shadow
+      borderColor: theme.palette.primary.main,
+      backgroundColor: alpha(theme.palette.primary.main, 0.04), // Very subtle tint
+    },
+
+    // Much more subtle selected state
+    '&.Mui-selected': {
+      backgroundColor: alpha(theme.palette.primary.main, 0.08), // Light tint instead of solid color
+      color: theme.palette.primary.main, // Primary color text instead of white
+      borderColor: theme.palette.primary.main,
+      fontWeight: 500, // Slightly bolder text
+
+      '&:hover': {
+        backgroundColor: alpha(theme.palette.primary.main, 0.12), // Slightly darker on hover
+        transform: 'translateY(-1px)',
+        boxShadow: theme.shadows[3],
+      },
+    },
+
+    '&:focus-visible': {
+      outline: `2px solid ${alpha(theme.palette.primary.main, 0.5)}`,
+      outlineOffset: '2px',
+    },
+  },
+
+  // Override grouped button styles for individual appearance
+  [`& .${toggleButtonGroupClasses.firstButton}, & .${toggleButtonGroupClasses.middleButton}, & .${toggleButtonGroupClasses.lastButton}`]: {
+    borderRadius: '12px !important',
+    border: `1px solid ${theme.palette.divider} !important`,
+    margin: 0,
+  },
+
+  [`& .${toggleButtonGroupClasses.middleButton}, & .${toggleButtonGroupClasses.lastButton}`]: {
+    borderLeft: `1px solid ${theme.palette.divider} !important`,
+  },
+
+  // Ensure selected state overrides
+  [`& .${toggleButtonClasses.selected}`]: {
+    borderColor: `${theme.palette.primary.main} !important`,
+  },
+
+  [`& .${toggleButtonClasses.disabled}`]: {
+    borderColor: `${theme.palette.action.disabledBackground} !important`,
+    opacity: 0.5,
+  },
+}));
 
 const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   onClose,
@@ -73,81 +143,45 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    services: vendor.services || [],
+    // Step 1: Event Details
+    services: [],
     location: '',
-    partySize: '',
-    makeupStyles: [],
-    languages: [],
-    name: '',
+    peopleCount: '',
+    flexibleCount: false,
+
+
+    // Step 2: Preferences
+    firstName: '',
+    lastName: '',
     email: '',
     weddingDate: '',
+    flexibleDate: false,
     budget: '',
-    additionalDetails: ''
+    additionalDetails: '',
+
+    // Step 3: Style
+    makeupStyles: [],
+    languages: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // Update services when vendor changes
-  useEffect(() => {
-    if (vendor.services && vendor.services.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        services: vendor.services
-      }));
-    }
-  }, [vendor.services]);
 
-  const steps = ['Services', 'Location & Size', 'Makeup Styles', 'Contact Info'];
+  // 2-step process with optional 3rd step for style preferences
+  const steps = ['Artist fit', 'Personal details'];
 
-  const serviceOptions = [
-    'Hair',
-    'Makeup'
-  ];
+  const serviceOptions = vendor.services && vendor.services.length > 0
+    ? vendor.services.map(
+      (service: VendorSpecialty) => VendorSpecialtyDisplayNames[service]
+    )
+    : ["Hair", "Makeup"];
 
-  const guestCountOptions = [
-    '1-25 guests',
-    '26-50 guests',
-    '51-100 guests',
-    '101-200 guests',
-    '201-300 guests',
-    '300+ guests',
-    'Still deciding on guest list',
-    'Flexible depending on venue'
-  ];
-
-  const makeupStyles = [
-    'Thai',
-    'South Asian',
-    'Soft glam',
+  const makeupStyleOptions = [
     'Natural',
-    'Not sure yet',
-  ]
-  const ceremonyTypes = [
-    'Traditional Only',
-    'Western Only',
-    'Fusion (Traditional + Western)',
-    'Multiple Ceremonies',
-    'Still Deciding'
-  ];
-
-  const languageOptions = [
-    'English',
-    'Hindi',
-    'Punjabi',
-    'Tamil',
-    'Telugu',
-    'Bengali',
-    'Gujarati',
-    'Marathi',
-    'Urdu',
-    'Korean',
-    'Chinese (Mandarin)',
-    'Chinese (Cantonese)',
-    'Thai',
-    'Vietnamese',
-    'Tagalog',
-    'Japanese',
-    'Indonesian',
-    'Malay'
+    'Soft Glam',
+    'South Asian style',
+    'Thai style',
+    'Korean style',
+    'Other',
   ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -165,54 +199,40 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     }
   };
 
-  const handleSelectChange = (name: string) => (event: any) => {
-    const value = event.target.value;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: null
-      }));
-    }
-  };
-
-  const handleMultiSelectChange = (field: keyof FormData) => (event: any) => {
-    const value = event.target.value;
-    setFormData(prev => ({
-      ...prev,
-      [field]: typeof value === 'string' ? value.split(',') : value
-    }));
-  };
-
   const validateCurrentStep = (): boolean => {
     const newErrors: FormErrors = {};
 
     switch (activeStep) {
-      case 0: // Services
+      case 0:
         if (formData.services.length === 0) {
           newErrors.services = 'Please select at least one service';
         }
-        break;
-      case 1: // Location & Guest Count
-        if (!formData.location.trim()) newErrors.location = 'Location is required';
-        if (!formData.partySize) newErrors.guestCount = 'Guest count is required';
-        break;
-      case 2: // Cultural Details
-        if (formData.makeupStyles.length === 0) {
-          newErrors.culturalBackground = 'Please select your cultural background';
+        if (!formData.location.trim()) {
+          newErrors.location = 'Wedding location helps artists provide accurate availability';
+        }
+        if (!formData.peopleCount.trim()) {
+          newErrors.peopleCount = 'Please enter the number of people needing services';
+        } else {
+          const count = parseInt(formData.peopleCount);
+          if (isNaN(count) || count < 1) {
+            newErrors.peopleCount = 'Please enter a valid number (1 or more)';
+          }
         }
         break;
-      case 3: // Personal Details
-        if (!formData.name.trim()) newErrors.name = 'Name is required';
+      case 1:
+        if (!formData.weddingDate.trim()) {
+          newErrors.weddingDate = "Please enter a wedding date";
+        }
+        if (!formData.firstName.trim()) newErrors.firstName = 'Please enter your first name';
+        if (!formData.lastName.trim()) newErrors.lastName = 'Please enter your last name';
         if (!formData.email.trim()) {
-          newErrors.email = 'Email is required';
+          newErrors.email = 'Email is required so the artist can give you a quote.';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = 'Please enter a valid email';
+          newErrors.email = 'Please enter a valid email address';
         }
-        if (!formData.weddingDate.trim()) newErrors.weddingDate = 'Wedding date is required';
+        if (!formData.budget.trim()) {
+          newErrors.budget = "Please enter an estimated budget";
+        }
         break;
     }
 
@@ -230,41 +250,58 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     setActiveStep(prev => prev - 1);
   };
 
-  const submitToHubSpot = async (data: FormData): Promise<boolean> => {
-    // Replace with your actual HubSpot portal ID and form GUID
-    const portalId = 'YOUR_PORTAL_ID';
-    const formGuid = 'YOUR_FORM_GUID';
+  const submitToAirtable = async (data: FormData): Promise<boolean> => {
+    // Replace these with your actual Airtable values
+    const baseId = process.env.AIRTABLE_APP_ID;
+    const tableName = process.env.AIRTABLE_LEADS_TABLE_NAME;
+    const apiToken = process.env.AIRTABLE_API_TOKEN; // From Airtable account settings
 
-    const submitData = new FormData();
-    submitData.append('email', data.email);
-    submitData.append('firstname', data.name);
-    submitData.append('wedding_date', data.weddingDate);
-    submitData.append('location', data.location);
-    submitData.append('party_size', data.partySize);
-    submitData.append('makeup_styles', data.makeupStyles.join(', '));
-    submitData.append('services', data.services.join(', '));
-    submitData.append('languages', data.languages.join(', '));
-    submitData.append('budget', data.budget);
-    submitData.append('additional_details', data.additionalDetails);
-
-    // Add vendor information
-    submitData.append('vendor_name', vendor.name);
-    submitData.append('vendor_slug', vendor.slug);
-    submitData.append('vendor_services', vendor.services.join(', '));
-    if (vendor.email) {
-      submitData.append('vendor_email', vendor.email);
-    }
+    // Build the record object - field names must match your Airtable column names exactly
+    const recordData = {
+      records: [
+        {
+          fields: {
+            'Email': data.email,
+            'First Name': data.firstName,
+            'Last Name': data.lastName,
+            'Wedding Date': data.weddingDate,
+            'Location': data.location,
+            'Makeup Styles': data.makeupStyles.join(', '),
+            'People Count': parseInt(data.peopleCount),
+            'Flexible Count': data.flexibleCount ? 'Yes' : 'No',
+            'Services Requested': data.services,
+            'Budget': parseInt(data.budget),
+            'Additional Details': data.additionalDetails,
+            'Vendor Name': vendor.name,
+            'Vendor Slug': vendor.slug,
+            'Submission Date': new Date().toISOString().split('T')[0],
+            'Status': 'New'
+          }
+        }
+      ]
+    };
 
     try {
-      const response = await fetch(`https://api.hsforms.com/submissions/v3/integration/submit/${portalId}/${formGuid}`, {
+      const response = await fetch(`https://api.airtable.com/v0/${baseId}/${tableName}`, {
         method: 'POST',
-        body: submitData,
-        mode: 'cors'
+        headers: {
+          'Authorization': `Bearer ${apiToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(recordData)
       });
 
-      return response.ok;
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Airtable submission successful:', result.records[0].id);
+        return true;
+      } else {
+        const errorData = await response.json();
+        console.error('Airtable submission failed:', errorData);
+        return false;
+      }
     } catch (error) {
-      console.error('HubSpot submission error:', error);
+      console.error('Airtable submission error:', error);
       return false;
     }
   };
@@ -275,7 +312,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const success = await submitToHubSpot(formData);
+      const success = await submitToAirtable(formData);
 
       if (success) {
         setSubmitted(true);
@@ -288,11 +325,11 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           vendor_slug: vendor.slug,
           services: formData.services.join(', '),
           location: formData.location,
-          party_size: formData.partySize,
+          people_count: formData.peopleCount,
           makeup_styles: formData.makeupStyles.join(', '),
-          languages: formData.languages.join(', '),
+          languages: formData.languages,
           budget: formData.budget,
-          wedding_date: formData.weddingDate,
+          wedding_date: formData.flexibleDate ? 'Date not set yet' : formData.weddingDate,
           is_modal: isModal,
         });
       } else {
@@ -305,60 +342,59 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     }
   };
 
+  // No early submission - build commitment through the process
+  const hasCompletedInvestment = () => {
+    return activeStep >= 1; // After they've shared event details and preferences
+  };
+
   // Success state
   if (submitted) {
     return (
-      <Container maxWidth="sm">
-        <Box sx={{ mt: isMobile ? 2 : 4, mb: 4 }}>
-          {isModal && onClose && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-              <IconButton onClick={onClose} size="small">
-                <Close />
-              </IconButton>
-            </Box>
-          )}
-          <Paper elevation={2} sx={{ p: 4, textAlign: 'center', bgcolor: 'background.paper' }}>
-            <CheckCircle sx={{ fontSize: 60, color: 'success.main', mb: 2 }} />
-            <Typography variant="h3" component="h2" gutterBottom color="success.main">
-              Message sent to {vendor.name}!
-            </Typography>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Your inquiry has been sent
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              {vendor.name} will receive your wedding details and contact you directly within 24-48 hours.
-            </Typography>
-            <Stack direction={isMobile ? 'column' : 'row'} spacing={2} justifyContent="center">
-              {onClose && (
-                <Button variant="contained" onClick={onClose}>
-                  Close
-                </Button>
-              )}
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  setSubmitted(false);
-                  setActiveStep(0);
-                  setFormData({
-                    services: vendor.services || [],
-                    location: '',
-                    partySize: '',
-                    makeupStyles: [],
-                    languages: [],
-                    name: '',
-                    email: '',
-                    weddingDate: '',
-                    budget: '',
-                    additionalDetails: ''
-                  });
-                }}
-              >
-                Submit Another Request
-              </Button>
-            </Stack>
-          </Paper>
-        </Box>
-      </Container>
+      <>
+        <DialogTitle sx={{ textAlign: 'center', pb: 0 }}>
+          <CheckCircle sx={{
+            fontSize: 80,
+            color: 'success.main',
+            mb: 2
+          }} />
+          <Typography
+            variant={isMobile ? "h4" : "h3"}
+            component="h2"
+            color="success.main"
+            sx={{ fontWeight: 600 }}
+          >
+            Request Sent Successfully! 🎉
+          </Typography>
+        </DialogTitle>
+
+        <DialogContent sx={{ textAlign: 'center', pt: 2 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 2,
+              color: 'text.secondary',
+              lineHeight: 1.6
+            }}
+          >
+            Your information has been sent and <strong>{vendor.name}</strong> will
+            reach out to you directly if it's a good fit.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ justifyContent: 'center', pb: 3 }}>
+          <Button
+            variant="contained"
+            onClick={onClose}
+            size="large"
+            sx={{
+              minWidth: 120,
+              bgcolor: 'primary.main'
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </>
     );
   }
 
@@ -367,234 +403,244 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       case 0:
         return (
           <Box>
-            <Typography variant="h4" gutterBottom>
-              What services do you need for your wedding?
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              Select all that apply. We'll match you with vendors who specialize in Asian weddings.
-            </Typography>
-            <FormControl fullWidth error={!!errors.services}>
-              <InputLabel>Select Services *</InputLabel>
-              <Select
-                multiple
-                value={formData.services}
-                onChange={handleMultiSelectChange('services')}
-                input={<OutlinedInput label="Select Services *" />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {selected.map((value: string) => (
-                      <Chip key={value} label={value} size="small" />
-                    ))}
-                  </Box>
-                )}
-              >
-                {serviceOptions.map((service) => (
-                  <MenuItem key={service} value={service}>
-                    {service}
-                  </MenuItem>
-                ))}
-              </Select>
-              {errors.services && (
-                <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                  {errors.services}
+            <Grid container paddingTop={4} paddingX={3} spacing={3}>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  What can {vendor.name} help you with? *
                 </Typography>
-              )}
-            </FormControl>
-          </Box>
+                <StyledToggleButtonGroup
+                  value={formData.services}
+                  onChange={(e, newValue) => {
+                    // Allow newValue to be empty array or have values
+                    setFormData({ ...formData, services: newValue || [] });
+                    // Clear error when user makes a selection
+                    if (errors.services) {
+                      setErrors(prev => ({ ...prev, services: null }));
+                    }
+                  }}
+                  color="primary"
+                  aria-label="services"
+                >
+                  {serviceOptions.map(service => (
+                    <ToggleButton key={service} value={service}>
+                      {service}
+                    </ToggleButton>
+                  ))}
+                </StyledToggleButtonGroup>
+                {errors.services && (
+                  <Typography variant="caption" color="error" sx={{ ml: 0, mt: 0.5, display: 'block' }}>
+                    {errors.services}
+                  </Typography>
+                )}
+              </Grid>
+
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Where is your wedding? *
+                </Typography>
+                <TextField
+                  required
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  error={!!errors.location}
+                  helperText={errors.location}
+                  variant="outlined"
+                  fullWidth
+                  placeholder="City and state, or metro area"
+                  sx={{ maxWidth: 300 }}
+                />
+              </Grid>
+
+              <Grid>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  How many people need hair or makeup, including the bride? *
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2, flexDirection: isMobile ? 'column' : 'row' }}>
+                  <TextField
+                    type="number"
+                    name="peopleCount"
+                    value={formData.peopleCount}
+                    onChange={handleInputChange}
+                    error={!!errors.peopleCount}
+                    helperText={errors.peopleCount}
+                    slotProps={{ htmlInput: { min: 1 } }}
+                    sx={{ minWidth: 150 }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.flexibleCount}
+                        onChange={(e) =>
+                          setFormData({ ...formData, flexibleCount: e.target.checked })
+                        }
+                      />
+                    }
+                    label="This number is flexible"
+                    sx={{ mt: isMobile ? 0 : 1 }}
+                  />
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  What makeup styles are you interested in?
+                </Typography>
+                <StyledToggleButtonGroup
+                  value={formData.makeupStyles}
+                  onChange={(e, newValue) => {
+                    // Allow newValue to be empty array or have values
+                    setFormData({ ...formData, makeupStyles: newValue || [] });
+                    // Clear error when user makes a selection
+                    if (errors.makeupStyles) {
+                      setErrors(prev => ({ ...prev, makeupStyles: null }));
+                    }
+                  }}
+                  color="primary"
+                  aria-label="makeupStyles"
+                >
+                  {makeupStyleOptions.map(makeupStyle => (
+                    <ToggleButton key={makeupStyle} value={makeupStyle}>
+                      {makeupStyle}
+                    </ToggleButton>
+                  ))}
+                </StyledToggleButtonGroup>
+                {errors.makeupStyles && (
+                  <Typography variant="caption" color="error" sx={{ ml: 0, mt: 0.5, display: 'block' }}>
+                    {errors.makeupStyles}
+                  </Typography>
+                )}
+              </Grid>
+            </Grid>
+          </Box >
         );
 
       case 1:
         return (
           <Box>
-            <Typography variant="h4" gutterBottom>
-              Tell us about your wedding location and size
+            <Typography variant="h3" paddingY={2} sx={{ fontWeight: 600 }}>
+              Almost there! Add your details to minimize back-and-forth.
             </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              Don't worry if you're still deciding - we can work with flexible plans too.
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+              Your Name *
             </Typography>
-            <Stack spacing={3}>
-              <TextField
-                required
-                fullWidth
-                name="location"
-                label="Wedding Location/City"
-                value={formData.location}
-                onChange={handleInputChange}
-                error={!!errors.location}
-                helperText={errors.location}
-                placeholder="e.g., Los Angeles, CA or 'Still deciding between SF and LA'"
-                variant="outlined"
-              />
-
-              <FormControl fullWidth error={!!errors.partySize}>
-                <InputLabel>Number of people requiring services</InputLabel>
-                <Select
-                  value={formData.partySize}
-                  onChange={handleSelectChange('partySize')}
-                  label="Number of people requiring services"
-                >
-                  {guestCountOptions.map((option) => (
-                    <MenuItem key={option} value={option}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.partySize && (
-                  <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                    {errors.partySize}
-                  </Typography>
-                )}
-              </FormControl>
-            </Stack>
-          </Box>
-        );
-
-      case 2:
-        return (
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              Help us understand your cultural preferences
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              This helps us match you with vendors who understand your traditions and can bring your vision to life.
-            </Typography>
-            <Stack spacing={3}>
-              <FormControl fullWidth error={!!errors.culturalBackground}>
-                <InputLabel>Makeup Styles</InputLabel>
-                <Select
-                  multiple
-                  value={formData.makeupStyles}
-                  onChange={handleMultiSelectChange('makeupStyles')}
-                  input={<OutlinedInput label="Cultural Background *" />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value: string) => (
-                        <Chip key={value} label={value} size="small" />
-                      ))}
-                    </Box>
-                  )}
-                >
-                  {makeupStyles.map((style) => (
-                    <MenuItem key={style} value={style}>
-                      {style}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {errors.makeupStyles && (
-                  <Typography variant="caption" color="error" sx={{ ml: 2, mt: 0.5 }}>
-                    {errors.makeupStyles}
-                  </Typography>
-                )}
-              </FormControl>
-
-              <FormControl fullWidth>
-                <InputLabel>Preferred Languages (Optional)</InputLabel>
-                <Select
-                  multiple
-                  value={formData.languages}
-                  onChange={handleMultiSelectChange('languages')}
-                  input={<OutlinedInput label="Preferred Languages (Optional)" />}
-                  renderValue={(selected) => (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {selected.map((value: string) => (
-                        <Chip key={value} label={value} size="small" />
-                      ))}
-                    </Box>
-                  )}
-                >
-                  {languageOptions.map((language) => (
-                    <MenuItem key={language} value={language}>
-                      {language}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Stack>
-          </Box>
-        );
-
-      case 3:
-        return (
-          <Box>
-            <Typography variant="h4" gutterBottom>
-              Finally, let's get your contact details
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              We'll use this information to send you personalized vendor recommendations. It's okay if some details are still flexible!
-            </Typography>
-            <Stack spacing={3}>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="name"
-                    label="Your Name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    error={!!errors.name}
-                    helperText={errors.name}
-                  />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    required
-                    fullWidth
-                    name="email"
-                    label="Email Address"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    error={!!errors.email}
-                    helperText={errors.email}
-                  />
-                </Grid>
+            <Grid container spacing={3}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  required
+                  fullWidth
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  error={!!errors.firstName}
+                  helperText={errors.firstName}
+                  placeholder="First"
+                />
               </Grid>
-
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <TextField
+                  required
+                  fullWidth
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  error={!!errors.lastName}
+                  helperText={errors.lastName}
+                  placeholder="Last"
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Email Address *
+                </Typography>
+                <TextField
+                  required
+                  fullWidth
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  placeholder="Email"
+                />
+              </Grid>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Wedding Date *
+                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
                   <TextField
                     required
-                    fullWidth
                     name="weddingDate"
-                    label="Wedding Date"
+                    type="date"
                     value={formData.weddingDate}
                     onChange={handleInputChange}
                     error={!!errors.weddingDate}
                     helperText={errors.weddingDate}
-                    placeholder="e.g., 'June 2024', 'Fall 2025', or 'Flexible - looking at 2024-2025'"
+                    slotProps={{ inputLabel: { shrink: true } }}
+                    sx={{ minWidth: 200 }}
                   />
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>Budget Estimate</InputLabel>
-                    <Select
-                      value={formData.budget}
-                      onChange={handleSelectChange('budget')}
-                      label="Budget Estimate (Optional)"
-                    >
-                      {budgetRanges.map((range) => (
-                        <MenuItem key={range} value={range}>
-                          {range}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.flexibleDate}
+                        onChange={(e) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            flexibleDate: e.target.checked
+                          }));
+                        }}
+                      />
+                    }
+                    label="Date is flexible"
+                    sx={{ mt: isMobile ? 0 : 1 }}
+                  />
+                </Stack>
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Estimated budget for hair and makeup *
+                </Typography>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <TextField
+                    type="number"
+                    value={formData.budget ? formData.budget.toLocaleString() : ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, budget: e.target.value }))}
+                    error={!!errors.budget}
+                    helperText={errors.budget}
+                    slotProps={{
+                      input: { startAdornment: <Typography sx={{ color: 'text.secondary', mr: 0.5 }}>$</Typography> },
+                      htmlInput: { min: 0 }
+                    }}
+                    sx={{ maxWidth: 200 }}
+                  />
+                </Stack>
               </Grid>
 
-              <TextField
-                fullWidth
-                name="additionalDetails"
-                label="Additional Details (Optional)"
-                multiline
-                rows={3}
-                value={formData.additionalDetails}
-                onChange={handleInputChange}
-                placeholder="Special requirements, style preferences, specific traditions you want to include..."
-              />
-            </Stack>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Anything else to add?
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="additionalDetails"
+                  multiline
+                  rows={3}
+                  value={formData.additionalDetails}
+                  onChange={handleInputChange}
+                  placeholder="Describe your vision, special requests or questions you have..."
+                  variant="outlined"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'grey.50'
+                    }
+                  }}
+                />
+              </Grid>
+            </Grid >
+
           </Box>
+
         );
 
       default:
@@ -614,133 +660,84 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           </Box>
         )}
 
-        {/* Header */}
-        <Paper
-          elevation={3}
+        {/* Progress indicator */}
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel={!isMobile}
           sx={{
-            p: isMobile ? 3 : 4,
-            mb: 3,
-            textAlign: 'center',
-            bgcolor: 'background.paper',
-            borderTop: 4,
-            borderColor: 'primary.main'
+            '& .MuiStepLabel-root .Mui-completed': {
+              color: 'success.main',
+            },
+            '& .MuiStepLabel-root .Mui-active': {
+              color: 'primary.main',
+            }
           }}
         >
-          <Typography
-            variant={isMobile ? "h3" : "h2"}
-            component="h1"
-          >
-            Contact {vendor.name}
-          </Typography>
-          <Typography
-            variant="h6"
-            color="text.secondary"
-          >
-            Tell {vendor.name} about your wedding so they can provide you with a personalized quote and recommendations.
-          </Typography>
-        </Paper>
-
-        {/* Stepper */}
-        <Paper elevation={1} sx={{ p: 3, mb: 3, bgcolor: 'background.paper' }}>
-          <Stepper
-            activeStep={activeStep}
-            alternativeLabel={!isMobile}
-            sx={{
-              '& .MuiStepLabel-root .Mui-completed': {
-                color: 'success.main',
-              },
-              '& .MuiStepLabel-root .Mui-active': {
-                color: 'primary.main',
-              },
-              '& .MuiStepConnector-line': {
-                borderColor: 'divider',
-              }
-            }}
-          >
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-        </Paper>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
         {/* Form Content */}
-        <Paper elevation={2} sx={{ p: isMobile ? 3 : 4, bgcolor: 'background.paper' }}>
-          {errors.submit && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {errors.submit}
-            </Alert>
-          )}
+        {errors.submit && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {errors.submit}
+          </Alert>
+        )}
 
-          {renderStepContent()}
+        {renderStepContent()}
 
-          {/* Navigation */}
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 4 }}>
+        {/* Navigation */}
+        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 4, gap: 2 }}>
+          <Button
+            color="inherit"
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            startIcon={<ArrowBack />}
+          >
+            Back
+          </Button>
+
+          <Box sx={{ flex: '1 1 auto' }} />
+
+          {activeStep === steps.length - 1 ? (
             <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              startIcon={<ArrowBack />}
-              sx={{ mr: 1 }}
+              variant="contained"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              size="large"
+              sx={{
+                py: 1.5,
+                px: 4,
+                fontSize: '1.1rem',
+                fontWeight: 600
+              }}
             >
-              Back
+              {isSubmitting ? (
+                <>
+                  <CircularProgress size={24} sx={{ mr: 1 }} />
+                  Sending Request...
+                </>
+              ) : (
+                `Get My Quote`
+              )}
             </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            {activeStep === steps.length - 1 ? (
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                sx={{
-                  py: 1.5,
-                  px: 4,
-                  fontSize: '1.1rem',
-                  bgcolor: 'primary.main',
-                  color: 'white',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}
-              >
-                {isSubmitting ? (
-                  <>
-                    <CircularProgress size={24} sx={{ mr: 1 }} />
-                    Submitting...
-                  </>
-                ) : (
-                  'Contact ' + vendor.name
-                )}
-              </Button>
-            ) : (
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                endIcon={<ArrowForward />}
-                sx={{
-                  bgcolor: 'primary.main',
-                  '&:hover': {
-                    bgcolor: 'primary.dark',
-                  }
-                }}
-              >
-                Next
-              </Button>
-            )}
-          </Box>
-
-          {/* Bottom text */}
-          {activeStep === steps.length - 1 && (
-            <Typography
-              variant="body2"
-              align="center"
-              color="text.secondary"
-              sx={{ mt: 2 }}
+          ) : (
+            <Button
+              variant="contained"
+              onClick={() => {
+                handleNext();
+              }}
+              endIcon={<ArrowForward />}
+              size="large"
+              sx={{ fontWeight: 600 }}
             >
-              {vendor.name} will receive your details and contact you directly within 24-48 hours.
-            </Typography>
+              Continue
+            </Button>
           )}
-        </Paper>
+        </Box>
       </Box>
     </Container>
   );

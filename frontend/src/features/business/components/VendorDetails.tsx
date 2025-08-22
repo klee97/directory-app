@@ -32,8 +32,7 @@ import { useSearchParams } from 'next/navigation';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import FilterChip from '@/components/ui/FilterChip';
 import Image from 'next/image';
-// import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
-import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm2';
+import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 
 
 const StickyCard = styled(Card)(({ theme }) => ({
@@ -69,8 +68,11 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
 
         <Dialog
           open={formOpen}
-          onClose={() => setFormOpen(false)}
-          maxWidth="md"
+          onClose={(event, reason) => {
+            if (reason !== 'backdropClick') {
+              setFormOpen(false);
+            }
+          }} maxWidth="md"
           fullWidth
         // fullScreen={isMobile} // Optional: full screen on mobile
         >
