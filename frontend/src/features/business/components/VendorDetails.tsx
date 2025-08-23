@@ -458,11 +458,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                       Testimonials
                     </Typography>
                     <Paper elevation={0} sx={{ p: 4, }}>
-                      <Typography variant="body1" component="h3">
-                        {vendor.testimonials[0].review}
+                      <Typography variant="body1" component="h3" sx={{ whiteSpace: 'pre-wrap' }}>
+                        {vendor.testimonials[0].review?.replace(/\n/g, '\n\n')}
                       </Typography>
                       {(vendor.testimonials[0].author) &&
-                        (<Typography variant="body1" component="h3" textAlign="right">
+                        (<Typography variant="body1" component="h3" paddingTop={2} textAlign="right">
                           - {vendor.testimonials[0].author}
                         </Typography>)
                       }
