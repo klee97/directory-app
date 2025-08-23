@@ -69,7 +69,7 @@ export class LocationPageGenerator {
     radiusMiles: number = SEARCH_RADIUS_MILES_DEFAULT,
     limitResults: number = 100
   ): Promise<VendorByDistance[]> {
-    const { data, error } = await supabase.rpc('get_vendors_by_location_with_tags_and_media', {
+    const { data, error } = await supabase.rpc('get_vendors_by_location_with_distinct_tags_and_media', {
       lat,
       lon,
       radius_miles: radiusMiles,
