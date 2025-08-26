@@ -32,7 +32,7 @@ import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PAR
 import FilterChip from '@/components/ui/FilterChip';
 import Image from 'next/image';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
-
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -45,6 +45,8 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
   const [formOpen, setFormOpen] = useState(false);
   const services = Array.from(vendor.specialties);
   const defaultLocation = getLocationString(vendor);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (<StickyCard elevation={0} >
     <CardContent >
@@ -72,7 +74,7 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
             }
           }} maxWidth="md"
           fullWidth
-        // fullScreen={isMobile} // Optional: full screen on mobile
+          fullScreen={isMobile}
         >
           <DialogContent sx={{ p: 0 }}>
             <LeadCaptureForm
