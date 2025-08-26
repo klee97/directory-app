@@ -21,6 +21,7 @@ export const submitToAirtable = async (
           'First Name': data.firstName,
           'Last Name': data.lastName,
           'Wedding Date': data.weddingDate,
+          'Flexible Date': data.flexibleDate ? 'Yes' : 'No',
           'Location': data.location,
           'Makeup Styles': data.makeupStyles.join(', '),
           'People Count': parseInt(data.peopleCount),
