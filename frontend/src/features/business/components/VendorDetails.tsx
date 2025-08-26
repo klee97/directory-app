@@ -25,7 +25,7 @@ import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
-import { Divider, useMediaQuery } from '@mui/material';
+import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
@@ -59,7 +59,6 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
         <Button
           variant="contained"
-          startIcon={<ContactSupport />}
           sx={{ borderRadius: 6, paddingY: 1 }}
           onClick={() => setFormOpen(true)}
         >
@@ -148,8 +147,6 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
   const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams.get(SEARCH_PARAM);
-
-  const isWide = useMediaQuery(theme.breakpoints.up('md'));
 
   const resolvedLocation = getLocationString(vendor);
 
@@ -337,13 +334,6 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                   </Box>
                 </Box>
               </Box>
-              {/* Contact Card
-              {!isWide &&
-                <>
-                  <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
-                  <ContactCard vendor={vendor} isFavorite={isFavorite} />
-                </>
-              } */}
               <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {/* Pricing */}

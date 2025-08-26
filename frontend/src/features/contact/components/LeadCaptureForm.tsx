@@ -27,6 +27,7 @@ import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import { submitToAirtable } from '@/features/contact/api/airtable';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -41,7 +42,7 @@ interface LeadCaptureFormProps {
   isModal?: boolean;
 }
 
-interface FormData {
+export interface FormData {
   // Step 1: Services & Event Details
   services: string[];
   peopleCount: string;
@@ -250,69 +251,13 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     setActiveStep(prev => prev - 1);
   };
 
-  const submitToAirtable = async (data: FormData): Promise<boolean> => {
-    // Replace these with your actual Airtable values
-    const baseId = process.env.AIRTABLE_APP_ID;
-    const tableName = process.env.AIRTABLE_LEADS_TABLE_NAME;
-    const apiToken = process.env.AIRTABLE_API_TOKEN; // From Airtable account settings
-
-    // Build the record object - field names must match your Airtable column names exactly
-    const recordData = {
-      records: [
-        {
-          fields: {
-            'Email': data.email,
-            'First Name': data.firstName,
-            'Last Name': data.lastName,
-            'Wedding Date': data.weddingDate,
-            'Location': data.location,
-            'Makeup Styles': data.makeupStyles.join(', '),
-            'People Count': parseInt(data.peopleCount),
-            'Flexible Count': data.flexibleCount ? 'Yes' : 'No',
-            'Services Requested': data.services,
-            'Budget': parseInt(data.budget),
-            'Additional Details': data.additionalDetails,
-            'Vendor Name': vendor.name,
-            'Vendor Slug': vendor.slug,
-            'Submission Date': new Date().toISOString().split('T')[0],
-            'Status': 'New'
-          }
-        }
-      ]
-    };
-
-    try {
-      const response = await fetch(`https://api.airtable.com/v0/${baseId}/${tableName}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(recordData)
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Airtable submission successful:', result.records[0].id);
-        return true;
-      } else {
-        const errorData = await response.json();
-        console.error('Airtable submission failed:', errorData);
-        return false;
-      }
-    } catch (error) {
-      console.error('Airtable submission error:', error);
-      return false;
-    }
-  };
-
   const handleSubmit = async () => {
     if (!validateCurrentStep()) return;
 
     setIsSubmitting(true);
 
     try {
-      const success = await submitToAirtable(formData);
+      const success = await submitToAirtable(formData, vendor);
 
       if (success) {
         setSubmitted(true);
@@ -336,22 +281,18 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         throw new Error('Submission failed');
       }
     } catch (error) {
+      console.error('Submission error:', error);
       setErrors({ submit: 'Something went wrong. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // No early submission - build commitment through the process
-  const hasCompletedInvestment = () => {
-    return activeStep >= 1; // After they've shared event details and preferences
-  };
-
   // Success state
   if (submitted) {
     return (
       <>
-        <DialogTitle sx={{ textAlign: 'center', pb: 0 }}>
+        <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
           <CheckCircle sx={{
             fontSize: 80,
             color: 'success.main',
@@ -377,7 +318,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             }}
           >
             Your information has been sent and <strong>{vendor.name}</strong> will
-            reach out to you directly if it's a good fit.
+            reach out to you directly if it&apos;s a good fit.
           </Typography>
         </DialogContent>
 
@@ -628,7 +569,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   rows={3}
                   value={formData.additionalDetails}
                   onChange={handleInputChange}
-                  placeholder="Describe your vision, special requests or questions you have..."
+                  placeholder="Describe your vision, special requests, or questions you have."
                   variant="outlined"
                   sx={{
                     '& .MuiOutlinedInput-root': {
