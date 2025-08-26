@@ -88,28 +88,7 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
             />
           </DialogContent>
         </Dialog>
-        {/* {vendor.email && (
-          <Button
-            variant="contained"
-            startIcon={<Mail />}
-            sx={{ borderRadius: 6, paddingY: 1 }}
-            href={`mailto:${vendor.email}`}
-          >
-            {contactText}
-          </Button>
-        )}
-        {!vendor.email && vendor.instagram && (
-          <Button
-            variant="contained"
-            startIcon={<Send />}
-            sx={{ borderRadius: 6, paddingY: 1 }}
-            href={`https://ig.me/m/${vendor.instagram}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {contactText}
-          </Button>
-        )} */}
+
         {/* Favorite Button */}
         <FavoriteButton
           vendorId={vendor.id}
