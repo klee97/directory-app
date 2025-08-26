@@ -15,7 +15,6 @@ import PublicIcon from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
-import ContactSupport from '@mui/icons-material/ContactSupport';
 import Link from '@mui/icons-material/Link';
 import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
