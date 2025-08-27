@@ -60,7 +60,7 @@ export async function getVendorsByState(location: LocationResult) {
 
 export function filterVendorsByCountry(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
   if (!location.address?.country) {
-    console.warn("No state provided in location:", location);
+    console.warn("No country provided in location:", location);
     return [];
   } 
   return vendors.filter(vendor =>
