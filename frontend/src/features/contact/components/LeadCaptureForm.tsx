@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -24,10 +24,10 @@ import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/Toggl
 import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { alpha, styled } from '@mui/material/styles';
 import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
-import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import { submitToAirtable } from '@/features/contact/api/airtable';
+import { savePartialLeadToAirtable, submitToAirtable } from '@/features/contact/api/airtable';
+import { trackFormAbandonment, trackFormStarted, trackFormStepBack, trackFormSubmissionError, trackFormValidationErrors, trackPartialLeadSaved, trackStepProgress, trackVendorContactFormSubmission } from '@/utils/analytics/trackFormEvents';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -60,7 +60,27 @@ export interface FormData {
 
   // Step 3: Style & Preferences
   makeupStyles: string[];
-  languages: string;
+}
+
+export enum LeadStatus {
+  FORM_STARTED = 'form_started',
+  STEP_1_COMPLETED = 'step_1_completed',
+  STEP_2_WITH_EMAIL = 'step_2_with_email',
+  ABANDONED = 'abandoned'
+}
+
+export interface PartialLead {
+  formData: Partial<FormData>;
+  vendor: {
+    name: string;
+    slug: string;
+    id: string;
+  };
+  status: LeadStatus;
+  stepNumber: number;
+  fieldsCompleted: string[];
+  timeSpent: number;
+  timestamp: string;
 }
 
 interface FormErrors {
@@ -143,6 +163,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  const formStartTime = useRef<number>(Date.now());
+  const stepStartTime = useRef<number>(Date.now());
+
   const [formData, setFormData] = useState<FormData>({
     // Step 1: Event Details
     services: [],
@@ -161,8 +185,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     additionalDetails: '',
 
     // Step 3: Style
-    makeupStyles: [],
-    languages: '',
+    makeupStyles: []
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -184,6 +207,53 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     'Korean style',
     'Other',
   ];
+
+  const completedFields = useMemo(() => {
+    const completed: string[] = [];
+    Object.entries(formData).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        completed.push(key);
+      } else if (typeof value === 'string' && value.trim()) {
+        completed.push(key);
+      } else if (typeof value === 'boolean' && value) {
+        completed.push(key);
+      }
+    });
+    return completed;
+  }, [formData]);
+
+  useEffect(() => {
+    const startTime = formStartTime.current;
+    trackFormStarted({
+      vendor_slug: vendor.slug,
+      form_type: 'vendor_contact',
+    });
+
+    return () => {
+      // Track abandonment on component unmount if not submitted
+      if (!submitted) {
+        const timeSpent = Math.round((Date.now() - startTime) / 1000);
+        trackFormAbandonment({
+          step_number: activeStep + 1,
+          fields_completed: completedFields,
+          time_to_complete: timeSpent,
+          vendor_slug: vendor.slug,
+          vendor_id: vendor.id,
+          abandonment_reason: 'component_unmount'
+        });
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty - we want this to run once on mount
+
+  useEffect(() => {
+    trackStepProgress({
+      step_number: activeStep + 1,
+      vendor_slug: vendor.slug
+    });
+    stepStartTime.current = Date.now();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeStep]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -238,17 +308,98 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     }
 
     setErrors(newErrors);
+
+    // Track validation errors only if there are any
+    if (Object.keys(newErrors).length > 0) {
+      trackFormValidationErrors({
+        step_number: activeStep + 1,
+        error_fields: Object.keys(newErrors),
+        vendor_slug: vendor.slug,
+        form_type: 'vendor_contact'
+      });
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+
     if (validateCurrentStep()) {
+      const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+
+      // Save partial lead when completing Step 1
+      if (activeStep === 0) {
+        const partialLead: PartialLead = {
+          formData,
+          vendor: {
+            name: vendor.name,
+            slug: vendor.slug,
+            id: vendor.id
+          },
+          status: LeadStatus.STEP_1_COMPLETED,
+          stepNumber: 1,
+          fieldsCompleted: completedFields,
+          timeSpent: timeSpent,
+          timestamp: new Date().toISOString()
+        };
+
+        await savePartialLeadToAirtable(partialLead);
+
+        trackPartialLeadSaved({
+          status: LeadStatus.STEP_1_COMPLETED,
+          fields_completed: completedFields.length,
+          vendor_slug: vendor.slug
+        });
+      }
+
       setActiveStep(prev => prev + 1);
     }
   };
 
   const handleBack = () => {
+    trackFormStepBack({
+      vendor_slug: vendor.slug
+    });
     setActiveStep(prev => prev - 1);
+  };
+
+  const handleClose = async () => {
+    const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+
+    // Save partial lead if they have email or completed step 1
+    if ((activeStep === 1 && formData.email) || (activeStep >= 0 && completedFields.length >= 3)) {
+      const partialLead: PartialLead = {
+        formData,
+        vendor: {
+          name: vendor.name,
+          slug: vendor.slug,
+          id: vendor.id
+        },
+        status: formData.email ? LeadStatus.STEP_2_WITH_EMAIL : LeadStatus.STEP_1_COMPLETED,
+        stepNumber: activeStep + 1,
+        fieldsCompleted: completedFields,
+        timeSpent,
+        timestamp: new Date().toISOString()
+      };
+
+      await savePartialLeadToAirtable(partialLead);
+
+      trackPartialLeadSaved({
+        status: partialLead.status,
+        fields_completed: completedFields.length,
+        vendor_slug: vendor.slug,
+      });
+    }
+
+    trackFormAbandonment({
+      step_number: activeStep + 1,
+      fields_completed: completedFields,
+      time_to_complete: timeSpent,
+      vendor_slug: vendor.slug,
+      vendor_id: vendor.id,
+      abandonment_reason: 'user_closed'
+    });
+    onClose?.();
   };
 
   const handleSubmit = async () => {
@@ -261,21 +412,18 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
 
       if (success) {
         setSubmitted(true);
-        // Track conversion with GTM
-        window.dataLayer = window.dataLayer || [];
-        window.dataLayer.push({
-          event: 'vendor_contact_form_submission',
+        const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+
+        // Track successful conversion
+        trackVendorContactFormSubmission({
           form_type: 'vendor_contact',
-          vendor_name: vendor.name,
           vendor_slug: vendor.slug,
           services: formData.services.join(', '),
           location: formData.location,
           people_count: formData.peopleCount,
-          makeup_styles: formData.makeupStyles.join(', '),
-          languages: formData.languages,
           budget: formData.budget,
           wedding_date: formData.flexibleDate ? 'Date not set yet' : formData.weddingDate,
-          is_modal: isModal,
+          time_to_complete: timeSpent
         });
       } else {
         throw new Error('Submission failed');
@@ -283,6 +431,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     } catch (error) {
       console.error('Submission error:', error);
       setErrors({ submit: 'Something went wrong. Please try again.' });
+      trackFormSubmissionError({
+        vendor_slug: vendor.slug,
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -292,7 +444,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   if (submitted) {
     return (
       <>
-        <DialogTitle sx={{ textAlign: 'center', pb: 1 }}>
+        <Box sx={{ textAlign: 'center', py: 1 }}>
           <CheckCircle sx={{
             fontSize: 80,
             color: 'success.main',
@@ -306,7 +458,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           >
             Request Sent Successfully! 🎉
           </Typography>
-        </DialogTitle>
+        </Box>
 
         <DialogContent sx={{ textAlign: 'center', pt: 2 }}>
           <Typography
@@ -595,7 +747,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         {/* Close button for modal */}
         {isModal && onClose && (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
-            <IconButton onClick={onClose} size="small">
+            <IconButton onClick={handleClose} size="small">
               <Close />
             </IconButton>
           </Box>
