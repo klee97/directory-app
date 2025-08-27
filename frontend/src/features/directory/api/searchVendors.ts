@@ -18,15 +18,25 @@ export async function getVendorsByLocation(location: LocationResult, vendors: Ve
   if (location.type === LOCATION_TYPE_PRESET_REGION) {
     return await filterVendorByRegion(location.display_name, vendors);
   } else if (isCountrySelection(location) && location.address?.country) {
-    return await getVendorsByCountry(location);
+    return filterVendorsByCountry(location, vendors);
   } else if (isStateSelection(location) && location.address?.state) {
-    return await getVendorsByState(location);
+    return filterVendorsByState(location, vendors);
   } else if (!!location.lat && !!location.lon) {
     return await getVendorsByDistanceWithFallback(location.lat, location.lon, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT);
   } else {
     console.warn("Location type not recognized or missing coordinates:", location);
     return [];
   }
+}
+
+export function filterVendorsByState(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
+  if (!location.address?.state) {
+    console.warn("No state provided in location:", location);
+    return [];
+  } 
+  return vendors.filter(vendor =>
+    vendor.state?.toLowerCase() === location.address?.state?.toLowerCase()
+  );
 }
 
 export async function getVendorsByState(location: LocationResult) {
@@ -45,6 +55,17 @@ export async function getVendorsByState(location: LocationResult) {
     return [];
   }
   return data;
+}
+
+
+export function filterVendorsByCountry(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
+  if (!location.address?.country) {
+    console.warn("No country provided in location:", location);
+    return [];
+  } 
+  return vendors.filter(vendor =>
+    vendor.country?.toLowerCase() === location.address?.country?.toLowerCase()
+  );
 }
 
 export async function getVendorsByCountry(location: LocationResult) {
