@@ -3,7 +3,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/website_preview.jpeg';
+import defaultImage from '@/assets/photo_website_preview.jpg';
 
 export const metadata: Metadata = {
   title: "About - Asian Wedding Makeup in NYC, LA & more",
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: defaultImage.src,
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 421,
         alt: 'Asian Wedding Makeup Preview',
       },
     ],

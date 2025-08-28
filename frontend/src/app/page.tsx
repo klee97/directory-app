@@ -1,7 +1,8 @@
 import { Directory } from '@/features/directory/components/Directory';
 import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/website_preview.jpeg';
+import defaultImage from '@/assets/photo_website_preview.jpg';
+import logo from '@/assets/logo.jpeg';
 import { getCachedVendors } from '@/features/directory/api/fetchVendors';
 import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 
@@ -15,8 +16,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: defaultImage.src,
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 421,
         alt: 'Asian Wedding Makeup Artist Directory',
       },
     ],
@@ -56,7 +57,7 @@ export default async function Home() {
           "sameAs": [
             "https://www.instagram.com/asianweddingmkup",
           ],
-          "logo": defaultImage.src
+          "logo": logo.src
         },
       },
     }))

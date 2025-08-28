@@ -5,7 +5,7 @@ import ThemeProvider from '@/components/theme/ThemeProvider';
 import Navbar from "@/components/layouts/Navbar";
 import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import { Footer } from "@/components/layouts/Footer";
-import previewImage from '@/assets/website_preview.jpeg';
+import previewImage from '@/assets/photo_website_preview.jpg';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: previewImage.src,
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 421,
         alt: 'Asian Wedding Makeup Preview',
       },
     ],
