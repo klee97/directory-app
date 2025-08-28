@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import defaultImage from '@/assets/photo_preview.jpg';
+import defaultImage from '@/assets/photo_website_preview.jpg';
 import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
