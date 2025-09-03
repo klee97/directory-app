@@ -242,10 +242,8 @@ export function getMigratedUrl(originalUrl: string | null) {
   if (!originalUrl) {
     return null;
   }
-  console.debug(`Checking migration status for URL: ${originalUrl}`);
   // Check if URL is in our migration allowlist
   if (URL_MIGRATION_MAP.has(originalUrl)) {
-    console.debug(`Found migration for URL: ${originalUrl}`);
     return URL_MIGRATION_MAP.get(originalUrl);
   }
 

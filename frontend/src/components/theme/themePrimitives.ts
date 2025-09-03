@@ -23,6 +23,12 @@ const typography = {
     fontWeight: 500,
     mb: 1,
   },
+  h5: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.4rem',
+    fontWeight: 500,
+    mb: 2,
+  },
   h6: {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.1rem',
@@ -113,5 +119,37 @@ export const getDesignTokens = () => {
         }
       },
     },
+    MuiStepper: {
+      styleOverrides: {
+        root: {
+          '& .MuiStepLabel-root .Mui-completed': {
+            color: 'success.main',
+          },
+          '& .MuiStepLabel-root .Mui-active': {
+            color: 'primary.main',
+          },
+        }
+      }
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: '16px',
+        },
+        colorPrimary: {
+          backgroundColor: 'primary.main',
+          color: 'white',
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          '&:hover': {
+            backgroundColor: 'primary.dark',
+          }
+        }
+      }
+    }
   }
 };

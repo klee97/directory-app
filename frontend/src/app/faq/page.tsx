@@ -7,7 +7,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Link from "@mui/material/Link";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Metadata } from "next";
-import defaultImage from '@/assets/website_preview.jpeg';
+import defaultImage from '@/assets/photo_website_preview.jpg';
 
 const faqs = [
   {
@@ -91,8 +91,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: defaultImage.src,
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 421,
         alt: 'Wedding Vendor Directory Preview',
       },
     ],

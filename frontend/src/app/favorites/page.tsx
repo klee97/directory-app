@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import defaultImage from '@/assets/website_preview.jpeg';
+import defaultImage from '@/assets/photo_website_preview.jpg';
 import { FavoritesContent } from '@/features/favorites/components/FavoritesContent';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -17,8 +17,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: defaultImage.src,
-        width: 1200,
-        height: 630,
+        width: 800,
+        height: 421,
         alt: 'Asian Wedding Makeup Preview',
       },
     ],

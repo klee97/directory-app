@@ -5,7 +5,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid2'
 import { Content } from '@/features/blog/api/getBlogPosts'
-
+import Link from '@mui/material/Link'
 // Define types for the GraphQL response
 interface ContentfulAsset {
   sys: {
@@ -55,9 +55,9 @@ export function renderCaption(description: string) {
     return (
       <>
         {mainText}
-        <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
+        <Link href={sourceUrl} color="primary" target="_blank" rel="noopener noreferrer">
           Source
-        </a>
+        </Link>
       </>
     );
   }
@@ -213,9 +213,9 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
       [INLINES.HYPERLINK]: (node, children) => {
         const url = node.data.uri;
         return (
-          <a href={url} target="_blank" rel="noopener noreferrer">
+          <Link href={url} color="primary" target="_blank" rel="noopener noreferrer">
             {children}
-          </a>
+          </Link>
         );
       }
     }
