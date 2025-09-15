@@ -61,6 +61,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'gis'
   | 'google_maps_place'
   | 'profile_image'
+  | 'description'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
@@ -94,6 +95,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     id: vendor.id,
     is_premium: isPremiumVendor,
     business_name: vendor.business_name,
+    description: vendor.description,
     email: vendor.email,
     website: vendor.website,
     instagram: (vendor.ig_handle ?? '').replace('@', ''),
