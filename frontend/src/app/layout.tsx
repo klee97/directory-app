@@ -16,6 +16,7 @@ import { Suspense } from "react";
 import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
 import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constants";
 import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const alice = Alice({
   weight: ['400'],
@@ -76,6 +77,7 @@ export default function RootLayout({
                   <GTMRouteTracker />
                 </Suspense>
                 {children}
+                <SpeedInsights />
                 <Footer />
                 <FeedbackPopup />
               </ThemeProvider>
