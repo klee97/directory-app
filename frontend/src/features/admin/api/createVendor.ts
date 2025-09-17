@@ -75,14 +75,12 @@ export const createVendor = async (
 
       if (!hubspotContactId) {
         console.error("Failed to create HubSpot contact for vendor:", data.slug);
-        throw new Error("Failed to create HubSpot contact for vendor");
       }
       console.log("HubSpot contact created successfully!", hubspotContactId);
+    } else {
+      console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
-  } else {
-    console.log("No email provided, skipping HubSpot contact creation.");
   }
-
   if (error) {
     console.error("Error creating vendor:", error);
     throw error;
