@@ -63,22 +63,24 @@ export const createVendor = async (
       }
     })
 
-    // Create a contact in HubSpot
-    const hubspotContactId = await createHubSpotContact({
-      email: vendor.email || vendor.ig_handle || '',
-      firstname: firstname,
-      lastname: lastname,
-      slug: data.slug,
-      company: vendor.business_name ?? '',
-    });
+    // Create a contact in HubSpot if email is provided
+    if (vendor.email) {
+      const hubspotContactId = await createHubSpotContact({
+        email: vendor.email,
+        firstname: firstname,
+        lastname: lastname,
+        slug: data.slug,
+        company: vendor.business_name ?? '',
+      });
 
-    if (!hubspotContactId) {
-      console.error("Failed to create HubSpot contact for vendor:", data.slug);
-      throw new Error("Failed to create HubSpot contact for vendor");
+      if (!hubspotContactId) {
+        console.error("Failed to create HubSpot contact for vendor:", data.slug);
+      }
+      console.log("HubSpot contact created successfully!", hubspotContactId);
+    } else {
+      console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
-    console.log("HubSpot contact created successfully!", hubspotContactId);
   }
-
   if (error) {
     console.error("Error creating vendor:", error);
     throw error;
