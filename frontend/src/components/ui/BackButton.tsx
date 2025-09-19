@@ -1,27 +1,30 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@mui/material/Button";
+import { useEffect, useState } from "react";
 
 export default function BackButton() {
   const router = useRouter();
-  const referrer = typeof document !== 'undefined' ? document.referrer : null; // Get the referrer (previous page)
-  const backUrl = referrer ? referrer : '/';
+  const searchParams = useSearchParams();
+  const [canGoBack, setCanGoBack] = useState(false);
+
+  useEffect(() => {
+    setCanGoBack(window.history.length > 1);
+  }, []);
 
   const handleBack = () => {
-    // If there's a referrer, use the browser's back action
-    if (referrer) {
+    if (canGoBack) {
       router.back();
     } else {
-      // If no referrer, navigate to the directory directly
-      router.push(backUrl);
+      // If no history, reconstruct a useful fallback
+      const fallback = `/${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+      router.push(fallback);
     }
   };
 
-  const backButtonText = referrer ? '← Back' : '← Back to Directory';
-
   return (
-    <Button variant="text" onClick={handleBack} color='secondary'>
-      {backButtonText}
+    <Button variant="text" onClick={handleBack} color="secondary">
+      {canGoBack ? "← Back" : "← Back to Directory"}
     </Button>
   );
 }
