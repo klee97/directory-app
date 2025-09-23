@@ -29,7 +29,7 @@ export default function ContentfulImage(
     } & React.RefAttributes<HTMLImageElement | null>
 ) {
   const contentfulLoader = ({ src, width, quality }: { src: string; width: number; quality?: number; }) => {
-    return `${src}?w=${width}&q=${quality || 75}`;
+    return `${src}?w=${width}&q=${quality || 90}&fm=webp`;
   };
 
   return (
