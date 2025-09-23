@@ -63,6 +63,8 @@ export default function RootLayout({
       <head>
         <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
         <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
+        {/* Pinterest site verification */}
+        <meta name="p:domain_verify" content="b243038277499f92ffdf12ffbecd514f" />
       </head>
       <body>
         <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
