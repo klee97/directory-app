@@ -31,6 +31,15 @@ const faqs = [
         answer: "We live in the U.S., so that was the easiest information to compile. We hope to expand the directory in the future!",
       },
       {
+        question: "I'm looking for an artist who specializes in X.",
+        answer: (
+          <>
+            We are working on adding more information to our listings. Please <Link href="/contact">reach out to us</Link> if you are looking for something specific, and we can try to help!
+          </>
+        ),
+      },
+
+      {
         question: "Who runs this site?",
         answer: (
           <>
@@ -49,15 +58,31 @@ const faqs = [
       },
       {
         question: "When should I book hair and makeup for my wedding?",
-        answer: "It depends on demand, but generally 6 months in advance is recommended.",
+        answer: "It depends on the artist's demand and whether your wedding date is during peak season, but generally 6 to 12 months in advance is recommended. This also gives you time to do a trial session if you want one.",
+      },
+      {
+        question: "Why do some artists charge travel fees?",
+        answer: "Travel fees cover transportation costs (fuel, tolls, parking) for artists to reach your wedding and additional time to set up equipment. Not all artists charge travel fees, especially if they are local to your wedding venue. You can also consider going to the artist's studio",
       },
       {
         question: "Do you tip hair and makeup artists for a wedding?",
-        answer: "If your HMUA owns their business, tipping isn’t required but appreciated. Otherwise, industry standard is 15-20%.",
+        answer: "If your HMUA owns their business, tipping isn’t required but appreciated. Otherwise, the industry standard is 15-20%. Other ways to show appreciation include writing a positive review, referring friends, and providing a meal if they are staying to do touch-ups.",
       },
       {
         question: "Can I do my own wedding makeup?",
-        answer: "Yes! Just remember to test how it photographs and ensure it lasts throughout the day.",
+        answer: "Yes! Just remember to test how it photographs, especially with flash, and ensure it lasts throughout the day.",
+      },
+      {
+        question: "What is South Asian bridal makeup?",
+        answer: "South Asian bridal makeup often includes bold and dramatic designs. In our directory, you can filter artists who are skilled in South Asian makeup.",
+      },
+      {
+        question: "What is Thai makeup?",
+        answer: (
+          <>
+            Thai makeup is on the rise around the world, especially for Asian bridal makeup. Influenced by both Hollywood glam and Korean beauty, Thai makeup creates a harmonious look that sculpts the face while highlighting Asian eyes and natural features. In our directory, you can filter artists who are skilled in Thai makeup styles. You can also learn more about Thai makeup on our <Link href="/blog/what-is-thai-makeup">blog</Link>.
+          </>
+        ),
       },
     ],
   },
@@ -66,15 +91,23 @@ const faqs = [
     items: [
       {
         question: "How do I incorporate cultural elements into a Western wedding?",
-        answer: "Consider ceremonies, attire, food, and decor that reflect your culture.",
+        answer: "Consider ceremonies, attire, food, decor, and wedding gifts that reflect your culture.",
       },
       {
         question: "How do I find makeup artists who are familiar with Asian features?",
         answer: "Check social media, wedding groups, and our directory for recommendations.",
       },
       {
+        question: "Where can I get a hanbok? Where can I get an ao dai?",
+        answer: (
+          <>
+            Check out our <Link href="/blog">blog</Link> for hanbok and ao dai designers based in California.
+          </>
+        ),
+      },
+      {
         question: "Any other tips for selecting vendors for an Asian wedding?",
-        answer: "Ensure photographers understand key moments, and check that DJs can pronounce names correctly!",
+        answer: "Ensure photographers understand key moments. Consider using bilingual MCs or check that they can pronounce names correctly!",
       },
     ],
   },
