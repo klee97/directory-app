@@ -18,7 +18,7 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
               src={post.featuredImage.url}
               fill
               priority
-              sizes="(max-height: 500px) 100vw, 50vw, 33vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
               style={{
                 objectPosition: 'center',
                 objectFit: 'cover',
