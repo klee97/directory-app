@@ -72,7 +72,7 @@ export default function About() {
           Our Process
         </Typography>
         <Typography variant="body1" component="p">
-          We crowdsource recommendations from real brides, family, and online community groups.
+          We crowdsource recommendations from real brides and online community groups.
           We also scour the web, scroll Instagram, and comb through Reddit to see which artists are recommended for Asian features by other brides.
           The artists here are recommended by other Asian couples, and we&apos;re excited to share their recommendations with you.
         </Typography>
