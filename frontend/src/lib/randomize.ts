@@ -35,6 +35,27 @@ export function shuffleWithSeed(array: Vendor[], seed: string) {
   return [...shuffledPremiumWithPictures, ...shuffledWithPictures, ...shuffledWithoutPictures];
 }
 
+export function shuffleArrayWithSeed(array: string[], seed: string) {
+  let seedValue = hashString(seed);
+
+  const shuffledIndices = [...Array(array.length).keys()]
+
+  for (let i = array.length - 1; i > 0; i--) {
+    seedValue = (seedValue * 9301 + 49297) % 233280;
+    const j = Math.floor((seedValue / 233280) * (i + 1));
+    [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+  }
+  const shuffledArray = [...array]
+  for (let i = 0; i < array.length; i++) {
+    shuffledArray[i] = array[shuffledIndices[i]];
+  }
+
+  return {
+    array: shuffledArray,
+    indices: shuffledIndices
+  };
+}
+
 function hashString(str: string) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {

@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { FilterContext } from './filters/FilterContext';
 import FilterChip from '@/components/ui/FilterChip';
 import VendorCardImage from './VendorCardImage';
+import { getTodaySeed, shuffleArrayWithSeed } from '@/lib/randomize';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -63,6 +64,8 @@ export const VendorCard = ({
 
   const resolvedImageCount = vendor.is_premium ? vendor.images.length : (vendor.cover_image ? 1 : 0);
 
+  const { array: randomizedImageList, indices: randomizedImageIndexMapping } = shuffleArrayWithSeed(vendor.images, getTodaySeed() + vendor.slug);
+
   useEffect(() => {
     if (inView) {
       window.dataLayer = window.dataLayer || [];
@@ -101,6 +104,7 @@ export const VendorCard = ({
       variant: variant,
       isPremium: vendor.is_premium,
       photoIndex: showImageCarousel ? swiperIndex : 0,
+      originalPhotoIndex: randomizedImageIndexMapping[swiperIndex],
       search_term: filterContext?.searchQuery || "",
       service: filterContext?.selectedServices,
       skill: filterContext?.selectedSkills,
@@ -141,7 +145,6 @@ export const VendorCard = ({
       >
         {showImageCarousel && (
           <Box sx={{ position: 'relative', mb: 1 }}>
-
             <SwiperCarousel
               isCompact={true}
               vendorSlug={vendor.slug}
@@ -154,7 +157,7 @@ export const VendorCard = ({
               swiperIndex={swiperIndex}
               setSwiperIndex={setSwiperIndex}
             >
-              {vendor.images.map((image, index) => (
+              {randomizedImageList.map((image, index) => (
                 <VendorCardImage
                   key={index}
                   cardPosition={positionIndex}

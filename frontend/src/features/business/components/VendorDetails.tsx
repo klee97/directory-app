@@ -33,6 +33,7 @@ import FilterChip from '@/components/ui/FilterChip';
 import Image from 'next/image';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { getTodaySeed, shuffleArrayWithSeed } from '@/lib/randomize';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -119,6 +120,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
+  const { array: randomizedImageList } = shuffleArrayWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
   const searchParams = useSearchParams();
   const lat = searchParams.get(LATITUDE_PARAM);
@@ -195,7 +197,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
       <Box data-has-photo={!!vendor.cover_image}>
         <Container maxWidth="lg">
           {showImageCarousel && (<PhotoCarousel
-            photos={vendor.images}
+            photos={randomizedImageList}
             vendorSlug={vendor.slug}
           />
           )}
