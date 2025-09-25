@@ -20,7 +20,7 @@ import { useRouter } from 'next/navigation';
 import { FilterContext } from './filters/FilterContext';
 import FilterChip from '@/components/ui/FilterChip';
 import VendorCardImage from './VendorCardImage';
-import { getTodaySeed, shuffleArrayWithSeed } from '@/lib/randomize';
+import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -64,7 +64,7 @@ export const VendorCard = ({
 
   const resolvedImageCount = vendor.is_premium ? vendor.images.length : (vendor.cover_image ? 1 : 0);
 
-  const { array: randomizedImageList, indices: randomizedImageIndexMapping } = shuffleArrayWithSeed(vendor.images, getTodaySeed() + vendor.slug);
+  const { array: randomizedImageList, indices: randomizedImageIndexMapping } = shuffleMediaWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
   useEffect(() => {
     if (inView) {
