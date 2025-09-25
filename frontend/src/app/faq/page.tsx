@@ -62,7 +62,7 @@ const faqs = [
       },
       {
         question: "Why do some artists charge travel fees?",
-        answer: "Travel fees cover transportation costs (fuel, tolls, parking) for artists to reach your wedding and additional time to set up equipment. Not all artists charge travel fees, especially if they are local to your wedding venue. You can also consider going to the artist's studio",
+        answer: "Travel fees cover transportation costs (fuel, tolls, parking) for artists to reach your wedding and additional time to set up equipment. Not all artists charge travel fees, especially if they are local to your wedding venue. You can also consider going to the artist's studio instead of the artist traveling to you.",
       },
       {
         question: "Do you tip hair and makeup artists for a wedding?",

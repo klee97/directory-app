@@ -1,5 +1,5 @@
 import { Directory } from '@/features/directory/components/Directory';
-import { getTodaySeed, shuffleWithSeed } from '@/lib/randomize';
+import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
@@ -66,7 +66,7 @@ export default async function Home() {
   const uniqueTags = getUniqueVisibleTagNames(vendors);
 
   const seed = getTodaySeed();
-  const shuffledVendors = shuffleWithSeed(vendors, seed);
+  const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
 
   return (
     <>
