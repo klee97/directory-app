@@ -12,6 +12,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Box from "@mui/material/Box";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
@@ -49,7 +50,7 @@ const VendorLandingPage = () => {
       description: 'Get discovered by Asian brides who are actively looking for experts in Asian beauty.',
     },
     {
-      icon: <MonetizationOnIcon sx={{ fontSize: 40 }} />,
+      icon: <VisibilityIcon sx={{ fontSize: 40 }} />,
       title: 'Qualified Leads with Free Previews',
       description: 'See every inquiry preview before you decide to connect, so you only pay for brides who are a true fit.',
     },
