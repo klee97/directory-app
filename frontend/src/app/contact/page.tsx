@@ -3,6 +3,7 @@ import Typography from "@mui/material/Typography";
 import { EmailForm } from "@/features/contact/components/EmailForm";
 import { Metadata } from "next";
 import defaultImage from '@/assets/photo_website_preview.jpg';
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contact Us - Asian Wedding Makeup in NYC, LA & more",
@@ -34,7 +35,11 @@ export default function ContactUs() {
         Contact Us
       </Typography>
       <Typography variant="body1" gutterBottom>
-        Have questions? Want to recommend a vendor or update a listing? Fill out the form below.
+        If you&apos;re a vendor interested in joining our directory, learn more at the{" "}
+          <Link href="/for-vendors" style={{ color: "primary.main", textDecoration: "underline" }}>For Vendors</Link> page.
+      </Typography>
+      <Typography variant="body1" gutterBottom>
+        Have other questions? Fill out the form below.
       </Typography>
       <EmailForm />
     </Container>

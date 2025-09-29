@@ -50,6 +50,9 @@ export function Footer() {
           <Link href="/about" style={{ color: "inherit", textDecoration: "none" }}>
             About
           </Link>
+          <Link href="/for-vendors" style={{ color: "inherit", textDecoration: "none" }}>
+            For Vendors
+          </Link>
           <Link href="/contact" style={{ color: "inherit", textDecoration: "none" }}>
             Contact
           </Link>

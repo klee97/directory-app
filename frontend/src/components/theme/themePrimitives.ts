@@ -56,6 +56,7 @@ export const colorSchemes = {
       },
       info: {
         main: '#009688',
+        light: '#80CBC4',
       },
       background: {
         default: '#ffffff',
@@ -78,6 +79,7 @@ export const colorSchemes = {
       },
       info: {
         main: '#009688',
+        light: '#80CBC4',
       },
       background: {
         default: '#0f0d10',
