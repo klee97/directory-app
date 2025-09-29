@@ -56,12 +56,12 @@ const VendorLandingPage = () => {
     {
       icon: <MonetizationOnIcon sx={{ fontSize: 40 }} />,
       title: 'Simple, Transparent Pricing',
-      description: 'A free profile, always. Only pay a small fee when you unlock an inquiry — no hidden costs.',
+      description: 'A free profile is available to every recommended vendor in our directory. Only pay a small fee when you unlock an inquiry — no hidden costs.',
     },
     {
       icon: <CheckCircleIcon sx={{ fontSize: 40 }} />,
       title: 'No Bots Guarantee',
-      description: 'We promise every inquiry comes from a real bride. If you receive fake leads, we\'ll refund your money immediately.',
+      description: 'We promise every inquiry comes from a real bride. If you unlock a fake inquiry, we\'ll refund your money immediately.',
     },
   ];
 
