@@ -3,14 +3,12 @@ import { Analytics } from "@vercel/analytics/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
 import Navbar from "@/components/layouts/Navbar";
-import FeedbackPopup from "@/features/contact/components/FeedbackPopup";
 import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/photo_website_preview.jpg';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
-import FeatureCTABanner from "@/components/ui/FeatureCTABanner";
 import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
 import { Suspense } from "react";
 import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
@@ -73,7 +71,6 @@ export default function RootLayout({
             <NotificationManager />
             <AppRouterCacheProvider>
               <ThemeProvider>
-                <FeatureCTABanner actionUrl="/signup" />
                 <Navbar />
                 <Suspense fallback={null}>
                   <GTMRouteTracker />
@@ -81,7 +78,6 @@ export default function RootLayout({
                 {children}
                 <SpeedInsights />
                 <Footer />
-                <FeedbackPopup />
               </ThemeProvider>
             </AppRouterCacheProvider>
           </NotificationProvider>
