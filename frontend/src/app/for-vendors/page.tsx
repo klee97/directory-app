@@ -306,10 +306,10 @@ const VendorLandingPage = () => {
               flex: 1
             }}
           >
-            &quot;A client found my information on your website, and I&apos;m truly grateful for that!&quot;
+            &quot;A client found my information through the directory, and I&apos;m truly grateful for that!&quot;
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
-            - Jane C Makeup in Boston, MA
+            - Jane C. in Boston, MA
           </Typography>
         </Box>
       </Container>
