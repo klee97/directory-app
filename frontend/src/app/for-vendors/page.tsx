@@ -62,7 +62,7 @@ const VendorLandingPage = () => {
     {
       icon: <CheckCircleIcon sx={{ fontSize: 40 }} />,
       title: 'No Bots Guarantee',
-      description: 'We promise every inquiry comes from a real bride. If you unlock a fake inquiry, we\'ll refund your money immediately.',
+      description: 'Every inquiry comes from a real bride. If you unlock a fake inquiry, we\'ll refund your money guaranteed.',
     },
   ];
 
@@ -165,7 +165,7 @@ const VendorLandingPage = () => {
                 sx={{ py: 1.5, px: 4 }}
                 href="/recommend"
               >
-                Apply to Join
+                Join for free
               </Button>
               <Button
                 variant="outlined"
@@ -173,7 +173,7 @@ const VendorLandingPage = () => {
                 href="#how-it-works"
                 sx={{ py: 1.5, px: 4 }}
               >
-                Learn how it works
+                How it works
               </Button>
             </Box>
           </Grid>
@@ -283,6 +283,37 @@ const VendorLandingPage = () => {
       </Container>
 
       <Divider />
+      {/* Testimonials Section */}
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Typography
+          variant="h2"
+          component="h2"
+          align="center"
+          id="how-it-works"
+          sx={{ mb: 6, fontSize: { xs: '2rem', md: '2.5rem' } }}
+        >
+          What our vendors say
+        </Typography>
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 600,
+              minHeight: { xs: 'auto', md: '2.5rem' },
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1
+            }}
+          >
+            &quot;A client found my information through the directory, and I&apos;m truly grateful for that!&quot;
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
+            - Jane C. in Boston, MA
+          </Typography>
+        </Box>
+      </Container>
+      <Divider />
 
       {/* FAQ Section */}
       <Container maxWidth="md" sx={{ py: 8 }}>
@@ -342,7 +373,7 @@ const VendorLandingPage = () => {
               Ready to connect with more Asian brides?
             </Typography>
             <Typography variant="h5" sx={{ mb: 4, fontWeight: 400 }}>
-              Apply to join our directory of trusted makeup artists today.
+              Join our directory of trusted makeup artists today.
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Button
