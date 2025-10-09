@@ -13,6 +13,7 @@ const s3 = new S3Client({
 });
 
 const STANDARD_WIDTH = 800;
+const AUTOSCALE_HEIGHT = null; // Maintain aspect ratio
 const JPEG_QUALITY = 90;
 const R2_BUCKET = process.env.R2_BUCKET_NAME!;
 const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Process image with Sharp
     const processedBuffer = await sharp(imageBuffer)
-      .resize(STANDARD_WIDTH, null, {
+      .resize(STANDARD_WIDTH, AUTOSCALE_HEIGHT, {
         withoutEnlargement: true,
         fit: 'inside'
       })

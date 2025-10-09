@@ -37,9 +37,9 @@ export function ImageUpload({
       return;
     }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      setError('Image must be less than 10MB');
+    // Validate file size (max 3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      setError('Image must be less than 3MB');
       return;
     }
 
