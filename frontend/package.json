@@ -22,6 +22,7 @@
     "migrate-images": "node scripts/migrate_images_to_r2.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.907.0",
     "@contentful/rich-text-react-renderer": "^16.0.1",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
