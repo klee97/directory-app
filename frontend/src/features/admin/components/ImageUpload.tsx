@@ -113,10 +113,10 @@ export function ImageUpload({
           <Image
             src={previewUrl}
             alt="Image preview"
-            fill                    // Fills the parent container
+            fill
             style={{ objectFit: 'cover' }}  // Maintains aspect ratio
             sizes="(max-width: 768px) 100vw, 400px"  // Responsive sizing
-            priority               // Loads immediately (above fold)
+            priority
           />
         </Box>
       )}

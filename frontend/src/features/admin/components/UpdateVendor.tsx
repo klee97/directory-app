@@ -70,7 +70,7 @@ export const AdminUpdateVendorManagement = () => {
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Separate state for lookup fields (immutable identifiers)
+  // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
   const [lookupSlug, setLookupSlug] = useState<string>('');
 
@@ -149,7 +149,7 @@ export const AdminUpdateVendorManagement = () => {
           Only update fields that you want to change.
         </Typography>
         <br />
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="body1" gutterBottom>
           Enter a Vendor ID or Slug to update an existing vendor:
         </Typography>
         <Grid container spacing={3}>
@@ -167,9 +167,6 @@ export const AdminUpdateVendorManagement = () => {
             value={lookupSlug ?? ''}
             onChange={(e) => setLookupSlug(e.target.value)}
           />
-        </Grid>
-
-        <Grid container spacing={3} columns={3}>
           <TextField
             fullWidth
             label="Vendor Business Name"

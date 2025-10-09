@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
-import { createClient } from '@/lib/supabase/server'; // Your server client
+import { createClient } from '@/lib/supabase/server';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -19,7 +19,6 @@ const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
 
 export async function POST(request: NextRequest) {
   try {
-    // Create Supabase client with cookies - await to get the actual client
     const supabase = await createClient();
 
     // Check if user is authenticated
