@@ -6,6 +6,8 @@ import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { TagOption } from "../components/TagSelector";
 
 export const updateVendor = async (
+  lookupId: string | null,
+  lookupSlug: string | null,
   vendor: BackendVendorInsert,
   firstname: string | null,
   lastname: string | null,
@@ -38,16 +40,52 @@ export const updateVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  if (vendor.id === null || vendor.id === '' || vendor.id === undefined ||  !vendor.id.includes('HMUA-')) {
-    console.error("Vendor ID in format HMUA-XXX is required for update: ", vendor.id);
-    throw new Error(`Vendor ID in format HMUA-XXX is required for update: ${vendor.id}`);
+  // Determine if we're using ID or slug to find the vendor
+  let vendorId: string;
+  let lookupField: 'id' | 'slug';
+  let lookupValue: string;
+
+  if (lookupId && lookupId !== '' && lookupId.includes('HMUA-')) {
+    // Use ID if provided and valid
+    vendorId = lookupId;
+    lookupField = 'id';
+    lookupValue = lookupId;
+    console.log("Using vendor ID for lookup:", lookupId);
+  } else if (lookupSlug && lookupSlug !== '') {
+    // Fall back to slug if ID is not provided
+    lookupField = 'slug';
+    lookupValue = lookupSlug;
+    console.log("Using vendor slug for lookup:", lookupSlug);
+
+    // First, get the vendor ID from the slug
+    const { data: existingVendor, error: lookupError } = await supabase
+      .from("vendors")
+      .select("id")
+      .eq('slug', lookupSlug)
+      .single();
+
+    if (lookupError || !existingVendor) {
+      console.error("Vendor not found with slug:", lookupSlug, lookupError);
+      throw new Error(`Vendor not found with slug: ${lookupSlug}`);
+    }
+
+    vendorId = existingVendor.id;
+    console.log("Found vendor ID from slug:", vendorId);
+  } else {
+    console.error("Either vendor ID (HMUA-XXX) or slug is required for update");
+    throw new Error("Either vendor ID (HMUA-XXX) or slug is required for update");
   }
 
   const vendorData = await prepareVendorInsertData(vendor);
   console.log("Updated vendor insert data:", vendorData);
 
-  // Proceed with vendor update
-  const { data, error } = await supabase.from("vendors").update(vendorData).eq('id', vendor.id).select("id, slug, email").single();
+ // Proceed with vendor update using the determined lookup field
+  const { data, error } = await supabase
+    .from("vendors")
+    .update(vendorData)
+    .eq(lookupField, lookupValue)
+    .select("id, slug, email")
+    .single();
 
   if (data && data.id) {
     console.log("Vendor updated successfully!", data);
