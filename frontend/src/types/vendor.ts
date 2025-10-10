@@ -4,7 +4,7 @@ import { isDevOrPreview } from "@/lib/env/env";
 import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
 
 export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/';
-export const R2_IMAGE_PREFIX = 'https://images.asianweddingmakeup.com/test-portraits/';
+export const R2_IMAGE_PREFIX = 'https://images.asianweddingmakeup.com/';
 
 export const PREFIXES: Set<string> = new Set<string>([IMAGE_PREFIX, R2_IMAGE_PREFIX]);
 
