@@ -78,9 +78,14 @@ export default function About() {
           We also scour the web, scroll Instagram, and comb through Reddit to see which artists are recommended for Asian features by other brides.
           The artists here are recommended by other Asian couples, and we&apos;re excited to share their recommendations with you.
         </Typography>
-        <br />
       </Box>
+      <br />
+      <Typography variant="h2" component="h2" gutterBottom textAlign="center">
+        Check us out on Instagram
+      </Typography>
+      <br />
       <BeholdWidget feedId={BEHOLD_IG_FEED_ID} />
+      <br />
     </Container>
   );
 }
