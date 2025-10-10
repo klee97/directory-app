@@ -18,3 +18,6 @@ export type SearchParam = {
 export const DEFAULT_GTM_ID = "GTM-5SVLZR2M";
 export const DEFAULT_CLARITY_ID = "qcfdyqnpxk";
 export const DEFAULT_GA_ID = "G-7JZKX3Q1F4";
+
+// Behold IG feed ID
+export const BEHOLD_IG_FEED_ID = "8Q1CY0ikGsl59jcJbjL8";

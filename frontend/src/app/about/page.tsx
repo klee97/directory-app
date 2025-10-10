@@ -4,6 +4,8 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
+import BeholdWidget from "@behold/react"
+import { BEHOLD_IG_FEED_ID } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: "Our Story - Asian Wedding Makeup in NYC, LA & more",
@@ -47,11 +49,11 @@ export default function About() {
           Our Story
         </Typography>
         <Typography variant="body1" component="p">
-          As Asian Americans, we understand how difficult it is to find wedding artists who know how to highlight your natural beauty. 
+          As Asian Americans, we understand how difficult it is to find wedding artists who know how to highlight your natural beauty.
         </Typography>
         <Typography variant="body1" component="p">
           When Katrina was planning her own wedding in Boston, she struggled to find makeup artists experienced with Asian features.
-          Five stars on The Knot doesn&apos;t mean much when the artist has never worked with Asian skin tones or eye shapes. 
+          Five stars on The Knot doesn&apos;t mean much when the artist has never worked with Asian skin tones or eye shapes.
           As friends and family planned their own weddings, we realized this problem kept coming up again and again in our communities.
         </Typography>
         <Typography variant="body1" component="p">
@@ -76,8 +78,14 @@ export default function About() {
           We also scour the web, scroll Instagram, and comb through Reddit to see which artists are recommended for Asian features by other brides.
           The artists here are recommended by other Asian couples, and we&apos;re excited to share their recommendations with you.
         </Typography>
-        <br />
       </Box>
+      <br />
+      <Typography variant="h2" component="h2" gutterBottom textAlign="center">
+        Check us out on Instagram
+      </Typography>
+      <br />
+      <BeholdWidget feedId={BEHOLD_IG_FEED_ID} />
+      <br />
     </Container>
   );
 }
