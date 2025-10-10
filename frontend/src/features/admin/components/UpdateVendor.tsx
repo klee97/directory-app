@@ -74,6 +74,8 @@ export const AdminUpdateVendorManagement = () => {
   const [lookupId, setLookupId] = useState<string>('');
   const [lookupSlug, setLookupSlug] = useState<string>('');
 
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+
   // Helper function to handle text field changes - prevents empty strings
   const handleTextFieldChange = (value: string, field: keyof UpdateVendorInput) => {
     const trimmedValue = value.trim();
@@ -87,19 +89,73 @@ export const AdminUpdateVendorManagement = () => {
     setIsSubmitting(true);
 
     try {
-      const newVendorData = JSON.parse(JSON.stringify(newVendor));
-      const data = await updateVendor(lookupId, lookupSlug, newVendorData, firstName, lastName, selectedTags);
+      // Create lookup object from separate state
+      const lookup = {
+        id: lookupId.trim() || undefined,
+        slug: lookupSlug.trim() || undefined,
+      };
 
-      if (data) {
-        addNotification("Vendor updated successfully!");
-        // Reset all form fields
-        setNewVendor(UPDATE_VENDOR_INPUT_DEFAULT);
-        setFirstName(null);
-        setLastName(null);
-        setSelectedRegion(null);
-        setSelectedTags([]);
-      } else {
-        addNotification("Failed to add vendor. Please try again.", "error");
+      // Check if there are any changes to update
+      const hasVendorChanges = Object.values(newVendor).some(value => value !== null);
+      const hasImageChange = selectedImageFile !== null;
+
+      if (!hasVendorChanges && !hasImageChange) {
+        addNotification("No changes to update. Please modify at least one field.", "warning");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Upload image first if selected
+      let uploadedImageUrl: string | null = null;
+      if (selectedImageFile) {
+        const vendorIdentifier = lookupSlug.trim() || lookupId.trim();
+
+        const formData = new FormData();
+        formData.append('file', selectedImageFile);
+        formData.append('vendorSlug', vendorIdentifier);
+
+        const uploadResponse = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const error = await uploadResponse.json();
+          throw new Error(error.error || 'Failed to upload image');
+        }
+
+        const uploadData = await uploadResponse.json();
+        uploadedImageUrl = uploadData.url;
+
+        addNotification("Image uploaded successfully!");
+      }
+
+      // Prepare vendor data with uploaded image URL
+      const newVendorData = JSON.parse(JSON.stringify(newVendor));
+
+      // Add uploaded image URL to vendor data if image was uploaded
+      if (uploadedImageUrl) {
+        newVendorData.cover_image = uploadedImageUrl;
+      }
+
+      // Update vendor if there are any changes
+      if (hasVendorChanges || uploadedImageUrl) {
+        const data = await updateVendor(lookup, newVendorData, firstName, lastName, selectedTags);
+
+        if (data) {
+          addNotification("Vendor updated successfully!");
+          // Reset all form fields
+          setNewVendor(UPDATE_VENDOR_INPUT_DEFAULT);
+          setFirstName(null);
+          setLastName(null);
+          setSelectedRegion(null);
+          setSelectedTags([]);
+          setLookupId('');
+          setLookupSlug('');
+          setSelectedImageFile(null);
+        } else {
+          addNotification("Failed to update vendor. Please try again.", "error");
+        }
       }
     } catch (error) {
       addNotification(
@@ -108,7 +164,7 @@ export const AdminUpdateVendorManagement = () => {
           : "An unexpected error occurred. Please try again.",
         "error"
       );
-      console.error("Error adding vendor:", error);
+      console.error("Error updating vendor:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -136,10 +192,16 @@ export const AdminUpdateVendorManagement = () => {
     return null;
   };
 
-  const handleCoverImageUpload = (newUrl: string) => {
-    setNewVendor({ ...newVendor, cover_image: newUrl });
-    addNotification("Cover image uploaded! Remember to click 'Update Vendor' to save all changes.");
+  // Helper to get the vendor identifier for image upload (prefer slug)
+  const getVendorIdentifier = () => {
+    return lookupSlug.trim() || lookupId.trim();
   };
+
+  // Handle image file selection
+  const handleImageSelect = (file: File | null) => {
+    setSelectedImageFile(file);
+  };
+
 
   return (
     <Container maxWidth="md">
@@ -313,10 +375,9 @@ export const AdminUpdateVendorManagement = () => {
           {/* Cover Image Upload Section */}
           <Grid size={12}>
             <ImageUpload
-              vendorSlug={lookupSlug ?? ''}
               currentImageUrl={newVendor.cover_image ?? undefined}
-              onUploadSuccess={handleCoverImageUpload}
-              disabled={!lookupSlug || lookupSlug.trim() === ''}
+              onImageSelect={handleImageSelect}
+              disabled={!getVendorIdentifier()}
             />
           </Grid>
           <Divider />

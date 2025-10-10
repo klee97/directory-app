@@ -97,33 +97,6 @@ export async function POST(request: NextRequest) {
 
     const r2Url = `${R2_PUBLIC_URL}/${filename}`;
 
-    // Update vendor record with new cover image URL
-    const { error: updateError } = await supabase
-      .from('vendors')
-      .update({ cover_image: r2Url })
-      .eq('id', vendor.id);
-
-    if (updateError) {
-      console.error('Failed to update vendor:', updateError);
-      return NextResponse.json({ error: 'Failed to update vendor record' }, { status: 500 });
-    }
-
-    // Add entry to vendor_media table
-    // The unique index will prevent duplicates if the same URL is uploaded again
-    const { error: mediaError } = await supabase
-      .from('vendor_media')
-      .insert({
-        media_url: r2Url,
-        vendor_id: vendor.id,
-      });
-
-    if (mediaError) {
-      // Log the error but don't fail the entire operation
-      // The unique constraint might prevent duplicate inserts, which is fine
-      console.warn('Failed to add to vendor_media (might be duplicate):', mediaError);
-    }
-
-
     return NextResponse.json({
       success: true,
       url: r2Url,
