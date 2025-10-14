@@ -17,7 +17,7 @@ export async function prepareVendorInsertData(vendor: BackendVendorInsert): Prom
     business_name: vendor.business_name,
     city: city,
     country: country,
-    // cover_image: null,
+    cover_image: vendor.cover_image,
     email: vendor.email,
     gis: gis,
     google_maps_place: vendor.google_maps_place,

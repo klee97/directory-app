@@ -94,19 +94,24 @@ export const updateVendor = async (
   if (data && data.id) {
     console.log("Vendor updated successfully!", data);
 
-    await supabase.rpc("update_vendor_location", { vendor_id: data.id });
-    console.log("Vendor region updated successfully!", data);
+    if (vendor.location_coordinates && vendor.location_coordinates !== '') {
+      await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+      console.log("Vendor region updated successfully!", data);
+    }
 
     // Add tags to the vendor
-    tags.map(async (tag) => {
-      const { error: skillError } = await supabase
-        .from("vendor_tags")
-        .upsert({ vendor_id: data.id, tag_id: tag.id });
+    if (tags.length > 0) {
+      tags.map(async (tag) => {
+        const { error: skillError } = await supabase
+          .from("vendor_tags")
+          .upsert({ vendor_id: data.id, tag_id: tag.id });
 
-      if (skillError) {
-        console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
-      }
-    })
+        if (skillError) {
+          console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
+        }
+      })
+    }
+
     // If cover_image was updated, add it to vendor_media table
     if (vendorData.cover_image && vendorData.cover_image !== '') {
       const { error: mediaError } = await supabase
@@ -125,7 +130,7 @@ export const updateVendor = async (
       }
     }
 
-    if (data.email != null && data.email != '') {
+    if (hasVendorContactInfo(firstname, lastname, vendor.business_name) && data.email != null && data.email != '') {
       // Update contact in HubSpot
       const hubspotContactId = await updateHubSpotContact({
         email: data.email,
@@ -152,3 +157,13 @@ export const updateVendor = async (
 
   return data;
 };
+
+function hasVendorContactInfo(
+  firstname?: string | null,
+  lastname?: string | null,
+  business_name?: string | null
+): boolean {
+  return [firstname, lastname, business_name].some(
+    (val) => !!val && val.trim() !== ''
+  );
+}

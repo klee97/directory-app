@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -12,15 +12,46 @@ interface ImageUploadProps {
   disabled?: boolean;
 }
 
-export function ImageUpload({
+export interface ImageUploadRef {
+  reset: () => void;
+}
+
+export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   currentImageUrl,
   onImageSelect,
   disabled = false
-}: ImageUploadProps) {
+}, ref) => {
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Expose reset method to parent
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      console.log("ImageUpload: reset() called");
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      setError(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }));
+
+  
+  useEffect(() => {
+    console.log("Current image URL changed:", currentImageUrl);
+    if (!currentImageUrl) {
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      setPreviewUrl(currentImageUrl);
+    }
+  }, [currentImageUrl]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -154,4 +185,6 @@ export function ImageUpload({
       </Typography>
     </Box>
   );
-}
+});
+
+ImageUpload.displayName = 'ImageUpload'; // For better debugging in React DevTools

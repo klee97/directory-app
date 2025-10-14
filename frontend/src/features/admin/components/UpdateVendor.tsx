@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -18,7 +18,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from './RegionSelector';
 import TagSelector, { TagOption } from './TagSelector';
 import Link from 'next/link';
-import { ImageUpload } from './ImageUpload';
+import { ImageUpload, ImageUploadRef } from './ImageUpload';
 
 // Define types directly in the file
 export interface UpdateVendorInput {
@@ -69,6 +69,7 @@ export const AdminUpdateVendorManagement = () => {
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
   const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const imageUploadRef = useRef<ImageUploadRef>(null);
 
   // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
@@ -153,6 +154,7 @@ export const AdminUpdateVendorManagement = () => {
           setLookupId('');
           setLookupSlug('');
           setSelectedImageFile(null);
+          imageUploadRef.current?.reset();
         } else {
           addNotification("Failed to update vendor. Please try again.", "error");
         }
@@ -215,46 +217,58 @@ export const AdminUpdateVendorManagement = () => {
           Enter a Vendor ID or Slug to update an existing vendor:
         </Typography>
         <Grid container spacing={3}>
-          <TextField
-            label="Vendor ID"
-            helperText="HMUA-123"
-            variant="outlined"
-            value={lookupId ?? ''}
-            onChange={(e) => setLookupId(e.target.value)}
-          />
-          <TextField
-            label="Vendor Slug"
-            helperText="e.g., beauty-by-jane (unique URL identifier)"
-            variant="outlined"
-            value={lookupSlug ?? ''}
-            onChange={(e) => setLookupSlug(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Vendor Business Name"
-            variant="outlined"
-            value={newVendor.business_name ?? ''}
-            onChange={(e) => handleTextFieldChange(e.target.value, 'business_name')}
-          />
-          <TextField
-            label="Website"
-            variant="outlined"
-            value={newVendor.website ?? ''}
-            onChange={(e) => handleTextFieldChange(e.target.value, 'website')}
-          />
-          <TextField
-            label="Email"
-            variant="outlined"
-            value={newVendor.email ?? ''}
-            onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
-          />
-          <TextField
-            label="Instagram Handle"
-            helperText="e.g., @yourhandle"
-            variant="outlined"
-            value={newVendor.ig_handle ?? ''}
-            onChange={(e) => handleTextFieldChange(e.target.value, 'ig_handle')}
-          />
+          <Grid size={6}>
+            <TextField
+              label="Vendor ID"
+              helperText="HMUA-123"
+              variant="outlined"
+              value={lookupId ?? ''}
+              onChange={(e) => setLookupId(e.target.value)}
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              label="Vendor Slug"
+              helperText="e.g., beauty-by-jane (unique URL identifier)"
+              variant="outlined"
+              value={lookupSlug ?? ''}
+              onChange={(e) => setLookupSlug(e.target.value)}
+            />
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Vendor Business Name"
+              variant="outlined"
+              value={newVendor.business_name ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'business_name')}
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              label="Website"
+              variant="outlined"
+              value={newVendor.website ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'website')}
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              label="Email"
+              variant="outlined"
+              value={newVendor.email ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
+            />
+          </Grid>
+          <Grid size={4}>
+            <TextField
+              label="Instagram Handle"
+              helperText="e.g., @yourhandle"
+              variant="outlined"
+              value={newVendor.ig_handle ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'ig_handle')}
+            />
+          </Grid>
         </Grid>
 
         <Grid container spacing={3}>
@@ -308,89 +322,109 @@ export const AdminUpdateVendorManagement = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3}>
-          <FormControl>
-            <FormLabel id="demo-controlled-radio-buttons-group">Travels Worldwide</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-controlled-radio-buttons-group"
-              name="controlled-radio-buttons-group"
-              value={newVendor.travels_world_wide === null ? 'null' : String(newVendor.travels_world_wide)}
-              onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: parseBooleanString(e.target.value) })}
-            >
-              <FormControlLabel value="true" control={<Radio />} label="True" />
-              <FormControlLabel value="false" control={<Radio />} label="False" />
-              <FormControlLabel value="null" control={<Radio />} label="No Change" />
-            </RadioGroup>
-          </FormControl>
-          <TextField
-            fullWidth
-            label="Google Maps Place link"
-            variant="outlined"
-            value={newVendor.google_maps_place ?? ''}
-            onChange={(e) => handleTextFieldChange(e.target.value, 'google_maps_place')}
-          />
-          <Grid container spacing={3}>
-
+        <Grid container spacing={3} my={2}>
+          <Grid size={12}>
+            <FormControl>
+              <FormLabel id="demo-controlled-radio-buttons-group">Travels Worldwide</FormLabel>
+              <RadioGroup
+                aria-labelledby="demo-controlled-radio-buttons-group"
+                name="controlled-radio-buttons-group"
+                value={newVendor.travels_world_wide === null ? 'null' : String(newVendor.travels_world_wide)}
+                onChange={(e) => setNewVendor({ ...newVendor, travels_world_wide: parseBooleanString(e.target.value) })}
+              >
+                <FormControlLabel value="true" control={<Radio />} label="True" />
+                <FormControlLabel value="false" control={<Radio />} label="False" />
+                <FormControlLabel value="null" control={<Radio />} label="No Change" />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid size={12}>
+            <TextField
+              fullWidth
+              label="Google Maps Place link"
+              variant="outlined"
+              value={newVendor.google_maps_place ?? ''}
+              onChange={(e) => handleTextFieldChange(e.target.value, 'google_maps_place')}
+            />
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid size={4}>
             <TextField
               label="Bridal Hair Price"
               variant="outlined"
+              fullWidth
               value={newVendor.bridal_hair_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
             />
+          </Grid>
+          <Grid size={4}>
             <TextField
               label="Bridal Makeup Price"
               variant="outlined"
+              fullWidth
               value={newVendor.bridal_makeup_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
             />
+          </Grid>
+          <Grid size={4}>
             <TextField
               label="Bridal Hair & Makeup Price"
               variant="outlined"
+              fullWidth
               value={newVendor["bridal_hair_&_makeup_price"] ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
             />
           </Grid>
+        </Grid>
 
-          <Grid container spacing={3}>
+        <Grid container spacing={2} sx={{ my: 2 }}>
+          <Grid size={4}>
             <TextField
               label="Bridesmaid Hair Price"
               variant="outlined"
+              fullWidth
               value={newVendor.bridesmaid_hair_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
             />
+          </Grid>
+          <Grid size={4}>
             <TextField
               label="Bridesmaid Makeup Price"
               variant="outlined"
+              fullWidth
               value={newVendor.bridesmaid_makeup_price ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
             />
+          </Grid>
+          <Grid size={4}>
             <TextField
               label="Bridesmaid Hair & Makeup Price"
               variant="outlined"
+              fullWidth
               value={newVendor["bridesmaid_hair_&_makeup_price"] ?? ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
             />
           </Grid>
-
-          {/* Cover Image Upload Section */}
-          <Grid size={12}>
-            <ImageUpload
-              currentImageUrl={newVendor.cover_image ?? undefined}
-              onImageSelect={handleImageSelect}
-              disabled={!getVendorIdentifier()}
-            />
-          </Grid>
-          <Divider />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={updateExistingVendor}
-            fullWidth
-            disabled={isSubmitting}
-          >
-            Update Vendor
-          </Button>
         </Grid>
+
+        {/* Cover Image Upload Section */}
+        <ImageUpload
+          ref={imageUploadRef}
+          currentImageUrl={newVendor.cover_image ?? undefined}
+          onImageSelect={handleImageSelect}
+          disabled={!getVendorIdentifier()}
+        />
+        <Divider />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={updateExistingVendor}
+          fullWidth
+          disabled={isSubmitting}
+        >
+          Update Vendor
+        </Button>
       </Box>
     </Container >
   );
