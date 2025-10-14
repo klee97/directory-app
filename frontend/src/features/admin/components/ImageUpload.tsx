@@ -1,33 +1,59 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import CloudUpload from '@mui/icons-material/CloudUpload';
-import CheckCircle from '@mui/icons-material/CheckCircle';
 import Image from 'next/image';
 
 interface ImageUploadProps {
-  vendorSlug: string;
   currentImageUrl?: string;
-  onUploadSuccess?: (newUrl: string) => void;
+  onImageSelect?: (file: File | null) => void;
   disabled?: boolean;
 }
 
-export function ImageUpload({
-  vendorSlug,
+export interface ImageUploadRef {
+  reset: () => void;
+}
+
+export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   currentImageUrl,
-  onUploadSuccess,
+  onImageSelect,
   disabled = false
-}: ImageUploadProps) {
-  const [uploading, setUploading] = useState(false);
+}, ref) => {
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Expose reset method to parent
+  useImperativeHandle(ref, () => ({
+    reset: () => {
+      console.log("ImageUpload: reset() called");
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      setError(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  }));
+
+  
+  useEffect(() => {
+    console.log("Current image URL changed:", currentImageUrl);
+    if (!currentImageUrl) {
+      setPreviewUrl(null);
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } else {
+      setPreviewUrl(currentImageUrl);
+    }
+  }, [currentImageUrl]);
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -44,52 +70,30 @@ export function ImageUpload({
     }
 
     setError(null);
-    setSuccess(false);
-    setUploading(true);
 
-    // Create preview
+    // Create preview URL
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreviewUrl(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('vendorSlug', vendorSlug);
+    // Store file and notify parent
+    setSelectedFile(file);
+    if (onImageSelect) {
+      onImageSelect(file);
+    }
+  };
 
-      const response = await fetch('/api/admin/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed');
-      }
-
-      setSuccess(true);
-      setPreviewUrl(data.url);
-
-      if (onUploadSuccess) {
-        onUploadSuccess(data.url);
-      }
-
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccess(false), 3000);
-
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
-      // Restore previous preview on error
-      setPreviewUrl(currentImageUrl || null);
-    } finally {
-      setUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+  const handleClear = () => {
+    setSelectedFile(null);
+    setPreviewUrl(currentImageUrl || null);
+    setError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    if (onImageSelect) {
+      onImageSelect(null);
     }
   };
 
@@ -108,38 +112,67 @@ export function ImageUpload({
             overflow: 'hidden',
             border: '1px solid',
             borderColor: 'divider',
+            position: 'relative',
+            aspectRatio: '3 / 4',
           }}
         >
           <Image
             src={previewUrl}
-            alt="Image preview"
+            alt="Cover preview"
             fill
-            style={{ objectFit: 'cover' }}  // Maintains aspect ratio
-            sizes="(max-width: 768px) 100vw, 400px"  // Responsive sizing
+            style={{ objectFit: 'cover' }}
+            sizes="(max-width: 768px) 100vw, 400px"
             priority
           />
         </Box>
       )}
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileSelect}
-        style={{ display: 'none' }}
-        id="image-upload"
-      />
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+          id="cover-image-upload"
+          disabled={disabled}
+        />
 
-      <label htmlFor="image-upload">
-        <Button
-          variant="outlined"
-          component="span"
-          disabled={disabled || uploading}
-          startIcon={uploading ? <CircularProgress size={20} /> : <CloudUpload />}
-        >
-          {uploading ? 'Uploading...' : 'Upload Image'}
-        </Button>
-      </label>
+        <label htmlFor="cover-image-upload">
+          <Button
+            variant="outlined"
+            component="span"
+            disabled={disabled}
+            startIcon={<CloudUpload />}
+          >
+            {selectedFile ? 'Change Image' : 'Select Image'}
+          </Button>
+        </label>
+
+        {selectedFile && (
+          <Button
+            variant="text"
+            color="error"
+            onClick={handleClear}
+          >
+            Clear
+          </Button>
+        )}
+      </Box>
+
+      {selectedFile && (
+        <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>
+          ✓ Image selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)}KB)
+          <br />
+          Will be uploaded when you click &quot;Update Vendor&quot;
+        </Typography>
+      )}
+
+      {disabled && (
+        <Typography variant="caption" display="block" sx={{ mt: 1, color: 'warning.main' }}>
+          ⚠️ Please enter a vendor identifier first
+        </Typography>
+      )}
 
       {error && (
         <Alert severity="error" sx={{ mt: 2 }}>
@@ -147,15 +180,11 @@ export function ImageUpload({
         </Alert>
       )}
 
-      {success && (
-        <Alert severity="success" icon={<CheckCircle />} sx={{ mt: 2 }}>
-          Cover image updated successfully!
-        </Alert>
-      )}
-
       <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
-        Recommended: 800px wide or larger. Max file size: 10MB. Image will be automatically resized and optimized.
+        Recommended: 800px wide or larger. Max file size: 3MB. Image will be automatically resized and optimized.
       </Typography>
     </Box>
   );
-}
+});
+
+ImageUpload.displayName = 'ImageUpload'; // For better debugging in React DevTools

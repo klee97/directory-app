@@ -5,9 +5,13 @@ import { prepareVendorInsertData } from "../components/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { TagOption } from "../components/TagSelector";
 
+interface VendorLookup {
+  id?: string;
+  slug?: string;
+}
+
 export const updateVendor = async (
-  lookupId: string | null,
-  lookupSlug: string | null,
+  lookup: VendorLookup,
   vendor: BackendVendorInsert,
   firstname: string | null,
   lastname: string | null,
@@ -45,28 +49,28 @@ export const updateVendor = async (
   let lookupField: 'id' | 'slug';
   let lookupValue: string;
 
-  if (lookupId && lookupId !== '' && lookupId.includes('HMUA-')) {
+  if (lookup.id && lookup.id !== '' && lookup.id.startsWith('HMUA-')) {
     // Use ID if provided and valid
-    vendorId = lookupId;
+    vendorId = lookup.id;
     lookupField = 'id';
-    lookupValue = lookupId;
-    console.log("Using vendor ID for lookup:", lookupId);
-  } else if (lookupSlug && lookupSlug !== '') {
+    lookupValue = lookup.id;
+    console.log("Using vendor ID for lookup:", lookup.id);
+  } else if (lookup.slug && lookup.slug !== '') {
     // Fall back to slug if ID is not provided
     lookupField = 'slug';
-    lookupValue = lookupSlug;
-    console.log("Using vendor slug for lookup:", lookupSlug);
+    lookupValue = lookup.slug;
+    console.log("Using vendor slug for lookup:", lookup.slug);
 
     // First, get the vendor ID from the slug
     const { data: existingVendor, error: lookupError } = await supabase
       .from("vendors")
       .select("id")
-      .eq('slug', lookupSlug)
+      .eq('slug', lookup.slug)
       .single();
 
     if (lookupError || !existingVendor) {
-      console.error("Vendor not found with slug:", lookupSlug, lookupError);
-      throw new Error(`Vendor not found with slug: ${lookupSlug}`);
+      console.error("Vendor not found with slug:", lookup.slug, lookupError);
+      throw new Error(`Vendor not found with slug: ${lookup.slug}`);
     }
 
     vendorId = existingVendor.id;
@@ -79,7 +83,7 @@ export const updateVendor = async (
   const vendorData = await prepareVendorInsertData(vendor);
   console.log("Updated vendor insert data:", vendorData);
 
- // Proceed with vendor update using the determined lookup field
+  // Proceed with vendor update using the determined lookup field
   const { data, error } = await supabase
     .from("vendors")
     .update(vendorData)
@@ -90,21 +94,43 @@ export const updateVendor = async (
   if (data && data.id) {
     console.log("Vendor updated successfully!", data);
 
-    await supabase.rpc("update_vendor_location", { vendor_id: data.id });
-    console.log("Vendor region updated successfully!", data);
+    if (vendor.location_coordinates && vendor.location_coordinates !== '') {
+      await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+      console.log("Vendor region updated successfully!", data);
+    }
 
     // Add tags to the vendor
-    tags.map(async (tag) => {
-      const { error: skillError } = await supabase
-        .from("vendor_tags")
-        .upsert({ vendor_id: data.id, tag_id: tag.id });
+    if (tags.length > 0) {
+      tags.map(async (tag) => {
+        const { error: skillError } = await supabase
+          .from("vendor_tags")
+          .upsert({ vendor_id: data.id, tag_id: tag.id });
 
-      if (skillError) {
-        console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
+        if (skillError) {
+          console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
+        }
+      })
+    }
+
+    // If cover_image was updated, add it to vendor_media table
+    if (vendorData.cover_image && vendorData.cover_image !== '') {
+      const { error: mediaError } = await supabase
+        .from('vendor_media')
+        .insert({
+          media_url: vendorData.cover_image,
+          vendor_id: data.id,
+        });
+
+      if (mediaError) {
+        // Log the error but don't fail the entire operation
+        // The unique constraint might prevent duplicate inserts, which is fine
+        console.warn('Failed to add to vendor_media (might be duplicate):', mediaError);
+      } else {
+        console.log('Added cover image to vendor_media table');
       }
-    })
+    }
 
-    if (data.email != null && data.email != '') {
+    if (hasVendorContactInfo(firstname, lastname, vendor.business_name) && data.email != null && data.email != '') {
       // Update contact in HubSpot
       const hubspotContactId = await updateHubSpotContact({
         email: data.email,
@@ -131,3 +157,13 @@ export const updateVendor = async (
 
   return data;
 };
+
+function hasVendorContactInfo(
+  firstname?: string | null,
+  lastname?: string | null,
+  business_name?: string | null
+): boolean {
+  return [firstname, lastname, business_name].some(
+    (val) => !!val && val.trim() !== ''
+  );
+}
