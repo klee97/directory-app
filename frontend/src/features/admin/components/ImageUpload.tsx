@@ -113,7 +113,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
             border: '1px solid',
             borderColor: 'divider',
             position: 'relative',
-            aspectRatio: '16 / 9',
+            aspectRatio: '3 / 4',
           }}
         >
           <Image
