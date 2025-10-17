@@ -9,3 +9,7 @@ export function getLeadsTable() {
 export function getPartialLeadsTable() {
   return base('Partial Leads');
 }
+
+export function getVendorsTable() {
+  return base('Hubspot Vendors');
+}

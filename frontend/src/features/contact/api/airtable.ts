@@ -1,5 +1,5 @@
 "use server";
-import { getLeadsTable, getPartialLeadsTable } from '@/lib/airtable/constants';
+import { getLeadsTable, getPartialLeadsTable, getVendorsTable } from '@/lib/airtable/constants';
 import { FormData, PartialLead } from '../components/LeadCaptureForm';
 
 interface VendorInfo {
@@ -12,6 +12,17 @@ export const submitToAirtable = async (
   vendor: VendorInfo
 ): Promise<boolean> => {
   try {
+    // Find the Vendor record ID that matches the slug
+    const vendorRecords = await getVendorsTable()
+      .select({ filterByFormula: `{Slug} = '${vendor.slug}'` })
+      .firstPage();
+
+    if (vendorRecords.length === 0) {
+      throw new Error(`Vendor not found for slug: ${vendor.slug}`);
+    }
+
+    const vendorRecordId = vendorRecords[0].id;
+
     const record = await getLeadsTable().create([
       {
         fields: {
@@ -27,8 +38,9 @@ export const submitToAirtable = async (
           'Services Requested': data.services,
           'Budget': parseInt(data.budget),
           'Additional Details': data.additionalDetails,
-          'Vendor Name': vendor.name,
+          'Business Name': vendor.name,
           'Vendor Slug': vendor.slug,
+          'Vendor': [vendorRecordId],
           'Submission Date': new Date().toISOString().split('T')[0],
           'Status': 'New',
         },
