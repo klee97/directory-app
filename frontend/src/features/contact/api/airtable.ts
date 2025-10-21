@@ -31,7 +31,7 @@ export const submitToAirtable = async (
       // Continue without vendor link
     }
 
-    const fields: any = {
+    const fields:  Record<string, string | number | boolean | string[]> = {
       'Email': data.email,
       'First Name': data.firstName,
       'Last Name': data.lastName,
