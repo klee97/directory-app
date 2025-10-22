@@ -13,10 +13,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
-import { createVendor } from '../api/createVendor';
+import { createVendor } from '@/features/business/common/api/createVendor';
 import { useNotification } from '@/contexts/NotificationContext';
-import RegionSelector, { RegionOption } from './RegionSelector';
-import TagSelector, { TagOption } from './TagSelector';
+import RegionSelector, { RegionOption } from '@/features/business/common/components/RegionSelector';
+import TagSelector, { TagOption } from '@/features/business/common/components/TagSelector';
 import Link from 'next/link';
 
 // Define types directly in the file
