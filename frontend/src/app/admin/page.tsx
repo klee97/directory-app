@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { checkAdminStatus } from '@/features/admin/api/checkAdminStatus';
-import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
+import { checkAdminStatus } from '@/features/business/admin/api/checkAdminStatus';
+import AdminLoadingSpinner from '@/features/business/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
 
 export default function Admin() {
