@@ -1,5 +1,5 @@
 "use server";
-import { getLeadsTable, getPartialLeadsTable } from '@/lib/airtable/constants';
+import { getLeadsTable, getPartialLeadsTable, getVendorsTable } from '@/lib/airtable/constants';
 import { FormData, PartialLead } from '../components/LeadCaptureForm';
 
 interface VendorInfo {
@@ -12,28 +12,50 @@ export const submitToAirtable = async (
   vendor: VendorInfo
 ): Promise<boolean> => {
   try {
-    const record = await getLeadsTable().create([
-      {
-        fields: {
-          'Email': data.email,
-          'First Name': data.firstName,
-          'Last Name': data.lastName,
-          'Wedding Date': data.weddingDate,
-          'Flexible Date': data.flexibleDate ? 'Yes' : 'No',
-          'Location': data.location,
-          'Makeup Styles': data.makeupStyles.join(', '),
-          'People Count': parseInt(data.peopleCount),
-          'Flexible Count': data.flexibleCount ? 'Yes' : 'No',
-          'Services Requested': data.services,
-          'Budget': parseInt(data.budget),
-          'Additional Details': data.additionalDetails,
-          'Vendor Name': vendor.name,
-          'Vendor Slug': vendor.slug,
-          'Submission Date': new Date().toISOString().split('T')[0],
-          'Status': 'New',
-        },
-      },
-    ]);
+
+    // Try to find the Vendor record ID that matches the slug
+    let vendorRecordId: string | undefined;
+
+    try {
+      const vendorRecords = await getVendorsTable()
+        .select({ filterByFormula: `{Slug} = '${vendor.slug}'` })
+        .firstPage();
+
+      if (vendorRecords.length > 0) {
+        vendorRecordId = vendorRecords[0].id;
+      } else {
+        console.warn(`Vendor not found for slug: ${vendor.slug}. Recording inquiry without vendor link.`);
+      }
+    } catch (vendorError) {
+      console.error('Error fetching vendor:', vendorError);
+      // Continue without vendor link
+    }
+
+    const fields:  Record<string, string | number | boolean | string[]> = {
+      'Email': data.email,
+      'First Name': data.firstName,
+      'Last Name': data.lastName,
+      'Wedding Date': data.weddingDate,
+      'Is Flexible Date?': data.flexibleDate,
+      'Location': data.location,
+      'Makeup Styles': data.makeupStyles.join(', '),
+      'People Count': parseInt(data.peopleCount),
+      'Is Flexible Count?': data.flexibleCount,
+      'Services Requested': data.services,
+      'Budget': parseInt(data.budget),
+      'Additional Details': data.additionalDetails,
+      'Business Name': vendor.name,
+      'Vendor Slug': vendor.slug,
+      'Submission Date': new Date().toISOString().split('T')[0],
+      'Status': 'New',
+    };
+
+    // Only add Vendor field if we found a matching record
+    if (vendorRecordId) {
+      fields['Vendor'] = [vendorRecordId];
+    }
+
+    const record = await getLeadsTable().create([{ fields }]);
     return record.length > 0;
   } catch (error) {
     console.error('Airtable submission error:', error);
