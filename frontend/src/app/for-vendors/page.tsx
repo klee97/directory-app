@@ -225,7 +225,56 @@ const VendorLandingPage = () => {
       </Box>
 
       <Divider />
-
+      {/* Testimonials Section */}
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Typography
+          variant="h2"
+          component="h2"
+          align="center"
+          id="how-it-works"
+          sx={{ mb: 6, fontSize: { xs: '2rem', md: '2.5rem' } }}
+        >
+          What our vendors say
+        </Typography>
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 500,
+              minHeight: { xs: 'auto', md: '2.5rem' },
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1
+            }}
+          >
+            &quot;A client found my information through the directory, and I&apos;m truly grateful for that!&quot;
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
+            - Jane C. in Boston, MA
+          </Typography>
+        </Box>
+        <br /><br />
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 500,
+              minHeight: { xs: 'auto', md: '2.5rem' },
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1
+            }}
+          >
+            &quot;I connected with a bride through Asian Wedding Makeup. We had a very good experience during the trial, and she booked me for her wedding! I really appreciate all your help and hope we&apos;ll have more chances to work together in the future.&quot;
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
+            - Coco L. in New York City, NY
+          </Typography>
+        </Box>
+      </Container>
+      <Divider />
       {/* How It Works Section */}
       <Container maxWidth="lg" sx={{ py: 8 }}>
         <Typography
@@ -282,56 +331,6 @@ const VendorLandingPage = () => {
         </Grid>
       </Container>
 
-      <Divider />
-      {/* Testimonials Section */}
-      <Container maxWidth="lg" sx={{ py: 8 }}>
-        <Typography
-          variant="h2"
-          component="h2"
-          align="center"
-          id="how-it-works"
-          sx={{ mb: 6, fontSize: { xs: '2rem', md: '2.5rem' } }}
-        >
-          What our vendors say
-        </Typography>
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontWeight: 500,
-              minHeight: { xs: 'auto', md: '2.5rem' },
-              display: 'flex',
-              alignItems: 'center',
-              flex: 1
-            }}
-          >
-            &quot;A client found my information through the directory, and I&apos;m truly grateful for that!&quot;
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
-            - Jane C. in Boston, MA
-          </Typography>
-        </Box>
-        <br /><br />
-        <Box sx={{ flex: 1 }}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            sx={{
-              fontWeight: 500,
-              minHeight: { xs: 'auto', md: '2.5rem' },
-              display: 'flex',
-              alignItems: 'center',
-              flex: 1
-            }}
-          >
-            &quot;I connected with a bride through Asian Wedding Makeup. We had a very good experience during the trial, and she booked me for her wedding! I really appreciate all your help and hope we&apos;ll have more chances to work together in the future.&quot;
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
-            - Coco L. in New York City, NY
-          </Typography>
-        </Box>
-      </Container>
       <Divider />
 
       {/* FAQ Section */}
