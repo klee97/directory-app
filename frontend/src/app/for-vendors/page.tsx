@@ -299,7 +299,7 @@ const VendorLandingPage = () => {
             variant="h4"
             gutterBottom
             sx={{
-              fontWeight: 600,
+              fontWeight: 500,
               minHeight: { xs: 'auto', md: '2.5rem' },
               display: 'flex',
               alignItems: 'center',
@@ -310,6 +310,25 @@ const VendorLandingPage = () => {
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
             - Jane C. in Boston, MA
+          </Typography>
+        </Box>
+        <br /><br />
+        <Box sx={{ flex: 1 }}>
+          <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              fontWeight: 500,
+              minHeight: { xs: 'auto', md: '2.5rem' },
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1
+            }}
+          >
+            &quot;I connected with a bride through Asian Wedding Makeup. We had a very good experience during the trial, and she booked me for her wedding! I really appreciate all your help and hope we&apos;ll have more chances to work together in the future.&quot;
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6, textAlign: 'right' }}>
+            - Coco L. in New York City, NY
           </Typography>
         </Box>
       </Container>
