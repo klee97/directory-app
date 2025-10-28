@@ -1,4 +1,4 @@
-import { TagOption } from "@/features/admin/components/TagSelector";
+import { TagOption } from "@/features/profile/common/components/TagSelector";
 import { Database } from "./supabase";
 import { VendorTag } from "./vendor";
 

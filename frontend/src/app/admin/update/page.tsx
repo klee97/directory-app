@@ -5,10 +5,10 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
-import { AdminUpdateVendorManagement } from '@/features/admin/components/UpdateVendor';
+import { AdminUpdateVendorManagement } from '@/features/profile/admin/components/UpdateVendor';
 import { createClient } from '@/lib/supabase/client';
-import { checkAdminStatus } from '@/features/admin/api/checkAdminStatus';
-import AdminLoadingSpinner from '@/features/admin/components/LoadingSpinner';
+import { checkAdminStatus } from '@/features/profile/admin/api/checkAdminStatus';
+import AdminLoadingSpinner from '@/features/profile/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
 
 export default function UpdateVendor() {

@@ -13,10 +13,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
-import { updateVendor } from '../api/updateVendor';
+import { updateVendor } from '@/features/profile/common/api/updateVendor';
 import { useNotification } from '@/contexts/NotificationContext';
-import RegionSelector, { RegionOption } from './RegionSelector';
-import TagSelector, { TagOption } from './TagSelector';
+import RegionSelector, { RegionOption } from '@/features/profile/common/components/RegionSelector';
+import TagSelector, { TagOption } from '@/features/profile/common/components/TagSelector';
 import Link from 'next/link';
 import { ImageUpload, ImageUploadRef } from './ImageUpload';
 
