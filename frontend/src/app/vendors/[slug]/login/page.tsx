@@ -5,16 +5,22 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VendorLoginForm } from "@/features/login/components/VendorLoginForm";
 
 export default function VendorLoginPage() {
+  const searchParams = useSearchParams();
+
   const router = useRouter();
+
+  // Extract magic link parameters
+  const slug = searchParams.get('slug') || "";
+  const email = searchParams.get('email') || "";
+  const token = searchParams.get('token') || "";
+
+
   const [isLoading, setIsLoading] = useState(true);
-  // TODO: Replace with actual email and uuid from magic link query parameters
-  const email = "ivymalao+102925@gmail.com";
-  const uuid = "uuid-1234";
 
   // TODO: add invisible google recaptcha v3 to prevent abuse
 
@@ -27,8 +33,15 @@ export default function VendorLoginPage() {
       if (session) {
         console.log("User is already logged in");
         // User is already logged in, redirect to vendor page
-        router.push('/vendors/mable-pang');
-      } else if (email && uuid) {
+        router.push(`/vendors/${slug}`);
+      }
+
+      // TODO: add logic to check if the email and token from the query parameters are valid and match database records. 
+      // If they do, sign in the user anonymously and link their email to the account.
+
+      const doEmailAndTokenMatch = email && token;
+
+      if (doEmailAndTokenMatch) {
         // Sign in the user anonymously and link email
         const { data, error } = await supabase.auth.signInAnonymously()
         if (error) {
@@ -47,15 +60,15 @@ export default function VendorLoginPage() {
           return;
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
-        router.push('/vendors/mable-pang');
+        router.push(`/vendors/${slug}`);
       } else {
-        // User email and uuid do not match or user's email has already been linked, show the login form
+        // User email and token do not match or user's email has already been linked, show the login form
         setIsLoading(false);
       }
     };
 
     checkSession();
-  }, [router]);
+  }, [email, router, slug, token]);
 
   if (isLoading) {
     return (
