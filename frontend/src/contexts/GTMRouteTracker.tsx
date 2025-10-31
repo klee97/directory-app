@@ -8,7 +8,7 @@ export function GTMRouteTracker() {
   const searchParams = useSearchParams()
 
   useEffect(() => {
-    const url = pathname + '?' + searchParams.toString()
+    const url = pathname + (searchParams ? '?' + searchParams.toString() : '')
 
     window.dataLayer?.push({
       event: 'virtual_page_view',

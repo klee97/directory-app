@@ -1,15 +1,14 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
-import { BackendVendorInsert } from "@/types/vendor";
+import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorInsertData } from "../../admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
-import { TagOption } from "../components/TagSelector";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
   lastname: string,
-  tags: TagOption[],
+  tags: VendorTag[],
 ) => {
   console.log("Creating vendor:", vendor);
 
@@ -59,7 +58,7 @@ export const createVendor = async (
         .insert({ vendor_id: data.id, tag_id: tag.id });
 
       if (skillError) {
-        console.error(`Error adding tag ${tag.unique_tag} to new vendor id ${data.id}`, skillError);
+        console.error(`Error adding tag ${tag.display_name} to new vendor id ${data.id}`, skillError);
       }
     })
 

@@ -3,7 +3,7 @@ import { debouncedTrackSearch, trackFiltersApplied } from '@/utils/analytics/tra
 import { FilterContext } from '@/features/directory/components/filters/FilterContext';
 
 interface UseAnalyticsTrackingProps {
-  searchParams: URLSearchParams;
+  searchParams: URLSearchParams | null;
   searchQuery: string;
   selectedLocationName: string | null;
   selectedSkills: string[];
@@ -26,7 +26,7 @@ export function useAnalyticsTracking({
   const prevParamsRef = useRef<string | null>(null);
 
   // Create search params string - memoized to prevent unnecessary re-renders
-  const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
+  const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
 
   // Create filter context - memoized to prevent unnecessary re-creation
   const filterContext: FilterContext = useMemo(() => ({
@@ -54,7 +54,7 @@ export function useAnalyticsTracking({
     // Only track if this isn't the initial render
     if (prevParams !== null && currentParams !== prevParams) {
       // Determine if this was a search change vs other filter change
-      const urlSearchQuery = searchParams.get('query') || "";
+      const urlSearchQuery = searchParams?.get('query') || "";
       const hasSearchChanged = searchQuery !== urlSearchQuery;
 
       if (hasSearchChanged) {

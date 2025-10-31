@@ -5,36 +5,25 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import FavoriteTable from '@/features/favorites/components/FavoriteTable';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Vendor } from '@/types/vendor';
 import { useRouter } from 'next/navigation';
 import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
-import { VendorSpecialty } from '@/types/tag';
 
-type SerializedVendor = Omit<Vendor, 'specialties'> & {
-  specialties: VendorSpecialty[];
-};
-
-function transformToVendor(vendor: SerializedVendor): Vendor {
-  return {
-    ...vendor,
-    specialties: new Set(vendor.specialties)
-  };
-}
 
 export function FavoritesContent() {
-  const [favoriteVendors, setFavoriteVendors] = useState<SerializedVendor[]>([]);
+  const [favoriteVendors, setFavoriteVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
-  // Memoize the transformed vendors to prevent unnecessary re-renders
-  const transformedVendors = useMemo(() =>
-    favoriteVendors.map(transformToVendor),
-    [favoriteVendors]
-  );
+  // // Memoize the transformed vendors to prevent unnecessary re-renders
+  // const transformedVendors = useMemo(() =>
+  //   favoriteVendors.map(transformToVendor),
+  //   [favoriteVendors]
+  // );
 
   useEffect(() => {
     let mounted = true;
@@ -96,8 +85,8 @@ export function FavoritesContent() {
           <Typography variant="h6" color="error">
             Error loading favorites. Please try again later.
           </Typography>
-        ) : transformedVendors.length > 0 ? (
-          <FavoriteTable favoriteVendors={transformedVendors} />
+        ) : favoriteVendors.length > 0 ? (
+          <FavoriteTable favoriteVendors={favoriteVendors} />
         ) : (
           <Typography variant="h6" color="text.secondary">
             You haven&apos;t added any favorites yet. Browse our vendors to find your perfect match!

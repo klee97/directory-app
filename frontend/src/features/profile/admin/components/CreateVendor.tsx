@@ -16,8 +16,10 @@ import Grid from '@mui/material/Grid2';
 import { createVendor } from '@/features/profile/common/api/createVendor';
 import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from '@/features/profile/common/components/RegionSelector';
-import TagSelector, { TagOption } from '@/features/profile/common/components/TagSelector';
+import TagSelector from '@/features/profile/common/components/TagSelector';
+import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
+import { VendorTag } from '@/types/vendor';
 
 // Define types directly in the file
 export interface CreateVendorInput {
@@ -36,7 +38,7 @@ export interface CreateVendorInput {
   bridesmaid_makeup_price: number | null,
   "bridesmaid_hair_&_makeup_price": number | null,
   google_maps_place: string | null,
-  tags: TagOption[],
+  tags: VendorTag[],
 }
 
 export const VENDOR_INPUT_DEFAULT: CreateVendorInput = {
@@ -64,7 +66,8 @@ export const AdminAddVendorManagement = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
-  const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
+  const [selectedTags, setSelectedTags] = useState<VendorTag[]>([]);
+  const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const addVendor = async () => {
@@ -108,7 +111,7 @@ export const AdminAddVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
   };
 
-  const handleTagChange = (value: TagOption[]) => {
+  const handleTagChange = (value: VendorTag[]) => {
     setSelectedTags(value);
     setNewVendor({ ...newVendor, tags: value });
   }
@@ -181,7 +184,8 @@ export const AdminAddVendorManagement = () => {
             <Grid size={6}>
               <TagSelector
                 value={selectedTags}
-                onChange={(selectedTags: TagOption[]) => handleTagChange(selectedTags)}
+                onChange={(selectedTags: VendorTag[]) => handleTagChange(selectedTags)}
+                options={tags}
               />
             </Grid>
             <Grid size={6}>

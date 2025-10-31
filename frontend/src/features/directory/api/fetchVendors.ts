@@ -10,7 +10,7 @@ export async function fetchAllVendors() {
       *, 
       usmetro!metro_id(display_name), 
       regions!metro_region_id(name),
-      tags (id, display_name, is_visible, style),
+      tags (id, display_name, name, type, is_visible, style),
       vendor_media (id, media_url)
     `);
     if (data === null) {

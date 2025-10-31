@@ -1,5 +1,5 @@
 import type { Database } from "@/types/supabase";
-import { BackendVendorTag, mapTagToSpecialty, VendorSpecialty } from "./tag";
+import { BackendVendorTag } from "./tag";
 import { isDevOrPreview } from "@/lib/env/env";
 import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
 
@@ -34,6 +34,7 @@ export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
 
 export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'display_name'
+  | 'type'
   | 'is_visible'
   | 'style'
   | 'name'
@@ -65,7 +66,6 @@ export type Vendor = Pick<BackendVendor, 'id'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
-  'specialties': Set<VendorSpecialty>,
   'metro': string | null,
   'metro_region': string | null,
   'state': string | null,
@@ -81,7 +81,6 @@ export type Vendor = Pick<BackendVendor, 'id'
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
-  const specialties = (vendor.tags ?? []).map(mapTagToSpecialty).filter((specialty) => specialty !== null);
   const coordinates = parseCoordinates(vendor.location_coordinates);
   const procesedImages = processVendorImages(vendor, { preferR2: true, fallbackToSupabase: true });
   console.debug(`Processed ${procesedImages.length} images for vendor ${vendor.business_name}`);
@@ -115,7 +114,6 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
     bridesmaid_hair_price: vendor.bridesmaid_hair_price,
     gis: vendor.gis,
-    specialties: new Set(specialties),
     metro: vendor.usmetro?.display_name ?? null, // Safely access metro region name
     metro_region: vendor.regions?.name ?? null, // Safely access region name
     testimonials: vendor.vendor_testimonials ?? [],

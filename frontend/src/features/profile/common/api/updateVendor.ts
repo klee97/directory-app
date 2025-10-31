@@ -1,9 +1,8 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
-import { BackendVendorInsert } from "@/types/vendor";
+import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorInsertData } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
-import { TagOption } from "../components/TagSelector";
 
 interface VendorLookup {
   id?: string;
@@ -15,7 +14,7 @@ export const updateVendor = async (
   vendor: BackendVendorInsert,
   firstname: string | null,
   lastname: string | null,
-  tags: TagOption[],
+  tags: VendorTag[],
 ) => {
   console.log("Updating vendor with update data:", vendor);
 
@@ -107,7 +106,7 @@ export const updateVendor = async (
           .upsert({ vendor_id: data.id, tag_id: tag.id });
 
         if (skillError) {
-          console.error(`Error upserting tag ${tag.unique_tag} to vendor id ${data.id}`, skillError);
+          console.error(`Error upserting tag ${tag.display_name} to vendor id ${data.id}`, skillError);
         }
       })
     }

@@ -22,7 +22,7 @@ import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
-import { VendorSpecialty } from '@/types/tag';
+import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
 import { getLocationString } from '@/lib/location/displayLocation';
@@ -34,6 +34,7 @@ import Image from 'next/image';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
+import { getDefaultBio } from '../utils/bio';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -44,7 +45,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
 
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
-  const services = Array.from(vendor.specialties);
+  const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getLocationString(vendor);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -84,7 +85,7 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
                 name: vendor.business_name ?? '',
                 slug: vendor.slug ?? '',
                 id: vendor.id,
-                services: services,
+                serviceTags: serviceTags,
                 location: defaultLocation ?? '',
               }}
               isModal={true}
@@ -111,7 +112,7 @@ interface VendorDetailsProps {
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
-export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
+export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -123,12 +124,12 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const { array: randomizedImageList } = shuffleMediaWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
   const searchParams = useSearchParams();
-  const lat = searchParams.get(LATITUDE_PARAM);
-  const lon = searchParams.get(LONGITUDE_PARAM);
-  const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
-  const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
-  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
-  const searchQuery = searchParams.get(SEARCH_PARAM);
+  const lat = searchParams?.get(LATITUDE_PARAM);
+  const lon = searchParams?.get(LONGITUDE_PARAM);
+  const travelsWorldwide = searchParams?.get(TRAVEL_PARAM) === "true";
+  const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
+  const searchQuery = searchParams?.get(SEARCH_PARAM);
 
   const resolvedLocation = getLocationString(vendor);
 
@@ -145,7 +146,11 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
 
   const description = vendor.description
     ? vendor.description
-    : `${vendor.business_name} is a ${vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) ? 'hair' : ''}${vendor.specialties.size == 2 ? ' and ' : ' '}${vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) ? 'makeup' : ''} artist specializing in Asian features and based in ${resolvedLocation?.toLowerCase()?.includes("area") ? 'the ' : ''} ${resolvedLocation}.`;
+    : getDefaultBio({
+      businessName: vendor.business_name,
+      tags: vendor.tags,
+      location: resolvedLocation || '',
+    });
 
   useEffect(() => {
     startTime.current = performance.now();
@@ -350,7 +355,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) && (
+                  {hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_HAIR) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -371,7 +376,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) && (
+                  {hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_MAKEUP) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -411,7 +416,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                     </Box>
                   )}
 
-                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_HAIR) && (
+                  {hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_HAIR) && (
                     <Box sx={{
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -431,7 +436,7 @@ export function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
                       </Typography>
                     </Box>
                   )}
-                  {vendor.specialties.has(VendorSpecialty.SPECIALTY_MAKEUP) && (
+                  {hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_MAKEUP) && (
 
                     <Box sx={{
                       display: 'flex',

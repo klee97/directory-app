@@ -1,6 +1,5 @@
 import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
 import { createClient } from '@/lib/supabase/client';
-import { VendorSpecialty } from '@/types/tag';
 import { Vendor, VendorId } from "@/types/vendor";
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
@@ -20,12 +19,7 @@ export async function getFavoriteVendorIds(): Promise<VendorId[]> {
   return favorites?.map(f => f.vendor_id) ?? [];
 }
 
-// This type represents the serializable data we'll pass from server to client
-type SerializedVendor = Omit<Vendor, 'specialties'> & {
-  specialties: VendorSpecialty[];
-};
-
-export async function getFavoriteVendors(): Promise<SerializedVendor[]> {
+export async function getFavoriteVendors(): Promise<Vendor[]> {
   const favoriteVendorIds = await getFavoriteVendorIds()
   if (favoriteVendorIds.length === 0) {
     console.debug("No favorite vendors found for user");
@@ -42,7 +36,6 @@ export async function getFavoriteVendors(): Promise<SerializedVendor[]> {
       return vendorA.localeCompare(vendorB) // Fallback to alphabetical order if needed  
     })
     .map(vendor => ({
-      ...vendor,
-      specialties: Array.from(vendor.specialties)
+      ...vendor
     }));
 }

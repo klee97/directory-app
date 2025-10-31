@@ -17,7 +17,8 @@ export default function BackButton() {
       router.back();
     } else {
       // If no history, reconstruct a useful fallback
-      const fallback = `/${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
+      const paramsString = searchParams ? searchParams.toString() : "";
+      const fallback = `/${paramsString ? `?${paramsString}` : ""}`;
       router.push(fallback);
     }
   };
