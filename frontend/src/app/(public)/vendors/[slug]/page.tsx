@@ -28,6 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getLocationString(vendor);
   const title = `${vendor.business_name} - Wedding ${vendor.tags
+    .filter((tag) => tag.type === 'SERVICE')
     .map((tag) => tag.display_name)
     .join(' & ')
     } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;

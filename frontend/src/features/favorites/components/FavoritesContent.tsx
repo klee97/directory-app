@@ -19,12 +19,6 @@ export function FavoritesContent() {
   const router = useRouter();
   const supabase = createClient();
 
-  // // Memoize the transformed vendors to prevent unnecessary re-renders
-  // const transformedVendors = useMemo(() =>
-  //   favoriteVendors.map(transformToVendor),
-  //   [favoriteVendors]
-  // );
-
   useEffect(() => {
     let mounted = true;
 
