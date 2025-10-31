@@ -13,7 +13,8 @@ import { useEffect, useState } from 'react'
 import { fetchVendorBySlug } from '@/features/badge-toolkit/api/fetchVendor'
 
 export function Badges() {
-  const { slug } = useParams()
+  const params = useParams();
+  const slug = params && typeof params.slug === 'string' ? params.slug : Array.isArray(params?.slug) ? params?.slug[0] : undefined;
   const [copied, setCopied] = useState<string | null>(null);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

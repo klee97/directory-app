@@ -7,21 +7,21 @@ export function useURLFilters() {
   const pathname = usePathname() || ''; // SSR-safe
 
   // Return a stable string version to memoize dependencies
-  const paramsString = useMemo(() => searchParams.toString(), [searchParams]);
+  const paramsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
 
   const getParam = useCallback(
-    (key: string) => searchParams.get(key),
+    (key: string) => searchParams?.get(key),
     [searchParams]
   );
 
   const getAllParams = useCallback(
-    (key: string) => searchParams.getAll(key),
+    (key: string) => searchParams?.getAll(key),
     [searchParams]
   );
 
   const setParams = useCallback(
     (updates: Record<string, string | null>) => {
-      const newParams = new URLSearchParams(searchParams);
+      const newParams = new URLSearchParams(paramsString);
       Object.entries(updates).forEach(([key, value]) => {
         if (value === null) {
           newParams.delete(key);
@@ -33,7 +33,7 @@ export function useURLFilters() {
       const newUrl = search ? `${pathname}?${search}` : pathname;
       router.push(newUrl, { scroll: false });
     },
-    [router, searchParams, pathname]
+    [router, searchParams, pathname, paramsString]
   );
 
   const setParam = useCallback(
@@ -45,7 +45,7 @@ export function useURLFilters() {
 
   const setArrayParam = useCallback(
     (key: string, values: string[] | null) => {
-      const newParams = new URLSearchParams(searchParams);
+      const newParams = new URLSearchParams(paramsString);
       newParams.delete(key);
       if (values && values.length > 0) {
         values.forEach(value => newParams.append(key, value));
@@ -54,7 +54,7 @@ export function useURLFilters() {
       const newUrl = search ? `${pathname}?${search}` : pathname;
       router.push(newUrl, { scroll: false });
     },
-    [router, searchParams, pathname]
+    [router, searchParams, pathname, paramsString]
   );
 
   return {

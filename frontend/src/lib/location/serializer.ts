@@ -12,7 +12,7 @@ export const serializeLocation = (location: LocationResult) => {
   };
 };
 
-export const parseLatLonFromParams = ({ lat, lon }: { lat: string | null; lon: string | null }) => {
+export const parseLatLonFromParams = ({ lat, lon }: { lat: string | null | undefined; lon: string | null | undefined }) => {
   const latNum = parseFloat(lat ?? "");
   const lonNum = parseFloat(lon ?? "");
   if (isFinite(latNum) && isFinite(lonNum)) {

@@ -16,9 +16,12 @@ import Grid from '@mui/material/Grid2';
 import { updateVendor } from '@/features/profile/common/api/updateVendor';
 import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from '@/features/profile/common/components/RegionSelector';
-import TagSelector, { TagOption } from '@/features/profile/common/components/TagSelector';
+import TagSelector from '@/features/profile/common/components/TagSelector';
+import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
-import { ImageUpload, ImageUploadRef } from './ImageUpload';
+import { ImageUpload, ImageUploadRef } from '../../common/components/ImageUpload';
+import { useImageUploader } from '../../common/hooks/useImageUploader';
+import { VendorTag } from '@/types/vendor';
 
 // Define types directly in the file
 export interface UpdateVendorInput {
@@ -37,7 +40,7 @@ export interface UpdateVendorInput {
   bridesmaid_makeup_price: number | null,
   "bridesmaid_hair_&_makeup_price": number | null,
   google_maps_place: string | null,
-  tags: TagOption[],
+  tags: VendorTag[],
   cover_image: string | null,
 }
 
@@ -67,9 +70,11 @@ export const AdminUpdateVendorManagement = () => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
-  const [selectedTags, setSelectedTags] = useState<TagOption[]>([]);
+  const [selectedTags, setSelectedTags] = useState<VendorTag[]>([]);
+  const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const imageUploadRef = useRef<ImageUploadRef>(null);
+  const { upload, loading: imageUploading } = useImageUploader();
 
   // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
@@ -110,25 +115,7 @@ export const AdminUpdateVendorManagement = () => {
       let uploadedImageUrl: string | null = null;
       if (selectedImageFile) {
         const vendorIdentifier = lookupSlug.trim() || lookupId.trim();
-
-        const formData = new FormData();
-        formData.append('file', selectedImageFile);
-        formData.append('vendorSlug', vendorIdentifier);
-
-        const uploadResponse = await fetch('/api/admin/upload-image', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!uploadResponse.ok) {
-          const error = await uploadResponse.json();
-          throw new Error(error.error || 'Failed to upload image');
-        }
-
-        const uploadData = await uploadResponse.json();
-        uploadedImageUrl = uploadData.url;
-
-        addNotification("Image uploaded successfully!");
+        uploadedImageUrl = await upload(selectedImageFile, vendorIdentifier);
       }
 
       // Prepare vendor data with uploaded image URL
@@ -183,7 +170,7 @@ export const AdminUpdateVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? null });
   };
 
-  const handleTagChange = (value: TagOption[]) => {
+  const handleTagChange = (value: VendorTag[]) => {
     setSelectedTags(value);
     setNewVendor({ ...newVendor, tags: value });
   }
@@ -307,7 +294,8 @@ export const AdminUpdateVendorManagement = () => {
           <Grid size={6}>
             <TagSelector
               value={selectedTags}
-              onChange={(selectedTags: TagOption[]) => handleTagChange(selectedTags)}
+              onChange={(selectedTags: VendorTag[]) => handleTagChange(selectedTags)}
+              options={tags}
             />
           </Grid>
           <Grid size={6}>
@@ -413,7 +401,7 @@ export const AdminUpdateVendorManagement = () => {
           ref={imageUploadRef}
           currentImageUrl={newVendor.cover_image ?? undefined}
           onImageSelect={handleImageSelect}
-          disabled={!getVendorIdentifier()}
+          disabled={!getVendorIdentifier() || imageUploading}
         />
         <Divider />
         <Button

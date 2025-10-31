@@ -23,18 +23,18 @@ import Checkbox from '@mui/material/Checkbox';
 import ToggleButtonGroup, { toggleButtonGroupClasses } from '@mui/material/ToggleButtonGroup';
 import ToggleButton, { toggleButtonClasses } from '@mui/material/ToggleButton';
 import { alpha, styled } from '@mui/material/styles';
-import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import { savePartialLeadToAirtable, submitToAirtable } from '@/features/contact/api/airtable';
 import { trackFormAbandonment, trackFormStarted, trackFormStepBack, trackFormSubmissionError, trackFormValidationErrors, trackPartialLeadSaved, trackStepProgress, trackVendorContactFormSubmission } from '@/utils/analytics/trackFormEvents';
+import { VendorTag } from '@/types/vendor';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
   vendor: {
     name: string;
     slug: string;
-    services: VendorSpecialty[];
+    serviceTags: VendorTag[];
     id: string;
     email?: string;
     location: string;
@@ -193,10 +193,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   // 2-step process with optional 3rd step for style preferences
   const steps = ['Artist fit', 'Personal details'];
 
-  const serviceOptions = vendor.services && vendor.services.length > 0
-    ? vendor.services.map(
-      (service: VendorSpecialty) => VendorSpecialtyDisplayNames[service]
-    )
+  const serviceOptions: string[] = vendor.serviceTags && vendor.serviceTags.length > 0
+    ? vendor.serviceTags.map(
+      (serviceTag: VendorTag) => serviceTag.display_name)
+      .filter((name): name is string => typeof name === 'string')
     : ["Hair", "Makeup"];
 
   const makeupStyleOptions = [

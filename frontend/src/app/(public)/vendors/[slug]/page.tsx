@@ -1,12 +1,12 @@
 import { Metadata } from 'next';
-import { VendorDetails } from '@/features/profile/public/components/VendorDetails';
+import VendorProfile from '@/features/profile/common/components/VendorProfile';
 import { fetchVendorBySlug } from '@/features/profile/common/api/fetchVendor';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
-import { VendorSpecialty, VendorSpecialtyDisplayNames } from '@/types/tag';
+import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
 import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { getLocationString } from '@/lib/location/displayLocation';
@@ -24,11 +24,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Vendor Not Found' };
   }
 
-  const isHairStylist = vendor.specialties?.has(VendorSpecialty.SPECIALTY_HAIR);
+  const isHairStylist = hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getLocationString(vendor);
-  const title = `${vendor.business_name} - Wedding ${Array.from(vendor.specialties)
-    .map((specialty) => VendorSpecialtyDisplayNames[specialty])
+  const title = `${vendor.business_name} - Wedding ${vendor.tags
+    .filter((tag) => tag.type === 'SERVICE')
+    .map((tag) => tag.display_name)
     .join(' & ')
     } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
   return {
@@ -125,7 +126,7 @@ export default async function VendorPage({ params }: PageProps) {
           <LocationBreadcrumbs address={address} />
         </Container>
       </Suspense>
-      <VendorDetails vendor={vendor} nearbyVendors={nearbyVendors} />
+      <VendorProfile vendor={vendor} nearbyVendors={nearbyVendors} />
     </>
   );
 }

@@ -45,14 +45,14 @@ export function FilterableVendorTableContent({
   useLocationPages = false,
 }: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
-  const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
+  const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
   const router = useRouter();
 
   // Extract search parameters
-  const searchQuery = searchParams.get(SEARCH_PARAM) || "";
-  const travelsWorldwide = searchParams.get(TRAVEL_PARAM) === "true";
-  const selectedSkills = useMemo(() => searchParams.getAll(SKILL_PARAM) || [], [searchParams]);
-  const selectedServices = useMemo(() => searchParams.getAll(SERVICE_PARAM) || [], [searchParams]);
+  const searchQuery = searchParams?.get(SEARCH_PARAM) || "";
+  const travelsWorldwide = searchParams?.get(TRAVEL_PARAM) === "true";
+  const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
+  const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
 
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
