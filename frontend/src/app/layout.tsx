@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
-import Navbar from "@/components/layouts/Navbar";
-import { Footer } from "@/components/layouts/Footer";
 import previewImage from '@/assets/photo_website_preview.jpg';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -50,6 +48,7 @@ export const metadata: Metadata = {
     canonical: 'https://asianweddingmakeup.com/',
   },
 };
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,13 +70,11 @@ export default function RootLayout({
             <NotificationManager />
             <AppRouterCacheProvider>
               <ThemeProvider>
-                <Navbar />
                 <Suspense fallback={null}>
                   <GTMRouteTracker />
                 </Suspense>
                 {children}
                 <SpeedInsights />
-                <Footer />
               </ThemeProvider>
             </AppRouterCacheProvider>
           </NotificationProvider>
