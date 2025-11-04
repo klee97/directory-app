@@ -21,10 +21,10 @@ import EditFormView, { VendorFormData } from './EditFormView';
 
 const sections = [
   { id: 'business', label: 'Business info', required: true },
-  { id: 'bio', label: 'Bio', required: true },
+  { id: 'about', label: 'About', required: true },
   { id: 'services', label: 'Services you provide', required: true },
   { id: 'pricing', label: 'Pricing', required: false },
-  { id: 'cover', label: 'Business image', required: false },
+  { id: 'image', label: 'Business image', required: false },
 ];
 
 const DRAWER_WIDTH = 400;

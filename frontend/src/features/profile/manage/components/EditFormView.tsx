@@ -258,7 +258,7 @@ export default function EditFormView({
           </Grid>
         )}
 
-        {activeSection === 'bio' && (
+        {activeSection === 'about' && (
           <Box>
             <TextField
               fullWidth
@@ -272,10 +272,13 @@ export default function EditFormView({
           </Box>
         )}
 
-        {activeSection === 'gallery' && (
+        {activeSection === 'image' && (
           <Box>
-            <Typography variant="body2" color="text.secondary" paragraph>
+            <Typography variant="body1" color="text.primary" gutterBottom>
               Upload a photo to showcase your work
+            </Typography>
+            <Typography variant="body2" color="text.primary" gutterBottom>
+              We recommend a photo with natural lighting or an outdoor setting.
             </Typography>
             <Button variant="outlined" component="label">
               Upload Photos
