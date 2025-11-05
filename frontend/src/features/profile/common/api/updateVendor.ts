@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
-import { prepareVendorInsertData } from "../../admin/util/vendorHelper";
+import { prepareVendorData } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 
 interface VendorLookup {
@@ -17,6 +17,10 @@ export const updateVendor = async (
   tags: VendorTag[],
 ) => {
   console.log("Updating vendor with update data:", vendor);
+    // Validate that we have data to update
+  if (Object.keys(vendor).length === 0) {
+    throw new Error("No fields to update");
+  }
 
   // Get current session to verify user is authenticated
   const supabase = await createClient();
@@ -79,7 +83,7 @@ export const updateVendor = async (
     throw new Error("Either vendor ID (HMUA-XXX) or slug is required for update");
   }
 
-  const vendorData = await prepareVendorInsertData(vendor);
+  const vendorData = await prepareVendorData(vendor);
   console.log("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor update using the determined lookup field

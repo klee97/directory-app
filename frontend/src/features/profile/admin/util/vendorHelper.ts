@@ -1,10 +1,48 @@
 import { BackendVendorInsert } from "@/types/vendor";
 import axios from 'axios';
 
+export type VendorDataPrepareMode = 'create' | 'update';
+
+interface PrepareVendorDataOptions {
+  mode: VendorDataPrepareMode;
+  existingData?: Partial<BackendVendorInsert>;
+}
+
+// Fields that should NOT be copied directly (they're computed/derived)
+const COMPUTED_FIELDS = new Set<keyof BackendVendorInsert>([
+  'slug',
+  'gis',
+  'city',
+  'state',
+  'country',
+  'location_coordinates', // We handle this specially
+]);
+
 // Prepare vendor insertion data
-export async function prepareVendorInsertData(vendor: BackendVendorInsert): Promise<BackendVendorInsert> {
-  const slug = generateSlug(vendor.business_name ?? null);
-  const { gis, city, state, country } = await convertToPostgisPoint(vendor.location_coordinates ?? null);
+export async function prepareVendorData(
+  vendor: BackendVendorInsert,
+  options: PrepareVendorDataOptions
+): Promise<BackendVendorInsert> {
+  const updates: Partial<BackendVendorInsert> = {};
+  const { mode, existingData } = options;
+
+  // Handle slug generation
+  if (mode === 'create' && vendor.business_name) {
+    updates.slug = generateSlug(vendor.business_name);
+  } else if (mode === 'update' && vendor.business_name && vendor.business_name !== existingData?.business_name) {
+    updates.slug = generateSlug(vendor.business_name);
+  }
+
+  const parsedCoordinates = extractCoordinates(vendor.location_coordinates);
+  let lat, lon;
+  let city, state, country;
+  let gis;
+  if (parsedCoordinates) {
+    lat = parsedCoordinates.lat;
+    lon = parsedCoordinates.lon;
+    gis = convertToPostgisPoint(lat, lon);
+    ({ city, state, country } = await convertToAddress(lat, lon)); // todo: test assignment
+  }
 
   return filterUndefinedOrNullValues({
     // Required field
@@ -56,36 +94,17 @@ const generateSlug = (business_name: string | null): string | null => {
     .replace(/^-|-$/g, '');
 };
 
-// convert lat, long to postgis point
-async function convertToPostgisPoint(coordInput: string | null) {
-  // Handle null or empty input
-  if (!coordInput) {
-    return {
-      gis: null,
-      city: null,
-      state: null,
-      country: null
-    };
-  }
+export function convertToPostgisPoint(lat: number, lon: number) {
+  return `SRID=4326;POINT(${lon} ${lat})`;
+}
 
-  let lat: number, lon: number;
-  let gis: string | null = null;
+// convert lat, long to postgis point
+export async function convertToAddress(lat: number, lon: number) {
   let city: string | null = null;
   let state: string | null = null;
   let country: string | null = null;
 
   try {
-    // Split and convert coordinates
-    [lat, lon] = coordInput.split(',').map(coord => parseFloat(coord.trim()));
-
-    // Validate coordinates
-    if (isNaN(lat) || isNaN(lon)) {
-      throw new Error('Invalid coordinate format');
-    }
-
-    // Create PostGIS point string
-    gis = `SRID=4326;POINT(${lon} ${lat})`;
-
     // Use OpenStreetMap Nominatim for reverse geocoding
     const response = await axios.get('https://nominatim.openstreetmap.org/reverse', {
       params: {
@@ -109,16 +128,33 @@ async function convertToPostgisPoint(coordInput: string | null) {
   } catch (error) {
     console.error('Error in coordinate conversion:', error);
     // Reset values in case of error
-    gis = null;
     city = null;
     state = null;
     country = null;
   }
 
   return {
-    gis,
     city,
     state,
     country
   };
+}
+
+function extractCoordinates(coordInput: string | null | undefined) {
+  if (!coordInput) {
+    console.warn('Could not extract coordinates for input: ' + coordInput);
+    return null;
+  }
+
+  let lat: number, lon: number;
+
+  // Split and convert coordinates
+  [lat, lon] = coordInput.split(',').map(coord => parseFloat(coord.trim()));
+
+  // Validate coordinates
+  if (isNaN(lat) || isNaN(lon)) {
+    console.warn('Invalid coordinate format: ' + coordInput);
+    return null;
+  }
+  return { lat, lon }
 }

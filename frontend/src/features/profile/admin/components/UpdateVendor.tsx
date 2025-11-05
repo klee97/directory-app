@@ -21,30 +21,9 @@ import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
 import { ImageUpload, ImageUploadRef } from '../../common/components/ImageUpload';
 import { useImageUploader } from '../../common/hooks/useImageUploader';
-import { VendorTag } from '@/types/vendor';
+import { VendorTag, VendorUpdate, transformVendorUpdateToBackend } from '@/types/vendor';
 
-// Define types directly in the file
-export interface UpdateVendorInput {
-  business_name: string | null,
-  website: string | null,
-  region: string | null,
-  location_coordinates: string | null,
-  travels_world_wide: boolean | null,
-  lists_prices: boolean | null,
-  email: string | null,
-  ig_handle: string | null,
-  bridal_hair_price: number | null,
-  bridal_makeup_price: number | null,
-  "bridal_hair_&_makeup_price": number | null,
-  bridesmaid_hair_price: number | null,
-  bridesmaid_makeup_price: number | null,
-  "bridesmaid_hair_&_makeup_price": number | null,
-  google_maps_place: string | null,
-  tags: VendorTag[],
-  cover_image: string | null,
-}
-
-export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
+export const UPDATE_VENDOR_INPUT_DEFAULT: VendorUpdate = {
   business_name: null,
   website: null,
   region: null,
@@ -66,7 +45,7 @@ export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
 
 export const AdminUpdateVendorManagement = () => {
   const { addNotification } = useNotification();
-  const [newVendor, setNewVendor] = useState<UpdateVendorInput>(UPDATE_VENDOR_INPUT_DEFAULT);
+  const [newVendor, setNewVendor] = useState<VendorUpdate>(UPDATE_VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
@@ -82,8 +61,9 @@ export const AdminUpdateVendorManagement = () => {
 
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
+  // todo: is this needed with new vendor transformation?
   // Helper function to handle text field changes - prevents empty strings
-  const handleTextFieldChange = (value: string, field: keyof UpdateVendorInput) => {
+  const handleTextFieldChange = (value: string, field: keyof VendorUpdate) => {
     const trimmedValue = value.trim();
     setNewVendor({
       ...newVendor,
@@ -128,7 +108,9 @@ export const AdminUpdateVendorManagement = () => {
 
       // Update vendor if there are any changes
       if (hasVendorChanges || uploadedImageUrl) {
-        const data = await updateVendor(lookup, newVendorData, firstName, lastName, selectedTags);
+        const data = await updateVendor(
+          lookup,
+          transformVendorUpdateToBackend(newVendorData), firstName, lastName, selectedTags);
 
         if (data) {
           addNotification("Vendor updated successfully!");
@@ -159,7 +141,7 @@ export const AdminUpdateVendorManagement = () => {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof UpdateVendorInput) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorUpdate) => {
     const value = e.target.value.trim();
     const numberValue = value === '' ? null : Number(value);
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });

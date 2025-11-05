@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
-import { prepareVendorInsertData } from "../../admin/util/vendorHelper";
+import { prepareVendorData } from "../../admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 
 export const createVendor = async (
@@ -38,7 +38,7 @@ export const createVendor = async (
   }
 
   console.log("Vendor insert data:", vendor);
-  const vendorData = await prepareVendorInsertData(vendor);
+  const vendorData = await prepareVendorData(vendor);
 
   console.log("Updated vendor insert data:", vendorData);
 

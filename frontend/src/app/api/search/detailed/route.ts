@@ -15,28 +15,32 @@ const detailedCache = new LRUCache<string, { locations: LocationResult[], succes
 
 export async function GET(request: NextRequest) {
   const query = new URL(request.url).searchParams.get("q")?.trim() || "";
+  const citiesOnly = new URL(request.url).searchParams.get("citiesOnly") === "true";
   const normalizedQuery = normalizeString(query);
+  const cacheKey = normalizedQuery + (citiesOnly ? "_citiesOnly" : "");
 
   // Check cache first
-  const cached = detailedCache.get(normalizedQuery);
+  const cached = detailedCache.get(cacheKey);
   if (cached) {
-    return NextResponse.json({ 
-      locations: cached.locations, 
+    return NextResponse.json({
+      locations: cached.locations,
       query: normalizedQuery,
       success: cached.success,
       cached: true
     });
   }
 
-  try {    
-    const locations = await fetchPhotonResults(() => rawPhotonFetch(query));
+  try {
+    const locations = await fetchPhotonResults(() => rawPhotonFetch(query, citiesOnly));
     console.debug(`Detailed search success for "${query}":`, locations.length, "results");
 
     const result = { locations, success: true };
-    detailedCache.set(normalizedQuery, result);
-
-    return NextResponse.json({ 
-      locations, 
+    detailedCache.set(cacheKey, result);
+    const filteredLocations = citiesOnly
+      ? locations.filter(loc => loc.type === 'city')
+      : locations;
+    return NextResponse.json({
+      filteredLocations,
       query: normalizedQuery,
       success: true,
       cached: false
@@ -50,8 +54,8 @@ export async function GET(request: NextRequest) {
     const failureResult = { locations: [], success: false };
     detailedCache.set(normalizedQuery, failureResult);
 
-    return NextResponse.json({ 
-      locations: [], 
+    return NextResponse.json({
+      locations: [],
       query: normalizedQuery,
       success: false,
       error: errorMessage,

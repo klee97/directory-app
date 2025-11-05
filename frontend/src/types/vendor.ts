@@ -79,6 +79,39 @@ export type Vendor = Pick<BackendVendor, 'id'
   'is_premium': boolean,
 };
 
+export type VendorUpdate = Partial<Pick<BackendVendor, 
+  | 'business_name'
+  | 'website'
+  | 'email'
+  | 'region'
+  | 'lists_prices'
+  | 'description'
+  | 'location_coordinates'
+  | 'travels_world_wide'
+  | 'ig_handle'
+  | 'bridal_hair_price'
+  | 'bridal_makeup_price'
+  | 'bridal_hair_&_makeup_price'
+  | 'bridesmaid_hair_price'
+  | 'bridesmaid_makeup_price'
+  | 'bridesmaid_hair_&_makeup_price'
+  | 'google_maps_place'
+  | 'cover_image'
+>> & {
+  tags?: VendorTag[];
+};
+
+export function transformVendorUpdateToBackend(
+  update: VendorUpdate
+): BackendVendorInsert {
+  // Remove null values (they mean "no change")
+  const cleanedUpdate = Object.fromEntries(
+    Object.entries(update).filter(([_, v]) => v !== null)
+  ) as Partial<BackendVendorInsert>;
+  
+  return cleanedUpdate as BackendVendorInsert;
+}
+
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
   const coordinates = parseCoordinates(vendor.location_coordinates);

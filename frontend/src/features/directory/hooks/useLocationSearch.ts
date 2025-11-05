@@ -25,7 +25,11 @@ const defaultEmptyResults = {
     detailedSuccess: false,
 };
 
-export function useLocationSearch(query: string): SearchResults {
+interface UseLocationSearchOptions {
+  citiesOnly?: boolean;
+}
+
+export function useLocationSearch(query: string, { citiesOnly = false }: UseLocationSearchOptions): SearchResults {
     const [results, setResults] = useState<SearchResults>({
         instantLocations: [],
         detailedLocations: [],
@@ -41,7 +45,7 @@ export function useLocationSearch(query: string): SearchResults {
         console.debug('Fetching instant results for encoded query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/instant?q=${encodedQuery}`);
+            const response = await fetch(`/api/search/instant?q=${encodedQuery}${citiesOnly ? '&citiesOnly=true' : ''}`);
             const data = await response.json();
 
             // Only update if this is still the current query
@@ -68,7 +72,7 @@ export function useLocationSearch(query: string): SearchResults {
         console.debug('Fetching detailed results for query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/detailed?q=${encodedQuery}`);
+            const response = await fetch(`/api/search/detailed?q=${encodedQuery}${citiesOnly ? '&citiesOnly=true' : ''}`);
             const data = await response.json();
 
             // Only update if this is still the current query
