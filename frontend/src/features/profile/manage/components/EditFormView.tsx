@@ -20,6 +20,10 @@ import TagSelector from '@/features/profile/common/components/TagSelector';
 import { useTags } from '@/features/profile/common/hooks/useTags';
 import { VendorTag } from '@/types/vendor';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
+// import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
+// import { useLocationForm } from '@/features/profile/manage/hooks/useLocationForm';
+// import { LocationResult } from '@/types/location';
+// import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 
 interface Section {
   id: string;
@@ -32,6 +36,7 @@ interface Section {
 export interface VendorFormData {
   business_name: string;
   location: string;
+  // locationResult: LocationResult;
   travels_world_wide: boolean;
   website: string;
   instagram: string;
@@ -71,6 +76,28 @@ export default function EditFormView({
 }: EditFormViewProps) {
   const { upload, loading } = useImageUploader();
   const { tags: tagOptions } = useTags();
+
+
+  // const locationForm = useLocationForm({
+  //   citiesOnly: true,
+  //   onLocationChange: (location) => {
+  //     if (location) {
+  //       setFormData(prev => ({
+  //         ...prev,
+  //         location: {
+  //           ...location,
+  //           display_name: getDisplayNameWithoutType(location.address?.city, location.address?.state, location.address?.country),
+  //         }
+  //       }));
+  //     } else {
+  //       setFormData(prev => ({
+  //         ...prev,
+  //         location: '',
+  //         location_coordinates: null,
+  //       }));
+  //     }
+  //   },
+  // });
   // Separate tags by type
   const serviceOptions = tagOptions.filter(tag => tag.type === 'SERVICE');
   const skillOptions = tagOptions.filter(tag => tag.type === 'SKILL');
@@ -149,6 +176,17 @@ export default function EditFormView({
                 label="Location"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+// =======
+//               <LocationAutocomplete
+//                 inputValue={locationForm.locationInputValue}
+//                 onInputChange={locationForm.handleLocationInputChange}
+//                 onDebouncedChange={locationForm.handleLocationDebouncedChange}
+//                 selectedLocation={locationForm.selectedLocation}
+//                 onSelect={locationForm.handleSelectLocation}
+//                 results={locationForm.combinedLocationResults}
+//                 loading={locationForm.isLoading}
+//                 placeholder="Select your primary city location"
+// >>>>>>> Stashed changes
               />
             </Grid>
             <Grid size={12}>
@@ -268,6 +306,9 @@ export default function EditFormView({
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder={getDefaultBio({ businessName: formData.business_name, tags: formData.tags, location: formData.location })}
+// =======
+//               placeholder={getDefaultBio({ businessName: formData.business_name, tags: formData.tags, location: formData.locationResult.display_name })}
+// >>>>>>> Stashed changes
             />
           </Box>
         )}

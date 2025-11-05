@@ -17,6 +17,7 @@ import VendorProfile from '@/features/profile/common/components/VendorProfile';
 import { Vendor } from '@/types/vendor';
 import MenuView from './MenuView';
 import EditFormView, { VendorFormData } from './EditFormView';
+// import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 
 
 const sections = [
@@ -45,6 +46,18 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
   const [formData, setFormData] = useState<VendorFormData>({
     business_name: vendor.business_name || '',
     location: vendor.city || '',
+    // =======
+    //     locationResult: {
+    //       display_name: getDisplayNameWithoutType(vendor.city, vendor.region, vendor.state, vendor.country),
+    //       lat: vendor.latitude || null,
+    //       lon: vendor.longitude || null,
+    //       address: {
+    //         city: vendor.city || '',
+    //         state: vendor.state || '',
+    //         country: vendor.country || ''
+    //       }
+    //     },
+    // >>>>>>> Stashed changes
     travels_world_wide: vendor.travels_world_wide || false,
     website: vendor.website || '',
     instagram: vendor.instagram || '',
@@ -62,13 +75,20 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
   });
 
   // Compute resolvedLocation for default bio
-  const resolvedLocation = formData.location || vendor.city || vendor.region || vendor.state || vendor.country || '';
+  const resolvedLocation = formData.location;
+  // =======
+  //formData.locationResult.display_name || '';
+  // >>>>>>> Stashed changes
 
   // Create preview vendor object
   const previewVendor: Vendor = {
     ...vendor,
     business_name: formData.business_name,
     city: formData.location,
+    // =======
+    //     latitude: formData.locationResult.lat,
+    //     longitude: formData.locationResult.lon,
+    // >>>>>>> Stashed changes
     travels_world_wide: formData.travels_world_wide,
     website: formData.website,
     instagram: formData.instagram,
@@ -76,10 +96,10 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
     description: formData.description?.trim()
       ? formData.description
       : getDefaultBio({
-          businessName: vendor.business_name || null,
-          tags: vendor.tags,
-          location: resolvedLocation
-        }),
+        businessName: vendor.business_name || null,
+        tags: vendor.tags,
+        location: resolvedLocation
+      }),
     bridal_hair_price: formData.bridal_hair_price,
     bridal_makeup_price: formData.bridal_makeup_price,
     bridal_hair_makeup_price: formData.bridal_hair_makeup_price,
@@ -110,22 +130,22 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
   };
 
   const handleSave = async () => {
-  try {
-    // const response = await fetch('/api/vendor/update-draft', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify({
-    //     vendorId: vendor.id,
-    //     draftData: formData,
-    //   }),
-    // });
-    
-    // if (!response.ok) throw new Error('Failed to save draft');
-    
-    addNotification('Changes saved successfully!', 'success');
-  } catch (error) {
-    console.error('Error saving draft:', error);
-  }
+    try {
+      // const response = await fetch('/api/vendor/update-draft', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     vendorId: vendor.id,
+      //     draftData: formData,
+      //   }),
+      // });
+
+      // if (!response.ok) throw new Error('Failed to save draft');
+
+      addNotification('Changes saved successfully!', 'success');
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
   };
 
   const handlePublish = async () => {
