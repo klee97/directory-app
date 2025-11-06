@@ -1,9 +1,9 @@
 import { CITY_ABBREVIATIONS, COUNTRY_ABBREVIATIONS, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, STATE_ABBREVIATIONS } from "@/types/location";
 
 export function getDisplayName(
-  city: string | null,
-  state: string | null,
-  country: string | null,
+  city: string | null | undefined,
+  state: string | null | undefined,
+  country: string | null | undefined,
   type: string
 ): string {
   const countryName = country ? COUNTRY_ABBREVIATIONS[country] || country : "";
@@ -16,4 +16,15 @@ export function getDisplayName(
   } else {
     return [cityName, stateName, countryName].filter(Boolean).join(", ");
   }
+}
+
+export function getDisplayNameWithoutType(
+  city: string | null | undefined,
+  state: string | null | undefined,
+  country: string | null | undefined
+): string {
+  const countryName = country ? COUNTRY_ABBREVIATIONS[country] || country : "";
+  const stateName = state ? STATE_ABBREVIATIONS[state] || state : "";
+  const cityName = city ? CITY_ABBREVIATIONS[city] || city : "";
+  return [cityName, stateName, countryName].filter(Boolean).join(", ");
 }

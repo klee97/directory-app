@@ -45,7 +45,7 @@ export const useLocationManagement = ({
     detailedLocations,
     isInstantLoading,
     isDetailedLoading,
-  } = useLocationSearch(locationSearchQuery);
+  } = useLocationSearch(locationSearchQuery, { citiesOnly: false });
 
   const combinedLocationResults = useMemo(() => {
     console.debug('Combining results:', {

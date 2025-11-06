@@ -152,7 +152,7 @@ async function geocodeLocation(query: string): Promise<PopulatedLocation> {
   console.log(`Geocoding: ${query}`);
 
   try {
-    const results = await fetchPhotonResults(() => rawPhotonFetch(query));
+    const results = await fetchPhotonResults(() => rawPhotonFetch(query, { citiesOnly: false }));
 
     if (results.length === 0) {
       console.warn(`  ❌ No results for: ${query}`);

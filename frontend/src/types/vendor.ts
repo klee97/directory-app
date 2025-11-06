@@ -63,6 +63,8 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'google_maps_place'
   | 'profile_image'
   | 'description'
+  | 'latitude'
+  | 'longitude'
 > & {
   'bridal_hair_makeup_price': number | null,
   'bridesmaid_hair_makeup_price': number | null,
@@ -73,15 +75,12 @@ export type Vendor = Pick<BackendVendor, 'id'
   'google_maps_place': string | null,
   'testimonials': VendorTestimonial[],
   'tags': VendorTag[],
-  'latitude': number | null,
-  'longitude': number | null,
   'images': string[],
   'is_premium': boolean,
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
-  const coordinates = parseCoordinates(vendor.location_coordinates);
   const procesedImages = processVendorImages(vendor, { preferR2: true, fallbackToSupabase: true });
   console.debug(`Processed ${procesedImages.length} images for vendor ${vendor.business_name}`);
   const images = procesedImages.map(img => img.media_url).filter((url): url is string => typeof url === 'string');
@@ -99,8 +98,8 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     website: vendor.website,
     instagram: (vendor.ig_handle ?? '').replace('@', ''),
     google_maps_place: vendor.google_maps_place,
-    latitude: coordinates?.latitude ?? null,
-    longitude: coordinates?.longitude ?? null,
+    latitude: vendor.latitude,
+    longitude: vendor.longitude,
     region: vendor.region,
     city: vendor.city,
     state: vendor.state,
@@ -132,27 +131,3 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
 export type VendorByDistance = Vendor & {
   distance_miles?: number | null
 };
-
-function parseCoordinates(coordinateString: string | null): { latitude: number; longitude: number } | null {
-  if (!coordinateString) return null;
-
-  try {
-    const parts = coordinateString.split(',');
-    if (parts.length !== 2) return null;
-
-    const latitude = parseFloat(parts[0].trim());
-    const longitude = parseFloat(parts[1].trim());
-
-    // Validate ranges
-    if (isNaN(latitude) || isNaN(longitude) ||
-      latitude < -90 || latitude > 90 ||
-      longitude < -180 || longitude > 180) {
-      return null;
-    }
-
-    return { latitude, longitude };
-  } catch (error) {
-    console.warn('Failed to parse coordinates:', coordinateString, error);
-    return null;
-  }
-}

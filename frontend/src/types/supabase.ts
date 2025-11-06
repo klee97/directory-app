@@ -467,6 +467,7 @@ export type Database = {
       }
       vendors: {
         Row: {
+          access_token: string | null
           "bridal_hair_&_makeup_price": number | null
           bridal_hair_price: number | null
           bridal_makeup_price: number | null
@@ -481,12 +482,15 @@ export type Database = {
           description: string | null
           email: string | null
           gis: unknown
+          gis_computed: unknown
           google_maps_place: string | null
           id: string
           ig_handle: string | null
+          latitude: number | null
           lists_prices: boolean | null
           location_coordinates: string | null
           logo: string | null
+          longitude: number | null
           metro_id: number | null
           metro_region_id: number | null
           profile_image: string | null
@@ -500,6 +504,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          access_token?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null
@@ -514,12 +519,15 @@ export type Database = {
           description?: string | null
           email?: string | null
           gis?: unknown
+          gis_computed?: unknown
           google_maps_place?: string | null
           id?: string
           ig_handle?: string | null
+          latitude?: number | null
           lists_prices?: boolean | null
           location_coordinates?: string | null
           logo?: string | null
+          longitude?: number | null
           metro_id?: number | null
           metro_region_id?: number | null
           profile_image?: string | null
@@ -533,6 +541,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          access_token?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null
@@ -547,12 +556,15 @@ export type Database = {
           description?: string | null
           email?: string | null
           gis?: unknown
+          gis_computed?: unknown
           google_maps_place?: string | null
           id?: string
           ig_handle?: string | null
+          latitude?: number | null
           lists_prices?: boolean | null
           location_coordinates?: string | null
           logo?: string | null
+          longitude?: number | null
           metro_id?: number | null
           metro_region_id?: number | null
           profile_image?: string | null

@@ -134,6 +134,7 @@ export function FilterableVendorTableContent({
             onSelect={locationManagement.handleSelectLocation}
             results={locationManagement.combinedLocationResults}
             loading={locationManagement.isInstantLoading || locationManagement.isDetailedLoading}
+            placeholder="Search for a city, state, or country"
           />
         </Box>
       </Box>

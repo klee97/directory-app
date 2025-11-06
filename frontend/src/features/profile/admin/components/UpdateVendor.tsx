@@ -22,33 +22,14 @@ import Link from 'next/link';
 import { ImageUpload, ImageUploadRef } from '../../common/components/ImageUpload';
 import { useImageUploader } from '../../common/hooks/useImageUploader';
 import { VendorTag } from '@/types/vendor';
+import { VendorDataInput } from '../util/vendorHelper';
 
-// Define types directly in the file
-export interface UpdateVendorInput {
-  business_name: string | null,
-  website: string | null,
-  region: string | null,
-  location_coordinates: string | null,
-  travels_world_wide: boolean | null,
-  lists_prices: boolean | null,
-  email: string | null,
-  ig_handle: string | null,
-  bridal_hair_price: number | null,
-  bridal_makeup_price: number | null,
-  "bridal_hair_&_makeup_price": number | null,
-  bridesmaid_hair_price: number | null,
-  bridesmaid_makeup_price: number | null,
-  "bridesmaid_hair_&_makeup_price": number | null,
-  google_maps_place: string | null,
-  tags: VendorTag[],
-  cover_image: string | null,
-}
-
-export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
+export const UPDATE_VENDOR_INPUT_DEFAULT: VendorDataInput = {
   business_name: null,
   website: null,
   region: null,
-  location_coordinates: null,
+  latitude: null,
+  longitude: null,
   travels_world_wide: null,
   lists_prices: null,
   email: null,
@@ -66,7 +47,7 @@ export const UPDATE_VENDOR_INPUT_DEFAULT: UpdateVendorInput = {
 
 export const AdminUpdateVendorManagement = () => {
   const { addNotification } = useNotification();
-  const [newVendor, setNewVendor] = useState<UpdateVendorInput>(UPDATE_VENDOR_INPUT_DEFAULT);
+  const [newVendor, setNewVendor] = useState<VendorDataInput>(UPDATE_VENDOR_INPUT_DEFAULT);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
@@ -83,11 +64,21 @@ export const AdminUpdateVendorManagement = () => {
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   // Helper function to handle text field changes - prevents empty strings
-  const handleTextFieldChange = (value: string, field: keyof UpdateVendorInput) => {
+  const handleTextFieldChange = (value: string, field: keyof VendorDataInput) => {
     const trimmedValue = value.trim();
     setNewVendor({
       ...newVendor,
       [field]: trimmedValue === '' ? null : value // Store new value if not empty after trim
+    });
+  };
+
+  // Helper function to handle number field changes
+  const handleNumberFieldChange = (value: string, field: keyof VendorDataInput) => {
+    const trimmedValue = value.trim();
+    const numberValue = trimmedValue === '' ? null : Number(trimmedValue);
+    setNewVendor({
+      ...newVendor,
+      [field]: numberValue
     });
   };
 
@@ -128,7 +119,13 @@ export const AdminUpdateVendorManagement = () => {
 
       // Update vendor if there are any changes
       if (hasVendorChanges || uploadedImageUrl) {
-        const data = await updateVendor(lookup, newVendorData, firstName, lastName, selectedTags);
+        const data = await updateVendor(
+          lookup,
+          newVendorData,
+          firstName,
+          lastName,
+          selectedTags
+        );
 
         if (data) {
           addNotification("Vendor updated successfully!");
@@ -159,7 +156,7 @@ export const AdminUpdateVendorManagement = () => {
     }
   };
 
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof UpdateVendorInput) => {
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorDataInput) => {
     const value = e.target.value.trim();
     const numberValue = value === '' ? null : Number(value);
     setNewVendor({ ...newVendor, [field]: numberValue, lists_prices: numberValue !== null });
@@ -301,11 +298,25 @@ export const AdminUpdateVendorManagement = () => {
           <Grid size={6}>
             <TextField
               fullWidth
-              label="Location Coordinates"
-              helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
+              label="Latitude"
+              helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
               variant="outlined"
-              value={newVendor.location_coordinates ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'location_coordinates')}
+              type="number"
+              slotProps={{ htmlInput: { step: "any" } }}
+              value={newVendor.latitude ?? ''}
+              onChange={(e) => handleNumberFieldChange(e.target.value, 'latitude')}
+            />
+          </Grid>
+          <Grid size={6}>
+            <TextField
+              fullWidth
+              label="Longitude"
+              helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
+              variant="outlined"
+              type="number"
+              slotProps={{ htmlInput: { step: "any" } }}
+              value={newVendor.longitude ?? ''}
+              onChange={(e) => handleNumberFieldChange(e.target.value, 'longitude')}
             />
           </Grid>
         </Grid>

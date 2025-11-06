@@ -3,6 +3,7 @@ import { LRUCache } from "lru-cache";
 import { rawPhotonFetch } from "@/lib/location/geocode";
 import { LocationResult } from "@/types/location";
 import { fetchPhotonResults } from "@/lib/location/photonUtils";
+import { CITIES_ONLY_PARAM, QUERY_PARAM } from "@/lib/constants";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -14,29 +15,33 @@ const detailedCache = new LRUCache<string, { locations: LocationResult[], succes
 });
 
 export async function GET(request: NextRequest) {
-  const query = new URL(request.url).searchParams.get("q")?.trim() || "";
+  const query = new URL(request.url).searchParams.get(QUERY_PARAM)?.trim() || "";
+  const citiesOnly = new URL(request.url).searchParams.get(CITIES_ONLY_PARAM) === "true";
   const normalizedQuery = normalizeString(query);
+  const cacheKey = normalizedQuery + (citiesOnly ? "_citiesOnly" : "");
 
   // Check cache first
-  const cached = detailedCache.get(normalizedQuery);
+  const cached = detailedCache.get(cacheKey);
   if (cached) {
-    return NextResponse.json({ 
-      locations: cached.locations, 
+    return NextResponse.json({
+      locations: cached.locations,
       query: normalizedQuery,
       success: cached.success,
       cached: true
     });
   }
 
-  try {    
-    const locations = await fetchPhotonResults(() => rawPhotonFetch(query));
-    console.debug(`Detailed search success for "${query}":`, locations.length, "results");
+  try {
+    const locations = await fetchPhotonResults(() => rawPhotonFetch(query, { citiesOnly: citiesOnly }));
+    console.debug(`Detailed search success for "${cacheKey}":`, locations.length, "results");
 
     const result = { locations, success: true };
-    detailedCache.set(normalizedQuery, result);
-
-    return NextResponse.json({ 
-      locations, 
+    detailedCache.set(cacheKey, result);
+    const filteredLocations = citiesOnly
+      ? locations.filter(loc => loc.type === 'city')
+      : locations;
+    return NextResponse.json({
+      filteredLocations,
       query: normalizedQuery,
       success: true,
       cached: false
@@ -44,14 +49,14 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : String(error);
-    console.warn(`Detailed search failed for "${query}":`, errorMessage);
+    console.warn(`Detailed search failed for "${cacheKey}":`, errorMessage);
 
     // Cache the failure for a shorter time to avoid repeated calls
     const failureResult = { locations: [], success: false };
-    detailedCache.set(normalizedQuery, failureResult);
+    detailedCache.set(cacheKey, failureResult);
 
-    return NextResponse.json({ 
-      locations: [], 
+    return NextResponse.json({
+      locations: [],
       query: normalizedQuery,
       success: false,
       error: errorMessage,

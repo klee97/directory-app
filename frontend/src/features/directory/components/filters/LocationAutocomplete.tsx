@@ -21,6 +21,7 @@ interface LocationAutocompleteProps {
   onSelect: (location: LocationResult | null) => void;
   results: LocationResult[];
   loading: boolean;
+  placeholder: string
 }
 
 export default function LocationAutocomplete({ 
@@ -30,7 +31,8 @@ export default function LocationAutocomplete({
   selectedLocation,
   onSelect,
   results,
-  loading
+  loading,
+  placeholder="Search for a location..."
 }: LocationAutocompleteProps) {
   // Consider it selected only if we have a location and the input exactly matches
   // But also check if input is empty (for clearing behavior)
@@ -82,7 +84,7 @@ export default function LocationAutocomplete({
       onChange={onInputChange}
       onDebouncedChange={onDebouncedChange}
       onClear={() => onSelect(null)}
-      placeholder="Search a city, state, or country"
+      placeholder={placeholder}
       debounceMs={300}
       isLocationInput={true}
       withDropdown={true}

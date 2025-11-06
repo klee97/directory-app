@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
 import { LocationResult } from "@/types/location";
 import { POPULATED_LOCATIONS } from "@/lib/location/populated-cities";
+import { CITIES_ONLY_PARAM, QUERY_PARAM } from "@/lib/constants";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -13,7 +14,8 @@ const instantCache = new LRUCache<string, LocationResult[]>({
 });
 
 export async function GET(request: NextRequest) {
-  const query = new URL(request.url).searchParams.get("q")?.trim().toLowerCase() || "";
+  const query = new URL(request.url).searchParams.get(QUERY_PARAM)?.trim().toLowerCase() || "";
+  const citiesOnly = new URL(request.url).searchParams.get(CITIES_ONLY_PARAM) === "true";
 
   // Return popular cities if no query
   if (!query) {
@@ -29,10 +31,12 @@ export async function GET(request: NextRequest) {
   }
 
   const normalizedQuery = normalizeString(query);
-
   console.debug(`Instant search received query: "${query}" normalized to "${normalizedQuery}"`);
+
+  const cacheKey = normalizedQuery + (citiesOnly ? "_citiesOnly" : "");
+
   // Check cache
-  const cached = instantCache.get(normalizedQuery);
+  const cached = instantCache.get(cacheKey);
   if (cached) {
     return NextResponse.json({
       locations: cached,
@@ -49,11 +53,13 @@ export async function GET(request: NextRequest) {
       || (location.address?.country && normalizeString(location.address.country).includes(normalizedQuery))
     )
     .slice(0, 5);
-
-  instantCache.set(normalizedQuery, matchingLocations);
-  console.debug(`Instant search cache set for query: "${normalizedQuery}" -> ${matchingLocations.length} results`);
+  const filteredLocations = citiesOnly
+    ? matchingLocations.filter(loc => loc.type === 'city')
+    : matchingLocations;
+  instantCache.set(cacheKey, filteredLocations);
+  console.debug(`Instant search cache set for query: "${cacheKey}" -> ${filteredLocations.length} results`);
   return NextResponse.json({
-    locations: matchingLocations,
+    locations: filteredLocations,
     query: normalizedQuery,
     cached: false
   });
