@@ -2,9 +2,9 @@ import { GeocodeResponse, LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LocationResul
 import { getDisplayName } from "./locationNames";
 
 
-export async function rawPhotonFetch(encodedLocation: string, cityOnly: boolean): Promise<LocationResult[]> {
+export async function rawPhotonFetch(encodedLocation: string, options: { citiesOnly: boolean }): Promise<LocationResult[]> {
   console.debug(`Fetching Photon results for query: "${encodedLocation}"`);
-  const url = cityOnly
+  const url = options.citiesOnly
     ? `https://photon.komoot.io/api/?q=${encodedLocation}&lang=en&limit=3&layer=city`
     : `https://photon.komoot.io/api/?q=${encodedLocation}&lang=en&limit=3&layer=city&layer=state&layer=country`;
   const res = await fetch(

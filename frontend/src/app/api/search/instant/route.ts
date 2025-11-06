@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
 import { LocationResult } from "@/types/location";
 import { POPULATED_LOCATIONS } from "@/lib/location/populated-cities";
+import { CITIES_ONLY_PARAM, QUERY_PARAM } from "@/lib/constants";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -13,8 +14,8 @@ const instantCache = new LRUCache<string, LocationResult[]>({
 });
 
 export async function GET(request: NextRequest) {
-  const query = new URL(request.url).searchParams.get("q")?.trim().toLowerCase() || "";
-  const citiesOnly = new URL(request.url).searchParams.get("citiesOnly") === "true";
+  const query = new URL(request.url).searchParams.get(QUERY_PARAM)?.trim().toLowerCase() || "";
+  const citiesOnly = new URL(request.url).searchParams.get(CITIES_ONLY_PARAM) === "true";
 
   // Return popular cities if no query
   if (!query) {
