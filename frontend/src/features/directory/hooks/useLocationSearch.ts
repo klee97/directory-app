@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { LocationResult } from '@/types/location';
-import { CITIES_ONLY_PARAM } from '@/lib/constants';
+import { CITIES_ONLY_PARAM, QUERY_PARAM } from '@/lib/constants';
 
 interface SearchResults {
     // Instant results (0ms) - unified locations
@@ -46,7 +46,7 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
         console.debug('Fetching instant results for encoded query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/instant?q=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
+            const response = await fetch(`/api/search/instant?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
             const data = await response.json();
 
             // Only update if this is still the current query
@@ -73,7 +73,7 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
         console.debug('Fetching detailed results for query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/detailed?q=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
+            const response = await fetch(`/api/search/detailed?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
             const data = await response.json();
 
             // Only update if this is still the current query
