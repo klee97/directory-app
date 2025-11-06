@@ -38,7 +38,7 @@ export const createVendor = async (
   }
 
   console.log("Vendor insert data:", vendor);
-  const vendorData = await prepareVendorData(vendor);
+  const vendorData = await prepareVendorData(vendor, { mode: 'create' });
 
   console.log("Updated vendor insert data:", vendorData);
 

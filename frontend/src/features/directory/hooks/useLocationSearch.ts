@@ -26,7 +26,7 @@ const defaultEmptyResults = {
 };
 
 interface UseLocationSearchOptions {
-  citiesOnly?: boolean;
+    citiesOnly?: boolean;
 }
 
 export function useLocationSearch(query: string, { citiesOnly = false }: UseLocationSearchOptions): SearchResults {

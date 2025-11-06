@@ -33,7 +33,7 @@ export function useURLFilters() {
       const newUrl = search ? `${pathname}?${search}` : pathname;
       router.push(newUrl, { scroll: false });
     },
-    [router, searchParams, pathname, paramsString]
+    [router, pathname, paramsString]
   );
 
   const setParam = useCallback(
@@ -54,7 +54,7 @@ export function useURLFilters() {
       const newUrl = search ? `${pathname}?${search}` : pathname;
       router.push(newUrl, { scroll: false });
     },
-    [router, searchParams, pathname, paramsString]
+    [router, pathname, paramsString]
   );
 
   return {

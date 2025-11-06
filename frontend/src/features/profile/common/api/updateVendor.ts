@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
-import { prepareVendorData } from "../../admin/util/vendorHelper";
+import { prepareVendorData, VendorDataInput } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 
 interface VendorLookup {
@@ -11,13 +11,14 @@ interface VendorLookup {
 
 export const updateVendor = async (
   lookup: VendorLookup,
-  vendor: BackendVendorInsert,
+  vendor: VendorDataInput,
   firstname: string | null,
   lastname: string | null,
   tags: VendorTag[],
 ) => {
   console.log("Updating vendor with update data:", vendor);
-    // Validate that we have data to update
+  
+  // Validate that we have data to update
   if (Object.keys(vendor).length === 0) {
     throw new Error("No fields to update");
   }
@@ -44,47 +45,48 @@ export const updateVendor = async (
 
   if (profileError || !profileData || !profileData.is_admin) {
     console.error("Authorization error: User is not an admin: %s", profileError);
-    throw new Error("You do not have permission to create vendors");
+    throw new Error("You do not have permission to update vendors");
   }
 
-  // Determine if we're using ID or slug to find the vendor
-  let vendorId: string;
+  // Determine lookup field and fetch existing vendor data in one query
   let lookupField: 'id' | 'slug';
   let lookupValue: string;
 
   if (lookup.id && lookup.id !== '' && lookup.id.startsWith('HMUA-')) {
-    // Use ID if provided and valid
-    vendorId = lookup.id;
     lookupField = 'id';
     lookupValue = lookup.id;
     console.log("Using vendor ID for lookup:", lookup.id);
   } else if (lookup.slug && lookup.slug !== '') {
-    // Fall back to slug if ID is not provided
     lookupField = 'slug';
     lookupValue = lookup.slug;
     console.log("Using vendor slug for lookup:", lookup.slug);
-
-    // First, get the vendor ID from the slug
-    const { data: existingVendor, error: lookupError } = await supabase
-      .from("vendors")
-      .select("id")
-      .eq('slug', lookup.slug)
-      .single();
-
-    if (lookupError || !existingVendor) {
-      console.error("Vendor not found with slug:", lookup.slug, lookupError);
-      throw new Error(`Vendor not found with slug: ${lookup.slug}`);
-    }
-
-    vendorId = existingVendor.id;
-    console.log("Found vendor ID from slug:", vendorId);
   } else {
     console.error("Either vendor ID (HMUA-XXX) or slug is required for update");
     throw new Error("Either vendor ID (HMUA-XXX) or slug is required for update");
   }
 
-  const vendorData = await prepareVendorData(vendor);
-  console.log("Updated vendor insert data:", vendorData);
+  // Fetch existing vendor data for comparison (single query)
+  const { data: existingVendorData, error: fetchError } = await supabase
+    .from("vendors")
+    .select("id, slug, latitude, longitude, business_name")
+    .eq(lookupField, lookupValue)
+    .single();
+
+  if (fetchError || !existingVendorData) {
+    console.error(`Vendor not found with ${lookupField}:`, lookupValue, fetchError);
+    throw new Error(`Vendor not found with ${lookupField}: ${lookupValue}`);
+  }
+
+  const vendorId = existingVendorData.id;
+  console.log("Found vendor ID:", vendorId);
+
+  // Prepare vendor data with context about existing data
+  const vendorData: BackendVendorInsert = await prepareVendorData(vendor, {
+    mode: 'update',
+    existingData: existingVendorData
+  });
+  
+  console.log("Prepared vendor update data:", vendorData);
 
   // Proceed with vendor update using the determined lookup field
   const { data, error } = await supabase
@@ -97,14 +99,15 @@ export const updateVendor = async (
   if (data && data.id) {
     console.log("Vendor updated successfully!", data);
 
-    if (vendor.location_coordinates && vendor.location_coordinates !== '') {
+    // Update vendor region if coordinates changed
+    if (vendorData.latitude !== undefined && vendorData.longitude !== undefined) {
       await supabase.rpc("update_vendor_location", { vendor_id: data.id });
-      console.log("Vendor region updated successfully!", data);
+      console.log("Vendor region updated successfully!");
     }
 
     // Add tags to the vendor
     if (tags.length > 0) {
-      tags.map(async (tag) => {
+      await Promise.all(tags.map(async (tag) => {
         const { error: skillError } = await supabase
           .from("vendor_tags")
           .upsert({ vendor_id: data.id, tag_id: tag.id });
@@ -112,7 +115,7 @@ export const updateVendor = async (
         if (skillError) {
           console.error(`Error upserting tag ${tag.display_name} to vendor id ${data.id}`, skillError);
         }
-      })
+      }));
     }
 
     // If cover_image was updated, add it to vendor_media table
@@ -125,8 +128,6 @@ export const updateVendor = async (
         });
 
       if (mediaError) {
-        // Log the error but don't fail the entire operation
-        // The unique constraint might prevent duplicate inserts, which is fine
         console.warn('Failed to add to vendor_media (might be duplicate):', mediaError);
       } else {
         console.log('Added cover image to vendor_media table');
@@ -156,7 +157,7 @@ export const updateVendor = async (
     throw error;
   }
 
-  console.log("Vendor updating successfully!", data);
+  console.log("Vendor updated successfully!", data);
 
   return data;
 };
