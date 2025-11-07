@@ -24,6 +24,11 @@ export default function VendorLoginPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== 'true') {
+      router.push(`/`);
+      return;
+    }
+
     // Check if user is already logged in
     const checkSession = async () => {
       const supabase = createClient();
@@ -32,7 +37,8 @@ export default function VendorLoginPage() {
       if (session) {
         console.log("User is already logged in");
         // User is already logged in, redirect to vendor page
-        router.push(`/vendors/${slug}`);
+        router.push(`/`);
+        return;
       }
 
       const areAllParamsValid = !!email && !!token && email.trim() !== "" && token.trim() !== "" && slug.trim() !== "";
