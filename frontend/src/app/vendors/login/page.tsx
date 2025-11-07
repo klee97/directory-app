@@ -4,26 +4,24 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VendorLoginForm } from "@/features/login/components/VendorLoginForm";
 import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
+import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 
 export default function VendorLoginPage() {
   const searchParams = useSearchParams();
-
   const router = useRouter();
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   // Extract magic link parameters
   const slug = searchParams.get('slug') || "";
   const email = searchParams.get('email') || "";
   const token = searchParams.get('token') || "";
 
-
   const [isLoading, setIsLoading] = useState(true);
-
-  // TODO: add invisible google recaptcha v3 to prevent abuse
 
   useEffect(() => {
     // Check if user is already logged in
@@ -37,10 +35,20 @@ export default function VendorLoginPage() {
         router.push(`/vendors/${slug}`);
       }
 
-      const doEmailAndTokenExist = !!email && !!token && email.trim() !== "" && token.trim() !== "";
+      const areAllParamsValid = !!email && !!token && email.trim() !== "" && token.trim() !== "" && slug.trim() !== "";
 
-      if (!doEmailAndTokenExist) {
-        // Email or token is missing, show the login form
+      if (!areAllParamsValid) {
+        // Email, token, or slug is missing, show the login form
+        setIsLoading(false);
+        return;
+      }
+
+      // Execute reCAPTCHA and get token
+      try {
+        await recaptchaRef.current?.executeAsync();
+        console.log("reCAPTCHA executed successfully");
+      } catch (error) {
+        console.error("Error executing reCAPTCHA: ", error);
         setIsLoading(false);
         return;
       }
