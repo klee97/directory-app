@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { VendorLoginForm } from "@/features/login/components/VendorLoginForm";
+import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
 
 export default function VendorLoginPage() {
   const searchParams = useSearchParams();
@@ -36,10 +37,18 @@ export default function VendorLoginPage() {
         router.push(`/vendors/${slug}`);
       }
 
-      // TODO: add logic to check if the email and token from the query parameters are valid and match database records. 
-      // If they do, sign in the user anonymously and link their email to the account.
+      const doEmailAndTokenExist = !!email && !!token && email.trim() !== "" && token.trim() !== "";
 
-      const doEmailAndTokenMatch = email && token;
+      if (!doEmailAndTokenExist) {
+        // Email or token is missing, show the login form
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if email and token from the query parameters are valid and match database records. 
+      // If they do, sign in the user anonymously and link their email to the account.
+      const vendor = await fetchVendorBySlug(slug);
+      const doEmailAndTokenMatch = email === vendor?.email?.toLowerCase() && token === vendor?.access_token?.toLowerCase();
 
       if (doEmailAndTokenMatch) {
         // Sign in the user anonymously and link email
