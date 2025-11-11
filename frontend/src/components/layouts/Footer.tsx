@@ -5,7 +5,8 @@ import Typography from "@mui/material/Typography";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { CallToAction } from "./CallToAction";
 import KoFiButton from "../ui/KoFiButton";
-export function Footer() {
+
+export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
   return (
     <>
       <CallToAction />
@@ -56,18 +57,22 @@ export function Footer() {
           <Link href="/contact" style={{ color: "inherit", textDecoration: "none" }}>
             Contact
           </Link>
-          <Link href="/faq" style={{ color: "inherit", textDecoration: "none" }}>
-            FAQ
-          </Link>
-          <Link href="/recommend" style={{ color: "inherit", textDecoration: "none" }}>
-            Recommend an Artist
-          </Link>
-          <Link href="/blog" style={{ color: "inherit", textDecoration: "none" }}>
-            Blog
-          </Link>
-          <Link href="/vendors" style={{ color: "inherit", textDecoration: "none" }}>
-            All Vendors
-          </Link>
+          {!isVendorFooter && (
+            <>
+              <Link href="/faq" style={{ color: "inherit", textDecoration: "none" }}>
+                FAQ
+              </Link>
+              <Link href="/recommend" style={{ color: "inherit", textDecoration: "none" }}>
+                Recommend an Artist
+              </Link>
+              <Link href="/blog" style={{ color: "inherit", textDecoration: "none" }}>
+                Blog
+              </Link>
+              <Link href="/vendors" style={{ color: "inherit", textDecoration: "none" }}>
+                All Vendors
+              </Link>
+            </>
+          )}
           <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
             Privacy Policy
           </Link>
