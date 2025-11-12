@@ -7,11 +7,13 @@ import Box from "@mui/material/Box";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { VendorLoginForm } from "@/features/login/components/VendorLoginForm";
+import { LoginForm } from "@/features/login/components/LoginForm";
 import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
+import { useNotification } from "@/contexts/NotificationContext";
 
 export default function VendorLoginPage() {
+  const { addNotification } = useNotification();
   const searchParams = useSearchParams();
   const router = useRouter();
   const recaptchaRef = useRef<ReCaptchaRef>(null);
@@ -66,7 +68,7 @@ export default function VendorLoginPage() {
 
       if (doEmailAndTokenMatch) {
         // Sign in the user anonymously and link email
-        const { data, error } = await supabase.auth.signInAnonymously()
+        const { error } = await supabase.auth.signInAnonymously()
         if (error) {
           console.error("Error signing in anonymously: " + error.message);
           setIsLoading(false);
@@ -84,6 +86,7 @@ export default function VendorLoginPage() {
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
         router.push(`/vendors/${slug}`);
+        addNotification("Check your inbox to verify your vendor email address: " + email);
       } else {
         // User email and token do not match or user's email has already been linked, show the login form
         setIsLoading(false);
@@ -91,7 +94,7 @@ export default function VendorLoginPage() {
     };
 
     checkSession();
-  }, [email, router, slug, token]);
+  }, [addNotification, email, router, slug, token]);
 
   if (isLoading) {
     return (
@@ -116,7 +119,7 @@ export default function VendorLoginPage() {
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Vendor Login
       </Typography>
-      <VendorLoginForm />
+      <LoginForm />
     </Container>
   );
 }
