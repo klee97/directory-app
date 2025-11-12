@@ -51,7 +51,7 @@ export const useVendorFiltering = ({
         const locationLon = selectedLocation?.lon;
 
         // Only proceed if locationLat and locationLon are defined
-        if (locationLat === undefined || locationLon === undefined) {
+        if (locationLat === undefined || locationLat === null || locationLon === undefined || locationLon === null) {
           console.debug('Location latitude or longitude is undefined, skipping fetch.');
           return;
         }

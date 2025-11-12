@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { getDefaultBio } from '@/features/profile/common/utils/bio';
 import IconButton from '@mui/material/IconButton';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useTheme } from '@mui/material/styles';
@@ -14,98 +13,195 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import VendorProfile from '@/features/profile/common/components/VendorProfile';
-import { Vendor } from '@/types/vendor';
+import { Vendor, VendorTag } from '@/types/vendor';
 import MenuView from './MenuView';
-import EditFormView, { VendorFormData } from './EditFormView';
-// import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
+import EditFormView, { Section } from './EditFormView';
+import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '../api/updateDrafts';
+import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
+import { VendorFormData } from '@/types/vendorFormData';
+import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
+import { redirect } from 'next/navigation'
+import CircularProgress from '@mui/material/CircularProgress';
+import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
+import { useSectionCompletion } from '../hooks/updateSectionStatus';
 
 
-const sections = [
-  { id: 'business', label: 'Business info', required: true },
-  { id: 'about', label: 'About', required: true },
-  { id: 'services', label: 'Services you provide', required: true },
-  { id: 'pricing', label: 'Pricing', required: false },
-  { id: 'image', label: 'Business image', required: false },
+const sections: Section[] = [
+  {
+    id: 'business',
+    label: 'Business info',
+    validate: (formData: VendorFormData) => {
+      const business_name = formData.business_name?.trim();
+
+      return {
+        isValid: !!(business_name && formData.locationResult),
+        isComplete: !!(business_name && formData.locationResult && formData.travels_world_wide),
+        errors: {
+          business_name: !business_name ? 'Business name is required' : null,
+          location: !formData.locationResult ? 'Location is required' : null,
+        }
+      }
+    }
+  },
+  {
+    id: 'links',
+    label: 'Website & Socials',
+    validate: (formData: VendorFormData) => {
+      const instagram = formData.instagram?.trim();
+
+      return {
+        isValid: !!(instagram),
+        isComplete: !!(instagram && formData.website?.trim() && formData.google_maps_place?.trim()),
+        errors: {
+          instagram: !instagram ? 'Instagram handle is required' : null,
+        }
+      }
+    }
+  },
+  {
+    id: 'bio',
+    label: 'Bio',
+    validate: (formData: VendorFormData) => {
+      const description = formData.description?.trim();
+      return {
+        isValid: !!description,
+        isComplete: !!description,
+        errors: {
+          description: !description ? 'Bio is required' : null,
+        }
+      }
+    }
+  },
+  {
+    id: 'services',
+    label: 'Services and Skills',
+    validate: (formData: VendorFormData) => {
+      const hasService = formData.tags.some(tag => tag.type === 'SERVICE');
+      return {
+        isValid: hasService,
+        isComplete: !!(hasService && formData.tags.some(tag => tag.type === 'SKILL')),
+        errors: {
+          services: !hasService ? 'Please select at least one service' : null,
+        }
+      };
+    }
+  },
+  {
+    id: 'pricing',
+    label: 'Pricing',
+    validate: (formData: VendorFormData) => {
+      return {
+        isValid: true,
+        isComplete: !!(formData.bridal_hair_price
+          && formData.bridal_makeup_price
+          && formData.bridal_hair_price
+          && formData.bridesmaid_hair_price
+          && formData.bridesmaid_makeup_price
+          && formData["bridal_hair_&_makeup_price"]
+          && formData["bridesmaid_hair_&_makeup_price"]),
+        errors: {}
+      }
+    }
+  },
+  {
+    id: 'image',
+    label: 'Business image',
+    validate: (formData: VendorFormData) => {
+      return {
+        isValid: true,
+        isComplete: !!(formData.images && formData.images.length > 0),
+        errors: {} 
+      };
+    }
+  },
 ];
 
 const DRAWER_WIDTH = 400;
 
 interface VendorEditProfileProps {
   vendor: Vendor;
+  tags: VendorTag[];
 }
 
-export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
+export default function VendorEditProfile({ vendor, tags }: VendorEditProfileProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
-  const [completedSections, setCompletedSections] = useState<string[]>(['business']);
+
   const { addNotification } = useNotification();
 
-  // Form state - initialize with vendor data
-  const [formData, setFormData] = useState<VendorFormData>({
-    business_name: vendor.business_name || '',
-    location: vendor.city || '',
-    // =======
-    //     locationResult: {
-    //       display_name: getDisplayNameWithoutType(vendor.city, vendor.region, vendor.state, vendor.country),
-    //       lat: vendor.latitude || null,
-    //       lon: vendor.longitude || null,
-    //       address: {
-    //         city: vendor.city || '',
-    //         state: vendor.state || '',
-    //         country: vendor.country || ''
-    //       }
-    //     },
-    // >>>>>>> Stashed changes
-    travels_world_wide: vendor.travels_world_wide || false,
-    website: vendor.website || '',
-    instagram: vendor.instagram || '',
-    google_maps_place: vendor.google_maps_place || '',
-    description: vendor.description || '',
-    bridal_hair_price: vendor.bridal_hair_price,
-    bridal_makeup_price: vendor.bridal_makeup_price,
-    bridal_hair_makeup_price: vendor.bridal_hair_makeup_price,
-    bridesmaid_hair_price: vendor.bridesmaid_hair_price,
-    bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
-    bridesmaid_hair_makeup_price: vendor.bridesmaid_hair_makeup_price,
-    cover_image: vendor.cover_image,
-    images: vendor.images || [],
-    tags: vendor.tags || [],
-  });
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+  const [formData, setFormData] = useState<VendorFormData>(
+    vendorToFormData(vendor) // Show vendor data immediately. Replace once draft loads
+  );
+  const { completedSections, inProgressSections } = useSectionCompletion(sections, formData);
 
-  // Compute resolvedLocation for default bio
-  const resolvedLocation = formData.location;
-  // =======
-  //formData.locationResult.display_name || '';
-  // >>>>>>> Stashed changes
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchUserId() {
+      const user = await getCurrentUserAction();
+      if (!user) {
+        redirect('/login'); // todo: redirect to vendor login
+      }
+      setUserId(user?.id ?? null);
+    }
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    async function checkForDraft() {
+      if (!userId) return;
+
+      try {
+        setIsLoadingDraft(true);
+
+        // Only load if there's an unpublished draft
+        const draft = await loadUnpublishedDraft(vendor.id, userId ?? '');
+
+        if (draft) {
+          // Found unpublished work - load it
+          setDraftId(draft.id);
+          setFormData(draftToFormData(draft));
+          addNotification(
+            'You have unpublished changes. Continue editing or publish to make them live.',
+            'info'
+          );
+        }
+        // If no draft, formData already has vendor data from initialization
+      } catch (error) {
+        console.error('Error loading draft:', error);
+        addNotification('Failed to load draft. Using current profile data.', 'warning');
+      } finally {
+        setIsLoadingDraft(false);
+      }
+    }
+
+    checkForDraft();
+  }, [vendor.id, userId, addNotification]);
 
   // Create preview vendor object
   const previewVendor: Vendor = {
     ...vendor,
     business_name: formData.business_name,
-    city: formData.location,
-    // =======
-    //     latitude: formData.locationResult.lat,
-    //     longitude: formData.locationResult.lon,
-    // >>>>>>> Stashed changes
+    city: formData.locationResult?.address?.city || '',
+    state: formData.locationResult?.address?.state || '',
+    country: formData.locationResult?.address?.country || '',
+    latitude: formData.locationResult?.lat || null,
+    longitude: formData.locationResult?.lon || null,
     travels_world_wide: formData.travels_world_wide,
     website: formData.website,
     instagram: formData.instagram,
     google_maps_place: formData.google_maps_place,
-    description: formData.description?.trim()
-      ? formData.description
-      : getDefaultBio({
-        businessName: vendor.business_name || null,
-        tags: vendor.tags,
-        location: resolvedLocation
-      }),
+    description: formData.description,
     bridal_hair_price: formData.bridal_hair_price,
     bridal_makeup_price: formData.bridal_makeup_price,
-    bridal_hair_makeup_price: formData.bridal_hair_makeup_price,
+    bridal_hair_makeup_price: formData["bridal_hair_&_makeup_price"],
     bridesmaid_hair_price: formData.bridesmaid_hair_price,
     bridesmaid_makeup_price: formData.bridesmaid_makeup_price,
-    bridesmaid_hair_makeup_price: formData.bridesmaid_hair_makeup_price,
+    bridesmaid_hair_makeup_price: formData["bridesmaid_hair_&_makeup_price"],
     cover_image: formData.cover_image,
   };
   const handleDrawerToggle = () => {
@@ -123,42 +219,43 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
     setActiveSection(null);
   };
 
-  const markSectionComplete = (sectionId: string) => {
-    if (!completedSections.includes(sectionId)) {
-      setCompletedSections([...completedSections, sectionId]);
-    }
-  };
-
   const handleSave = async () => {
+    if (!userId) {
+      addNotification('User not authenticated', 'error');
+      return;
+    }
     try {
-      // const response = await fetch('/api/vendor/update-draft', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     vendorId: vendor.id,
-      //     draftData: formData,
-      //   }),
-      // });
-
-      // if (!response.ok) throw new Error('Failed to save draft');
-
-      addNotification('Changes saved successfully!', 'success');
+      const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
+      setDraftId(draft.id);
+      addNotification('Changes saved!', 'success');
     } catch (error) {
-      console.error('Error saving draft:', error);
+      console.error('Error saving:', error);
+      addNotification('Failed to save changes', 'error');
     }
   };
+
 
   const handlePublish = async () => {
-    // TODO: don't forget to remove vendor tags
-    // Move draft_data to main fields and set is_published = true
-    // await fetch('/api/vendor/publish', {
-    //   method: 'POST',
-    //   body: JSON.stringify({ vendorId: vendor.id }),
-    // });
-    addNotification('Changes published successfully!', 'success');
+    if (!userId) {
+      addNotification('User not authenticated', 'error');
+      return;
+    }
+    // TODO: Removing vendor tags
+    let result;
+    if (!draftId) {
+      // No draft exists, save first then publish
+      const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
+      result = await publishDraft(draft.id);
+    } else {
+      result = await publishDraft(draftId);
+    }
+    if (result.error) {
+      addNotification(`Failed to publish: ${result.error}`, 'error');
+      return;
+    } else {
+      addNotification('Changes published successfully!', 'success');
+    }
   };
-
-  // Menu and EditForm views are moved to separate components
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
@@ -211,11 +308,12 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
             setFormData={setFormData}
             handleBackToMenu={handleBackToMenu}
             handleSave={handleSave}
-            markSectionComplete={markSectionComplete}
             vendorIdentifier={vendor.slug ?? vendor.id}
+            tags={tags}
           />
         ) : (
           <MenuView
+            inProgressSections={inProgressSections}
             sections={sections}
             completedSections={completedSections}
             onSectionClick={handleSectionClick}
@@ -258,16 +356,27 @@ export default function VendorEditProfile({ vendor }: VendorEditProfileProps) {
             top: 0,
             zIndex: 10
           }}>
-            <Box sx={{
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              bgcolor: 'success.light',
-              animation: 'pulse 2s infinite'
-            }} />
-            <Typography variant="body2" fontWeight="medium">
-              Preview Mode - Changes appear instantly
-            </Typography>
+            {isLoadingDraft ? (
+              <>
+                <CircularProgress size={16} sx={{ color: 'white' }} />
+                <Typography variant="body2" fontWeight="medium">
+                  Checking for draft changes...
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Box sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: 'success.light',
+                  animation: 'pulse 2s infinite'
+                }} />
+                <Typography variant="body2" fontWeight="medium">
+                  Preview Mode - Changes appear instantly
+                </Typography>
+              </>
+            )}
           </Box>
 
           {/* Preview Content with frame effect */}

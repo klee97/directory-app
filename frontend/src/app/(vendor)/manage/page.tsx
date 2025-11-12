@@ -1,26 +1,25 @@
-// app/vendor/edit/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
 import VendorEditProfile from '@/features/profile/manage/components/EditableVendorProfile';
 import { fetchVendorBySlug } from '@/features/profile/common/api/fetchVendor';
+import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
+import { getTags } from '@/features/profile/common/api/getTags';
 
 export default async function VendorEditPage() {
-  // const supabase = createClient();
-  
+
   // Check authentication
-  // const { data: { user } } = await supabase.auth.getUser();
-  
-  // if (!user) {
-  //   redirect('/login?redirect=/vendor/edit');
-  // }
-  
-  // Fetch vendor data for current user
-  const vendor = await fetchVendorBySlug("mable-pang");
-  
-  if (!vendor) {
-    // User is not a vendor, redirect or show error
-    redirect('/'); // or show "not a vendor" page
+  const user = await getCurrentUserAction();
+
+  if (!user) {
+    redirect('/login?redirect=/vendor/edit');
   }
-  
-  return <VendorEditProfile vendor={vendor} />;
+
+  // Fetch vendor data for current user
+  const vendor = await fetchVendorBySlug("mable-pang"); // todo: replace with user linked vendor slug
+
+  if (!vendor) {
+    // User is not a vendor, redirect
+    redirect('/'); // todo: redirect to appropriate page
+  }
+  const tags = await getTags();
+  return <VendorEditProfile vendor={vendor} tags={tags} />;
 }
