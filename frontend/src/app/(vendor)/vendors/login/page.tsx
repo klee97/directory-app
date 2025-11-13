@@ -11,6 +11,7 @@ import { LoginForm } from "@/features/login/components/LoginForm";
 import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
+import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
 
 export default function VendorLoginPage() {
   const { addNotification } = useNotification();
@@ -19,9 +20,9 @@ export default function VendorLoginPage() {
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   // Extract magic link parameters
-  const slug = searchParams.get('slug') || "";
-  const email = searchParams.get('email') || "";
-  const token = searchParams.get('token') || "";
+  const slug = searchParams.get(SLUG_PARAM) || "";
+  const email = searchParams.get(EMAIL_PARAM) || "";
+  const token = searchParams.get(TOKEN_PARAM) || "";
 
   const [isLoading, setIsLoading] = useState(true);
 

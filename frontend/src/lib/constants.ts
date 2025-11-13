@@ -12,6 +12,11 @@ export const QUERY_PARAM = 'q';
 export const LATITUDE_PARAM = 'lat';
 export const LONGITUDE_PARAM = 'lon';
 
+// magic link params
+export const SLUG_PARAM = 'slug';
+export const EMAIL_PARAM = 'email';
+export const TOKEN_PARAM = 'token';
+
 export type SearchParam = {
   query?: string;
   region?: string;
