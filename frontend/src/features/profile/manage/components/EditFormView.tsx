@@ -21,16 +21,8 @@ import { useLocationForm } from '@/features/profile/manage/hooks/useLocationForm
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { VendorFormData } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
+import { Section } from './Section';
 
-export interface Section {
-  id: string;
-  label: string;
-  validate: (formData: VendorFormData) => {
-    isValid: boolean;
-    isComplete: boolean;
-    errors: Record<string, string | null>;
-  };
-}
 
 // Typed shape for the editable form data (draft)
 interface EditFormViewProps {

@@ -1,7 +1,7 @@
 "use client";
 import { VendorFormData } from "@/types/vendorFormData";
 import { useEffect, useState } from "react";
-import { Section } from "../components/EditFormView";
+import { Section } from "../components/Section";
 
 export function useSectionCompletion(
   sections: Section[],

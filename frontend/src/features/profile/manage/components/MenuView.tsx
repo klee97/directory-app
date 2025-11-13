@@ -8,8 +8,7 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import SectionIcon from './SectionIcon';
-import { Section } from './EditFormView';
+import { Section, SectionIcon } from './Section';
 
 interface MenuViewProps {
   sections: Section[];

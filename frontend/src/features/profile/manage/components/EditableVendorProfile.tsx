@@ -15,7 +15,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import VendorProfile from '@/features/profile/common/components/VendorProfile';
 import { Vendor, VendorTag } from '@/types/vendor';
 import MenuView from './MenuView';
-import EditFormView, { Section } from './EditFormView';
+import EditFormView from './EditFormView';
 import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '../api/updateDrafts';
 import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
 import { VendorFormData } from '@/types/vendorFormData';
@@ -24,97 +24,7 @@ import { redirect } from 'next/navigation'
 import CircularProgress from '@mui/material/CircularProgress';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { useSectionCompletion } from '../hooks/updateSectionStatus';
-
-
-const sections: Section[] = [
-  {
-    id: 'business',
-    label: 'Business info',
-    validate: (formData: VendorFormData) => {
-      const business_name = formData.business_name?.trim();
-
-      return {
-        isValid: !!(business_name && formData.locationResult),
-        isComplete: !!(business_name && formData.locationResult && formData.travels_world_wide),
-        errors: {
-          business_name: !business_name ? 'Business name is required' : null,
-          location: !formData.locationResult ? 'Location is required' : null,
-        }
-      }
-    }
-  },
-  {
-    id: 'links',
-    label: 'Website & Socials',
-    validate: (formData: VendorFormData) => {
-      const instagram = formData.instagram?.trim();
-
-      return {
-        isValid: !!(instagram),
-        isComplete: !!(instagram && formData.website?.trim() && formData.google_maps_place?.trim()),
-        errors: {
-          instagram: !instagram ? 'Instagram handle is required' : null,
-        }
-      }
-    }
-  },
-  {
-    id: 'bio',
-    label: 'Bio',
-    validate: (formData: VendorFormData) => {
-      const description = formData.description?.trim();
-      return {
-        isValid: !!description,
-        isComplete: !!description,
-        errors: {
-          description: !description ? 'Bio is required' : null,
-        }
-      }
-    }
-  },
-  {
-    id: 'services',
-    label: 'Services and Skills',
-    validate: (formData: VendorFormData) => {
-      const hasService = formData.tags.some(tag => tag.type === 'SERVICE');
-      return {
-        isValid: hasService,
-        isComplete: !!(hasService && formData.tags.some(tag => tag.type === 'SKILL')),
-        errors: {
-          services: !hasService ? 'Please select at least one service' : null,
-        }
-      };
-    }
-  },
-  {
-    id: 'pricing',
-    label: 'Pricing',
-    validate: (formData: VendorFormData) => {
-      return {
-        isValid: true,
-        isComplete: !!(formData.bridal_hair_price
-          && formData.bridal_makeup_price
-          && formData.bridal_hair_price
-          && formData.bridesmaid_hair_price
-          && formData.bridesmaid_makeup_price
-          && formData["bridal_hair_&_makeup_price"]
-          && formData["bridesmaid_hair_&_makeup_price"]),
-        errors: {}
-      }
-    }
-  },
-  {
-    id: 'image',
-    label: 'Business image',
-    validate: (formData: VendorFormData) => {
-      return {
-        isValid: true,
-        isComplete: !!(formData.images && formData.images.length > 0),
-        errors: {} 
-      };
-    }
-  },
-];
+import { SECTIONS } from './Section';
 
 const DRAWER_WIDTH = 400;
 
@@ -136,7 +46,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
   const [formData, setFormData] = useState<VendorFormData>(
     vendorToFormData(vendor) // Show vendor data immediately. Replace once draft loads
   );
-  const { completedSections, inProgressSections } = useSectionCompletion(sections, formData);
+  const { completedSections, inProgressSections } = useSectionCompletion(SECTIONS, formData);
 
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -272,7 +182,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
               <MenuIcon />
             </IconButton>
             <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              {activeSection ? sections.find(s => s.id === activeSection)?.label : 'Edit Profile'}
+              {activeSection ? SECTIONS.find(s => s.id === activeSection)?.label : 'Edit Profile'}
             </Typography>
             {isMobile && mobileOpen && (
               <IconButton color="inherit" onClick={handleDrawerToggle}>
@@ -303,7 +213,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
         {activeSection ? (
           <EditFormView
             activeSection={activeSection}
-            sections={sections}
+            sections={SECTIONS}
             formData={formData}
             setFormData={setFormData}
             handleBackToMenu={handleBackToMenu}
@@ -314,7 +224,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
         ) : (
           <MenuView
             inProgressSections={inProgressSections}
-            sections={sections}
+            sections={SECTIONS}
             completedSections={completedSections}
             onSectionClick={handleSectionClick}
             onPublish={handlePublish}
