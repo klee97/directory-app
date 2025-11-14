@@ -1,5 +1,7 @@
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import axios from 'axios';
+import { getDefaultBio } from "../../common/utils/bio";
+import { getDisplayNameWithoutType } from "@/lib/location/locationNames";
 
 export type VendorDataPrepareMode = 'create' | 'update';
 
@@ -79,6 +81,13 @@ export async function prepareVendorData(
         updates.city = city;
         updates.state = state;
         updates.country = country;
+        if (mode === 'create') {
+          updates.description = getDefaultBio({
+            businessName: vendor.business_name ?? null,
+            tags: vendor.tags ?? [],
+            location: getDisplayNameWithoutType(city, state, country) ?? null
+          });
+        }
       }
     } else {
       console.warn(`Invalid coordinates: lat=${vendor.latitude}, lon=${vendor.longitude}`);

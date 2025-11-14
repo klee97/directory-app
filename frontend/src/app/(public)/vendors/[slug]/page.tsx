@@ -9,9 +9,9 @@ import { Suspense } from 'react';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
 import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
-import { getLocationString } from '@/lib/location/displayLocation';
 import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';
+import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const isHairStylist = hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
-  const locationString = getLocationString(vendor);
+  const locationString = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
   const title = `${vendor.business_name} - Wedding ${vendor.tags
     .filter((tag) => tag.type === 'SERVICE')
     .map((tag) => tag.display_name)

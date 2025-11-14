@@ -27,8 +27,8 @@ export interface GeocodeResponse {
 
 export interface LocationResult {
   display_name: string;
-  lat?: number;
-  lon?: number;
+  lat?: number | null;
+  lon?: number | null;
   type?: string;
   address?: {
     city?: string;

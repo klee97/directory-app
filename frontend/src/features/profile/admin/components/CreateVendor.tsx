@@ -26,7 +26,8 @@ export interface CreateVendorInput {
   business_name: string,
   website: string,
   region: string,
-  location_coordinates: string,
+  latitude: number | null,
+  longitude: number | null,
   travels_world_wide: boolean,
   lists_prices: boolean,
   email: string | null,
@@ -45,7 +46,8 @@ export const VENDOR_INPUT_DEFAULT: CreateVendorInput = {
   business_name: '',
   website: '',
   region: '',
-  location_coordinates: '',
+  latitude: null,
+  longitude: null,
   travels_world_wide: false,
   lists_prices: false,
   email: null,
@@ -115,6 +117,16 @@ export const AdminAddVendorManagement = () => {
     setSelectedTags(value);
     setNewVendor({ ...newVendor, tags: value });
   }
+
+  // Helper function to handle number field changes
+  const handleNumberFieldChange = (value: string, field: keyof CreateVendorInput) => {
+    const trimmedValue = value.trim();
+    const numberValue = trimmedValue === '' ? null : Number(trimmedValue);
+    setNewVendor({
+      ...newVendor,
+      [field]: numberValue
+    });
+  };
 
   return (
     <Container maxWidth="md">
@@ -190,13 +202,26 @@ export const AdminAddVendorManagement = () => {
             </Grid>
             <Grid size={6}>
               <TextField
-                required
                 fullWidth
-                label="Location Coordinates"
-                helperText="Format: LAT, LONG in numerical, not cardinal (e.g., '37.7749, -122.4194')"
+                label="Latitude"
+                helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
                 variant="outlined"
-                value={newVendor.location_coordinates ?? ""}
-                onChange={(e) => setNewVendor({ ...newVendor, location_coordinates: e.target.value })}
+                type="number"
+                slotProps={{ htmlInput: { step: "any" } }}
+                value={newVendor.latitude ?? ''}
+                onChange={(e) => handleNumberFieldChange(e.target.value, 'latitude')}
+              />
+            </Grid>
+            <Grid size={6}>
+              <TextField
+                fullWidth
+                label="Longitude"
+                helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
+                variant="outlined"
+                type="number"
+                slotProps={{ htmlInput: { step: "any" } }}
+                value={newVendor.longitude ?? ''}
+                onChange={(e) => handleNumberFieldChange(e.target.value, 'longitude')}
               />
             </Grid>
           </Grid>

@@ -33,7 +33,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange, options }) =
             getOptionLabel={(option) => option.display_name ?? option.name ?? ''}
             renderOption={(props, option) => <li {...props} key={option.id}>{option.display_name ?? option.name}</li>}
             renderInput={(params) => (
-                <TextField {...params} label="Tags" fullWidth />
+                <TextField {...params} fullWidth />
             )}
         />
     );

@@ -2,6 +2,23 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+/**
+ * Creates a Supabase client configured for server-side use with Next.js App Router.
+ *
+ * This helper wraps `createServerClient` from `@supabase/ssr` and connects it to
+ * Next.js's `cookies()` API, allowing Supabase to read and write authentication
+ * cookies during server-side rendering or API route execution.
+ *
+ * The `cookies` interface passed here:
+ * - `getAll()` retrieves all cookies from the current request (for reading auth state).
+ * - `setAll()` attempts to update cookies (for refreshing sessions).
+ *
+ * The `setAll()` method may safely fail in Server Components, since they can’t modify
+ * response headers; Supabase session refresh should instead occur in middleware or
+ * route handlers that run on the server.
+ *
+ * @returns {Promise<ReturnType<typeof createServerClient>>} A configured Supabase server client.
+ */
 export async function createClient() {
   const cookieStore = cookies();
 

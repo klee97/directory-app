@@ -25,7 +25,6 @@ import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
-import { getLocationString } from '@/lib/location/displayLocation';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
@@ -35,6 +34,7 @@ import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 import { getDefaultBio } from '../utils/bio';
+import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -46,7 +46,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
 const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
-  const defaultLocation = getLocationString(vendor);
+  const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -131,7 +131,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams?.get(SEARCH_PARAM);
 
-  const resolvedLocation = getLocationString(vendor);
+  const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
   const resolvedLowestPrice = Math.min(
     vendor.bridal_hair_makeup_price ?? Infinity,
@@ -522,7 +522,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
               <Divider sx={{ mt: 20, mb: 4 }} />
               <VendorCarousel
                 vendors={nearbyVendors}
-                title={`More wedding makeup artists for Asian features near ${getLocationString(vendor)}`}
+                title={`More wedding makeup artists for Asian features near ${resolvedLocation}`}
                 filterContext={{
                   lat: lat ? parseFloat(lat) : null,
                   lon: lon ? parseFloat(lon) : null,

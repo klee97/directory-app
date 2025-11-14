@@ -321,6 +321,104 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_drafts: {
+        Row: {
+          "bridal_hair_&_makeup_price": number | null
+          bridal_hair_price: number | null
+          bridal_makeup_price: number | null
+          "bridesmaid_hair_&_makeup_price": number | null
+          bridesmaid_hair_price: number | null
+          bridesmaid_makeup_price: number | null
+          business_name: string | null
+          cover_image: string | null
+          created_at: string | null
+          description: string | null
+          email: string | null
+          google_maps_place: string | null
+          id: string
+          ig_handle: string | null
+          images: Json | null
+          is_published: boolean | null
+          last_saved_at: string
+          lists_prices: boolean | null
+          location_data: Json | null
+          logo: string | null
+          profile_image: string | null
+          tags: Json | null
+          travels_world_wide: boolean | null
+          updated_at: string | null
+          user_id: string
+          vendor_id: string
+          website: string | null
+        }
+        Insert: {
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
+          business_name?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          google_maps_place?: string | null
+          id?: string
+          ig_handle?: string | null
+          images?: Json | null
+          is_published?: boolean | null
+          last_saved_at?: string
+          lists_prices?: boolean | null
+          location_data?: Json | null
+          logo?: string | null
+          profile_image?: string | null
+          tags?: Json | null
+          travels_world_wide?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          vendor_id: string
+          website?: string | null
+        }
+        Update: {
+          "bridal_hair_&_makeup_price"?: number | null
+          bridal_hair_price?: number | null
+          bridal_makeup_price?: number | null
+          "bridesmaid_hair_&_makeup_price"?: number | null
+          bridesmaid_hair_price?: number | null
+          bridesmaid_makeup_price?: number | null
+          business_name?: string | null
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          email?: string | null
+          google_maps_place?: string | null
+          id?: string
+          ig_handle?: string | null
+          images?: Json | null
+          is_published?: boolean | null
+          last_saved_at?: string
+          lists_prices?: boolean | null
+          location_data?: Json | null
+          logo?: string | null
+          profile_image?: string | null
+          tags?: Json | null
+          travels_world_wide?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          vendor_id?: string
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_drafts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_media: {
         Row: {
           created_at: string

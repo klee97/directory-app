@@ -19,7 +19,9 @@
     "populate-locations": "npx tsx scripts/populate_location_coordinates.ts",
     "test-r2": "node scripts/test_r2_connection.js",
     "test-image-processing": "node scripts/test_image_processing.js",
-    "migrate-images": "node scripts/migrate_images_to_r2.js"
+    "migrate-images": "node scripts/migrate_images_to_r2.js",
+    "backfill:bios": "tsx scripts/backfill-vendor-bios.ts",
+    "backfill:bios:dry": "DRY_RUN=true tsx scripts/backfill-vendor-bios.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.907.0",
