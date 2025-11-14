@@ -1,3 +1,5 @@
+import { Footer } from "@/components/layouts/Footer";
+import { Navbar } from "@/components/layouts/Navbar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,6 +12,11 @@ export default function VendorLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // No Navbar or Footer
-  return <>{children}</>;
+
+  return <>
+    <Navbar isVendorNavbar={true} />
+    {children}
+    <Footer isVendorFooter={true} />
+  </>;
+
 }

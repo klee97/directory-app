@@ -40,10 +40,11 @@ import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
+const vendorPages: string[] = [];
 const resources = ["Blog"];
 const Title = 'ASIAN WEDDING MAKEUP';
 
-export default function Navbar() {
+export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const [mounted, setMounted] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElResources, setAnchorElResources] = React.useState<null | HTMLElement>(null);
@@ -64,6 +65,7 @@ export default function Navbar() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  console.log(isVendorNavbar)
 
   // Handle hydration and initial loading
   React.useEffect(() => {
@@ -294,7 +296,7 @@ export default function Navbar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: 'block', md: 'none' } }}
             >
-              {pages.map((page) => (
+              {!isVendorNavbar ? pages.map((page) => (
                 <MenuItem
                   key={page}
                   onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -305,36 +307,50 @@ export default function Navbar() {
                     {page}
                   </Typography>
                 </MenuItem>
-              ))}
-              <Box sx={{ width: '100%' }}>
-                <MenuItem
-                  key="Resources"
-                  onClick={() => setResourcesExpanded(!resourcesExpanded)}
-                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                >
-                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                    Resources
-                  </Typography>
-                  {resourcesExpanded ? <ExpandLess fontSize='small' /> : <ExpandMore fontSize='small' />}
-                </MenuItem>
+              ))
+                : vendorPages.map((page) => (
+                  <MenuItem
+                    key={page}
+                    onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                  >
+                    <Typography
+                      sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {page}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              {!isVendorNavbar && (
+                <Box sx={{ width: '100%' }}>
+                  <MenuItem
+                    key="Resources"
+                    onClick={() => setResourcesExpanded(!resourcesExpanded)}
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
+                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                      Resources
+                    </Typography>
+                    {resourcesExpanded ? <ExpandLess fontSize='small' /> : <ExpandMore fontSize='small' />}
+                  </MenuItem>
 
-                <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
-                  <Box sx={{ pl: 2 }}>
-                    {resources.map((resource) => (
-                      <MenuItem
-                        key={resource}
-                        onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
-                      >
-                        <Typography
-                          sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                  <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
+                    <Box sx={{ pl: 2 }}>
+                      {resources.map((resource) => (
+                        <MenuItem
+                          key={resource}
+                          onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
                         >
-                          {resource}
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                  </Box>
-                </Collapse>
-              </Box>
+                          <Typography
+                            sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                          >
+                            {resource}
+                          </Typography>
+                        </MenuItem>
+                      ))}
+                    </Box>
+                  </Collapse>
+                </Box>
+              )}
               {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && (
                 <Box sx={{ width: '100%' }}>
                   <Divider />
@@ -402,8 +418,17 @@ export default function Navbar() {
               {Title}
             </Typography>
           </Link>
+
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {pages.map((page) => (
+            {!isVendorNavbar ? pages.map((page) => (
+              <Button
+                key={page}
+                onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                {page}
+              </Button>
+            )) : vendorPages.map((page) => (
               <Button
                 key={page}
                 onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -412,13 +437,15 @@ export default function Navbar() {
                 {page}
               </Button>
             ))}
-            <Button
-              key="Resources"
-              onClick={handleOpenResourcesMenu}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              Resources
-            </Button>
+            {!isVendorNavbar && (
+              <Button
+                key="Resources"
+                onClick={handleOpenResourcesMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+              >
+                Resources
+              </Button>
+            )}
             <Menu
               id="menu-resources"
               anchorEl={anchorElResources}
@@ -447,8 +474,9 @@ export default function Navbar() {
             </Menu>
           </Box>
 
+
           {isDevelopment() && (
-            <DevTools/>
+            <DevTools />
           )}
           {isDevOrPreview() && (
             <FormControl>

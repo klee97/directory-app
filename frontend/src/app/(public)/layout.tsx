@@ -1,4 +1,4 @@
-import Navbar from "@/components/layouts/Navbar";
+import { Navbar } from "@/components/layouts/Navbar";
 import { Footer } from "@/components/layouts/Footer";
 
 export default function PublicLayout({
@@ -8,9 +8,9 @@ export default function PublicLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <Navbar isVendorNavbar={false} />
       {children}
-      <Footer />
+      <Footer isVendorFooter={false} />
     </>
   );
 }
