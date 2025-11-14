@@ -4,7 +4,7 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoginForm } from "@/features/login/components/LoginForm";
@@ -13,7 +13,7 @@ import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
 
-export default function VendorLoginPage() {
+function VendorLoginPageContent() {
   const { addNotification } = useNotification();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -124,3 +124,11 @@ export default function VendorLoginPage() {
     </Container>
   );
 }
+
+export default function VendorLoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VendorLoginPageContent />
+    </Suspense>)
+    ;
+};
