@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData, VendorDataInput } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
+import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 
 interface VendorLookup {
   id?: string;
@@ -17,7 +18,7 @@ export const updateVendor = async (
   tags: VendorTag[],
 ) => {
   console.log("Updating vendor with update data:", vendor);
-  
+
   // Validate that we have data to update
   if (Object.keys(vendor).length === 0) {
     throw new Error("No fields to update");
@@ -56,13 +57,22 @@ export const updateVendor = async (
     lookupField = 'id';
     lookupValue = lookup.id;
     console.log("Using vendor ID for lookup:", lookup.id);
+  } else if (lookup.id && lookup.id !== '' && isTestVendor(lookup.id)) {
+    // Allow TEST- IDs in development
+    if (!shouldIncludeTestVendors()) {
+      console.error("Cannot modify test vendors in production");
+      throw new Error("Test vendors can only be modified in development environment");
+    }
+    lookupField = 'id';
+    lookupValue = lookup.id;
+    console.log("Using test vendor ID for lookup:", lookup.id);
   } else if (lookup.slug && lookup.slug !== '') {
     lookupField = 'slug';
     lookupValue = lookup.slug;
     console.log("Using vendor slug for lookup:", lookup.slug);
   } else {
-    console.error("Either vendor ID (HMUA-XXX) or slug is required for update");
-    throw new Error("Either vendor ID (HMUA-XXX) or slug is required for update");
+    console.error("Either vendor ID (HMUA-XXX or TEST-XXX) or slug is required for update");
+    throw new Error("Either vendor ID (HMUA-XXX or TEST-XXX) or slug is required for update");
   }
 
   // Fetch existing vendor data for comparison (single query)
@@ -80,12 +90,21 @@ export const updateVendor = async (
   const vendorId = existingVendorData.id;
   console.log("Found vendor ID:", vendorId);
 
+  // ✅ Validate test vendor modification
+  if (isTestVendor(vendorId)) {
+    if (!shouldIncludeTestVendors()) {
+      console.error("Cannot modify test vendors in production");
+      throw new Error("Test vendors can only be modified in development environment");
+    }
+    console.log("⚠️  Updating TEST vendor (development only)");
+  }
+
   // Prepare vendor data with context about existing data
   const vendorData: BackendVendorInsert = await prepareVendorData(vendor, {
     mode: 'update',
     existingData: existingVendorData
   });
-  
+
   console.log("Prepared vendor update data:", vendorData);
 
   // Proceed with vendor update using the determined lookup field
@@ -134,7 +153,11 @@ export const updateVendor = async (
       }
     }
 
-    if (hasVendorContactInfo(firstname, lastname, vendor.business_name) && data.email != null && data.email != '') {
+    // ✅ Skip HubSpot for test vendors
+    const isTest = isTestVendor(data.id);
+    if (isTest) {
+      console.log("⚠️  Skipping HubSpot contact update for test vendor:", data.id);
+    } else if (hasVendorContactInfo(firstname, lastname, vendor.business_name) && data.email != null && data.email != '') {
       // Update contact in HubSpot
       const hubspotContactId = await updateHubSpotContact({
         email: data.email,

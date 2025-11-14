@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/api-client';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchVendorById(id: string) {
   console.debug("Fetching vendor with ID: %s", id);
-  const { data: vendor, error } = await supabase
+  let query = supabase
     .from('vendors')
     .select(`
       *, 
@@ -12,9 +13,15 @@ export async function fetchVendorById(id: string) {
       vendor_testimonials (review, author),
       tags (id, display_name, name, type, is_visible, style),
       vendor_media (id, media_url)
-    `)
+    `);
+
+  if (!shouldIncludeTestVendors()) {
+    query = query.not('id', 'like', 'TEST-%');
+  }
+  const { data: vendor, error } = await query
     .eq('id', id)
     .single();
+
   if (error) {
     console.error('Error fetching vendor: %s', error);
     return null;
@@ -24,7 +31,8 @@ export async function fetchVendorById(id: string) {
 
 export async function fetchVendorBySlug(slug: string) {
   console.debug("Fetching vendor with slug: %s", slug);
-  const { data: vendor, error } = await supabase
+
+  let query = supabase
     .from('vendors')
     .select(`
       *, 
@@ -33,7 +41,12 @@ export async function fetchVendorBySlug(slug: string) {
       vendor_testimonials (review, author),
       tags (id, display_name, name, type, is_visible, style),
       vendor_media (id, media_url)
-    `)
+    `);
+
+  if (!shouldIncludeTestVendors()) {
+    query = query.not('id', 'like', 'TEST-%');
+  }
+  const { data: vendor, error } = await query
     .eq('slug', slug)
     .single();
   if (error) {
