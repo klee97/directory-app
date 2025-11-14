@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData } from "../../admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
+import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
@@ -11,6 +12,15 @@ export const createVendor = async (
   tags: VendorTag[],
 ) => {
   console.log("Creating vendor:", vendor);
+
+  // ✅ Validate test vendor creation
+  if (vendor.id && isTestVendor(vendor.id)) {
+    if (!shouldIncludeTestVendors()) {
+      console.error("Cannot create test vendors in production");
+      throw new Error("Test vendors can only be created in development environment");
+    }
+    console.log("⚠️  Creating TEST vendor (development only)");
+  }
 
   // Get current session to verify user is authenticated
   const supabase = await createClient();
@@ -52,7 +62,7 @@ export const createVendor = async (
     console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
-    tags.map(async (tag) => {
+    await Promise.all(tags.map(async (tag) => {
       const { error: skillError } = await supabase
         .from("vendor_tags")
         .insert({ vendor_id: data.id, tag_id: tag.id });
@@ -60,10 +70,13 @@ export const createVendor = async (
       if (skillError) {
         console.error(`Error adding tag ${tag.display_name} to new vendor id ${data.id}`, skillError);
       }
-    })
+    }));
 
-    // Create a contact in HubSpot if email is provided
-    if (vendor.email) {
+    // ✅ Skip HubSpot for test vendors
+    if (isTestVendor(data.id)) {
+      console.log("⚠️  Skipping HubSpot contact creation for test vendor:", data.id);
+    } else if (vendor.email) {
+      // Create a contact in HubSpot if email is provided
       const hubspotContactId = await createHubSpotContact({
         email: vendor.email,
         firstname: firstname,
@@ -74,12 +87,14 @@ export const createVendor = async (
 
       if (!hubspotContactId) {
         console.error("Failed to create HubSpot contact for vendor:", data.slug);
+      } else {
+        console.log("HubSpot contact created successfully!", hubspotContactId);
       }
-      console.log("HubSpot contact created successfully!", hubspotContactId);
     } else {
       console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
   }
+  
   if (error) {
     console.error("Error creating vendor:", error);
     throw error;

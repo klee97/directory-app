@@ -13,6 +13,9 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Checkbox from '@mui/material/Checkbox';
 import { createVendor } from '@/features/profile/common/api/createVendor';
 import { useNotification } from '@/contexts/NotificationContext';
 import RegionSelector, { RegionOption } from '@/features/profile/common/components/RegionSelector';
@@ -20,9 +23,11 @@ import TagSelector from '@/features/profile/common/components/TagSelector';
 import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
 import { VendorTag } from '@/types/vendor';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 
 // Define types directly in the file
 export interface CreateVendorInput {
+  id?: string; // ✅ Optional ID for test vendors
   business_name: string,
   website: string,
   region: string,
@@ -71,21 +76,40 @@ export const AdminAddVendorManagement = () => {
   const [selectedTags, setSelectedTags] = useState<VendorTag[]>([]);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // ✅ Test vendor state
+  const [isTestVendor, setIsTestVendor] = useState(false);
+  const [testVendorId, setTestVendorId] = useState('');
 
   const addVendor = async () => {
     setIsSubmitting(true);
 
     try {
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
+      
+      // ✅ Add test vendor ID if creating a test vendor
+      if (isTestVendor && testVendorId.trim()) {
+        const id = testVendorId.trim().startsWith('TEST-') 
+          ? testVendorId.trim() 
+          : `TEST-${testVendorId.trim()}`;
+        newVendorData.id = id;
+      }
+      
       const data = await createVendor(newVendorData, firstName, lastName, selectedTags);
 
       if (data) {
-        addNotification("Vendor added successfully!");
+        addNotification(
+          isTestVendor 
+            ? "Test vendor added successfully!" 
+            : "Vendor added successfully!"
+        );
         setNewVendor(VENDOR_INPUT_DEFAULT);
         setFirstName("");
         setLastName("");
         setSelectedRegion(null);
         setSelectedTags([]);
+        setIsTestVendor(false);
+        setTestVendorId('');
       } else {
         addNotification("Failed to add vendor. Please try again.", "error");
       }
@@ -135,6 +159,54 @@ export const AdminAddVendorManagement = () => {
           Instructions in <Link href="https://docs.google.com/document/d/1hHj-bi1kwWTgGTNnO1T5QSOj2YP6da9Vs5jf9I8xBe4">Google Doc</Link>
         </Typography>
         <br />
+
+        {/* ✅ Test vendor section */}
+        {shouldIncludeTestVendors() && (
+          <Box sx={{ mb: 3 }}>
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <AlertTitle>Development Mode</AlertTitle>
+              You can create test vendors that won&apos;t be visible in production and won&apos;t sync to HubSpot.
+            </Alert>
+            
+            <FormControlLabel
+              control={
+                <Checkbox 
+                  checked={isTestVendor}
+                  onChange={(e) => setIsTestVendor(e.target.checked)}
+                />
+              }
+              label="Create as test vendor"
+            />
+            
+            {isTestVendor && (
+              <Box sx={{ mt: 2 }}>
+                <TextField
+                  fullWidth
+                  label="Test Vendor ID"
+                  helperText="Enter ID (e.g., '001' for 'TEST-001' or 'TEST-COMPLETE' for custom ID)"
+                  value={testVendorId}
+                  onChange={(e) => setTestVendorId(e.target.value)}
+                  placeholder="001"
+                  sx={{ mb: 2 }}
+                />
+                {testVendorId && (
+                  <Typography variant="caption" color="text.secondary">
+                    Will create vendor with ID: {testVendorId.trim().startsWith('TEST-') ? testVendorId.trim() : `TEST-${testVendorId.trim()}`}
+                  </Typography>
+                )}
+              </Box>
+            )}
+            <Divider sx={{ mt: 2 }} />
+          </Box>
+        )}
+
+        {/* Show warning if trying to create test vendor in production */}
+        {!shouldIncludeTestVendors && isTestVendor && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Test vendors can only be created in development environment.
+          </Alert>
+        )}
+
         <Grid container spacing={3}>
           <TextField
             required
@@ -295,9 +367,9 @@ export const AdminAddVendorManagement = () => {
             color="primary"
             onClick={addVendor}
             fullWidth
-            disabled={isSubmitting}
+            disabled={isSubmitting || (isTestVendor && !shouldIncludeTestVendors())}
           >
-            Add Vendor
+            {isTestVendor ? 'Add Test Vendor' : 'Add Vendor'}
           </Button>
         </Grid>
       </Box>
