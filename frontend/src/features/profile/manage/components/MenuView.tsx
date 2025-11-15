@@ -33,7 +33,6 @@ export default function MenuView({
           Edit your artist profile
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Your profile is live!
           Add more details below to make it shine, and hit &quot;Publish&quot; when you&apos;re ready.
         </Typography>
         <Button variant="contained" fullWidth onClick={onPublish} sx={{ borderRadius: 2 }}>

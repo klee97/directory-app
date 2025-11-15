@@ -20,9 +20,7 @@ import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '../api/
 import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
 import { VendorFormData } from '@/types/vendorFormData';
 import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
-import { redirect } from 'next/navigation'
 import CircularProgress from '@mui/material/CircularProgress';
-import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 
@@ -31,9 +29,10 @@ const DRAWER_WIDTH = 400;
 interface VendorEditProfileProps {
   vendor: Vendor;
   tags: VendorTag[];
+  userId: string;
 }
 
-export default function VendorEditProfile({ vendor, tags }: VendorEditProfileProps) {
+export default function VendorEditProfile({ vendor, tags, userId }: VendorEditProfileProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -48,28 +47,13 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
   );
   const { completedSections, inProgressSections } = useSectionCompletion(SECTIONS, formData);
 
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchUserId() {
-      const user = await getCurrentUserAction();
-      if (!user) {
-        redirect('/login'); // todo: redirect to vendor login
-      }
-      setUserId(user?.id ?? null);
-    }
-    fetchUserId();
-  }, []);
-
   useEffect(() => {
     async function checkForDraft() {
-      if (!userId) return;
-
       try {
         setIsLoadingDraft(true);
 
         // Only load if there's an unpublished draft
-        const draft = await loadUnpublishedDraft(vendor.id, userId ?? '');
+        const draft = await loadUnpublishedDraft(vendor.id, userId);
 
         if (draft) {
           // Found unpublished work - load it
@@ -83,7 +67,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
         // If no draft, formData already has vendor data from initialization
       } catch (error) {
         console.error('Error loading draft:', error);
-        addNotification('Failed to load draft. Using current profile data.', 'warning');
+        addNotification('Failed to load draft. Using live profile data.', 'warning');
       } finally {
         setIsLoadingDraft(false);
       }
@@ -130,10 +114,6 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
   };
 
   const handleSave = async () => {
-    if (!userId) {
-      addNotification('User not authenticated', 'error');
-      return;
-    }
     try {
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
@@ -283,7 +263,7 @@ export default function VendorEditProfile({ vendor, tags }: VendorEditProfilePro
                   animation: 'pulse 2s infinite'
                 }} />
                 <Typography variant="body2" fontWeight="medium">
-                  Preview Mode - Changes appear instantly
+                  Preview Mode - Publish to make your changes live
                 </Typography>
               </>
             )}

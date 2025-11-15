@@ -204,7 +204,7 @@ export const AdminAddVendorManagement = () => {
               <TextField
                 fullWidth
                 label="Latitude"
-                helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
+                helperText="Latitude in numerical, not cardinal, format (e.g. '37.7749')"
                 variant="outlined"
                 type="number"
                 slotProps={{ htmlInput: { step: "any" } }}
@@ -216,7 +216,7 @@ export const AdminAddVendorManagement = () => {
               <TextField
                 fullWidth
                 label="Longitude"
-                helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
+                helperText="Longitude in numerical, not cardinal, format (e.g. '-122.4194')"
                 variant="outlined"
                 type="number"
                 slotProps={{ htmlInput: { step: "any" } }}

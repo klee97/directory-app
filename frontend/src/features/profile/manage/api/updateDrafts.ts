@@ -5,6 +5,8 @@ import { supabase } from '@/lib/api-client';
 import { VendorFormData } from '@/types/vendorFormData';
 import { formDataToDraft } from '@/lib/profile/formToDraftTranslator';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
+import { updateVendor } from '../../common/api/updateVendor';
+import { draftToVendorInput } from '@/lib/profile/draftToVendorInputTranslator';
 
 /**
  *  todo: add authentication to make sure user is linked with vendor
@@ -54,8 +56,6 @@ export async function loadUnpublishedDraft(
   if (!user) {
     throw new Error('User not authenticated');
   }
-  // const hasAccess = await verifyVendorAccess(vendorId, user.id);
-  // if (!hasAccess) throw new Error('Unauthorized');
 
   // Just check if unpublished draft exists
   const { data: draft } = await supabase
@@ -86,7 +86,7 @@ export async function createOrUpdateDraft(
       .eq('id', existingDraftId)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   } else {
@@ -96,7 +96,7 @@ export async function createOrUpdateDraft(
       .insert(draftData)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   }
@@ -151,46 +151,44 @@ export async function publishDraft(
 
     console.log('Pretend to publish draft to vendor:', draft);
 
-    // // Update vendor with draft data
-    // const { error: updateError } = await supabase
-    //   .from('vendors')
-    //   .update({
-    //     business_name: draft.business_name,
-    //     website: draft.website,
-    //     email: draft.email,
-    //     ig_handle: draft.ig_handle,
-    //     google_maps_place: draft.google_maps_place,
-    //     description: draft.description,
-    //     region: draft.region,
-    //     city: draft.city,
-    //     state: draft.state,
-    //     country: draft.country,
-    //     latitude: draft.latitude,
-    //     longitude: draft.longitude,
-    //     travels_world_wide: draft.travels_world_wide,
-    //     lists_prices: draft.lists_prices,
-    //     bridal_hair_price: draft.bridal_hair_price,
-    //     bridal_makeup_price: draft.bridal_makeup_price,
-    //     'bridal_hair_&_makeup_price': draft.bridal_hair_makeup_price,
-    //     bridesmaid_hair_price: draft.bridesmaid_hair_price,
-    //     bridesmaid_makeup_price: draft.bridesmaid_makeup_price,
-    //     'bridesmaid_hair_&_makeup_price': draft.bridesmaid_hair_makeup_price,
-    //     cover_image: draft.cover_image,
-    //     profile_image: draft.profile_image,
-    //     logo: draft.logo,
-    //     // Note: gis_computed, state_id, metro_id are computed by DB
-    //   })
-    //   .eq('id', draft.vendor_id);
+    // Convert draft to VendorDataInput format
+    const vendorInput = draftToVendorInput(draft);
 
-    // if (updateError) {
-    //   return { success: false, error: updateError.message };
-    // }
+    // Extract vendor lookup info
+    const vendorLookup = {
+      id: draft.vendors.id,
+      slug: draft.vendors.slug
+    };
+    // Get vendor tags if they exist in draft
+    const tags = draft.tags ?? [];
+
+    // Reuse the existing updateVendor function
+    const result = await updateVendor(
+      vendorLookup,
+      vendorInput,
+      null, // first name of vendor
+      null, // last name of vendor
+      tags
+    );
+
+    if (!result) {
+      return {
+        success: false,
+        error: 'Failed to update vendor'
+      };
+    }
+
 
     // Mark draft as published
-    await supabase
+    const { error: markError } = await supabase
       .from('vendor_drafts')
       .update({ is_published: true })
       .eq('id', draftId);
+
+    if (markError) {
+      console.error('Failed to mark draft as published:', markError);
+      // Don't fail the whole operation if this fails
+    }
 
     return { success: true };
   } catch (error) {
