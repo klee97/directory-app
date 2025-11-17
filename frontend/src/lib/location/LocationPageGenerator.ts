@@ -2,6 +2,7 @@ import { supabase } from '@/lib/api-client';
 import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { transformBackendVendorToFrontend, VendorByDistance } from '@/types/vendor';
 import { getDisplayName } from './locationNames';
+import { shouldIncludeTestVendors } from '../env/env';
 
 
 export class LocationPageGenerator {
@@ -75,12 +76,14 @@ export class LocationPageGenerator {
       radius_miles: radiusMiles,
       limit_results: limitResults
     });
-
+    const filteredData = shouldIncludeTestVendors()
+      ? data
+      : data?.filter((vendor: VendorByDistance) => !vendor.id.startsWith('TEST-'));
     if (error) {
       console.error('Error fetching vendors for location:', error);
       return [];
     }
 
-    return data.map(transformBackendVendorToFrontend) || [];
+    return filteredData.map(transformBackendVendorToFrontend) || [];
   }
 }

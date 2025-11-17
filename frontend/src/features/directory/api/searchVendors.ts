@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/api-client";
+import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_RESULTS_MINIMUM, SEARCH_VENDORS_LIMIT_DEFAULT } from "@/types/location";
 import { transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 
@@ -33,7 +34,7 @@ export function filterVendorsByState(location: LocationResult, vendors: VendorBy
   if (!location.address?.state) {
     console.warn("No state provided in location:", location);
     return [];
-  } 
+  }
   return vendors.filter(vendor =>
     vendor.state?.toLowerCase() === location.address?.state?.toLowerCase()
   );
@@ -62,7 +63,7 @@ export function filterVendorsByCountry(location: LocationResult, vendors: Vendor
   if (!location.address?.country) {
     console.warn("No country provided in location:", location);
     return [];
-  } 
+  }
   return vendors.filter(vendor =>
     vendor.country?.toLowerCase() === location.address?.country?.toLowerCase()
   );
@@ -123,11 +124,14 @@ export async function getVendorsByDistance(
       }
     );
 
+  const filteredData = shouldIncludeTestVendors()
+    ? data
+    : data?.filter((vendor: VendorByDistance) => !vendor.id.startsWith('TEST-'));
   if (error) {
     console.error("Error fetching artists by distance:", error);
   }
 
-  return data.map(transformBackendVendorToFrontend) || [];
+  return filteredData.map(transformBackendVendorToFrontend) || [];
 }
 
 function isStateSelection(location: LocationResult) {

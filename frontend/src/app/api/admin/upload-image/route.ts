@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { createClient } from '@/lib/supabase/server';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -53,10 +54,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
     }
 
-    // Get vendor by slug to verify it exists and get the ID
-    const { data: vendor, error: vendorError } = await supabase
+    let query = supabase
       .from('vendors')
-      .select('id, slug')
+      .select('id, slug');
+
+    if (!shouldIncludeTestVendors()) {
+      query = query.not('id', 'like', 'TEST-%');
+    }
+
+    // Get vendor by slug to verify it exists and get the ID
+    const { data: vendor, error: vendorError } = await query
       .eq('slug', vendorSlug)
       .single();
 

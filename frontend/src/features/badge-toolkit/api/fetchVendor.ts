@@ -1,13 +1,19 @@
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { createClient } from '@/lib/supabase/client';
 
 export async function fetchVendorBySlug(slug: string) {
   console.debug("Fetching vendor with slug: %s", slug);
   const supabase = createClient();
-  const { data: vendor, error } = await supabase
+  let query = supabase
     .from('vendors')
     .select(`
       id 
-    `)
+    `);
+
+  if (!shouldIncludeTestVendors()) {
+    query = query.not('id', 'like', 'TEST-%');
+  }
+  const { data: vendor, error } = await query
     .eq('slug', slug)
     .single();
   if (error) {

@@ -38,6 +38,15 @@ export const shouldIncludeFuturePosts = () => {
   return isDevOrPreview()
 }
 
+export const shouldIncludeTestVendors = () => {
+  // Include test vendors in development environment only
+  return isDevelopment()
+}
+
+export const isTestVendor = (vendorId: string): boolean => {
+  return vendorId.startsWith('TEST-');
+};
+
 export const shouldEnableAnalytics = () => {
   const env = getEnvironment()
   

@@ -7,7 +7,7 @@ export async function fetchVendorSlugs() {
 }
 
 export async function fetchLocationSlugs() {
-  const { data } = await supabase.from('location_slugs').select('slug');
+  const { data } = await supabase.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 
