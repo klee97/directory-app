@@ -170,7 +170,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
 
       {disabled && (
         <Typography variant="caption" display="block" sx={{ mt: 1, color: 'warning.main' }}>
-          ⚠️ Please enter a vendor identifier first
+          ⚠️ Please enter the vendor slug first
         </Typography>
       )}
 

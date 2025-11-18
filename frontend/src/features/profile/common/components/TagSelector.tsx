@@ -4,8 +4,8 @@ import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { VendorTag } from '@/types/vendor';
 
 interface TagSelectorProps {
-    value: VendorTag[];
-    onChange: (value: VendorTag[]) => void;
+    value: VendorTag[] | null;
+    onChange: (value: VendorTag[] | null) => void;
     options: VendorTag[];
 }
 
@@ -14,14 +14,15 @@ const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange, options }) =
 
     const handleChange = (
         event: React.SyntheticEvent<Element, Event>,
-        value: VendorTag[] | null
+        newValue: VendorTag[] | null
     ) => {
-        onChange(value ?? []);
+        // If user clears all tags, pass null instead of empty array
+        onChange(newValue && newValue.length > 0 ? newValue : null);
     };
 
     return (
         <Autocomplete<VendorTag, true, false, false>
-            value={value}
+            value={value ?? []}
             onChange={handleChange}
             filterOptions={(opts, params) => filter(opts, params)}
             multiple

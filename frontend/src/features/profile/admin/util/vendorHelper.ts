@@ -7,17 +7,23 @@ export type VendorDataPrepareMode = 'create' | 'update';
 
 interface PrepareVendorDataOptions {
   mode: VendorDataPrepareMode;
-  existingData?: Partial<BackendVendorInsert>;
+  existingData?: Partial<BackendVendorInsert> & {
+    tags?: VendorTag[];
+  };
 }
 
 // Fields that should NOT be copied directly (they're computed/derived)
 const COMPUTED_FIELDS = new Set<string>([
   'slug',
   'gis',
-  'gis_computed',
-  'city',
-  'state',
-  'country'
+  'gis_computed'
+]);
+
+// Fields that are on related tables and not part of vendor insert/update
+const RELATED_FIELDS = new Set<string>([
+  'tags',
+  'testimonials',
+  'images'
 ]);
 
 // Input type for the preparation function
@@ -40,7 +46,7 @@ export interface VendorDataInput {
   // Use separate lat/lon fields
   latitude?: number | null;
   longitude?: number | null;
-  tags?: VendorTag[];
+  tags?: VendorTag[] | null;
 }
 
 // Prepare vendor insertion data
@@ -81,13 +87,12 @@ export async function prepareVendorData(
         updates.city = city;
         updates.state = state;
         updates.country = country;
-        if (mode === 'create') {
-          updates.description = getDefaultBio({
-            businessName: vendor.business_name ?? null,
-            tags: vendor.tags ?? [],
-            location: getDisplayNameWithoutType(city, state, country) ?? null
-          });
-        }
+        updates.description = getDefaultBio({
+          businessName: vendor.business_name ?? existingData?.business_name ?? null,
+          tags: vendor.tags ?? existingData?.tags ?? [],
+          location: getDisplayNameWithoutType(city, state, country) ?? null
+        });
+        console.log("Updated description based on coordinates:", updates.description);
       }
     } else {
       console.warn(`Invalid coordinates: lat=${vendor.latitude}, lon=${vendor.longitude}`);
@@ -96,7 +101,7 @@ export async function prepareVendorData(
 
   // Copy all non-computed fields
   for (const [key, value] of Object.entries(vendor)) {
-    if (value !== undefined && value !== null && !COMPUTED_FIELDS.has(key)) {
+    if (value !== undefined && value !== null && !COMPUTED_FIELDS.has(key) && !RELATED_FIELDS.has(key)) {
       updates[key as keyof BackendVendorInsert] = value;
     }
   }

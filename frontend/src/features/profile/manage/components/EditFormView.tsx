@@ -342,9 +342,10 @@ export default function EditFormView({
                 <FormFieldLabel required>Services offered</FormFieldLabel>
                 <TagSelector
                   value={formData.tags.filter(tag => tag.type === 'SERVICE')}
-                  onChange={(serviceTags) => {
+                  onChange={(newServiceTags) => {
                     // Merge with existing skills
                     const skillTags = formData.tags.filter(tag => tag.type === 'SKILL');
+                    const serviceTags = newServiceTags ?? [];
                     setFormData(prev => ({
                       ...prev,
                       tags: [
@@ -366,9 +367,10 @@ export default function EditFormView({
                 <FormFieldLabel>Additional skills</FormFieldLabel>
                 <TagSelector
                   value={formData.tags.filter(tag => tag.type === 'SKILL')}
-                  onChange={(skillTags) => {
+                  onChange={(newSkillTags) => {
                     // Merge with existing services, remove any skills not selected
                     const serviceTags = formData.tags.filter(tag => tag.type === 'SERVICE');
+                    const skillTags = newSkillTags ?? [];
                     setFormData(prev => ({
                       ...prev,
                       tags: [

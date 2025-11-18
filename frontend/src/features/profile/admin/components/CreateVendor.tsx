@@ -44,7 +44,7 @@ export interface CreateVendorInput {
   bridesmaid_makeup_price: number | null,
   "bridesmaid_hair_&_makeup_price": number | null,
   google_maps_place: string | null,
-  tags: VendorTag[],
+  tags: VendorTag[] | null,
 }
 
 export const VENDOR_INPUT_DEFAULT: CreateVendorInput = {
@@ -73,7 +73,7 @@ export const AdminAddVendorManagement = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
-  const [selectedTags, setSelectedTags] = useState<VendorTag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<VendorTag[] | null>(null);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -137,7 +137,7 @@ export const AdminAddVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? '' });
   };
 
-  const handleTagChange = (value: VendorTag[]) => {
+  const handleTagChange = (value: VendorTag[] | null) => {
     setSelectedTags(value);
     setNewVendor({ ...newVendor, tags: value });
   }
@@ -268,7 +268,7 @@ export const AdminAddVendorManagement = () => {
             <Grid size={6}>
               <TagSelector
                 value={selectedTags}
-                onChange={(selectedTags: VendorTag[]) => handleTagChange(selectedTags)}
+                onChange={(selectedTags: VendorTag[] | null) => handleTagChange(selectedTags)}
                 options={tags}
               />
             </Grid>
