@@ -78,6 +78,9 @@ function VendorLoginPageContent() {
 
         const { data: updateEmailData, error: updateEmailError } = await supabase.auth.updateUser({
           email,
+          data: {
+            access_token: token,
+          }
         })
 
         if (updateEmailError) {
