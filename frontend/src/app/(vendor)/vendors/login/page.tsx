@@ -65,7 +65,7 @@ function VendorLoginPageContent() {
       // Check if email and token from the query parameters are valid and match database records. 
       // If they do, sign in the user anonymously and link their email to the account.
       const vendor = await fetchVendorBySlug(slug);
-      const doEmailAndTokenMatch = email === vendor?.email?.toLowerCase() && token === vendor?.access_token?.toLowerCase();
+      const doEmailAndTokenMatch = email.toLowerCase() === vendor?.email?.toLowerCase() && token.toLowerCase() === vendor?.access_token?.toLowerCase();
 
       if (doEmailAndTokenMatch) {
         // Sign in the user anonymously and link email
