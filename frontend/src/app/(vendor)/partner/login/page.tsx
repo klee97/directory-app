@@ -89,7 +89,7 @@ function VendorLoginPageContent() {
           return;
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
-        router.push(`/vendors/${slug}`);
+        router.push(`/vendors/settings`);
         addNotification("Check your inbox to verify your vendor email address: " + email);
       } else {
         // User email and token do not match or user's email has already been linked, show the login form

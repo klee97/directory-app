@@ -17,6 +17,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Alert from "@mui/material/Alert";
+import Email from "@mui/icons-material/Email";
 import Favorite from "@mui/icons-material/Favorite";
 import Lock from "@mui/icons-material/Lock";
 import Delete from "@mui/icons-material/Delete";
@@ -32,16 +33,19 @@ interface ApiError extends Error {
   message: string;
 }
 
-export default function Settings() {
+export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) => {
   const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
+  const [email, setNewEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -90,6 +94,23 @@ export default function Settings() {
     }
   };
 
+  const handleEmailChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // TODO: Update email
+      addNotification('Check your inbox to verify your vendor email address: ' + email);
+      setNewEmail('');
+      setEmailDialogOpen(false);
+    } catch (error: unknown) {
+      const apiError = error as ApiError;
+      addNotification(apiError.message || 'Failed to update email', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     setIsSubmitting(true);
 
@@ -118,15 +139,32 @@ export default function Settings() {
           justifyContent: 'flex-start',
         }
       }}>
-        <ListItem disablePadding>
-          <ListItemButton component={Link} href="/favorites">
-            <ListItemIcon>
-              <Favorite />
-            </ListItemIcon>
-            <ListItemText primary="View Favorites" secondary="See the makeup artists that you have favorited" />
-          </ListItemButton>
-        </ListItem>
-        <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+        {!isVendorSettings && (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} href="/favorites">
+                <ListItemIcon>
+                  <Favorite />
+                </ListItemIcon>
+                <ListItemText primary="View Favorites" secondary="See the makeup artists that you have favorited" />
+              </ListItemButton>
+            </ListItem>
+            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+          </>
+        )}
+        {isVendorSettings &&
+          <>
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => setEmailDialogOpen(true)}>
+                <ListItemIcon>
+                  <Email />
+                </ListItemIcon>
+                <ListItemText primary="Change Email" secondary="Update your email address" />
+              </ListItemButton>
+            </ListItem>
+            <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
+          </>
+        }
         <ListItem disablePadding>
           <ListItemButton onClick={() => setPasswordDialogOpen(true)}>
             <ListItemIcon>
@@ -136,20 +174,21 @@ export default function Settings() {
           </ListItemButton>
         </ListItem>
         <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
-        <ListItem disablePadding>
-          <ListItemButton onClick={() => setDeleteDialogOpen(true)}>
-            <ListItemIcon>
-              <Delete color="error" />
-            </ListItemIcon>
-            <ListItemText
-              primary="Delete Account"
-              secondary="Delete your account and data. This action cannot be undone"
-              slotProps={{ secondary: { color: "error" } }}
-            />
-          </ListItemButton>
-        </ListItem>
+        {!isVendorSettings && (
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => setDeleteDialogOpen(true)}>
+              <ListItemIcon>
+                <Delete color="error" />
+              </ListItemIcon>
+              <ListItemText
+                primary="Delete Account"
+                secondary="Delete your account and data. This action cannot be undone"
+                slotProps={{ secondary: { color: "error" } }}
+              />
+            </ListItemButton>
+          </ListItem>
+        )}
       </List>
-
       <Dialog
         open={passwordDialogOpen}
         onClose={() => setPasswordDialogOpen(false)}
@@ -219,6 +258,39 @@ export default function Settings() {
             </Box>
           </form>
         </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={emailDialogOpen}
+        onClose={() => setEmailDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Update your email address</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            type="email"
+            label="New Email Address"
+            value={email}
+            onChange={(e) => setNewEmail(e.target.value)}
+            margin="normal"
+            required
+            disabled={isSubmitting}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEmailDialogOpen(false)} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEmailChange}
+            color="primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Updating...' : 'Update Email'}
+          </Button>
+        </DialogActions>
       </Dialog>
 
       <Dialog

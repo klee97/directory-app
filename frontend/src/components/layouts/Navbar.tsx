@@ -232,17 +232,19 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             open={Boolean(anchorElProfile)}
             onClose={handleCloseProfileMenu}
           >
-            <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-              <ListItemIcon>
-                <Favorite fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  My Favorites
-                </Typography>
-              </ListItemText>
-            </MenuItem>
-            <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+            {!isVendorNavbar && (
+              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                <ListItemIcon>
+                  <Favorite fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                    My Favorites
+                  </Typography>
+                </ListItemText>
+              </MenuItem>
+            )}
+            <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/vendors/settings')}>
               <ListItemIcon>
                 <Settings fontSize="small" />
               </ListItemIcon>
@@ -379,17 +381,19 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </MenuItem>
                   ) : (
                     <>
-                      <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-                        <ListItemIcon>
-                          <Favorite fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                          <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                            My Favorites
-                          </Typography>
-                        </ListItemText>
-                      </MenuItem>
-                      <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+                      {!isVendorNavbar && (
+                        <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                          <ListItemIcon>
+                            <Favorite fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>
+                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                              My Favorites
+                            </Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      )}
+                      <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/vendors/settings')}>
                         <ListItemIcon>
                           <Settings fontSize="small" />
                         </ListItemIcon>
