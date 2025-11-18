@@ -2,11 +2,8 @@ import type { Database } from "@/types/supabase";
 import { BackendVendorTag } from "./tag";
 import { isDevOrPreview } from "@/lib/env/env";
 import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
+import { isAllowedPrefix } from "@/lib/images/prefixes";
 
-export const IMAGE_PREFIX = 'https://xbsnelpjukudknfvmnnj.supabase.co/storage/v1/object/public/hmua-cover-photos/';
-export const R2_IMAGE_PREFIX = 'https://images.asianweddingmakeup.com/';
-
-export const PREFIXES: Set<string> = new Set<string>([IMAGE_PREFIX, R2_IMAGE_PREFIX]);
 
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
   & {
@@ -89,7 +86,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
 
   const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
     || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
-
+    
   return {
     id: vendor.id,
     is_premium: isPremiumVendor,
@@ -121,10 +118,10 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     distance_miles: vendor.distance_miles ?? null,
     images: images ?? [],
     profile_image: vendor.profile_image
-      && (vendor.profile_image.startsWith(IMAGE_PREFIX) || vendor.profile_image.startsWith(R2_IMAGE_PREFIX))
+      && isAllowedPrefix(vendor.profile_image)
       ? vendor.profile_image : null,
     cover_image: coverImage
-      && (coverImage.startsWith(IMAGE_PREFIX) || coverImage.startsWith(R2_IMAGE_PREFIX))
+      && isAllowedPrefix(coverImage)
       ? coverImage : null,
     access_token: vendor.access_token,
   }

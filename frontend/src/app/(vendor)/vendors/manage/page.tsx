@@ -7,19 +7,26 @@ import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendor
 export default async function VendorEditPage() {
 
   // Check authentication
-  const user = await getCurrentUserAction();
+  const currentUser = await getCurrentUserAction();
 
-  if (!user) {
+  if (!currentUser || !currentUser.userId) {
     redirect('/vendors/login?redirect=/vendors/manage');
   }
 
+  if (!currentUser.accessToken) {
+    redirect('/vendors/login?redirect=/vendors/manage');
+  }
+
+  const { userId, accessToken } = currentUser;
+
   // Fetch vendor data for current user
-  const vendor = await getVendorForCurrentUser();
+  const vendor = await getVendorForCurrentUser(userId, accessToken);
+  console.log("Fetched vendor data:", vendor);
+
 
   if (!vendor) {
-    // todo: If no vendor associated, redirect to appropriate page
-    redirect('/');
+    redirect('/vendors/login?redirect=/vendors/manage');
   }
   const tags = await getTags();
-  return <VendorEditProfile vendor={vendor} tags={tags} userId = {user.id} />;
+  return <VendorEditProfile vendor={vendor} tags={tags} userId={userId} />;
 }

@@ -1,6 +1,6 @@
 import Image, { StaticImageData } from 'next/image';
 import { Box } from '@mui/material';
-import { IMAGE_PREFIX, R2_IMAGE_PREFIX } from '@/types/vendor';
+import { isAllowedPrefix } from '@/lib/images/prefixes';
 
 export default function VendorCardImage({
   vendorImage,
@@ -26,7 +26,7 @@ export default function VendorCardImage({
       }}
     >
       <Image
-        src={vendorImage?.startsWith(IMAGE_PREFIX) || vendorImage?.startsWith(R2_IMAGE_PREFIX)
+        src={ vendorImage && isAllowedPrefix(vendorImage)
           ? vendorImage
           : placeholderImage.src}
         alt={`${vendorBusinessName} preview`}

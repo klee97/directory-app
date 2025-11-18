@@ -20,9 +20,9 @@ function VendorLoginPageContent() {
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   // Extract magic link parameters
-  const slug = searchParams.get(SLUG_PARAM) || "";
-  const email = searchParams.get(EMAIL_PARAM) || "";
-  const token = searchParams.get(TOKEN_PARAM) || "";
+  const slug = searchParams?.get(SLUG_PARAM) || "";
+  const email = searchParams?.get(EMAIL_PARAM) || "";
+  const token = searchParams?.get(TOKEN_PARAM) || "";
 
   const [isLoading, setIsLoading] = useState(true);
 
