@@ -9,7 +9,7 @@ export const createVendor = async (
   vendor: BackendVendorInsert,
   firstname: string,
   lastname: string,
-  tags: VendorTag[],
+  tags: VendorTag[] | null,
 ) => {
   console.log("Creating vendor:", vendor);
 
@@ -62,7 +62,8 @@ export const createVendor = async (
     console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
-    await Promise.all(tags.map(async (tag) => {
+    const tagsToAdd = tags ?? [];
+    await Promise.all(tagsToAdd.map(async (tag) => {
       const { error: skillError } = await supabase
         .from("vendor_tags")
         .insert({ vendor_id: data.id, tag_id: tag.id });

@@ -39,8 +39,8 @@ export const shouldIncludeFuturePosts = () => {
 }
 
 export const shouldIncludeTestVendors = () => {
-  // Include test vendors in development environment only
-  return isDevelopment()
+  // Include test vendors in development and preview environment
+  return isDevOrPreview()
 }
 
 export const isTestVendor = (vendorId: string): boolean => {

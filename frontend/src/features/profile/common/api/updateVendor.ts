@@ -15,7 +15,7 @@ export const updateVendor = async (
   vendor: VendorDataInput,
   firstname: string | null,
   lastname: string | null,
-  tags: VendorTag[],
+  tags: VendorTag[] | null,
 ) => {
   console.log("Updating vendor with update data:", vendor);
 
@@ -78,9 +78,19 @@ export const updateVendor = async (
   // Fetch existing vendor data for comparison (single query)
   const { data: existingVendorData, error: fetchError } = await supabase
     .from("vendors")
-    .select("id, slug, latitude, longitude, business_name")
+    .select(`
+      id,
+      slug,
+      latitude,
+      longitude,
+      business_name,
+      tags (id, display_name, name, type, is_visible, style)
+      `
+    )
     .eq(lookupField, lookupValue)
     .single();
+
+  console.log("Fetched existing vendor data for update:", existingVendorData);
 
   if (fetchError || !existingVendorData) {
     console.error(`Vendor not found with ${lookupField}:`, lookupValue, fetchError);
@@ -125,7 +135,7 @@ export const updateVendor = async (
     }
 
     // Add tags to the vendor
-    if (tags.length > 0) {
+    if (tags && tags.length > 0) {
       await Promise.all(tags.map(async (tag) => {
         const { error: skillError } = await supabase
           .from("vendor_tags")

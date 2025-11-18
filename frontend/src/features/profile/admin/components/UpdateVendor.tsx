@@ -41,7 +41,7 @@ export const UPDATE_VENDOR_INPUT_DEFAULT: VendorDataInput = {
   bridesmaid_makeup_price: null,
   "bridesmaid_hair_&_makeup_price": null,
   google_maps_place: null,
-  tags: [],
+  tags: null,
   cover_image: null,
 } as const;
 
@@ -51,7 +51,7 @@ export const AdminUpdateVendorManagement = () => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
-  const [selectedTags, setSelectedTags] = useState<VendorTag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<VendorTag[] | null>(null);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const imageUploadRef = useRef<ImageUploadRef>(null);
@@ -134,7 +134,7 @@ export const AdminUpdateVendorManagement = () => {
           setFirstName(null);
           setLastName(null);
           setSelectedRegion(null);
-          setSelectedTags([]);
+          setSelectedTags(null);
           setLookupId('');
           setLookupSlug('');
           setSelectedImageFile(null);
@@ -167,7 +167,7 @@ export const AdminUpdateVendorManagement = () => {
     setNewVendor({ ...newVendor, region: value?.unique_region ?? value?.inputValue ?? null });
   };
 
-  const handleTagChange = (value: VendorTag[]) => {
+  const handleTagChange = (value: VendorTag[] | null) => {
     setSelectedTags(value);
     setNewVendor({ ...newVendor, tags: value });
   }
@@ -176,11 +176,6 @@ export const AdminUpdateVendorManagement = () => {
     if (value === "true") return true;
     if (value === "false") return false;
     return null;
-  };
-
-  // Helper to get the vendor identifier for image upload (prefer slug)
-  const getVendorIdentifier = () => {
-    return lookupSlug.trim() || lookupId.trim();
   };
 
   // Handle image file selection
@@ -291,7 +286,7 @@ export const AdminUpdateVendorManagement = () => {
           <Grid size={6}>
             <TagSelector
               value={selectedTags}
-              onChange={(selectedTags: VendorTag[]) => handleTagChange(selectedTags)}
+              onChange={(selectedTags: VendorTag[] | null) => handleTagChange(selectedTags)}
               options={tags}
             />
           </Grid>
@@ -412,7 +407,7 @@ export const AdminUpdateVendorManagement = () => {
           ref={imageUploadRef}
           currentImageUrl={newVendor.cover_image ?? undefined}
           onImageSelect={handleImageSelect}
-          disabled={!getVendorIdentifier() || imageUploading}
+          disabled={!lookupSlug || imageUploading}
         />
         <Divider />
         <Button

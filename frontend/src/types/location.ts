@@ -105,4 +105,5 @@ export const STATE_ABBREVIATIONS: Record<string, string> = {
 
 export const COUNTRY_ABBREVIATIONS: Record<string, string> = {
   "United States": "USA",
+  "United States of America": "USA",
 };

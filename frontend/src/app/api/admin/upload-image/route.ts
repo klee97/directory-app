@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { createClient } from '@/lib/supabase/server';
-import { shouldIncludeTestVendors } from '@/lib/env/env';
+import { isTestVendor, shouldIncludeTestVendors } from '@/lib/env/env';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -16,7 +16,6 @@ const s3 = new S3Client({
 const STANDARD_WIDTH = 800;
 const AUTOSCALE_HEIGHT = null; // Maintain aspect ratio
 const JPEG_QUALITY = 90;
-const R2_BUCKET = process.env.R2_BUCKET_NAME!;
 const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
 
 export async function POST(request: NextRequest) {
@@ -62,13 +61,37 @@ export async function POST(request: NextRequest) {
       query = query.not('id', 'like', 'TEST-%');
     }
 
+    console.log("Uploading image for vendor:", vendorSlug);
+
     // Get vendor by slug to verify it exists and get the ID
     const { data: vendor, error: vendorError } = await query
       .eq('slug', vendorSlug)
       .single();
 
-    if (vendorError || !vendor) {
+
+    if (!vendor) {
+      console.error("Vendor not found for slug:", vendorSlug);
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
+    }
+    if (vendorError) {
+      console.error("Vendor fetch error:", vendorError);
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
+    }
+
+    const isTestData = isTestVendor(vendor.id);
+    let r2Bucket;
+    if (isTestData) {
+      if (!shouldIncludeTestVendors()) {
+        console.error("Cannot upload images for test vendors in production");
+        return NextResponse.json(
+          { error: "Test vendor images can only be uploaded in development environment" },
+          { status: 403 }
+        );
+      }
+      console.log("⚠️  Uploading image for TEST vendor (development only)");
+      r2Bucket = process.env.R2_TEST_BUCKET_NAME;
+    } else {
+      r2Bucket = process.env.R2_BUCKET_NAME!;
     }
 
     // Convert file to buffer
@@ -92,9 +115,11 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const filename = `vendor-photos/${vendorSlug}-${timestamp}.jpg`;
 
+
+
     // Upload to R2
     const uploadCommand = new PutObjectCommand({
-      Bucket: R2_BUCKET,
+      Bucket: r2Bucket,
       Key: filename,
       Body: processedBuffer,
       ContentType: 'image/jpeg',
@@ -102,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     await s3.send(uploadCommand);
 
-    const r2Url = `${R2_PUBLIC_URL}/${filename}`;
+    const r2Url = isTestData ? `${process.env.R2_TEST_URL}/${filename}`: `${R2_PUBLIC_URL}/${filename}`;
 
     return NextResponse.json({
       success: true,
