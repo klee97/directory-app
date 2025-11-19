@@ -20,7 +20,7 @@ const remotePatterns: (URL | RemotePattern)[] = [
   }
 ];
 
-// ✅ Conditionally include the test R2 bucket
+// Conditionally include the test R2 bucket
 if (shouldIncludeTestVendors() && process.env.R2_TEST_URL) {
   const url = new URL(process.env.R2_TEST_URL);
 
