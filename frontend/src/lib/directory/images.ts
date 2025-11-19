@@ -1,4 +1,5 @@
-import { BackendVendor, IMAGE_PREFIX, R2_IMAGE_PREFIX } from "@/types/vendor";
+import { BackendVendor } from "@/types/vendor";
+import { isAllowedPrefix } from "../images/prefixes";
 
 const URL_MIGRATION_MAP = new Map([
   // [
@@ -272,8 +273,7 @@ export function processVendorImages(
   const images = vendor.vendor_media
     .map((image) => {
       const originalUrl = image.media_url;
-
-      if (!(originalUrl.startsWith(IMAGE_PREFIX) || originalUrl.startsWith(R2_IMAGE_PREFIX))) {
+      if (!isAllowedPrefix(originalUrl)) {
         // Unsupported URL, skip
         return null;
       }

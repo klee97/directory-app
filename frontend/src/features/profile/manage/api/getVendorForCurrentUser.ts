@@ -1,30 +1,28 @@
+import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { createClient } from "@/lib/supabase/server";
+import { transformBackendVendorToFrontend } from "@/types/vendor";
 
-export async function getVendorForCurrentUser() {
+export async function getVendorForCurrentUser(userId: string, accessToken: string) {
+  if (!userId || !accessToken) {
+    return null;
+  }
+
   const supabase = await createClient();
-  
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
-  if (userError || !user) {
-    return null;
-  }
 
-  // ✅ Get vendor from user metadata
-  const vendorAccessToken = user.user_metadata?.vendor_access_token;
-  
-  if (!vendorAccessToken) {
-    return null;
-  }
-
-  // Fetch vendor by access token
-  const { data: vendor, error: vendorError } = await supabase
+  let query = supabase
     .from('vendors')
     .select(`
       *,
       tags (id, display_name, name, type, is_visible, style),
       vendor_media (id, media_url)
-    `)
-    .eq('access_token', vendorAccessToken)
+    `);
+  if (!shouldIncludeTestVendors()) {
+    query = query.not('id', 'like', 'TEST-%');
+  }
+
+  // Fetch vendor by access token
+  const { data: vendor, error: vendorError } = await query
+    .eq('access_token', accessToken)
     .single();
 
   if (vendorError) {
@@ -32,5 +30,5 @@ export async function getVendorForCurrentUser() {
     return null;
   }
 
-  return vendor;
+  return transformBackendVendorToFrontend(vendor);
 }

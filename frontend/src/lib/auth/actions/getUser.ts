@@ -13,6 +13,7 @@ export async function getCurrentUserAction() {
   
   // Return serializable user data
   return {
-    id: user.id,
+    userId: user.id,
+    accessToken: user.user_metadata.access_token,
   };
 }

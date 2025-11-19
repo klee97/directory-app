@@ -114,9 +114,8 @@ const DEFAULT_PRICE = "Contact for Pricing";
 
 export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
-  const theme = useTheme();
   const [isFavorite, setIsFavorite] = useState(false);
-  const supabase = createClient();
+
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
@@ -130,6 +129,9 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
   const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams?.get(SEARCH_PARAM);
+
+  const theme = useTheme();
+  const supabase = createClient();
 
   const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
