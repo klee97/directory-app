@@ -37,7 +37,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
       }
 
       addNotification('Logged in successfully!');
-      window.location.href = '/';
+      window.location.href = isVendorLogin ? '/partner/manage' : '/';
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
