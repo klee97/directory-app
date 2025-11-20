@@ -1,11 +1,9 @@
 import { redirect } from 'next/navigation';
-import VendorEditProfile from '@/features/profile/manage/components/EditableVendorProfile';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
-import { getTags } from '@/features/profile/common/api/getTags';
 import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
+import { Settings } from '@/features/settings/components/Settings';
 
-export default async function VendorEditPage() {
-
+export default async function VendorSettingsPage() {
   // Check authentication
   const currentUser = await getCurrentUserAction();
 
@@ -27,6 +25,6 @@ export default async function VendorEditPage() {
   if (!vendor) {
     redirect('/partner/login?redirect=/partner/manage');
   }
-  const tags = await getTags();
-  return <VendorEditProfile vendor={vendor} tags={tags} userId={userId} />;
+
+  return <Settings isVendorSettings={true} userEmail={currentUser.email} hasPassword={currentUser.has_password} />;
 }

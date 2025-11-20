@@ -19,11 +19,12 @@ import ListItemText from "@mui/material/ListItemText";
 import Alert from "@mui/material/Alert";
 import Email from "@mui/icons-material/Email";
 import Favorite from "@mui/icons-material/Favorite";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Lock from "@mui/icons-material/Lock";
 import Delete from "@mui/icons-material/Delete";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { updatePassword } from "../api/updatePassword";
+import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { deleteAccount } from "../api/deleteAccount";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
@@ -33,9 +34,12 @@ interface ApiError extends Error {
   message: string;
 }
 
-export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) => {
+export const Settings = (
+  { isVendorSettings,
+    userEmail, hasPassword }: { isVendorSettings: boolean, userEmail: string | undefined, hasPassword: boolean }) => {
   const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -48,6 +52,8 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
 
   const router = useRouter();
   const supabase = createClient();
+
+  const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
 
   useEffect(() => {
     async function checkLogin() {
@@ -66,10 +72,12 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
     setIsSubmitting(true);
     setPasswordError(null);
 
-    if (newPassword !== confirmPassword) {
-      addNotification('New passwords do not match', 'error');
-      setIsSubmitting(false);
-      return;
+    if (!hasPasswordState) {
+      if (newPassword !== confirmPassword) {
+        addNotification('New passwords do not match', 'error');
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     const validation = validatePassword(newPassword);
@@ -80,11 +88,16 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
     }
 
     try {
-      await updatePassword(currentPassword, newPassword);
+      if (hasPasswordState) {
+        await updatePassword(currentPassword, newPassword);
+      } else {
+        await updatePasswordAfterReset(newPassword);
+      }
       addNotification('Password updated successfully');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      setHasPasswordState(true);
       setPasswordDialogOpen(false);
     } catch (error: unknown) {
       const apiError = error as ApiError;
@@ -99,13 +112,20 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
     setIsSubmitting(true);
 
     try {
-      // TODO: Update email
-      addNotification('Check your inbox to verify your vendor email address: ' + email);
-      setNewEmail('');
-      setEmailDialogOpen(false);
+      const { error: updateEmailError } = await supabase.auth.updateUser({
+        email,
+      })
+
+      if (updateEmailError) {
+        console.error("Error updating user email: " + updateEmailError.message);
+      } else {
+        addNotification('Check your inbox to verify your vendor email address: ' + email);
+        setNewEmail('');
+        setEmailDialogOpen(false);
+      }
     } catch (error: unknown) {
       const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update email', 'error');
+      addNotification(apiError.message || 'Failed to send update email verification', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -152,6 +172,19 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
             <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
           </>
         )}
+        {isVendorSettings && (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} href="/partner/manage">
+                <ListItemIcon>
+                  <ManageAccountsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Edit Profile" secondary="Edit your vendor profile" />
+              </ListItemButton>
+            </ListItem>
+            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+          </>
+        )}
         {isVendorSettings &&
           <>
             <ListItem disablePadding>
@@ -166,12 +199,24 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
           </>
         }
         <ListItem disablePadding>
-          <ListItemButton onClick={() => setPasswordDialogOpen(true)}>
-            <ListItemIcon>
-              <Lock />
-            </ListItemIcon>
-            <ListItemText primary="Change Password" secondary="Update your password" />
-          </ListItemButton>
+          {isUserEmailVerified && (
+            <ListItemButton onClick={() => setPasswordDialogOpen(true)}>
+              <ListItemIcon>
+                <Lock />
+              </ListItemIcon>
+              {hasPasswordState && <ListItemText primary="Change Password" secondary="Update your password" />}
+              {!hasPasswordState && <ListItemText primary="Create A Password" secondary="Create a password to login to your account" />}
+            </ListItemButton>
+          )}
+          {!isUserEmailVerified && (
+            <ListItemButton onClick={() => setPasswordDialogOpen(true)}>
+              <ListItemIcon>
+                <Lock />
+              </ListItemIcon>
+              <ListItemText primary="Create A Password" secondary="Create a password to login to your account" />
+            </ListItemButton>
+
+          )}
         </ListItem>
         <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
         {!isVendorSettings && (
@@ -195,68 +240,76 @@ export const Settings = ({ isVendorSettings }: { isVendorSettings: boolean }) =>
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Change Password</DialogTitle>
+        <DialogTitle>{hasPasswordState ? "Change Password" : "Create A Password"}</DialogTitle>
         <DialogContent>
-          <form onSubmit={handlePasswordChange}>
-            <TextField
-              fullWidth
-              type="password"
-              label="Current Password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              margin="normal"
-              required
-              disabled={isSubmitting}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="New Password"
-              value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                setPasswordError(null);
-              }}
-              margin="normal"
-              required
-              disabled={isSubmitting}
-              error={!!passwordError}
-              helperText={passwordError}
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              margin="normal"
-              required
-              disabled={isSubmitting}
-            />
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Password must contain:
-              <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
-                <Box component="li">At least 8 characters</Box>
-                <Box component="li">At least one uppercase letter</Box>
-                <Box component="li">At least one lowercase letter</Box>
-                <Box component="li">At least one number</Box>
-                <Box component="li">At least one special character: {'!@#$%^&*(),.?'}</Box>
-              </Box>
-            </Alert>
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              <Button onClick={() => setPasswordDialogOpen(false)} disabled={isSubmitting}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
+          {isUserEmailVerified && (
+            <form onSubmit={handlePasswordChange}>
+              {hasPasswordState && (<TextField
+                fullWidth
+                type="password"
+                label="Current Password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                margin="normal"
+                required
                 disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Updating...' : 'Update Password'}
-              </Button>
-            </Box>
-          </form>
+              />
+              )}
+              <TextField
+                fullWidth
+                type="password"
+                label="New Password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPasswordError(null);
+                }}
+                margin="normal"
+                required
+                disabled={isSubmitting}
+                error={!!passwordError}
+                helperText={passwordError}
+              />
+              <TextField
+                fullWidth
+                type="password"
+                label="Confirm New Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                margin="normal"
+                required
+                disabled={isSubmitting}
+              />
+              <Alert severity="info" sx={{ mt: 2 }}>
+                Password must contain:
+                <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
+                  <Box component="li">At least 8 characters</Box>
+                  <Box component="li">At least one uppercase letter</Box>
+                  <Box component="li">At least one lowercase letter</Box>
+                  <Box component="li">At least one number</Box>
+                  <Box component="li">At least one special character: {'!@#$%^&*(),.?'}</Box>
+                </Box>
+              </Alert>
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                <Button onClick={() => setPasswordDialogOpen(false)} disabled={isSubmitting}>
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Updating...' : 'Update Password'}
+                </Button>
+              </Box>
+            </form>
+          )}
+          {!isUserEmailVerified && (
+            <Typography variant="body1" color="info" sx={{ mt: 2, mb: 2 }}>
+              Verify your email address to create a password. Please check your inbox for a verification email. <p /> Click &quot;Change Email&quot; to send a new verification email.
+            </Typography>
+          )}
         </DialogContent>
       </Dialog>
 

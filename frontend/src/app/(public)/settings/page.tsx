@@ -7,7 +7,7 @@ export default function SettingsPage() {
   return (
     <>
       {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
-        ? <Settings isVendorSettings={false} />
+        ? <Settings isVendorSettings={false} userEmail={undefined} hasPassword={true} />
         : <Container maxWidth="lg">
           <br />
           <Box
