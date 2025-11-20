@@ -8,11 +8,11 @@ export default async function VendorSettingsPage() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/manage');
+    redirect('/partner/login?redirect=/partner/settings');
   }
 
   if (!currentUser.accessToken) {
-    redirect('/partner/login?redirect=/partner/manage');
+    redirect('/partner/login?redirect=/partner/settings');
   }
 
   const { userId, accessToken } = currentUser;
@@ -23,7 +23,7 @@ export default async function VendorSettingsPage() {
 
 
   if (!vendor) {
-    redirect('/partner/login?redirect=/partner/manage');
+    redirect('/partner/login?redirect=/partner/settings');
   }
 
   return <Settings isVendorSettings={true} userEmail={currentUser.email} hasPassword={currentUser.has_password} />;
