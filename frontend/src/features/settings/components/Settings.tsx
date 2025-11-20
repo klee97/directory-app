@@ -34,9 +34,17 @@ interface ApiError extends Error {
   message: string;
 }
 
-export const Settings = (
-  { isVendorSettings,
-    userEmail, hasPassword }: { isVendorSettings: boolean, userEmail: string | undefined, hasPassword: boolean }) => {
+type SettingsProps = {
+  isVendorSettings: boolean;
+  userEmail: string | undefined;
+  hasPassword: boolean;
+};
+
+export const Settings = ({
+  isVendorSettings,
+  userEmail,
+  hasPassword
+}: SettingsProps) => {
   const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
