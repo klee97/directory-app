@@ -1,4 +1,4 @@
-import Settings from '@/features/settings/components/Settings';
+import { Settings } from '@/features/settings/components/Settings';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -7,7 +7,7 @@ export default function SettingsPage() {
   return (
     <>
       {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
-        ? <Settings />
+        ? <Settings isVendorSettings={false} userEmail={undefined} hasPassword={true} />
         : <Container maxWidth="lg">
           <br />
           <Box

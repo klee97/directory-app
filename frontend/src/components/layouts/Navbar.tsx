@@ -65,7 +65,6 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  console.log(isVendorNavbar)
 
   // Handle hydration and initial loading
   React.useEffect(() => {
@@ -190,7 +189,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
         <Button
           color="inherit"
           variant="outlined"
-          onClick={(e) => handleMenuLinkClick(e, '/login')}
+          onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}
           sx={{
             mx: 1,
             display: { xs: 'none', md: 'block' }
@@ -232,17 +231,19 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             open={Boolean(anchorElProfile)}
             onClose={handleCloseProfileMenu}
           >
-            <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-              <ListItemIcon>
-                <Favorite fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  My Favorites
-                </Typography>
-              </ListItemText>
-            </MenuItem>
-            <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+            {!isVendorNavbar && (
+              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                <ListItemIcon>
+                  <Favorite fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                    My Favorites
+                  </Typography>
+                </ListItemText>
+              </MenuItem>
+            )}
+            <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
               <ListItemIcon>
                 <Settings fontSize="small" />
               </ListItemIcon>
@@ -372,24 +373,26 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 <Box sx={{ width: '100%' }}>
                   <Divider />
                   {!isLoggedIn ? (
-                    <MenuItem onClick={(e) => handleMenuLinkClick(e, '/login')}>
+                    <MenuItem onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}>
                       <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
                         Login
                       </Typography>
                     </MenuItem>
                   ) : (
                     <>
-                      <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-                        <ListItemIcon>
-                          <Favorite fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                          <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                            My Favorites
-                          </Typography>
-                        </ListItemText>
-                      </MenuItem>
-                      <MenuItem onClick={(e) => handleMenuLinkClick(e, '/settings')}>
+                      {!isVendorNavbar && (
+                        <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                          <ListItemIcon>
+                            <Favorite fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>
+                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                              My Favorites
+                            </Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      )}
+                      <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
                         <ListItemIcon>
                           <Settings fontSize="small" />
                         </ListItemIcon>

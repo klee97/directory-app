@@ -39,8 +39,8 @@ function VendorLoginPageContent() {
 
       if (session) {
         console.log("User is already logged in");
-        // User is already logged in, redirect to vendor page
-        router.push(`/`);
+        // User is already logged in, redirect to settings page
+        router.push(`/partner/manage`);
         return;
       }
 
@@ -80,6 +80,7 @@ function VendorLoginPageContent() {
           email,
           data: {
             access_token: token,
+            has_password: 'false'
           }
         })
 
@@ -89,7 +90,7 @@ function VendorLoginPageContent() {
           return;
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
-        router.push(`/vendors/${slug}`);
+        router.push(`/partner/manage`);
         addNotification("Check your inbox to verify your vendor email address: " + email);
       } else {
         // User email and token do not match or user's email has already been linked, show the login form
