@@ -3,7 +3,6 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckIcon from '@mui/icons-material/Check';
@@ -72,10 +71,6 @@ export default function DevTools() {
           color='info'
           {...getButtonProps()}
         />
-        
-        <Typography variant="caption" color="text.secondary">
-          Cache revalidates every 24h in prod
-        </Typography>
       </Box>
     </FormControl>
   );

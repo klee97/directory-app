@@ -115,7 +115,13 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const { mode, setMode } = useColorScheme();
   if (!mounted || !mode) {
     return (
-      <AppBar position="static">
+      <AppBar
+        position={isVendorNavbar ? "fixed" : "static"}
+        sx={{
+          bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+          zIndex: (theme) => theme.zIndex.drawer + 1
+        }}
+      >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Skeleton variant="rectangular" width={40} height={40} />
@@ -265,9 +271,20 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar
+      position={isVendorNavbar ? "fixed" : "static"}
+      sx={{
+        bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+        zIndex: (theme) => theme.zIndex.drawer + 1
+      }}
+    >
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
+        <Toolbar disableGutters
+          sx={{
+            minHeight: { xs: 56, sm: 64 },
+            maxHeight: { xs: 56, sm: 64 }, // Constrain the height
+          }}
+        >
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
             <IconButton
               size="large"
@@ -281,7 +298,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             </IconButton>
             <Menu
               id="menu-appbar"
-              color='primary'
+              color="inherit"
               anchorEl={anchorElNav}
               anchorOrigin={{
                 vertical: 'bottom',

@@ -104,9 +104,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
   const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
-    if (isMobile) {
-      setMobileOpen(false);
-    }
   };
 
   const handleBackToMenu = () => {
@@ -148,126 +145,134 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   };
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-      {/* Mobile App Bar */}
-      {isMobile && (
-        <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <IconButton
-              color="inherit"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              {activeSection ? SECTIONS.find(s => s.id === activeSection)?.label : 'Edit Profile'}
-            </Typography>
-            {isMobile && mobileOpen && (
-              <IconButton color="inherit" onClick={handleDrawerToggle}>
-                <CloseIcon />
-              </IconButton>
-            )}
-          </Toolbar>
-        </AppBar>
-      )}
-
-      {/* Sidebar Drawer */}
-      <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={isMobile ? mobileOpen : true}
-        onClose={handleDrawerToggle}
-        sx={{
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: DRAWER_WIDTH,
-            boxSizing: 'border-box',
-            borderRight: 1,
-            borderColor: 'divider',
-          },
-        }}
-      >
-        {isMobile && <Toolbar />}
-        {activeSection ? (
-          <EditFormView
-            activeSection={activeSection}
-            sections={SECTIONS}
-            formData={formData}
-            setFormData={setFormData}
-            handleBackToMenu={handleBackToMenu}
-            handleSave={handleSave}
-            vendorIdentifier={vendor.slug ?? vendor.id}
-            tags={tags}
-          />
-        ) : (
-          <MenuView
-            inProgressSections={inProgressSections}
-            sections={SECTIONS}
-            completedSections={completedSections}
-            onSectionClick={handleSectionClick}
-            onPublish={handlePublish}
-          />
-        )}
-      </Drawer>
-
-      {/* Main Content Area */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        {isMobile && <Toolbar />}
-
-        {/* Preview */}
-        <Box sx={{
-          flexGrow: 1,
-          overflow: 'auto',
-          bgcolor: 'grey.100',
-          position: 'relative'
-        }}>
-          {/* Preview Header Banner */}
-          <Box sx={{
-            bgcolor: 'info.main',
+    <>
+      {!isMobile && (<Toolbar />)}
+      <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+        {/* Mobile App Bar */}
+        {isMobile && (
+          <AppBar position="fixed" sx={{
+            bgcolor: 'info.dark',
             color: 'white',
-            py: 1.5,
-            px: 3,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 1,
-            boxShadow: 1,
-            position: 'sticky',
-            top: 0,
-            zIndex: 10
+            zIndex: (theme) => theme.zIndex.drawer + 1
           }}>
-            {isLoadingDraft ? (
-              <>
-                <CircularProgress size={16} sx={{ color: 'white' }} />
-                <Typography variant="body2" fontWeight="medium">
-                  Checking for draft changes...
-                </Typography>
-              </>
-            ) : (
-              <>
-                <Box sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: 'success.light',
-                  animation: 'pulse 2s infinite'
-                }} />
-                <Typography variant="body2" fontWeight="medium">
-                  Preview Mode - Publish to make your changes live
-                </Typography>
-              </>
-            )}
-          </Box>
+            <Toolbar>
+              <IconButton
+                color="inherit"
+                edge="start"
+                onClick={handleDrawerToggle}
+                sx={{ mr: 2 }}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                {activeSection ? SECTIONS.find(s => s.id === activeSection)?.label : 'Edit Profile'}
+              </Typography>
+              {isMobile && mobileOpen && (
+                <IconButton color="inherit" onClick={handleDrawerToggle}>
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </Toolbar>
+          </AppBar>
+        )}
+
+        {/* Sidebar Drawer */}
+        <Drawer
+          variant={isMobile ? 'temporary' : 'permanent'}
+          open={isMobile ? mobileOpen : true}
+          onClose={handleDrawerToggle}
+          sx={{
+            position: 'relative',
+            width: DRAWER_WIDTH,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH,
+              boxSizing: 'border-box',
+              borderRight: 1,
+              borderColor: 'divider',
+              top: (theme) => theme.mixins.toolbar.minHeight,
+              height: (theme) => `calc(100% - ${theme.mixins.toolbar.minHeight}px)`,
+            },
+          }}
+        >
+          {activeSection ? (
+            <EditFormView
+              activeSection={activeSection}
+              sections={SECTIONS}
+              formData={formData}
+              setFormData={setFormData}
+              handleBackToMenu={handleBackToMenu}
+              handleSave={handleSave}
+              vendorIdentifier={vendor.slug ?? vendor.id}
+              tags={tags}
+            />
+          ) : (
+            <MenuView
+              inProgressSections={inProgressSections}
+              sections={SECTIONS}
+              completedSections={completedSections}
+              onSectionClick={handleSectionClick}
+              onPublish={handlePublish}
+            />
+          )}
+        </Drawer>
+
+        {/* Main Content Area */}
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          {isMobile && <Toolbar />}
+
+          {/* Preview */}
+          <Box sx={{
+            flexGrow: 1,
+            overflow: 'auto',
+            bgcolor: 'grey.100',
+            position: 'relative'
+          }}>
+            {/* Preview Header Banner */}
+            <Box sx={{
+              bgcolor: 'info.main',
+              color: 'white',
+              py: 1.5,
+              px: 3,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 1,
+              boxShadow: 1,
+              position: 'sticky',
+              top: 0,
+              zIndex: 10
+            }}>
+              {isLoadingDraft ? (
+                <>
+                  <CircularProgress size={16} sx={{ color: 'white' }} />
+                  <Typography variant="body2" fontWeight="medium">
+                    Checking for draft changes...
+                  </Typography>
+                </>
+              ) : (
+                <>
+                  <Box sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: 'success.light',
+                    animation: 'pulse 2s infinite'
+                  }} />
+                  <Typography variant="body2" fontWeight="medium">
+                    Preview Mode - Publish to make your changes live
+                  </Typography>
+                </>
+              )}
+            </Box>
 
           {/* Preview Content with frame effect */}
           <Box sx={{
@@ -292,8 +297,9 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               50% { opacity: 0.5; }
             }
           `}</style>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </>
   );
 }
