@@ -15,7 +15,7 @@ export const updateVendor = async (
   vendor: VendorDataInput,
   firstname: string | null,
   lastname: string | null,
-  tags: VendorTag[] | null,
+  newTags: VendorTag[] | null,
 ) => {
   console.log("Updating vendor with update data:", vendor);
 
@@ -134,17 +134,42 @@ export const updateVendor = async (
       console.log("Vendor region updated successfully!");
     }
 
-    // Add tags to the vendor
-    if (tags && tags.length > 0) {
-      await Promise.all(tags.map(async (tag) => {
-        const { error: skillError } = await supabase
-          .from("vendor_tags")
-          .upsert({ vendor_id: data.id, tag_id: tag.id });
+    const oldTags: VendorTag[] = existingVendorData.tags;
+    if (oldTags.length > 0 || (newTags && newTags.length > 0)) {
 
-        if (skillError) {
-          console.error(`Error upserting tag ${tag.display_name} to vendor id ${data.id}`, skillError);
+      const vendorId = existingVendorData.id;
+      const newTagIds = newTags?.map((t: VendorTag) => t.id) ?? [];
+      const oldTagIds = oldTags.map((t: VendorTag) => t.id);
+
+      // Compute diff
+      const toAdd = newTagIds.filter((id: string) => !oldTagIds.includes(id));
+      const toRemove = oldTagIds.filter(id => !newTagIds.includes(id));
+
+      // Add new tags
+      if (toAdd.length > 0) {
+        const rows = toAdd.map((id: string) => ({
+          vendor_id: vendorId,
+          tag_id: id
+        }));
+
+        const { error: upsertError } = await supabase
+          .from('vendor_tags')
+          .upsert(rows);
+
+        if (upsertError) {
+          console.error(`Error adding tag to vendor id ${vendorId}`, upsertError);
         }
-      }));
+      }
+      // Remove deleted tags
+      if (toRemove.length > 0) {
+        const { error: deleteError } = await supabase
+          .from('vendor_tags')
+          .delete()
+          .eq('vendor_id', vendorId)
+          .in('tag_id', toRemove);
+
+        if (deleteError) throw deleteError;
+      }
     }
 
     // If cover_image was updated, add it to vendor_media table

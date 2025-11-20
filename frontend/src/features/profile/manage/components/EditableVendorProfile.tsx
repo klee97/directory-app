@@ -37,6 +37,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
 
   const { addNotification } = useNotification();
 
@@ -59,10 +60,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           // Found unpublished work - load it
           setDraftId(draft.id);
           setFormData(draftToFormData(draft));
-          addNotification(
-            'You have unpublished changes. Continue editing or publish to make them live.',
-            'info'
-          );
+          setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization
       } catch (error) {
@@ -74,7 +72,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     }
 
     checkForDraft();
-  }, [vendor.id, userId, addNotification]);
+  }, [vendor.id, userId]);
 
   // Create preview vendor object
   const previewVendor: Vendor = {
@@ -127,7 +125,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       addNotification('User not authenticated', 'error');
       return;
     }
-    // TODO: Removing vendor tags
     let result;
     if (!draftId) {
       // No draft exists, save first then publish
@@ -213,6 +210,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               completedSections={completedSections}
               onSectionClick={handleSectionClick}
               onPublish={handlePublish}
+              hasUnpublishedChanges={hasUnpublishedChanges}
             />
           )}
         </Drawer>
@@ -233,12 +231,12 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           <Box sx={{
             flexGrow: 1,
             overflow: 'auto',
-            bgcolor: 'grey.100',
+            bgcolor: 'grey.200',
             position: 'relative'
           }}>
             {/* Preview Header Banner */}
             <Box sx={{
-              bgcolor: 'info.main',
+              bgcolor: 'grey.500',
               color: 'white',
               py: 1.5,
               px: 3,
@@ -274,24 +272,25 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               )}
             </Box>
 
-          {/* Preview Content with frame effect */}
-          <Box sx={{
-            p: 3,
-            maxWidth: 1400,
-            mx: 'auto'
-          }}>
+            {/* Preview Content with frame effect */}
             <Box sx={{
-              bgcolor: 'white',
-              borderRadius: 2,
-              overflow: 'hidden',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              p: 3,
+              maxWidth: 1400,
+              mx: 'auto'
             }}>
-              <VendorProfile vendor={previewVendor} />
+              <Box sx={{
+                bgcolor: 'white',
+                borderRadius: 2,
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                p: 2
+              }}>
+                <VendorProfile vendor={previewVendor} />
+              </Box>
             </Box>
-          </Box>
 
-          {/* Add pulse animation */}
-          <style>{`
+            {/* Add pulse animation */}
+            <style>{`
             @keyframes pulse {
               0%, 100% { opacity: 1; }
               50% { opacity: 0.5; }

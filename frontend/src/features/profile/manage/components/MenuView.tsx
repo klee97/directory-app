@@ -9,6 +9,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import { Section, SectionIcon } from './Section';
+import Alert from '@mui/material/Alert';
 
 interface MenuViewProps {
   sections: Section[];
@@ -16,6 +17,7 @@ interface MenuViewProps {
   inProgressSections: string[];
   onSectionClick: (id: string) => void;
   onPublish: () => void;
+  hasUnpublishedChanges: boolean;
 }
 
 export default function MenuView({
@@ -23,7 +25,8 @@ export default function MenuView({
   completedSections,
   inProgressSections,
   onSectionClick,
-  onPublish
+  onPublish,
+  hasUnpublishedChanges,
 }: MenuViewProps) {
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -35,6 +38,11 @@ export default function MenuView({
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Add more details below to make it shine, and hit &quot;Publish&quot; when you&apos;re ready.
         </Typography>
+        {hasUnpublishedChanges && (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            You have unpublished changes.
+          </Alert>
+        )}
         <Button variant="contained" fullWidth onClick={onPublish} sx={{ borderRadius: 2 }}>
           Publish
         </Button>

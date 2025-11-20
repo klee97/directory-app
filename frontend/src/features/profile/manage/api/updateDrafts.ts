@@ -149,15 +149,13 @@ export async function publishDraft(
       return { success: false, error: 'Draft not found' };
     }
 
-    console.log('Pretend to publish draft to vendor:', draft);
-
     // Convert draft to VendorDataInput format
     const vendorInput = draftToVendorInput(draft);
 
     // Extract vendor lookup info
     const vendorLookup = {
-      id: draft.vendors.id,
-      slug: draft.vendors.slug
+      id: draft.id,
+      slug: draft.slug
     };
     // Get vendor tags if they exist in draft
     const tags = draft.tags ?? [];
