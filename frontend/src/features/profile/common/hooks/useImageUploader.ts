@@ -12,8 +12,10 @@ export function useImageUploader() {
     setError(null);
     try {
       const url = await uploadImage(file, vendorIdentifier);
+      console.debug("Image uploaded successfully, URL:", url);
       addNotification('Image uploaded', 'success');
-      return url;
+      const publicUrl = `${process.env.R2_TEST_URL}/${file.name}`;
+      return publicUrl;
     } catch (err) {
       const message = (err instanceof Error) ? err.message : 'Upload failed';
       setError(message);

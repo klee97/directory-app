@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import VendorEditProfile from '@/features/profile/manage/components/EditableVendorProfile';
+import VendorEditProfile from '@/features/profile/manage/components/VendorEditProfile';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { getTags } from '@/features/profile/common/api/getTags';
 import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
@@ -13,14 +13,10 @@ export default async function VendorEditPage() {
     redirect('/partner/login?redirect=/partner/manage');
   }
 
-  if (!currentUser.accessToken) {
-    redirect('/partner/login?redirect=/partner/manage');
-  }
-
-  const { userId, accessToken } = currentUser;
+  const { userId } = currentUser;
 
   // Fetch vendor data for current user
-  const vendor = await getVendorForCurrentUser(userId, accessToken);
+  const vendor = await getVendorForCurrentUser(userId);
   console.log("Fetched vendor data:", vendor);
 
 

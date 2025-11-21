@@ -12,6 +12,7 @@ import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
+import { claimVendor } from "@/features/profile/manage/hooks/claimVendor";
 
 function VendorLoginPageContent() {
   const { addNotification } = useNotification();
@@ -79,7 +80,6 @@ function VendorLoginPageContent() {
         const { data: updateEmailData, error: updateEmailError } = await supabase.auth.updateUser({
           email,
           data: {
-            access_token: token,
             has_password: 'false'
           }
         })
