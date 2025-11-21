@@ -90,6 +90,16 @@ function VendorLoginPageContent() {
           return;
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
+
+        // Claim the vendor for this user
+        try {
+          await claimVendor(vendor!.access_token!);
+          console.log("Vendor claimed successfully for user ID: " + updateEmailData.user?.id);
+        } catch (claimError) {
+          console.error("Error claiming vendor: " + (claimError as Error).message);
+          setIsLoading(false);
+          return;
+        }
         router.push(`/partner/manage`);
         addNotification("Check your inbox to verify your vendor email address: " + email);
       } else {
