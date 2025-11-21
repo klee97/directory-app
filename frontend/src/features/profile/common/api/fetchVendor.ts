@@ -47,6 +47,8 @@ export async function fetchVendorBySlug(slug: string) {
   if (!shouldIncludeTestVendors()) {
     query = query.not('id', 'like', 'TEST-%');
   }
+
+  console.log("Query: " + query.toString());
   const { data: vendor, error } = await query
     .eq('slug', slug)
     .single();
@@ -68,6 +70,8 @@ export async function verifyVendorMagicLink(slug: string, email: string, token: 
   const doEmailAndTokenMatch = 
     email.toLowerCase() === vendor.email?.toLowerCase() && 
     token.toLowerCase() === vendor.access_token?.toLowerCase();
+
+  console.debug(`Magic link verification for vendor "${slug}": ${doEmailAndTokenMatch ? 'SUCCESS' : 'FAILURE'}`);
   
   return { 
     success: doEmailAndTokenMatch, 
