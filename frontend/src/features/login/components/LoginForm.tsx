@@ -14,11 +14,11 @@ import NextLink from "next/link";
 import { login } from "../api/actions";
 import { useNotification } from "@/contexts/NotificationContext";
 
-export function LoginForm() {
+export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
   const { addNotification } = useNotification();
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -35,9 +35,9 @@ export function LoginForm() {
         addNotification(result.error, 'error');
         return;
       }
-      
+
       addNotification('Logged in successfully!');
-      window.location.href = '/';
+      window.location.href = isVendorLogin ? '/partner/manage' : '/';
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
@@ -53,7 +53,7 @@ export function LoginForm() {
           <Typography variant="h4" component="h1" align="center" gutterBottom>
             Login
           </Typography>
-          
+
           {verificationNeeded && (
             <Alert severity="warning" sx={{ mb: 2 }}>
               Your email is not verified. Please check your inbox and follow the verification link.
@@ -107,18 +107,43 @@ export function LoginForm() {
                 {isSubmitting ? 'Logging in...' : 'Log In'}
               </Button>
 
-              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Don&apos;t have an account?{' '}
-                <Link component={NextLink} href="/signup">
-                  Sign up
-                </Link>
-              </Typography>
-              <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              {!isVendorLogin && (
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                  Don&apos;t have an account?{' '}
+                  <Link component={NextLink} href="/signup">
+                    Sign up
+                  </Link>
+                </Typography>
+              )}
+              {isVendorLogin && (
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                  Don&apos;t have an account?{' '}
+                  <Link component={NextLink} href="/partner/contact">
+                    Contact us</Link> to access your vendor profile.
+
+                </Typography>
+              )}
+              {!isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Forgot your password?{' '}
                 <Link component={NextLink} href="/forgot-password">
                   Reset your password
                 </Link>
               </Typography>
+              )}
+              {isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                Forgot your password or need to create one?{' '}
+                <Link component={NextLink} href="/partner/forgot-password">
+                  Reset your password
+                </Link>
+              </Typography>
+              )}
+              {!isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                Logging in as a vendor?{' '}
+                <Link component={NextLink} href="/partner/login">
+                  Login here
+                </Link>
+              </Typography>
+              )}
             </Stack>
           </Box>
         </Paper>

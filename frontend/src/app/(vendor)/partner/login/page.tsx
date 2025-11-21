@@ -124,7 +124,7 @@ function VendorLoginPageContent() {
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Vendor Login
       </Typography>
-      <LoginForm />
+      <LoginForm isVendorLogin={true} />
     </Container>
   );
 }

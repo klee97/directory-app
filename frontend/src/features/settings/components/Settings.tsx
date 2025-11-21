@@ -34,9 +34,17 @@ interface ApiError extends Error {
   message: string;
 }
 
-export const Settings = (
-  { isVendorSettings,
-    userEmail, hasPassword }: { isVendorSettings: boolean, userEmail: string | undefined, hasPassword: boolean }) => {
+type SettingsProps = {
+  isVendorSettings: boolean;
+  userEmail: string | undefined;
+  hasPassword: boolean;
+};
+
+export const Settings = ({
+  isVendorSettings,
+  userEmail,
+  hasPassword
+}: SettingsProps) => {
   const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
@@ -232,6 +240,19 @@ export const Settings = (
               />
             </ListItemButton>
           </ListItem>
+        )}
+        {isVendorSettings && (
+          <>
+            <ListItem disablePadding>
+              <ListItemButton component={Link} href="/partner/contact">
+                <ListItemIcon>
+                  <Delete />
+                </ListItemIcon>
+                <ListItemText primary="Delete Account" secondary="Contact us to delete your vendor profile" />
+              </ListItemButton>
+            </ListItem>
+            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+          </>
         )}
       </List>
       <Dialog
