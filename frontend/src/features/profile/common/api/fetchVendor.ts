@@ -1,5 +1,6 @@
+"use server";
 import { supabase } from '@/lib/api-client';
-import { shouldIncludeTestVendors } from '@/lib/env/env';
+import { logEnvironmentInfo, shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchVendorById(id: string) {
@@ -54,4 +55,22 @@ export async function fetchVendorBySlug(slug: string) {
     return null;
   }
   return transformBackendVendorToFrontend(vendor);
+}
+
+export async function verifyVendorMagicLink(slug: string, email: string, token: string) {  
+  logEnvironmentInfo();
+  const vendor = await fetchVendorBySlug(slug);
+  
+  if (!vendor) {
+    return { success: false, error: 'Vendor not found' };
+  }
+  
+  const doEmailAndTokenMatch = 
+    email.toLowerCase() === vendor.email?.toLowerCase() && 
+    token.toLowerCase() === vendor.access_token?.toLowerCase();
+  
+  return { 
+    success: doEmailAndTokenMatch, 
+    vendorAccessToken: doEmailAndTokenMatch ? vendor.access_token : null 
+  };
 }

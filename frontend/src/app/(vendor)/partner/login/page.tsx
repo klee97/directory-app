@@ -8,7 +8,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoginForm } from "@/features/login/components/LoginForm";
-import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
+import { verifyVendorMagicLink } from "@/features/profile/common/api/fetchVendor";
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
@@ -65,10 +65,10 @@ function VendorLoginPageContent() {
 
       // Check if email and token from the query parameters are valid and match database records. 
       // If they do, sign in the user anonymously and link their email to the account.
-      const vendor = await fetchVendorBySlug(slug);
-      const doEmailAndTokenMatch = email.toLowerCase() === vendor?.email?.toLowerCase() && token.toLowerCase() === vendor?.access_token?.toLowerCase();
+      const verification = await verifyVendorMagicLink(slug, email, token);
 
-      if (doEmailAndTokenMatch) {
+
+      if (verification.success && verification.vendorAccessToken) {
         // Sign in the user anonymously and link email
         const { error } = await supabase.auth.signInAnonymously()
         if (error) {
@@ -93,7 +93,7 @@ function VendorLoginPageContent() {
 
         // Claim the vendor for this user
         try {
-          await claimVendor(vendor!.access_token!);
+          await claimVendor(verification.vendorAccessToken);
           console.log("Vendor claimed successfully for user ID: " + updateEmailData.user?.id);
         } catch (claimError) {
           console.error("Error claiming vendor: " + (claimError as Error).message);
