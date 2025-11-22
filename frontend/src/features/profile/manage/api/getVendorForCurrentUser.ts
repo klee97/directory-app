@@ -1,9 +1,9 @@
-import { shouldIncludeTestVendors } from "@/lib/env/env";
+import { logEnvironmentInfo, shouldIncludeTestVendors } from "@/lib/env/env";
 import { createClient } from "@/lib/supabase/server";
 import { transformBackendVendorToFrontend } from "@/types/vendor";
 
-export async function getVendorForCurrentUser(userId: string, accessToken: string) {
-  if (!userId || !accessToken) {
+export async function getVendorForCurrentUser(userId: string) {
+  if (!userId) {
     return null;
   }
 
@@ -19,10 +19,11 @@ export async function getVendorForCurrentUser(userId: string, accessToken: strin
   if (!shouldIncludeTestVendors()) {
     query = query.not('id', 'like', 'TEST-%');
   }
+  logEnvironmentInfo();
 
   // Fetch vendor by access token
   const { data: vendor, error: vendorError } = await query
-    .eq('access_token', accessToken)
+    .eq('user_id', userId)
     .single();
 
   if (vendorError) {

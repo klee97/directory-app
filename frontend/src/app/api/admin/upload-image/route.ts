@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     const isTestData = isTestVendor(vendor.id);
+    console.log("[upload-image] isTestData:", isTestData);
     let r2Bucket;
     if (isTestData) {
       if (!shouldIncludeTestVendors()) {

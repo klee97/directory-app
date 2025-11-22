@@ -28,25 +28,25 @@ const RELATED_FIELDS = new Set<string>([
 
 // Input type for the preparation function
 export interface VendorDataInput {
-  business_name?: string | null;
-  website?: string | null;
-  email?: string | null;
-  ig_handle?: string | null;
-  region?: string | null;
-  travels_world_wide?: boolean | null;
-  google_maps_place?: string | null;
+"bridal_hair_&_makeup_price"?: number | null;
   bridal_hair_price?: number | null;
   bridal_makeup_price?: number | null;
-  "bridal_hair_&_makeup_price"?: number | null;
+  "bridesmaid_hair_&_makeup_price"?: number | null;
   bridesmaid_hair_price?: number | null;
   bridesmaid_makeup_price?: number | null;
-  "bridesmaid_hair_&_makeup_price"?: number | null;
-  lists_prices?: boolean | null;
+  business_name?: string | null;
   cover_image?: string | null;
-  // Use separate lat/lon fields
+  description?: string | null;
+  email?: string | null;
+  google_maps_place?: string | null;
+  ig_handle?: string | null;
   latitude?: number | null;
+  lists_prices?: boolean | null;
   longitude?: number | null;
+  region?: string | null;
   tags?: VendorTag[] | null;
+  travels_world_wide?: boolean | null;
+  website?: string | null;
 }
 
 // Prepare vendor insertion data
@@ -74,6 +74,7 @@ export async function prepareVendorData(
         vendor.longitude !== existingData?.longitude;
 
       if (coordinatesChanged) {
+        console.log("Coordinates changed, updating location data...");
         // Store lat/lon directly
         updates.latitude = vendor.latitude;
         updates.longitude = vendor.longitude;
@@ -105,17 +106,8 @@ export async function prepareVendorData(
       updates[key as keyof BackendVendorInsert] = value;
     }
   }
-  return filterUndefinedOrNullValues(updates);
+  return updates;
 };
-
-const filterUndefinedOrNullValues = (obj: Record<string, unknown>): Record<string, unknown> => {
-  return Object.entries(obj)
-    .filter(([, value]) => value !== undefined && value !== null)
-    .reduce((acc: Record<string, unknown>, [key, value]) => {
-      acc[key] = value;
-      return acc;
-    }, {} as Record<string, unknown>);
-}
 
 // Generate a slug from the business name
 const generateSlug = (business_name: string | null): string | null => {

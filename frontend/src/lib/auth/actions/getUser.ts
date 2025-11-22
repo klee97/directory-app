@@ -14,7 +14,6 @@ export async function getCurrentUserAction() {
   // Return serializable user data
   return {
     userId: user.id,
-    accessToken: user.user_metadata.access_token,
     email: user.email,
     has_password: (user.user_metadata.has_password === 'false') ? false : true,
   };
