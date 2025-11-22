@@ -12,7 +12,7 @@ async function VendorEditContent({ userId }: { userId: string }) {
   
   if (!vendor) {
     // No vendor linked - redirect to onboarding or show error
-    redirect('/partner/onboarding');
+    redirect('/partner/login');
   }
   
   const tags = await getTags();
