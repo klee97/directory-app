@@ -10,6 +10,7 @@ export async function getCurrentUserAction() {
     console.error(error);
     return null;
   }
+  console.log("[getCurrentUserAction] Current user id fetched:", user.id);
 
   // Return serializable user data
   return {
