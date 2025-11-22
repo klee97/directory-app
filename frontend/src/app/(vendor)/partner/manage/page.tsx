@@ -5,14 +5,14 @@ import { getTags } from '@/features/profile/common/api/getTags';
 import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
 import { Suspense } from 'react';
 import VendorEditSkeleton from '@/features/profile/manage/components/VendorEditSkeleton';
+import NoVendorLinked from '@/features/profile/manage/components/NoVendorLinked';
 
 async function VendorEditContent({ userId }: { userId: string }) {
   // Fetch vendor data for current user
   const vendor = await getVendorForCurrentUser(userId);
   
   if (!vendor) {
-    // No vendor linked - redirect to onboarding or show error
-    redirect('/partner/login');
+    return NoVendorLinked();
   }
   
   const tags = await getTags();
