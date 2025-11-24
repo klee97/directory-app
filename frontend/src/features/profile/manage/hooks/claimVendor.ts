@@ -12,18 +12,47 @@ export async function claimVendor(accessToken: string) {
     throw new Error('User not authenticated');
   }
 
-  // Update vendor to link it to this user, using admin to bypass RLS
-  const { data: vendor, error } = await supabaseAdmin
+  // Verify the vendor exists with this access token
+  const { data: vendor, error: vendorError } = await supabaseAdmin
     .from('vendors')
-    .update({ user_id: user.id })
+    .select('id')
     .eq('access_token', accessToken)
-    .is('user_id', null) // Only claim unclaimed vendors
-    .select()
     .single();
 
-  if (error) {
-    throw new Error('Failed to claim vendor: ' + error.message);
+  if (vendorError || !vendor) {
+    throw new Error('Invalid access token or vendor not found');
   }
 
+  // Check if this user already has a vendor associated
+  const { data: existingProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('vendor_id')
+    .eq('id', user.id)
+    .single();
+
+  // If user already claimed this vendor, just return success (idempotent)
+  if (existingProfile?.vendor_id === vendor.id) {
+    return vendor;
+  }
+
+  // If user has a different vendor, prevent claiming
+  if (existingProfile?.vendor_id && existingProfile.vendor_id !== vendor.id) {
+    throw new Error('User is already associated with a different vendor');
+  }
+
+  // Update the user's profile to link to this vendor
+  const { error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .update({ 
+      vendor_id: vendor.id,
+      role: 'vendor'
+    })
+    .eq('id', user.id);
+
+  if (profileError) {
+    throw new Error('Failed to update profile: ' + profileError.message);
+  }
+
+  // Can remove the vendor_access from vendor if it's a one-time token
   return vendor;
 }
