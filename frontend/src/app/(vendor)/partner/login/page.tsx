@@ -8,11 +8,10 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoginForm } from "@/features/login/components/LoginForm";
-import { verifyVendorMagicLink } from "@/features/profile/common/api/fetchVendor";
+import { fetchVendorBySlug } from "@/features/profile/common/api/fetchVendor";
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
-import { claimVendor } from "@/features/profile/manage/hooks/claimVendor";
 
 function VendorLoginPageContent() {
   const { addNotification } = useNotification();
@@ -65,10 +64,10 @@ function VendorLoginPageContent() {
 
       // Check if email and token from the query parameters are valid and match database records. 
       // If they do, sign in the user anonymously and link their email to the account.
-      const verification = await verifyVendorMagicLink(slug, email, token);
+      const vendor = await fetchVendorBySlug(slug);
+      const doEmailAndTokenMatch = email.toLowerCase() === vendor?.email?.toLowerCase() && token.toLowerCase() === vendor?.access_token?.toLowerCase();
 
-
-      if (verification.success && verification.vendorAccessToken) {
+      if (doEmailAndTokenMatch) {
         // Sign in the user anonymously and link email
         const { error } = await supabase.auth.signInAnonymously()
         if (error) {
@@ -80,6 +79,7 @@ function VendorLoginPageContent() {
         const { data: updateEmailData, error: updateEmailError } = await supabase.auth.updateUser({
           email,
           data: {
+            access_token: token,
             has_password: 'false'
           }
         })
@@ -90,16 +90,6 @@ function VendorLoginPageContent() {
           return;
         }
         console.log("Successfully logged in and updated user email for user ID: " + updateEmailData.user?.id);
-
-        // Claim the vendor for this user
-        try {
-          await claimVendor(verification.vendorAccessToken);
-          console.log("Vendor claimed successfully for user ID: " + updateEmailData.user?.id);
-        } catch (claimError) {
-          console.error("Error claiming vendor: " + (claimError as Error).message);
-          setIsLoading(false);
-          return;
-        }
         router.push(`/partner/manage`);
         addNotification("Check your inbox to verify your vendor email address: " + email);
       } else {
