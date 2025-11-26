@@ -1,40 +1,34 @@
-import { logEnvironmentInfo, shouldIncludeTestVendors } from "@/lib/env/env";
+import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { createClient } from "@/lib/supabase/server";
 import { transformBackendVendorToFrontend } from "@/types/vendor";
 
-export async function getVendorForCurrentUser(userId: string) {
-  if (!userId) {
+export async function getVendorForCurrentUser(userId: string, accessToken: string) {
+  if (!userId || !accessToken) {
     return null;
   }
 
   const supabase = await createClient();
 
   let query = supabase
-    .from('profiles')
+    .from('vendors')
     .select(`
-      vendor_id,
-      vendors!inner (
-        *,
-        tags (id, display_name, name, type, is_visible, style),
-        vendor_media (id, media_url)
-      )
-    `)
-    .eq('id', userId);
-
+      *,
+      tags (id, display_name, name, type, is_visible, style),
+      vendor_media (id, media_url)
+    `);
   if (!shouldIncludeTestVendors()) {
-    query = query.not('vendors.id', 'like', 'TEST-%');
+    query = query.not('id', 'like', 'TEST-%');
   }
 
-  logEnvironmentInfo();
+  // Fetch vendor by access token
+  const { data: vendor, error: vendorError } = await query
+    .eq('access_token', accessToken)
+    .single();
 
-  const { data, error } = await query.single();
-
-  if (error || !data?.vendors) {
-    console.error('Error fetching vendor:', error);
+  if (vendorError) {
+    console.error('Error fetching vendor:', vendorError);
     return null;
   }
-
-  const vendor = Array.isArray(data?.vendors) ? data.vendors[0] : data?.vendors;
 
   return transformBackendVendorToFrontend(vendor);
 }
