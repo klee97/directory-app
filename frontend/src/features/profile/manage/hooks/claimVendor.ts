@@ -3,8 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 
-export async function claimVendor(accessToken: string) {
-  // Get current user
+export async function claimVendor(accessToken: string, autoConfirm: boolean = false) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -15,7 +14,7 @@ export async function claimVendor(accessToken: string) {
   // Verify the vendor exists with this access token
   const { data: vendor, error: vendorError } = await supabaseAdmin
     .from('vendors')
-    .select('id')
+    .select('id, email')
     .eq('access_token', accessToken)
     .single();
 
@@ -23,16 +22,26 @@ export async function claimVendor(accessToken: string) {
     throw new Error('Invalid access token or vendor not found');
   }
 
-  // Check if this user already has a vendor associated
+  // Check if vendor is already claimed by someone
+  const { data: existingClaim } = await supabaseAdmin
+    .from('profiles')
+    .select('id, vendor_id')
+    .eq('vendor_id', vendor.id)
+    .maybeSingle();
+
+  if (existingClaim && existingClaim.id !== user.id) {
+    throw new Error('This vendor is already claimed by another account');
+  }
+
+  // Check if this user already has this vendor (idempotent)
   const { data: existingProfile } = await supabaseAdmin
     .from('profiles')
     .select('vendor_id')
     .eq('id', user.id)
     .single();
 
-  // If user already claimed this vendor, just return success (idempotent)
   if (existingProfile?.vendor_id === vendor.id) {
-    return vendor;
+    return vendor; // Already claimed by this user
   }
 
   // If user has a different vendor, prevent claiming
@@ -53,6 +62,19 @@ export async function claimVendor(accessToken: string) {
     throw new Error('Failed to update profile: ' + profileError.message);
   }
 
-  // Can remove the vendor_access from vendor if it's a one-time token
+  // Auto-confirm email if requested (for new signups via magic link)
+  if (autoConfirm) {
+    await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      email_confirm: true
+    });
+  }
+
+  // Clear any pending metadata
+  await supabase.auth.updateUser({
+    data: {
+      pending_vendor_access_token: null
+    }
+  });
+
   return vendor;
 }
