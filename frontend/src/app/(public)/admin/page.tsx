@@ -64,6 +64,11 @@ export default function Admin() {
               Update Existing Vendor
             </Typography>
           </Button>
+          <Button color="primary" href="/admin/debug" variant="text">
+            <Typography variant="body1">
+              Debug Environment
+            </Typography>
+          </Button>
         </Box>
       </Box>
     </Container>

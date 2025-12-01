@@ -1,18 +1,45 @@
 /**
  * Environment detection utilities for Vercel and local development
+ * Works in both browser and server contexts
  */
 
-export const getEnvironment = () => {
-  // VERCEL_ENV is automatically set by Vercel to 'development', 'preview', or 'production'
-  // For local development, VERCEL_ENV won't be set, so we fall back to NODE_ENV
-  const vercelEnv = process.env.VERCEL_ENV
-  const nodeEnv = process.env.NODE_ENV
-  
-  if (vercelEnv) {
-    return vercelEnv // 'development', 'preview', or 'production'
+/**
+ * Get the current environment
+ * Server: Uses VERCEL_ENV and NODE_ENV
+ * Browser: Uses NEXT_PUBLIC_VERCEL_ENV or hostname detection as fallback
+ */
+export const getEnvironment = (): 'development' | 'preview' | 'production' => {
+  // Browser environment detection
+  if (typeof window !== 'undefined') {
+    // Primary method: Use NEXT_PUBLIC_VERCEL_ENV (set to $VERCEL_ENV in Vercel settings)
+    const publicVercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV as 'development' | 'preview' | 'production' | undefined
+    if (publicVercelEnv) {
+      return publicVercelEnv
+    }
+
+    // Fallback: hostname detection (for cases where env var isn't set)
+    const hostname = window.location.hostname
+
+    // Local development
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
+      return 'development'
+    }
+
+    // If we can't determine from hostname, default to preview as safe fallback
+    // This ensures we don't accidentally expose preview/test data
+    return 'preview'
   }
-  
-  // Local fallback
+
+  // Server environment detection
+  // VERCEL_ENV is automatically set by Vercel to 'development', 'preview', or 'production'
+  const vercelEnv = process.env.VERCEL_ENV as 'development' | 'preview' | 'production' | undefined
+  const nodeEnv = process.env.NODE_ENV
+
+  if (vercelEnv) {
+    return vercelEnv
+  }
+
+  // Local fallback: Use NODE_ENV
   return nodeEnv === 'production' ? 'production' : 'development'
 }
 
@@ -38,27 +65,32 @@ export const shouldIncludeFuturePosts = () => {
   return isDevOrPreview()
 }
 
+/**
+ * Client-side helper for UI decisions only (e.g., showing test badges)
+ * WARNING: This should NOT be used for authoritative data filtering.
+ * Use server actions for actual data access control.
+ */
 export const shouldIncludeTestVendors = () => {
-  // Include test vendors in development and preview environment
+  // Include test vendors in development and preview environments
   return isDevOrPreview()
 }
 
 export const isTestVendor = (vendorId: string): boolean => {
-  return vendorId.startsWith('TEST-');
-};
+  return vendorId.startsWith('TEST-')
+}
 
 export const shouldEnableAnalytics = () => {
   const env = getEnvironment()
-  
+
   // Check for explicit overrides first
-  if (process.env.FORCE_ENABLE_ANALYTICS === 'true') {
+  if (process.env.NEXT_PUBLIC_FORCE_ENABLE_ANALYTICS === 'true') {
     return true
   }
-  
-  if (process.env.FORCE_DISABLE_ANALYTICS === 'true') {
+
+  if (process.env.NEXT_PUBLIC_FORCE_DISABLE_ANALYTICS === 'true') {
     return false
   }
-  
+
   // Default behavior: only enable analytics in production
   // Disable in development and preview to avoid polluting analytics data
   return env === 'production'
@@ -67,7 +99,7 @@ export const shouldEnableAnalytics = () => {
 export const getAnalyticsConfig = () => {
   const enabled = shouldEnableAnalytics()
   const env = getEnvironment()
-  
+
   return {
     enabled,
     environment: env,
@@ -78,17 +110,21 @@ export const getAnalyticsConfig = () => {
 
 // Debug helper for development
 export const logEnvironmentInfo = () => {
-  if (typeof window === 'undefined') {
-    // Server-side logging
-    console.log('Environment Info:', {
-      VERCEL_ENV: process.env.VERCEL_ENV,
-      NODE_ENV: process.env.NODE_ENV,
-      detected: getEnvironment(),
-      isDevelopment: isDevelopment(),
-      isPreview: isPreview(),
-      isProduction: isProduction(),
-      shouldIncludeFuturePosts: shouldIncludeFuturePosts(),
-      shouldEnableAnalytics: shouldEnableAnalytics(),
-    })
+  const info = {
+    context: typeof window === 'undefined' ? 'server' : 'browser',
+    VERCEL_ENV: process.env.VERCEL_ENV,
+    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+    NODE_ENV: process.env.NODE_ENV,
+    hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+    detected: getEnvironment(),
+    isDevelopment: isDevelopment(),
+    isPreview: isPreview(),
+    isProduction: isProduction(),
+    shouldIncludeFuturePosts: shouldIncludeFuturePosts(),
+    shouldIncludeTestVendors: shouldIncludeTestVendors(),
+    shouldEnableAnalytics: shouldEnableAnalytics(),
   }
+
+  console.log('Environment Info:', info)
+  return info
 }
