@@ -6,57 +6,40 @@
 /**
  * Get the current environment
  * Server: Uses VERCEL_ENV and NODE_ENV
- * Browser: Uses hostname detection or NEXT_PUBLIC_VERCEL_ENV
- */
-/**
- * Get the current environment
- * Server: Uses VERCEL_ENV and NODE_ENV
- * Browser: Uses hostname detection or NEXT_PUBLIC_VERCEL_ENV
+ * Browser: Uses NEXT_PUBLIC_VERCEL_ENV or hostname detection as fallback
  */
 export const getEnvironment = (): 'development' | 'preview' | 'production' => {
   // Browser environment detection
   if (typeof window !== 'undefined') {
-    // First try the public env var if set (most reliable method)
+    // Primary method: Use NEXT_PUBLIC_VERCEL_ENV (set to $VERCEL_ENV in Vercel settings)
     const publicVercelEnv = process.env.NEXT_PUBLIC_VERCEL_ENV as 'development' | 'preview' | 'production' | undefined
     if (publicVercelEnv) {
       return publicVercelEnv
     }
-    
-    // Fallback to hostname detection
+
+    // Fallback: hostname detection (for cases where env var isn't set)
     const hostname = window.location.hostname
-    
+
     // Local development
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.')) {
       return 'development'
     }
-    
-    // Production custom domain (update with your actual production domain)
-    if (hostname === 'yourdomain.com' || hostname === 'www.yourdomain.com') {
-      return 'production'
-    }
-    
-    // For vercel.app domains, we can't reliably distinguish between preview and production
-    // based on hostname alone. Default to 'preview' as a safe fallback.
-    // IMPORTANT: Set NEXT_PUBLIC_VERCEL_ENV=$VERCEL_ENV in Vercel settings for accurate detection
-    if (hostname.includes('vercel.app')) {
-      return 'preview'
-    }
-    
-    // Unknown domain - assume preview to be safe
+
+    // If we can't determine from hostname, default to preview as safe fallback
+    // This ensures we don't accidentally expose preview/test data
     return 'preview'
   }
-  
+
   // Server environment detection
   // VERCEL_ENV is automatically set by Vercel to 'development', 'preview', or 'production'
-  // For local development, VERCEL_ENV won't be set, so we fall back to NODE_ENV
   const vercelEnv = process.env.VERCEL_ENV as 'development' | 'preview' | 'production' | undefined
   const nodeEnv = process.env.NODE_ENV
-  
+
   if (vercelEnv) {
     return vercelEnv
   }
-  
-  // Local fallback
+
+  // Local fallback: Use NODE_ENV
   return nodeEnv === 'production' ? 'production' : 'development'
 }
 
@@ -88,7 +71,7 @@ export const shouldIncludeFuturePosts = () => {
  * Use server actions for actual data access control.
  */
 export const shouldIncludeTestVendors = () => {
-  // Include test vendors in development and preview environment
+  // Include test vendors in development and preview environments
   return isDevOrPreview()
 }
 
@@ -98,16 +81,16 @@ export const isTestVendor = (vendorId: string): boolean => {
 
 export const shouldEnableAnalytics = () => {
   const env = getEnvironment()
-  
+
   // Check for explicit overrides first
-  if (process.env.FORCE_ENABLE_ANALYTICS === 'true') {
+  if (process.env.NEXT_PUBLIC_FORCE_ENABLE_ANALYTICS === 'true') {
     return true
   }
-  
-  if (process.env.FORCE_DISABLE_ANALYTICS === 'true') {
+
+  if (process.env.NEXT_PUBLIC_FORCE_DISABLE_ANALYTICS === 'true') {
     return false
   }
-  
+
   // Default behavior: only enable analytics in production
   // Disable in development and preview to avoid polluting analytics data
   return env === 'production'
@@ -116,7 +99,7 @@ export const shouldEnableAnalytics = () => {
 export const getAnalyticsConfig = () => {
   const enabled = shouldEnableAnalytics()
   const env = getEnvironment()
-  
+
   return {
     enabled,
     environment: env,
@@ -141,7 +124,7 @@ export const logEnvironmentInfo = () => {
     shouldIncludeTestVendors: shouldIncludeTestVendors(),
     shouldEnableAnalytics: shouldEnableAnalytics(),
   }
-  
+
   console.log('Environment Info:', info)
   return info
 }
