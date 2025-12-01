@@ -10,11 +10,11 @@ export async function getCurrentUserAction() {
     console.error(error);
     return null;
   }
+  console.log("[getCurrentUserAction] Current user id fetched:", user.id);
 
   // Return serializable user data
   return {
     userId: user.id,
-    accessToken: user.user_metadata.access_token,
     email: user.email,
     has_password: (user.user_metadata.has_password === 'false') ? false : true,
   };

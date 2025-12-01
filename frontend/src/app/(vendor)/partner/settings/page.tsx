@@ -11,14 +11,10 @@ export default async function VendorSettingsPage() {
     redirect('/partner/login?redirect=/partner/settings');
   }
 
-  if (!currentUser.accessToken) {
-    redirect('/partner/login?redirect=/partner/settings');
-  }
-
-  const { userId, accessToken } = currentUser;
+  const { userId } = currentUser;
 
   // Fetch vendor data for current user
-  const vendor = await getVendorForCurrentUser(userId, accessToken);
+  const vendor = await getVendorForCurrentUser(userId);
   console.log("Fetched vendor data:", vendor);
 
 
