@@ -22,16 +22,16 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
     throw new Error('Invalid access token or vendor not found');
   }
 
-  // Check if vendor is already claimed by someone
-  const { data: existingClaim } = await supabaseAdmin
-    .from('profiles')
-    .select('id, vendor_id')
-    .eq('vendor_id', vendor.id)
-    .maybeSingle();
+  // // Check if vendor is already claimed by someone
+  // const { data: existingClaim } = await supabaseAdmin
+  //   .from('profiles')
+  //   .select('id, vendor_id')
+  //   .eq('vendor_id', vendor.id)
+  //   .maybeSingle();
 
-  if (existingClaim && existingClaim.id !== user.id) {
-    throw new Error('This vendor is already claimed by another account');
-  }
+  // if (existingClaim && existingClaim.id !== user.id) {
+  //   throw new Error('This vendor is already claimed by another account');
+  // }
 
   // Check if this user already has this vendor (idempotent)
   const { data: existingProfile } = await supabaseAdmin
@@ -79,7 +79,6 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
   return vendor;
 }
 
-// Handle the full signup + claim flow from server side
 export async function signUpAndClaimVendor(email: string, accessToken: string) {
   const supabase = await createClient();
   
@@ -120,12 +119,12 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
   if (userExists) {
     return {
       success: false,
-      error: `Email already registered : ${email}`,
+      error: 'Email already registered',
       type: 'email_exists'
     };
   }
 
-  // Create user AND session using signUp from server
+  // Create user using signUp (won't create session due to email confirmation requirement)
   const password = generateSecurePassword();
   
   const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -147,8 +146,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
     };
   }
 
-  // Now we have a user, call the existing claimVendor function
-  // Pass autoConfirm=true to confirm email and claim vendor
+  // Confirm email and claim vendor using existing function
   try {
     await claimVendor(accessToken, true);
   } catch (error) {
@@ -162,10 +160,25 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
     };
   }
 
+  // Now create a session for the user using admin.generateLink
+  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+    type: 'magiclink',
+    email: email,
+  });
+
+  if (linkError || !linkData) {
+    return {
+      success: false,
+      error: 'Account created but failed to generate sign-in link',
+      type: 'session_failed'
+    };
+  }
+
   return {
     success: true,
     type: 'created',
-    userId: signUpData.user.id
+    userId: signUpData.user.id,
+    hashedToken: linkData.properties.hashed_token
   };
 }
 
