@@ -12,7 +12,7 @@ import { verifyVendorMagicLink } from "@/features/profile/common/api/fetchVendor
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
-import { claimVendor } from "@/features/profile/manage/hooks/claimVendor";
+import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
 import Alert from "@mui/material/Alert";
 
 function VendorLoginPageContent() {
@@ -75,22 +75,13 @@ function VendorLoginPageContent() {
         return;
       }
 
-      // Sign up the user (creates account + session)
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password: generateSecurePassword(), // Random password they won't use
-        options: {
-          data: {
-            has_password: false,
-            email_context: 'initial_verification'
-          },
-          emailRedirectTo: `${window.location.origin}/partner/manage`
-        }
-      });
+      // Use server action to create user and claim vendor atomically
+      const result = await signUpAndClaimVendor(email, verification.vendorAccessToken);
 
-      if (signUpError) {
-        // Email already exists - send magic link instead
-        if (signUpError.message.includes('already registered')) {
+      if (!result.success) {
+        // Handle different error cases
+        if (result.type === 'email_exists' || result.type === 'already_claimed') {
+          // Send OTP for existing user
           const { error: otpError } = await supabase.auth.signInWithOtp({
             email,
             options: {
@@ -107,48 +98,68 @@ function VendorLoginPageContent() {
             return;
           }
 
-          addNotification("An account with this email already exists. Check your email for a sign-in link to complete claiming your vendor.");
+          addNotification(result.type === 'email_exists'
+            ? "An account with this email already exists. Check your email for a sign-in link to complete claiming your vendor."
+            : "This vendor is already claimed. Check your email for a sign-in link.");
           setIsLoading(false);
           return;
         }
 
-        setErrorMessage("Failed to create account: " + signUpError.message);
+        setErrorMessage(result.error || "Failed to create account");
         setIsLoading(false);
         return;
       }
 
-      // Auto-confirm email since they clicked the magic link
-      if (!signUpData.user) {
-        setErrorMessage("Failed to create user account.");
+      // Success! User created and vendor claimed
+      // The server action created a session via signUp() - verify it's accessible
+      console.log("User created and vendor claimed, verifying session");
+
+      // Refresh the session to ensure client has the latest state
+      await supabase.auth.refreshSession();
+
+      const { data: { session: newSession } } = await supabase.auth.getSession();
+
+      if (!newSession) {
+        // Session didn't propagate from server - fallback to OTP
+        console.warn("Session not found after signup, sending OTP as fallback");
+
+        const { error: otpError } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/partner/manage`
+          }
+        });
+
+        if (otpError) {
+          setErrorMessage("Account created but failed to sign in. Please try signing in manually.");
+          setIsLoading(false);
+          return;
+        }
+
+        addNotification("Your vendor account has been created. Check your email for a sign-in link.");
         setIsLoading(false);
         return;
       }
 
-      // Claim the vendor for this new user
-      try {
-        await claimVendor(verification.vendorAccessToken, true); // autoConfirm = true
-        console.log("Vendor claimed successfully for user ID: " + signUpData.user.id);
-
-        router.push(`/partner/manage`);
-        addNotification("Welcome! Your vendor account has been created. Please check your email to enable magic link sign-in for future visits.");
-      } catch (claimError) {
-        console.error("Error claiming vendor: " + (claimError as Error).message);
-        setErrorMessage("Account created but failed to claim vendor: " + (claimError as Error).message);
-        setIsLoading(false);
-      }
+      console.log("Session verified, redirecting to dashboard");
+      router.push('/partner/manage');
+      addNotification("Welcome! Your vendor account has been created and you're now signed in.");
     };
 
     handleVendorClaim();
   }, [addNotification, email, router, slug, token]);
+
   if (isLoading) {
     return (
       <Container maxWidth="sm">
         <Box
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            minHeight: '80vh'
+            minHeight: '80vh',
+            gap: 2
           }}
         >
           <CircularProgress />
@@ -178,31 +189,6 @@ export default function VendorLoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <VendorLoginPageContent />
-    </Suspense>)
-    ;
-};
-
-function generateSecurePassword(length: number = 32): string {
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  const special = '!@#$%^&*()_+-=[]{}|:;<>?,./';
-  
-  const allChars = lowercase + uppercase + numbers + special;
-  
-  let password = '';
-  
-  // Ensure at least one of each required character type
-  password += lowercase[Math.floor(Math.random() * lowercase.length)];
-  password += uppercase[Math.floor(Math.random() * uppercase.length)];
-  password += numbers[Math.floor(Math.random() * numbers.length)];
-  password += special[Math.floor(Math.random() * special.length)];
-  
-  // Fill the rest randomly
-  for (let i = password.length; i < length; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)];
-  }
-  
-  // Shuffle the password to randomize position of guaranteed characters
-  return password.split('').sort(() => Math.random() - 0.5).join('');
+    </Suspense>
+  );
 }
