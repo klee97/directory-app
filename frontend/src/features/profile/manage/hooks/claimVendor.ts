@@ -120,7 +120,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
   if (userExists) {
     return {
       success: false,
-      error: 'Email already registered',
+      error: `Email already registered : ${email}`,
       type: 'email_exists'
     };
   }
