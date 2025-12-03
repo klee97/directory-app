@@ -12,8 +12,8 @@ import { verifyVendorMagicLink } from "@/features/profile/common/api/fetchVendor
 import { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { useNotification } from "@/contexts/NotificationContext";
 import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
-import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
 import Alert from "@mui/material/Alert";
+import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
 
 function VendorLoginPageContent() {
   const { addNotification } = useNotification();
@@ -98,7 +98,7 @@ function VendorLoginPageContent() {
             return;
           }
 
-          addNotification(result.type === 'email_exists'
+          addNotification(result.type === 'email_exists' 
             ? "An account with this email already exists. Check your email for a sign-in link to complete claiming your vendor."
             : "This vendor is already claimed. Check your email for a sign-in link.");
           setIsLoading(false);
@@ -111,37 +111,28 @@ function VendorLoginPageContent() {
       }
 
       // Success! User created and vendor claimed
-      // The server action created a session via signUp() - verify it's accessible
-      console.log("User created and vendor claimed, verifying session");
-
-      // Refresh the session to ensure client has the latest state
-      await supabase.auth.refreshSession();
-
-      const { data: { session: newSession } } = await supabase.auth.getSession();
-
-      if (!newSession) {
-        // Session didn't propagate from server - fallback to OTP
-        console.warn("Session not found after signup, sending OTP as fallback");
-
-        const { error: otpError } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            emailRedirectTo: `${window.location.origin}/partner/manage`
-          }
-        });
-
-        if (otpError) {
-          setErrorMessage("Account created but failed to sign in. Please try signing in manually.");
-          setIsLoading(false);
-          return;
-        }
-
-        addNotification("Your vendor account has been created. Check your email for a sign-in link.");
+      console.log("User created and vendor claimed successfully");
+      
+      if (!result.hashedToken) {
+        setErrorMessage("Account created but failed to generate sign-in credentials. Please try signing in manually.");
         setIsLoading(false);
         return;
       }
 
-      console.log("Session verified, redirecting to dashboard");
+      // Exchange the hashed token for a session
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: result.hashedToken,
+        type: 'magiclink'
+      });
+
+      if (verifyError || !verifyData.session) {
+        console.error("Failed to verify OTP:", verifyError);
+        setErrorMessage("Account created but automatic sign-in failed. Please try signing in manually.");
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("Session created successfully, redirecting to dashboard");
       router.push('/partner/manage');
       addNotification("Welcome! Your vendor account has been created and you're now signed in.");
     };
