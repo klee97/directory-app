@@ -3,12 +3,19 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 
-export async function claimVendor(accessToken: string, autoConfirm: boolean = false) {
+export async function claimVendor(accessToken: string, autoConfirm: boolean = false, userId?: string) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!user) {
-    throw new Error('User not authenticated');
+  // If userId is provided (for new signups), use that; otherwise get from session
+  let user;
+  if (userId) {
+    user = { id: userId };
+  } else {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (!authUser) {
+      throw new Error('User not authenticated');
+    }
+    user = authUser;
   }
 
   // Verify the vendor exists with this access token
@@ -22,16 +29,16 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
     throw new Error('Invalid access token or vendor not found');
   }
 
-  // // Check if vendor is already claimed by someone
-  // const { data: existingClaim } = await supabaseAdmin
-  //   .from('profiles')
-  //   .select('id, vendor_id')
-  //   .eq('vendor_id', vendor.id)
-  //   .maybeSingle();
+  // Check if vendor is already claimed by someone
+  const { data: existingClaim } = await supabaseAdmin
+    .from('profiles')
+    .select('id, vendor_id')
+    .eq('vendor_id', vendor.id)
+    .maybeSingle();
 
-  // if (existingClaim && existingClaim.id !== user.id) {
-  //   throw new Error('This vendor is already claimed by another account');
-  // }
+  if (existingClaim && existingClaim.id !== user.id) {
+    throw new Error('This vendor is already claimed by another account');
+  }
 
   // Check if this user already has this vendor (idempotent)
   const { data: existingProfile } = await supabaseAdmin
@@ -147,8 +154,9 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
   }
 
   // Confirm email and claim vendor using existing function
+  // Pass the userId since there's no session yet
   try {
-    await claimVendor(accessToken, true);
+    await claimVendor(accessToken, true, signUpData.user.id);
   } catch (error) {
     // Rollback: delete the user we just created
     await supabaseAdmin.auth.admin.deleteUser(signUpData.user.id);
