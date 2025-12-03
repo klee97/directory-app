@@ -78,3 +78,114 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
 
   return vendor;
 }
+
+// Handle the full signup + claim flow from server side
+export async function signUpAndClaimVendor(email: string, accessToken: string) {
+  const supabase = await createClient();
+  
+  // Verify the vendor exists with this access token FIRST
+  const { data: vendor, error: vendorError } = await supabaseAdmin
+    .from('vendors')
+    .select('id, email')
+    .eq('access_token', accessToken)
+    .single();
+
+  if (vendorError || !vendor) {
+    return { 
+      success: false, 
+      error: 'Invalid access token or vendor not found',
+      type: 'invalid_token'
+    };
+  }
+
+  // Check if vendor is already claimed
+  const { data: existingClaim } = await supabaseAdmin
+    .from('profiles')
+    .select('id, user_id, vendor_id')
+    .eq('vendor_id', vendor.id)
+    .maybeSingle();
+
+  if (existingClaim) {
+    return {
+      success: false,
+      error: 'Vendor already claimed',
+      type: 'already_claimed'
+    };
+  }
+
+  // Check if user with this email already exists
+  const { data: existingUserData } = await supabaseAdmin.auth.admin.listUsers();
+  const userExists = existingUserData.users.some(u => u.email === email);
+
+  if (userExists) {
+    return {
+      success: false,
+      error: 'Email already registered',
+      type: 'email_exists'
+    };
+  }
+
+  // Create user AND session using signUp from server
+  const password = generateSecurePassword();
+  
+  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        has_password: false,
+        email_context: 'initial_verification'
+      }
+    }
+  });
+
+  if (signUpError || !signUpData.user) {
+    return {
+      success: false,
+      error: 'Failed to create user: ' + signUpError?.message,
+      type: 'create_failed'
+    };
+  }
+
+  // Now we have a user, call the existing claimVendor function
+  // Pass autoConfirm=true to confirm email and claim vendor
+  try {
+    await claimVendor(accessToken, true);
+  } catch (error) {
+    // Rollback: delete the user we just created
+    await supabaseAdmin.auth.admin.deleteUser(signUpData.user.id);
+    
+    return {
+      success: false,
+      error: 'Failed to claim vendor: ' + (error as Error).message,
+      type: 'claim_failed'
+    };
+  }
+
+  return {
+    success: true,
+    type: 'created',
+    userId: signUpData.user.id
+  };
+}
+
+function generateSecurePassword(length: number = 32): string {
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const special = '!@#$%^&*()_+-=[]{}|:;<>?,./';
+  
+  const allChars = lowercase + uppercase + numbers + special;
+  let password = '';
+  
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+  
+  for (let i = password.length; i < length; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}
