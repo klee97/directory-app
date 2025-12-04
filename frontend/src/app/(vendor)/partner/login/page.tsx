@@ -4,141 +4,40 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { Suspense, useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoginForm } from "@/features/login/components/LoginForm";
-import { verifyVendorMagicLink } from "@/features/profile/common/api/fetchVendor";
-import { ReCaptchaRef } from '@/components/security/ReCaptcha';
-import { useNotification } from "@/contexts/NotificationContext";
-import { SLUG_PARAM, EMAIL_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import Alert from "@mui/material/Alert";
-import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
 
 function VendorLoginPageContent() {
-  const { addNotification } = useNotification();
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const recaptchaRef = useRef<ReCaptchaRef>(null);
-
-  // Extract magic link parameters
-  const slug = searchParams?.get(SLUG_PARAM) || "";
-  const email = searchParams?.get(EMAIL_PARAM) || "";
-  const token = searchParams?.get(TOKEN_PARAM) || "";
+  const supabase = createClient();
 
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage] = useState("");
 
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== 'true') {
-      router.push(`/`);
-      return;
-    }
+    const init = async () => {
+      // Feature flag
+      if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== "true") {
+        router.push(`/`);
+        return;
+      }
 
-    const handleVendorClaim = async () => {
-      const supabase = createClient();
-
-      // Check if user is already logged in
+      // Already logged in? → Redirect to vendor dashboard
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        console.log("User is already logged in");
         router.push(`/partner/manage`);
         return;
       }
 
-      const areAllParamsValid = !!email && !!token && !!slug &&
-        email.trim() !== "" && token.trim() !== "" && slug.trim() !== "";
-
-      if (!areAllParamsValid) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Execute reCAPTCHA
-      try {
-        await recaptchaRef.current?.executeAsync();
-        console.log("reCAPTCHA executed successfully");
-      } catch (error) {
-        console.error("Error executing reCAPTCHA: ", error);
-        setErrorMessage("Security verification failed. Please try again.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Verify the magic link
-      const verification = await verifyVendorMagicLink(slug, email, token);
-
-      if (!verification.success || !verification.vendorAccessToken) {
-        setErrorMessage("Invalid or expired magic link. Please request a new one.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Use server action to create user and claim vendor atomically
-      const result = await signUpAndClaimVendor(email, verification.vendorAccessToken);
-
-      if (!result.success) {
-        // Handle different error cases
-        if (result.type === 'email_exists' || result.type === 'already_claimed') {
-          // Send OTP for existing user
-          const { error: otpError } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-              data: {
-                pending_vendor_access_token: verification.vendorAccessToken
-              },
-              emailRedirectTo: `${window.location.origin}/partner/claim/complete`
-            }
-          });
-
-          if (otpError) {
-            setErrorMessage("Failed to send sign-in link. Please try again.");
-            setIsLoading(false);
-            return;
-          }
-
-          addNotification(result.type === 'email_exists' 
-            ? "An account with this email already exists. Check your email for a sign-in link to complete claiming your vendor."
-            : "This vendor is already claimed. Check your email for a sign-in link.");
-          setIsLoading(false);
-          return;
-        }
-
-        setErrorMessage(result.error || "Failed to create account");
-        setIsLoading(false);
-        return;
-      }
-
-      // Success! User created and vendor claimed
-      console.log("User created and vendor claimed successfully");
-      
-      if (!result.hashedToken) {
-        setErrorMessage("Account created but failed to generate sign-in credentials. Please try signing in manually.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Exchange the hashed token for a session
-      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-        token_hash: result.hashedToken,
-        type: 'magiclink'
-      });
-
-      if (verifyError || !verifyData.session) {
-        console.error("Failed to verify OTP:", verifyError);
-        setErrorMessage("Account created but automatic sign-in failed. Please try signing in manually.");
-        setIsLoading(false);
-        return;
-      }
-
-      console.log("Session created successfully, redirecting to dashboard");
-      router.push('/partner/manage');
-      addNotification("Welcome! Your vendor account has been created and you're now signed in.");
+      setIsLoading(false);
     };
 
-    handleVendorClaim();
-  }, [addNotification, email, router, slug, token]);
+    init();
+  }, [router, supabase]);
 
   if (isLoading) {
     return (
@@ -154,7 +53,7 @@ function VendorLoginPageContent() {
           }}
         >
           <CircularProgress />
-          <Typography>Setting up your vendor account...</Typography>
+          <Typography>Checking your session...</Typography>
         </Box>
       </Container>
     );
@@ -168,9 +67,11 @@ function VendorLoginPageContent() {
           {errorMessage}
         </Alert>
       )}
+      
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Vendor Login
       </Typography>
+
       <LoginForm isVendorLogin={true} />
     </Container>
   );
