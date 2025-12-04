@@ -3,9 +3,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 
-export async function claimVendor(accessToken: string, autoConfirm: boolean = false, userId?: string) {
+export async function claimVendor(accessToken: string, userId?: string) {
   const supabase = await createClient();
-  
+
   // If userId is provided (for new signups), use that; otherwise get from session
   let user;
   if (userId) {
@@ -59,7 +59,7 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
   // Update the user's profile to link to this vendor
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .update({ 
+    .update({
       vendor_id: vendor.id,
       role: 'vendor'
     })
@@ -67,13 +67,6 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
 
   if (profileError) {
     throw new Error('Failed to update profile: ' + profileError.message);
-  }
-
-  // Auto-confirm email if requested (for new signups via magic link)
-  if (autoConfirm) {
-    await supabaseAdmin.auth.admin.updateUserById(user.id, {
-      email_confirm: true
-    });
   }
 
   // Clear any pending metadata
@@ -86,9 +79,7 @@ export async function claimVendor(accessToken: string, autoConfirm: boolean = fa
   return vendor;
 }
 
-export async function signUpAndClaimVendor(email: string, accessToken: string) {
-  const supabase = await createClient();
-  
+export async function signUpAndClaimVendor(email: string, accessToken: string, password: string) {
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdmin
     .from('vendors')
@@ -97,8 +88,8 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
     .single();
 
   if (vendorError || !vendor) {
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: 'Invalid access token or vendor not found',
       type: 'invalid_token'
     };
@@ -119,48 +110,50 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
     };
   }
 
-  // Check if user with this email already exists
-  const { data: existingUserData } = await supabaseAdmin.auth.admin.listUsers();
-  const userExists = existingUserData.users.some(u => u.email === email);
+  // create user silently with NO confirmation email
+  const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,        // IMPORTANT: prevents confirmation email
+    user_metadata: {
+      has_password: true,
+      email_context: "vendor_claim"
+    }
+  });
+  if (createError) {
+    if (createError.message?.toLowerCase().includes("already registered")) {
+      return {
+        success: false,
+        type: "email_exists",
+        error: "Email already registered"
+      };
+    }
 
-  if (userExists) {
     return {
       success: false,
-      error: 'Email already registered',
-      type: 'email_exists'
+      type: "create_failed",
+      error: "Failed to create user: " + createError.message
     };
   }
 
-  // Create user using signUp (won't create session due to email confirmation requirement)
-  const password = generateSecurePassword();
-  
-  const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        has_password: false,
-        email_context: 'initial_verification'
-      }
-    }
-  });
+  const newUserId = newUser?.user?.id;
 
-  if (signUpError || !signUpData.user) {
+  if (!newUserId) {
     return {
       success: false,
-      error: 'Failed to create user: ' + signUpError?.message,
-      type: 'create_failed'
+      type: "create_failed",
+      error: "No user returned from creation"
     };
   }
 
   // Confirm email and claim vendor using existing function
   // Pass the userId since there's no session yet
   try {
-    await claimVendor(accessToken, true, signUpData.user.id);
+    await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
-    await supabaseAdmin.auth.admin.deleteUser(signUpData.user.id);
-    
+    await supabaseAdmin.auth.admin.deleteUser(newUserId);
+
     return {
       success: false,
       error: 'Failed to claim vendor: ' + (error as Error).message,
@@ -168,45 +161,15 @@ export async function signUpAndClaimVendor(email: string, accessToken: string) {
     };
   }
 
-  // Now create a session for the user using admin.generateLink
-  const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-    type: 'magiclink',
-    email: email,
-  });
-
-  if (linkError || !linkData) {
-    return {
-      success: false,
-      error: 'Account created but failed to generate sign-in link',
-      type: 'session_failed'
-    };
-  }
+  // Clear the access token so it can't be reused
+  await supabaseAdmin
+    .from('vendors')
+    .update({ access_token: null })
+    .eq('id', vendor.id);
 
   return {
     success: true,
     type: 'created',
-    userId: signUpData.user.id,
-    hashedToken: linkData.properties.hashed_token
+    userId: newUserId
   };
-}
-
-function generateSecurePassword(length: number = 32): string {
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  const special = '!@#$%^&*()_+-=[]{}|:;<>?,./';
-  
-  const allChars = lowercase + uppercase + numbers + special;
-  let password = '';
-  
-  password += lowercase[Math.floor(Math.random() * lowercase.length)];
-  password += uppercase[Math.floor(Math.random() * uppercase.length)];
-  password += numbers[Math.floor(Math.random() * numbers.length)];
-  password += special[Math.floor(Math.random() * special.length)];
-  
-  for (let i = password.length; i < length; i++) {
-    password += allChars[Math.floor(Math.random() * allChars.length)];
-  }
-  
-  return password.split('').sort(() => Math.random() - 0.5).join('');
 }
