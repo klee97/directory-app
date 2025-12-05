@@ -143,7 +143,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
   return (
     <>
-      {!isMobile && (<Toolbar />)}
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         {/* Mobile App Bar */}
         {isMobile && (
@@ -225,8 +224,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
             flexDirection: 'column',
           }}
         >
-          {isMobile && <Toolbar />}
-
           {/* Preview */}
           <Box sx={{
             flexGrow: 1,

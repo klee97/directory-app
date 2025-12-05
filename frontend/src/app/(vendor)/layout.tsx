@@ -1,6 +1,5 @@
 import { Footer } from "@/components/layouts/Footer";
 import { Navbar } from "@/components/layouts/Navbar";
-import Toolbar from "@mui/material/Toolbar";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -16,7 +15,6 @@ export default function VendorLayout({
 
   return <>
     <Navbar isVendorNavbar={true} />
-    <Toolbar />
     {children}
     <Footer isVendorFooter={true} />
   </>;
