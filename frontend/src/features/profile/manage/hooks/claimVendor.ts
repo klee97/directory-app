@@ -69,13 +69,6 @@ export async function claimVendor(accessToken: string, userId?: string) {
     throw new Error('Failed to update profile: ' + profileError.message);
   }
 
-  // Clear any pending metadata
-  await supabase.auth.updateUser({
-    data: {
-      pending_vendor_access_token: null
-    }
-  });
-
   return vendor;
 }
 
@@ -114,11 +107,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
-    email_confirm: true,        // IMPORTANT: prevents confirmation email
-    user_metadata: {
-      has_password: true,
-      email_context: "vendor_claim"
-    }
+    email_confirm: true,        // confirming email is legitimate and verified since we are using existing vendor email
   });
   if (createError) {
     if (createError.message?.toLowerCase().includes("already registered")) {
@@ -152,6 +141,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
+    console.error(`Error claiming vendor (${newUserId}) after user creation: ${(error as Error).message}`);
     await supabaseAdmin.auth.admin.deleteUser(newUserId);
 
     return {

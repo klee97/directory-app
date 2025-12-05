@@ -53,7 +53,7 @@ function VendorLoginPageContent() {
           }}
         >
           <CircularProgress />
-          <Typography>Checking your session...</Typography>
+          <Typography>Logging in...</Typography>
         </Box>
       </Container>
     );
