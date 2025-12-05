@@ -11,15 +11,16 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { verifyVendorMagicLink } from "@/features/profile/common/api/magicLink";
 import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
 import { useNotification } from "@/contexts/NotificationContext";
-import { TOKEN_PARAM } from "@/lib/constants";
+import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { ReCaptchaRef } from "@/components/security/ReCaptcha";
 
 function VendorClaimPageContent() {
   const { addNotification } = useNotification();
@@ -27,6 +28,11 @@ function VendorClaimPageContent() {
   const router = useRouter();
   const supabase = createClient();
 
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
+
+  // Extract magic link parameters
+  const slug = searchParams?.get(SLUG_PARAM) || "";
+  const email = searchParams?.get(EMAIL_PARAM) || "";
   const token = searchParams?.get(TOKEN_PARAM) || "";
 
   const [isLoading, setIsLoading] = useState(true);
@@ -41,33 +47,58 @@ function VendorClaimPageContent() {
 
   // Initialize page: verify token → load vendor info
   useEffect(() => {
+
     const init = async () => {
-      if (!token) {
-        setErrorMessage("Invalid claim link.");
+      if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== 'true') {
+        router.push(`/`);
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        console.log("User is already logged in");
+        // User is already logged in, redirect to settings page
+        router.push(`/partner/manage`);
+        return;
+      }
+
+      const areAllParamsValid = !!email && !!token && email.trim() !== "" && token.trim() !== "" && slug.trim() !== "";
+
+      if (!areAllParamsValid) {
+        // Email, token, or slug is missing, show the login form
         setIsLoading(false);
         return;
       }
 
+      // Execute reCAPTCHA and get token
       try {
-        const verification = await verifyVendorMagicLink("", "", token);
+        await recaptchaRef.current?.executeAsync();
+        console.log("reCAPTCHA executed successfully");
+      } catch (error) {
+        console.error("Error executing reCAPTCHA: ", error);
+        setIsLoading(false);
+        return;
+      }
 
-        if (!verification.success) {
-          setErrorMessage("Invalid or expired claim link.");
-        } else {
-          setVendorInfo({
-            name: verification.vendorBusinessName || "Your Vendor",
-            email: verification.vendorEmail || "",
-          });
-        }
-      } catch {
-        setErrorMessage("Failed to verify claim link.");
+      // Check if email and token from the query parameters are valid and match database records. 
+      // If they do, sign in the user anonymously and link their email to the account.
+      const verification = await verifyVendorMagicLink(slug, email, token);
+
+      if (!verification.success) {
+        setErrorMessage("Invalid or expired vendor claim link.");
+      } else {
+        setVendorInfo({
+          name: verification.vendorBusinessName || "Your Vendor",
+          email: verification.vendorEmail || "",
+        });
       }
 
       setIsLoading(false);
     };
 
     init();
-  }, [token]);
+  }, [token, email, slug, router, supabase.auth]);
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,8 +180,7 @@ function VendorClaimPageContent() {
             </Typography>
 
             <Typography variant="body1" sx={{ mb: 2 }}>
-              To start managing this vendor profile, you’ll create an account using the email
-              already associated with the profile.
+              To claim your profile, set a password for your account below. You can update your email once your account is created.
             </Typography>
 
             <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
