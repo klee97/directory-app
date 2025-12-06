@@ -1,5 +1,6 @@
 "use server";
 import { createServerClient } from '@supabase/ssr';
+import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { cookies } from 'next/headers';
 
 /**
@@ -30,7 +31,7 @@ export async function createClient() {
         async getAll() {
           return (await cookieStore).getAll()
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet: { name: string; value: string; options?: ResponseCookie }[]) {
           try {
             cookiesToSet.forEach(async ({ name, value, options }) =>
               (await cookieStore).set(name, value, options)
