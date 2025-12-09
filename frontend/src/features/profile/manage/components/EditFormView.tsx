@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -23,8 +23,6 @@ import { VendorFormData } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
 import { Section } from './Section';
 
-
-// Typed shape for the editable form data (draft)
 interface EditFormViewProps {
   activeSection: string | null;
   sections: Section[];
@@ -49,6 +47,22 @@ export default function EditFormView({
   const { upload, loading } = useImageUploader();
   const [showValidation, setShowValidation] = useState(false);
 
+  // Track changes efficiently
+  const initialFormDataRef = useRef<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // Initialize or update the reference when activeSection changes
+  useEffect(() => {
+    initialFormDataRef.current = JSON.stringify(formData);
+    setHasUnsavedChanges(false);
+  }, [activeSection]);
+
+  // Track changes whenever formData updates
+  useEffect(() => {
+    if (initialFormDataRef.current === null) return;
+    const currentData = JSON.stringify(formData);
+    setHasUnsavedChanges(currentData !== initialFormDataRef.current);
+  }, [formData]);
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -98,6 +112,10 @@ export default function EditFormView({
     // Save data
     handleSave();
 
+    // Update the reference to the new saved state
+    initialFormDataRef.current = JSON.stringify(formData);
+    setHasUnsavedChanges(false);
+
     // Hide validation after a successful save
     setShowValidation(false);
   };
@@ -108,6 +126,8 @@ export default function EditFormView({
     const errors = validationResult.errors as Record<string, string | null>;
     return errors[fieldName] ?? null;
   };
+
+  const isSaveDisabled = !hasUnsavedChanges || loading;
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -290,7 +310,7 @@ export default function EditFormView({
                       />
                     </Grid>
                     <Grid size={12}>
-                      <FormFieldLabel>Bridal Hair & Makeup Price</FormFieldLabel>
+                      <FormFieldLabel>Bridesmaid Hair & Makeup Price</FormFieldLabel>
                       <TextField
                         fullWidth
                         type="number"
@@ -392,11 +412,10 @@ export default function EditFormView({
         <Button
           variant="contained"
           fullWidth
-          onClick={() => {
-            handleSaveClick();
-          }}
+          onClick={handleSaveClick}
+          disabled={isSaveDisabled}
         >
-          Save Changes
+          {'Save Changes'}
         </Button>
       </Box>
     </Box>
