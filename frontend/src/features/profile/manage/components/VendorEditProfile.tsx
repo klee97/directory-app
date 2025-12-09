@@ -59,7 +59,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
         if (draft) {
           // Found unpublished work - load it
           setDraftId(draft.id);
-          setFormData(draftToFormData(draft));
+          const formData = draftToFormData(draft);
+          setFormData(formData);
           setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization
@@ -95,6 +96,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     bridesmaid_makeup_price: formData.bridesmaid_makeup_price,
     bridesmaid_hair_makeup_price: formData["bridesmaid_hair_&_makeup_price"],
     cover_image: formData.cover_image,
+    images: formData.images || [],
+    tags: formData.tags,
   };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -112,6 +115,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     try {
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
+      setHasUnpublishedChanges(true);
       addNotification('Changes saved!', 'success');
     } catch (error) {
       console.error('Error saving:', error);
@@ -137,13 +141,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       addNotification(`Failed to publish: ${result.error}`, 'error');
       return;
     } else {
+      setHasUnpublishedChanges(false);
       addNotification('Changes published successfully!', 'success');
     }
   };
 
   return (
     <>
-      {!isMobile && (<Toolbar />)}
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         {/* Mobile App Bar */}
         {isMobile && (
@@ -225,8 +229,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
             flexDirection: 'column',
           }}
         >
-          {isMobile && <Toolbar />}
-
           {/* Preview */}
           <Box sx={{
             flexGrow: 1,

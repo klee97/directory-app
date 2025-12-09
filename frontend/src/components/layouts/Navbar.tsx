@@ -115,20 +115,23 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const { mode, setMode } = useColorScheme();
   if (!mounted || !mode) {
     return (
-      <AppBar
-        position={isVendorNavbar ? "fixed" : "static"}
-        sx={{
-          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
-          zIndex: (theme) => theme.zIndex.drawer + 1
-        }}
-      >
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            <Skeleton variant="rectangular" width={40} height={40} />
-            <Skeleton variant="text" width={200} sx={{ ml: 2 }} />
-          </Toolbar>
-        </Container>
-      </AppBar>
+      <>
+        <AppBar
+          position={isVendorNavbar ? "fixed" : "static"}
+          sx={{
+            bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+            zIndex: (theme) => theme.zIndex.drawer + 1
+          }}
+        >
+          <Container maxWidth="xl">
+            <Toolbar disableGutters>
+              <Skeleton variant="rectangular" width={40} height={40} />
+              <Skeleton variant="text" width={200} sx={{ ml: 2 }} />
+            </Toolbar>
+          </Container>
+        </AppBar>
+        {isVendorNavbar && <Toolbar />}
+      </>
     );
   }
 
@@ -273,61 +276,50 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   return (
-    <AppBar
-      position={isVendorNavbar ? "fixed" : "static"}
-      sx={{
-        bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
-        zIndex: (theme) => theme.zIndex.drawer + 1
-      }}
-    >
-      <Container maxWidth="xl">
-        <Toolbar disableGutters
-          sx={{
-            minHeight: { xs: 56, sm: 64 },
-            maxHeight: { xs: 56, sm: 64 }, // Constrain the height
-          }}
-        >
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              color="inherit"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{ display: { xs: 'block', md: 'none' } }}
-            >
-              {!isVendorNavbar ? pages.map((page) => (
-                <MenuItem
-                  key={page}
-                  onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
-                >
-                  <Typography
-                    sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
-                  >
-                    {page}
-                  </Typography>
-                </MenuItem>
-              ))
-                : vendorPages.map((page) => (
+    <>
+      <AppBar
+        position={isVendorNavbar ? "fixed" : "static"}
+        sx={{
+          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
+          zIndex: (theme) => theme.zIndex.drawer + 1
+        }}
+      >
+        <Container maxWidth="xl">
+          <Toolbar disableGutters
+            sx={{
+              minHeight: { xs: 56, sm: 64 },
+              maxHeight: { xs: 56, sm: 64 }, // Constrain the height
+            }}
+          >
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleOpenNavMenu}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                color="inherit"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{ display: { xs: 'block', md: 'none' } }}
+              >
+                {!isVendorNavbar ? pages.map((page) => (
                   <MenuItem
                     key={page}
                     onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -338,222 +330,247 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                       {page}
                     </Typography>
                   </MenuItem>
-                ))}
-              {!isVendorNavbar && (
-                <Box sx={{ width: '100%' }}>
-                  <MenuItem
-                    key="Resources"
-                    onClick={() => setResourcesExpanded(!resourcesExpanded)}
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                  >
-                    <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                      Resources
-                    </Typography>
-                    {resourcesExpanded ? <ExpandLess fontSize='small' /> : <ExpandMore fontSize='small' />}
-                  </MenuItem>
-
-                  <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
-                    <Box sx={{ pl: 2 }}>
-                      {resources.map((resource) => (
-                        <MenuItem
-                          key={resource}
-                          onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
-                        >
-                          <Typography
-                            sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
-                          >
-                            {resource}
-                          </Typography>
-                        </MenuItem>
-                      ))}
-                    </Box>
-                  </Collapse>
-                </Box>
-              )}
-              {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && (
-                <Box sx={{ width: '100%' }}>
-                  <Divider />
-                  {!isLoggedIn ? (
-                    <MenuItem onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}>
-                      <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                        Login
+                ))
+                  : vendorPages.map((page) => (
+                    <MenuItem
+                      key={page}
+                      onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                    >
+                      <Typography
+                        sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                      >
+                        {page}
                       </Typography>
                     </MenuItem>
-                  ) : (
-                    <>
-                      {!isVendorNavbar && (
-                        <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                  ))}
+                {!isVendorNavbar && (
+                  <Box sx={{ width: '100%' }}>
+                    <MenuItem
+                      key="Resources"
+                      onClick={() => setResourcesExpanded(!resourcesExpanded)}
+                      sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    >
+                      <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                        Resources
+                      </Typography>
+                      {resourcesExpanded ? <ExpandLess fontSize='small' /> : <ExpandMore fontSize='small' />}
+                    </MenuItem>
+
+                    <Collapse in={resourcesExpanded} timeout="auto" unmountOnExit>
+                      <Box sx={{ pl: 2 }}>
+                        {resources.map((resource) => (
+                          <MenuItem
+                            key={resource}
+                            onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
+                          >
+                            <Typography
+                              sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}
+                            >
+                              {resource}
+                            </Typography>
+                          </MenuItem>
+                        ))}
+                      </Box>
+                    </Collapse>
+                  </Box>
+                )}
+                {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && (
+                  <Box sx={{ width: '100%' }}>
+                    <Divider />
+                    {!isLoggedIn ? (
+                      <MenuItem onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}>
+                        <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                          Login
+                        </Typography>
+                      </MenuItem>
+                    ) : (
+                      <>
+                        {!isVendorNavbar && (
+                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
+                            <ListItemIcon>
+                              <Favorite fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>
+                              <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                                My Favorites
+                              </Typography>
+                            </ListItemText>
+                          </MenuItem>
+                        )}
+                        <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
                           <ListItemIcon>
-                            <Favorite fontSize="small" />
+                            <Settings fontSize="small" />
                           </ListItemIcon>
                           <ListItemText>
                             <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                              My Favorites
+                              Settings
                             </Typography>
                           </ListItemText>
                         </MenuItem>
-                      )}
-                      <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
-                        <ListItemIcon>
-                          <Settings fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                          <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                            Settings
-                          </Typography>
-                        </ListItemText>
-                      </MenuItem>
-                      <Divider />
-                      <MenuItem onClick={handleSignOut}>
-                        <ListItemIcon>
-                          <Logout fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText>
-                          <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                            Sign Out
-                          </Typography>
-                        </ListItemText>
-                      </MenuItem>
-                    </>
-                  )}
-                </Box>
-              )}
-            </Menu>
-          </Box>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-            <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
-            <Box style={{ alignItems: 'end' }} >
-              <Typography
-                variant="h1"
-                noWrap
-                sx={{
-                  fontSize: { xs: '1.2rem', md: '1.5rem' },
-                  mr: 2,
-                  fontWeight: 550,
-                  letterSpacing: '.3rem',
-                  color: 'white',
-                  textDecoration: 'none',
-                  display: { xs: 'flex', md: 'flex' },
-                  flexGrow: { xs: 1, md: 0 },
-                }}
-              >
-                {Title}
-              </Typography>
-              {isVendorNavbar && (
+                        <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
+                          <ListItemIcon>
+                            <Settings fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>
+                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                              Settings
+                            </Typography>
+                          </ListItemText>
+                        </MenuItem>
+                        <Divider />
+                        <MenuItem onClick={handleSignOut}>
+                          <ListItemIcon>
+                            <Logout fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText>
+                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                              Sign Out
+                            </Typography>
+                          </ListItemText>
+                        </MenuItem>
+                      </>
+                    )}
+                  </Box>
+                )}
+              </Menu>
+            </Box>
+            <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+              <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
+              <Box style={{ alignItems: 'end' }} >
                 <Typography
-                  variant="h3"
+                  variant="h1"
                   noWrap
                   sx={{
-                    fontSize: { xs: '0.8rem', md: '1rem' },
-                    fontWeight: 300,
-                    letterSpacing: '.1rem',
+                    fontSize: { xs: '1.2rem', md: '1.5rem' },
+                    mr: 2,
+                    fontWeight: 550,
+                    letterSpacing: '.3rem',
                     color: 'white',
                     textDecoration: 'none',
                     display: { xs: 'flex', md: 'flex' },
+                    flexGrow: { xs: 1, md: 0 },
                   }}
                 >
-                  {VendorsSubtitle}
+                  {Title}
                 </Typography>
-              )}
-            </Box>
-          </Link>
-
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {!isVendorNavbar ? pages.map((page) => (
-              <Button
-                key={page}
-                onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            )) : vendorPages.map((page) => (
-              <Button
-                key={page}
-                onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
-            ))}
-            {!isVendorNavbar && (
-              <Button
-                key="Resources"
-                onClick={handleOpenResourcesMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                Resources
-              </Button>
-            )}
-            <Menu
-              id="menu-resources"
-              anchorEl={anchorElResources}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElResources)}
-              onClose={handleCloseResourcesMenu}
-            >
-              {resources.map((resource) => (
-                <MenuItem
-                  key={resource}
-                  onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
-                >
-                  <Typography sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>
-                    {resource}
+                {isVendorNavbar && (
+                  <Typography
+                    variant="h3"
+                    noWrap
+                    sx={{
+                      fontSize: { xs: '0.8rem', md: '1rem' },
+                      fontWeight: 300,
+                      letterSpacing: '.1rem',
+                      color: 'white',
+                      textDecoration: 'none',
+                      display: { xs: 'flex', md: 'flex' },
+                    }}
+                  >
+                    {VendorsSubtitle}
                   </Typography>
-                </MenuItem>
+                )}
+              </Box>
+            </Link>
+
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+              {!isVendorNavbar ? pages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              )) : vendorPages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page}
+                </Button>
               ))}
-            </Menu>
-          </Box>
-
-
-          {isDevelopment() && (
-            <DevTools />
-          )}
-          {isDevOrPreview() && (
-            <FormControl>
-              <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-              <RadioGroup
-                aria-labelledby="demo-theme-toggle"
-                name="theme-toggle"
-                row
-                value={mode}
-                onChange={(event) =>
-                  setMode(event.target.value as 'system' | 'light' | 'dark')
-                }
+              {!isVendorNavbar && (
+                <Button
+                  key="Resources"
+                  onClick={handleOpenResourcesMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  Resources
+                </Button>
+              )}
+              <Menu
+                id="menu-resources"
+                anchorEl={anchorElResources}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(anchorElResources)}
+                onClose={handleCloseResourcesMenu}
               >
-                <FormControlLabel value="system" control={<Radio />} label="System" />
-                <FormControlLabel value="light" control={<Radio />} label="Light" />
-                <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-              </RadioGroup>
-            </FormControl>
-          )}
-          {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
-          {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
-        </Toolbar>
-      </Container>
-      <Snackbar
-        open={notification.open}
-        autoHideDuration={3000}
-        onClose={handleCloseNotification}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert
+                {resources.map((resource) => (
+                  <MenuItem
+                    key={resource}
+                    onClick={(e) => handleMenuLinkClick(e, `/${resource.toLowerCase()}`)}
+                  >
+                    <Typography sx={{ textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>
+                      {resource}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+
+
+            {isDevelopment() && (
+              <DevTools />
+            )}
+            {isDevOrPreview() && (
+              <FormControl>
+                <FormLabel id="demo-theme-toggle">Theme</FormLabel>
+                <RadioGroup
+                  aria-labelledby="demo-theme-toggle"
+                  name="theme-toggle"
+                  row
+                  value={mode}
+                  onChange={(event) =>
+                    setMode(event.target.value as 'system' | 'light' | 'dark')
+                  }
+                >
+                  <FormControlLabel value="system" control={<Radio />} label="System" />
+                  <FormControlLabel value="light" control={<Radio />} label="Light" />
+                  <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+                </RadioGroup>
+              </FormControl>
+            )}
+            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
+            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
+          </Toolbar>
+        </Container>
+        <Snackbar
+          open={notification.open}
+          autoHideDuration={3000}
           onClose={handleCloseNotification}
-          severity={notification.severity}
-          variant="filled"
-          sx={{ width: '100%' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          {notification.message}
-        </Alert>
-      </Snackbar>
-    </AppBar>
+          <Alert
+            onClose={handleCloseNotification}
+            severity={notification.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {notification.message}
+          </Alert>
+        </Snackbar>
+      </AppBar>
+      {isVendorNavbar && <Toolbar />}
+    </>
+
   );
 }

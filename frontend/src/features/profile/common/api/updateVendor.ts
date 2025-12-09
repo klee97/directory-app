@@ -156,6 +156,10 @@ export const updateVendor = async (
   }
 
   // Update tags if changed
+  console.debug(`[${operationId}] Checking for tag updates...`);
+  console.debug(`[${operationId}] Existing tags:`, existingVendorData.tags);
+  console.debug(`[${operationId}] New tags:`, newTags);
+
   const oldTags: VendorTag[] = existingVendorData.tags || [];
   if (oldTags.length > 0 || (newTags && newTags.length > 0)) {
     console.debug(`[${operationId}] Updating vendor tags...`);
