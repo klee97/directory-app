@@ -43,6 +43,7 @@ const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
 const resources = ["Blog"];
 const Title = 'ASIAN WEDDING MAKEUP';
+const VendorsSubtitle = 'For Vendors';
 
 export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const [mounted, setMounted] = React.useState(false);
@@ -117,7 +118,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
       <AppBar
         position={isVendorNavbar ? "fixed" : "static"}
         sx={{
-          bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
@@ -275,7 +276,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     <AppBar
       position={isVendorNavbar ? "fixed" : "static"}
       sx={{
-        bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+        bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
@@ -421,22 +422,40 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
           </Box>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
-            <Typography
-              variant="h1"
-              noWrap
-              sx={{
-                fontSize: { xs: '1rem', md: '1.5rem' },
-                mr: 2,
-                fontWeight: 550,
-                letterSpacing: '.3rem',
-                color: 'white',
-                textDecoration: 'none',
-                display: { xs: 'flex', md: 'flex' },
-                flexGrow: { xs: 1, md: 0 },
-              }}
-            >
-              {Title}
-            </Typography>
+            <Box style={{ alignItems: 'end' }} >
+              <Typography
+                variant="h1"
+                noWrap
+                sx={{
+                  fontSize: { xs: '1.2rem', md: '1.5rem' },
+                  mr: 2,
+                  fontWeight: 550,
+                  letterSpacing: '.3rem',
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: { xs: 'flex', md: 'flex' },
+                  flexGrow: { xs: 1, md: 0 },
+                }}
+              >
+                {Title}
+              </Typography>
+              {isVendorNavbar && (
+                <Typography
+                  variant="h3"
+                  noWrap
+                  sx={{
+                    fontSize: { xs: '0.8rem', md: '1rem' },
+                    fontWeight: 300,
+                    letterSpacing: '.1rem',
+                    color: 'white',
+                    textDecoration: 'none',
+                    display: { xs: 'flex', md: 'flex' },
+                  }}
+                >
+                  {VendorsSubtitle}
+                </Typography>
+              )}
+            </Box>
           </Link>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>

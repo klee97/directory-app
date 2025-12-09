@@ -49,7 +49,7 @@ export const colorSchemes = {
         main: '#d18f90',
       },
       secondary: {
-        main: '#d18fb1',
+        main: '#935356ff',
       },
       success: {
         main: '#30c74d',
