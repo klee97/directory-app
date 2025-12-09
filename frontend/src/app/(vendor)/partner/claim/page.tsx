@@ -68,6 +68,7 @@ function VendorClaimPageContent() {
       if (!areAllParamsValid) {
         // Email, token, or slug is missing, show the login form
         setIsLoading(false);
+        router.push(`/partner/login`);
         return;
       }
 

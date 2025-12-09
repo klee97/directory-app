@@ -1,22 +1,10 @@
 "use server";
 
-import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 
-export async function claimVendor(accessToken: string, userId?: string) {
-  const supabase = await createClient();
+export async function claimVendor(accessToken: string, userId: string) {
 
-  // If userId is provided (for new signups), use that; otherwise get from session
-  let user;
-  if (userId) {
-    user = { id: userId };
-  } else {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    if (!authUser) {
-      throw new Error('User not authenticated');
-    }
-    user = authUser;
-  }
+  const user = { id: userId };
 
   // Verify the vendor exists with this access token
   const { data: vendor, error: vendorError } = await supabaseAdmin
@@ -141,8 +129,11 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
-    console.error(`Error claiming vendor (${newUserId}) after user creation: ${(error as Error).message}`);
-    await supabaseAdmin.auth.admin.deleteUser(newUserId);
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(newUserId);
+    if (deleteError) {
+      console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
+      // todo: create an alert or slack message for this
+    }
 
     return {
       success: false,
