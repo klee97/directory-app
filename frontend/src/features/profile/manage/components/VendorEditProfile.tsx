@@ -96,6 +96,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     bridesmaid_makeup_price: formData.bridesmaid_makeup_price,
     bridesmaid_hair_makeup_price: formData["bridesmaid_hair_&_makeup_price"],
     cover_image: formData.cover_image,
+    images: formData.images || [],
+    tags: formData.tags,
   };
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
