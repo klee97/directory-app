@@ -112,6 +112,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     try {
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
+      setHasUnpublishedChanges(true);
       addNotification('Changes saved!', 'success');
     } catch (error) {
       console.error('Error saving:', error);
@@ -137,6 +138,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       addNotification(`Failed to publish: ${result.error}`, 'error');
       return;
     } else {
+      setHasUnpublishedChanges(false);
       addNotification('Changes published successfully!', 'success');
     }
   };
