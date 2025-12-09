@@ -43,6 +43,7 @@ const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
 const resources = ["Blog"];
 const Title = 'ASIAN WEDDING MAKEUP';
+const VendorsSubtitle = 'FOR VENDORS';
 
 export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const [mounted, setMounted] = React.useState(false);
@@ -115,9 +116,9 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   if (!mounted || !mode) {
     return (
       <AppBar
-        position={isVendorNavbar ? "fixed" : "static"}
+        position="static"
         sx={{
-          bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
@@ -273,9 +274,9 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
   return (
     <AppBar
-      position={isVendorNavbar ? "fixed" : "static"}
+      position="static"
       sx={{
-        bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+        bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
@@ -437,6 +438,22 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             >
               {Title}
             </Typography>
+            {isVendorNavbar && (
+              <Typography
+                variant="h2"
+                noWrap
+                sx={{
+                  fontSize: { xs: '0.7rem', md: '1rem' },
+                  fontWeight: 300,
+                  letterSpacing: '.1rem',
+                  color: 'white',
+                  textDecoration: 'none',
+                  display: { xs: 'flex', md: 'flex' },
+                }}
+              >
+                {VendorsSubtitle}
+              </Typography>
+            )}
           </Link>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
