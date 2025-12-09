@@ -349,7 +349,7 @@ export default function EditFormView({
               We recommend a photo with natural lighting or an outdoor setting.
             </Typography>
             <Button variant="outlined" component="label">
-              Upload Photos
+              Upload Photo
               <input type="file" hidden accept="image/*" multiple />
             </Button>
           </Box>

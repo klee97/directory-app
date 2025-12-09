@@ -59,7 +59,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
         if (draft) {
           // Found unpublished work - load it
           setDraftId(draft.id);
-          setFormData(draftToFormData(draft));
+          const formData = draftToFormData(draft);
+          setFormData(formData);
           setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization

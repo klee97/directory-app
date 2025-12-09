@@ -111,7 +111,7 @@ export const SECTIONS: Section[] = [
   },
   {
     id: 'image',
-    label: 'Business image',
+    label: 'Client photo',
     validate: (formData: VendorFormData) => {
       return {
         isValid: true,
