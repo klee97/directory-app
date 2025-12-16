@@ -50,6 +50,20 @@ export const SECTIONS: Section[] = [
     }
   },
   {
+    id: 'bio',
+    label: 'Bio',
+    validate: (formData: VendorFormData) => {
+      const description = formData.description?.trim();
+      return {
+        isValid: !!description,
+        isComplete: !!description,
+        errors: {
+          description: !description ? 'Bio is required' : null,
+        }
+      }
+    }
+  },
+  {
     id: 'links',
     label: 'Website & Socials',
     validate: (formData: VendorFormData) => {
@@ -60,20 +74,6 @@ export const SECTIONS: Section[] = [
         isComplete: !!(instagram && formData.website?.trim() && formData.google_maps_place?.trim()),
         errors: {
           instagram: !instagram ? 'Instagram handle is required' : null,
-        }
-      }
-    }
-  },
-  {
-    id: 'bio',
-    label: 'Bio',
-    validate: (formData: VendorFormData) => {
-      const description = formData.description?.trim();
-      return {
-        isValid: !!description,
-        isComplete: !!description,
-        errors: {
-          description: !description ? 'Bio is required' : null,
         }
       }
     }
@@ -111,12 +111,12 @@ export const SECTIONS: Section[] = [
   },
   {
     id: 'image',
-    label: 'Business image',
+    label: 'Client photo',
     validate: (formData: VendorFormData) => {
       return {
         isValid: true,
         isComplete: !!(formData.images && formData.images.length > 0),
-        errors: {} 
+        errors: {}
       };
     }
   },

@@ -1,6 +1,6 @@
 "use server";
 import { supabase } from '@/lib/api-client';
-import { logEnvironmentInfo, shouldIncludeTestVendors } from '@/lib/env/env';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 
 export async function fetchVendorById(id: string) {
@@ -59,22 +59,3 @@ export async function fetchVendorBySlug(slug: string) {
   return transformBackendVendorToFrontend(vendor);
 }
 
-export async function verifyVendorMagicLink(slug: string, email: string, token: string) {  
-  logEnvironmentInfo();
-  const vendor = await fetchVendorBySlug(slug);
-  
-  if (!vendor) {
-    return { success: false, error: 'Vendor not found' };
-  }
-  
-  const doEmailAndTokenMatch = 
-    email.toLowerCase() === vendor.email?.toLowerCase() && 
-    token.toLowerCase() === vendor.access_token?.toLowerCase();
-
-  console.debug(`Magic link verification for vendor "${slug}": ${doEmailAndTokenMatch ? 'SUCCESS' : 'FAILURE'}`);
-  
-  return { 
-    success: doEmailAndTokenMatch, 
-    vendorAccessToken: doEmailAndTokenMatch ? vendor.access_token : null 
-  };
-}
