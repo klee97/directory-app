@@ -119,7 +119,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
         <AppBar
           position={isVendorNavbar ? "fixed" : "static"}
           sx={{
-            bgcolor: isVendorNavbar ? 'info.dark' : 'primary.main',
+            bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
             zIndex: (theme) => theme.zIndex.drawer + 1
           }}
         >
