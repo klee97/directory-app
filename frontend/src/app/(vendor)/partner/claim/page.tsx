@@ -24,6 +24,7 @@ import { ReCaptchaRef } from "@/components/security/ReCaptcha";
 import { validatePassword } from "@/utils/passwordValidation";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
+import { Session } from "@supabase/supabase-js";
 
 type ErrorType =
   | "invalid_link"
@@ -45,6 +46,7 @@ function VendorClaimPageContent() {
   const email = searchParams?.get(EMAIL_PARAM) || "";
   const token = searchParams?.get(TOKEN_PARAM) || "";
 
+  const [existingSession, setExistingSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isClaiming, setIsClaiming] = useState(false);
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
@@ -67,9 +69,8 @@ function VendorClaimPageContent() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        console.log("User is already logged in");
-        // User is already logged in, redirect to settings page
-        router.push(`/partner/manage`);
+        setExistingSession(session);
+        setIsLoading(false);
         return;
       }
 
@@ -110,6 +111,11 @@ function VendorClaimPageContent() {
 
     init();
   }, [token, email, slug, router, supabase.auth]);
+
+  const handleSignOutAndReload = async () => {
+    await supabase.auth.signOut();
+    window.location.reload(); // reload keeps magic link params
+  };
 
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -276,6 +282,57 @@ function VendorClaimPageContent() {
       <Container maxWidth="sm">
         <Box sx={{ minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
+
+  if (existingSession) {
+    return (
+      <Container maxWidth="sm">
+        <Box sx={{ mt: 8 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h2" gutterBottom>
+                You&apos;re already signed in
+              </Typography>
+
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                This claim link is for the vendor profile below. You&apos;re currently
+                signed in as: <strong>{existingSession.user.email}</strong>
+              </Typography>
+
+
+              {vendorInfo && (
+                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+                  <Typography variant="subtitle2">
+                    Vendor to be claimed
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>{vendorInfo.name}</strong>
+                  </Typography>
+                </Box>
+              )}
+
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                <Button
+                  variant="contained"
+                  onClick={() => router.push("/partner/manage")}
+                  fullWidth
+                >
+                  Go to my profile
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={handleSignOutAndReload}
+                  fullWidth
+                >
+                  Sign out
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
         </Box>
       </Container>
     );
