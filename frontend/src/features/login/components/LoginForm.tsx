@@ -13,11 +13,16 @@ import Alert from "@mui/material/Alert";
 import NextLink from "next/link";
 import { login } from "../api/actions";
 import { useNotification } from "@/contexts/NotificationContext";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 
 export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
   const { addNotification } = useNotification();
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -89,11 +94,22 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="current-password"
               variant="outlined"
               disabled={isSubmitting}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              }}
             />
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>

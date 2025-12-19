@@ -29,6 +29,10 @@ import { deleteAccount } from "../api/deleteAccount";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
 import { createClient } from "@/lib/supabase/client";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 
 interface ApiError extends Error {
   message: string;
@@ -57,6 +61,7 @@ export const Settings = ({
   const [email, setNewEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -278,7 +283,7 @@ export const Settings = ({
               )}
               <TextField
                 fullWidth
-                type="password"
+                type={showPassword ? "text" : "password"}
                 label="New Password"
                 value={newPassword}
                 onChange={(e) => {
@@ -290,10 +295,21 @@ export const Settings = ({
                 disabled={isSubmitting}
                 error={!!passwordError}
                 helperText={passwordError}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }
+                }}
               />
               <TextField
                 fullWidth
-                type="password"
+                type={showPassword ? "text" : "password"}
                 label="Confirm New Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

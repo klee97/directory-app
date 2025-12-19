@@ -124,7 +124,7 @@ export function SignupForm() {
               fullWidth
               name="confirmPassword"
               label="Confirm Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="confirmPassword"
               autoComplete="new-password"
               variant="outlined"
