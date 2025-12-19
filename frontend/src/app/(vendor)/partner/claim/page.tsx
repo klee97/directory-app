@@ -298,8 +298,8 @@ function VendorClaimPageContent() {
               </Typography>
 
               <Typography variant="body1" sx={{ mb: 2 }}>
-                This claim link is for the vendor profile below. You&apos;re currently
-                signed in as: <strong>{existingSession.user.email}</strong>
+                You&apos;re currently signed in as: <strong>{existingSession.user.email}</strong>.
+                Please sign out if you want to claim a different vendor profile.
               </Typography>
 
 
