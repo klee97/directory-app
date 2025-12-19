@@ -15,13 +15,18 @@ import { useRouter } from "next/navigation";
 import { signup } from "../api/actions";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 
 export function SignupForm() {
   const router = useRouter();
   const { addNotification } = useNotification();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -54,7 +59,7 @@ export function SignupForm() {
         }
         return;
       }
-      
+
       router.push('/auth/verify-email');
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
@@ -92,7 +97,7 @@ export function SignupForm() {
               fullWidth
               name="password"
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               id="password"
               autoComplete="new-password"
               variant="outlined"
@@ -100,6 +105,17 @@ export function SignupForm() {
               error={!!passwordError}
               helperText={passwordError}
               onChange={() => setPasswordError(null)}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              }}
             />
 
             <TextField
