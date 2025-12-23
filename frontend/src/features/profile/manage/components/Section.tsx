@@ -80,7 +80,7 @@ export const SECTIONS: Section[] = [
   },
   {
     id: 'services',
-    label: 'Services and Skills',
+    label: 'Services & Skills',
     validate: (formData: VendorFormData) => {
       const hasService = formData.tags.some(tag => tag.type === 'SERVICE');
       return {
