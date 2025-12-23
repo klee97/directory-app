@@ -373,7 +373,7 @@ function VendorClaimPageContent() {
 
                 <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
-                    Business Found:   <strong>
+                    Business Found: <strong>
                       <Link
                         component={NextLink}
                         href={`/vendors/${slug}`}
@@ -422,9 +422,6 @@ function VendorClaimPageContent() {
                       }
                     }}
                   />
-                  <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 2 }}>
-                    Must be at least 8 characters and include uppercase, lowercase, number, and special character.
-                  </Typography>
 
                   {/* Confirm Password */}
                   <TextField
@@ -440,6 +437,17 @@ function VendorClaimPageContent() {
                     }}
                     sx={{ mb: 3 }}
                   />
+
+                  <Alert severity="info" sx={{ mb: 2 }}>
+                    Password must contain:
+                    <ul>
+                      <li>At least 8 characters</li>
+                      <li>At least one uppercase letter</li>
+                      <li>At least one lowercase letter</li>
+                      <li>At least one number</li>
+                      <li>At least one special character: {'!@#$%^&*(),.?'}</li>
+                    </ul>
+                  </Alert>
 
                   {/* Submit */}
                   <Button
