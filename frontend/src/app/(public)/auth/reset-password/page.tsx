@@ -10,6 +10,10 @@ import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import Alert from '@mui/material/Alert';
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
 import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
 import { createClient } from '@/lib/supabase/client';
@@ -25,6 +29,8 @@ export default function UpdatePasswordAfterResetPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -91,7 +97,7 @@ export default function UpdatePasswordAfterResetPage() {
           <form onSubmit={handlePasswordChange}>
             <TextField
               fullWidth
-              type="password"
+              type={showPassword ? "text" : "password"}
               label="New Password"
               value={newPassword}
               onChange={(e) => {
@@ -103,10 +109,21 @@ export default function UpdatePasswordAfterResetPage() {
               disabled={isSubmitting}
               error={!!passwordError}
               helperText={passwordError}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              }}
             />
             <TextField
               fullWidth
-              type="password"
+              type={showPassword ? "text" : "password"}
               label="Confirm New Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

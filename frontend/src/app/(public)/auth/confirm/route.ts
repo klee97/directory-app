@@ -20,16 +20,16 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // redirect user to specified redirect URL or root of app
       const successRedirectUrl = new URL(next, request.url)
-      successRedirectUrl.searchParams.set('message', 'Authentication successful!')
+      successRedirectUrl.searchParams.set('message', 'Email OTP successfully verified!')
       redirect(successRedirectUrl.toString())
     } else {
-      console.error('Error verifying OTP:', error.message);
+      console.error('Error verifying email OTP:', error.message);
     }
   }
 
   // redirect the user to an error page with some instructions
   if (type === 'recovery') {
-    redirect('/auth/recovery-code-error')    
+    redirect('/auth/recovery-code-error')
   }
   redirect('/auth/auth-code-error')
 }
