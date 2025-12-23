@@ -45,7 +45,7 @@ export default function AuthCodeErrorPage() {
           </Typography>
 
           <Stack spacing={2} alignItems="center" sx={{ mt: 3 }}>
-            <Link href="/reset-password" style={{ textDecoration: 'none' }}>
+            <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 color="primary"
