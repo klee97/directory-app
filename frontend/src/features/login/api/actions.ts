@@ -5,8 +5,6 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 
-const MAX_USER_PAGINATION_LIMIT = 1000;
-
 export async function login(formData: FormData) {
   const supabase = await createClient();
 

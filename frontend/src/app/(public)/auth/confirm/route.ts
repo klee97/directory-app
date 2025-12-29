@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
     if (!error) {
       // redirect user to specified redirect URL or root of app
       const successRedirectUrl = new URL(next, request.url)
-      successRedirectUrl.searchParams.set('message', 'Email OTP successfully verified!')
+      successRedirectUrl.searchParams.set('message', 'Email verification code successfully verified!')
       redirect(successRedirectUrl.toString())
     } else {
-      console.error('Error verifying email OTP:', error.message);
+      console.error('Error verifying email verification code:', error.message);
     }
   }
 
