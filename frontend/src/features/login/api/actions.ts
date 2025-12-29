@@ -96,36 +96,41 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
   }
 
   try {
-    // Use admin client to list single-page of users
-    // TODO: Replace with get by email when supabase supports it https://github.com/supabase/auth/issues/880#issuecomment-2316594796
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.listUsers({ perPage: MAX_USER_PAGINATION_LIMIT });
+    const supabase = await createClient();
 
-    if (authError) {
-      console.debug('Error looking up user by email:', authError);
+    const { data, error } = await supabase
+      .rpc("get_user_id_by_email",
+        {
+          p_email: email
+        }
+      );
+
+    if (error) {
+      console.debug('Error looking up user by email:', error);
       // We always return success for security
       return { success: true };
     }
 
     // Find user by email
-    const user = authData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+    const userId = data.id
 
-    if (!user) {
+    if (!userId) {
       console.debug('No user found with email for password reset', email);
       return { success: true };
     }
 
     // Check user profile to determine account type
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select(`
         vendor_id,
         role
       `)
-      .eq('id', user.id)
+      .eq('id', userId)
       .single();
 
     if (profileError) {
-      console.debug(`Error fetching profile for user id ${user.id}:`, profileError);
+      console.debug(`Error fetching profile for user id ${userId}:`, profileError);
       return { success: true };
     }
 
