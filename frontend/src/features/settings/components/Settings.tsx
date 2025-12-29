@@ -26,6 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { deleteAccount } from "../api/deleteAccount";
+import { updateEmail } from "../api/updateEmail";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
 import { createClient } from "@/lib/supabase/client";
@@ -59,6 +60,7 @@ export const Settings = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [deletePassword, setDeletePassword] = useState('');
   const [email, setNewEmail] = useState('');
+  const [emailChangePassword, setEmailChangePassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -125,20 +127,22 @@ export const Settings = ({
     setIsSubmitting(true);
 
     try {
-      const { error: updateEmailError } = await supabase.auth.updateUser({
-        email,
-      })
+      await updateEmail(emailChangePassword, email);
 
-      if (updateEmailError) {
-        console.error("Error updating user email: " + updateEmailError.message);
-      } else {
-        addNotification('Check your inbox to verify your vendor email address: ' + email);
-        setNewEmail('');
-        setEmailDialogOpen(false);
-      }
+      addNotification(
+        'Check your inbox to verify your new vendor account email address: ' + email,
+        'success'
+      );
+
+      setNewEmail('');
+      setEmailChangePassword('');
+      setEmailDialogOpen(false);
     } catch (error: unknown) {
       const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to send update email verification', 'error');
+      addNotification(
+        apiError.message || 'Failed to update email address',
+        'error'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -352,30 +356,55 @@ export const Settings = ({
 
       <Dialog
         open={emailDialogOpen}
-        onClose={() => setEmailDialogOpen(false)}
+        onClose={() => {
+          setEmailDialogOpen(false);
+          setNewEmail('');
+          setEmailChangePassword('');
+        }}
         maxWidth="sm"
         fullWidth
       >
         <DialogTitle>Update your email address</DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            type="email"
-            label="New Email Address"
-            value={email}
-            onChange={(e) => setNewEmail(e.target.value)}
-            margin="normal"
-            required
-            disabled={isSubmitting}
-          />
+          <form onSubmit={handleEmailChange}>
+            <TextField
+              fullWidth
+              type="password"
+              label="Current Password"
+              value={emailChangePassword}
+              onChange={(e) => setEmailChangePassword(e.target.value)}
+              margin="normal"
+              required
+              disabled={isSubmitting}
+              helperText="Enter your current password to update your email address"
+            />
+            <TextField
+              fullWidth
+              type="email"
+              label="New Email Address"
+              value={email}
+              onChange={(e) => setNewEmail(e.target.value)}
+              margin="normal"
+              required
+              disabled={isSubmitting}
+            />
+          </form>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEmailDialogOpen(false)} disabled={isSubmitting}>
+          <Button
+            onClick={() => {
+              setEmailDialogOpen(false);
+              setNewEmail('');
+              setEmailChangePassword('');
+            }}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleEmailChange}
             color="primary"
+            variant="contained"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Updating...' : 'Update Email'}
