@@ -94,9 +94,7 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
   }
 
   try {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
+    const { data: userId, error } = await supabaseAdmin
       .rpc("get_user_id_by_email",
         {
           p_email: email
@@ -109,16 +107,13 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
       return { success: true };
     }
 
-    // Find user by email
-    const userId = data.id
-
     if (!userId) {
       console.debug('No user found with email for password reset', email);
       return { success: true };
     }
 
     // Check user profile to determine account type
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select(`
         vendor_id,
