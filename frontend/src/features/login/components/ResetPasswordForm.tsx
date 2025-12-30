@@ -9,10 +9,14 @@ import Alert from "@mui/material/Alert";
 import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
-import { createClient } from "@/lib/supabase/client";
 import { useNotification } from "@/contexts/NotificationContext";
+import { requestPasswordReset } from "@/features/login/api/actions";
 
-export function ForgotPasswordForm() {
+interface ForgotPasswordFormProps {
+  isVendorSite?: boolean;
+}
+
+export function ForgotPasswordForm({ isVendorSite = false }: ForgotPasswordFormProps) {
   const { addNotification } = useNotification();
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,14 +32,8 @@ export function ForgotPasswordForm() {
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
-
-      if (error) {
-        addNotification(error.message || 'Failed to send reset password email', 'error');
-      } else {
-        setIsSuccess(true);
-      }
+      await requestPasswordReset(email, isVendorSite);
+      setIsSuccess(true);
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred', 'error');
@@ -54,7 +52,7 @@ export function ForgotPasswordForm() {
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             {isSuccess ? (
               <Alert severity="success" sx={{ mb: 2 }}>
-                Reset password email has been sent! Please check your inbox and spam folder.
+                If we find an account associated with that email, you&apos;ll receive a password reset link shortly.
               </Alert>
             ) : (
               <>
