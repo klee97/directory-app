@@ -1,39 +1,19 @@
-import { redirect } from 'next/navigation';
-import VendorEditProfile from '@/features/profile/manage/components/VendorEditProfile';
-import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
-import { getTags } from '@/features/profile/common/api/getTags';
-import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
-import { Suspense } from 'react';
-import VendorEditSkeleton from '@/features/profile/manage/components/VendorEditSkeleton';
-import NoVendorLinked from '@/features/profile/manage/components/NoVendorLinked';
+import { redirect } from "next/navigation";
 
-export default async function VendorEditPage() {
-  // Check authentication
+import { getCurrentUserAction } from "@/lib/auth/actions/getUser";
+import DashboardContent from "@/features/vendorDashboard/DashboardContent";
+import { getVendorForCurrentUser } from "@/features/profile/manage/api/getVendorForCurrentUser";
+
+
+export default async function VendorDashboardPage() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/manage');
+    redirect("/partner/login?redirect=/partner/manage");
   }
 
-  const { userId } = currentUser;
+  // Fetch vendor data server-side
+  const vendor = await getVendorForCurrentUser(currentUser.userId);
 
-  console.log('[VendorEditPage] userId from getCurrentUserAction:', userId);
-
-  return (
-    <Suspense fallback={<VendorEditSkeleton />}>
-      <VendorEditContent userId={userId} />
-    </Suspense>
-  );
-}
-
-async function VendorEditContent({ userId }: { userId: string }) {
-  // Fetch vendor data for current user
-  const vendor = await getVendorForCurrentUser(userId);
-
-  if (!vendor) {
-    return NoVendorLinked();
-  }
-
-  const tags = await getTags();
-  return <VendorEditProfile vendor={vendor} tags={tags} userId={userId} />;
+  return <DashboardContent vendor={vendor}/>;
 }

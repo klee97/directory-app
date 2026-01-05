@@ -167,7 +167,7 @@ function VendorClaimPageContent() {
       }
 
       addNotification("Welcome! Your vendor account has been created.");
-      router.push("/partner/manage");
+      router.push("/partner/manage/profile");
     } catch {
       setFormError("Failed to claim business profile. Please try again.");
       setIsClaiming(false);
@@ -317,10 +317,10 @@ function VendorClaimPageContent() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Button
                   variant="contained"
-                  onClick={() => router.push("/partner/manage")}
+                  onClick={() => router.push("/partner/manage/profile")}
                   fullWidth
                 >
-                  Go to my profile
+                  Edit my profile
                 </Button>
 
                 <Button
