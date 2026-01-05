@@ -22,7 +22,7 @@ export async function ArticleTable() {
 
   return (
     <>
-      {showRefreshButton && (
+      {shouldShowRefreshButton && (
         <Box sx={{ mb: 2, display: 'flex' }}>
           <RefreshButton />
         </Box>
