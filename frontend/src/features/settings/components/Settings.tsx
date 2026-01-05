@@ -364,7 +364,7 @@ export const Settings = ({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Update your email address</DialogTitle>
+        <DialogTitle>Update your email address used for login from {userEmail}</DialogTitle>
         <DialogContent>
           <form onSubmit={handleEmailChange}>
             <TextField
