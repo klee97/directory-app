@@ -7,7 +7,7 @@ export default function VendorForgotPasswordPage() {
     <Container maxWidth="sm">
       <br />
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
-        Reset Password
+        Forgot Password
       </Typography>
       <ForgotPasswordForm isVendorSite={true} />
     </Container>
