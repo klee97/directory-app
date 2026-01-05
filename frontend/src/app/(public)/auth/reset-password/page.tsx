@@ -15,6 +15,7 @@ import IconButton from "@mui/material/IconButton";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import CircularProgress from '@mui/material/CircularProgress';
+import Paper from "@mui/material/Paper";
 import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
 import { createClient } from '@/lib/supabase/client';
@@ -47,7 +48,7 @@ function UpdatePasswordAfterResetContent() {
       }
 
       // Check if user is a vendor by looking at query param or checking profile
-      const typeParam = searchParams.get('type');
+      const typeParam = searchParams.get('userType');
 
       if (typeParam === 'vendor') {
         setIsVendor(true);
@@ -94,79 +95,82 @@ function UpdatePasswordAfterResetContent() {
 
   return (
     <Container maxWidth="sm">
-      <br />
-      <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
-        Update Password
-      </Typography>
+      <Box sx={{ mt: 8, mb: 4 }}>
+        <Paper elevation={3} sx={{ p: 4 }}>
+          <Typography variant="h4" component="h1" align="center" gutterBottom>
+            Update Password
+          </Typography>
 
-      <List sx={{
-        width: '100%',
-        '& .MuiListItemButton-root': {
-          py: 2,
-          justifyContent: 'flex-start',
-        }
-      }}>
-        <ListItem disablePadding>
-          <form onSubmit={handlePasswordChange}>
-            <TextField
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              label="New Password"
-              value={newPassword}
-              onChange={(e) => {
-                setNewPassword(e.target.value);
-                setPasswordError(null);
-              }}
-              margin="normal"
-              required
-              disabled={isSubmitting}
-              error={!!passwordError}
-              helperText={passwordError}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }
-              }}
-            />
-            <TextField
-              fullWidth
-              type={showPassword ? "text" : "password"}
-              label="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              margin="normal"
-              required
-              disabled={isSubmitting}
-            />
-            <Alert severity="info" sx={{ mt: 2 }}>
-              Password must contain:
-              <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
-                <Box component="li">At least 8 characters</Box>
-                <Box component="li">At least one uppercase letter</Box>
-                <Box component="li">At least one lowercase letter</Box>
-                <Box component="li">At least one number</Box>
-                <Box component="li">At least one special character: {'!@#$%^&*(),.?'}</Box>
-              </Box>
-            </Alert>
-            <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Updating...' : 'Update Password'}
-              </Button>
-            </Box>
-          </form>
-        </ListItem>
-      </List>
+          <List sx={{
+            width: '100%',
+            '& .MuiListItemButton-root': {
+              py: 2,
+              justifyContent: 'flex-start',
+            }
+          }}>
+            <ListItem disablePadding>
+              <form onSubmit={handlePasswordChange}>
+                <TextField
+                  fullWidth
+                  type={showPassword ? "text" : "password"}
+                  label="New Password"
+                  value={newPassword}
+                  onChange={(e) => {
+                    setNewPassword(e.target.value);
+                    setPasswordError(null);
+                  }}
+                  margin="normal"
+                  required
+                  disabled={isSubmitting}
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }
+                  }}
+                />
+                <TextField
+                  fullWidth
+                  type={showPassword ? "text" : "password"}
+                  label="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  margin="normal"
+                  required
+                  disabled={isSubmitting}
+                />
+                <Alert severity="info" sx={{ mt: 2 }}>
+                  Password must contain:
+                  <Box component="ul" sx={{ mt: 1, mb: 0, pl: 2 }}>
+                    <Box component="li">At least 8 characters</Box>
+                    <Box component="li">At least one uppercase letter</Box>
+                    <Box component="li">At least one lowercase letter</Box>
+                    <Box component="li">At least one number</Box>
+                    <Box component="li">At least one special character: {'!@#$%^&*(),.?'}</Box>
+                  </Box>
+                </Alert>
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Updating...' : 'Update Password'}
+                  </Button>
+                </Box>
+              </form>
+            </ListItem>
+          </List>
+        </Paper>
+      </Box>
     </Container>
   );
 }

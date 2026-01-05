@@ -1,6 +1,6 @@
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { ForgotPasswordForm } from "@/features/login/components/ResetPasswordForm";
+import { ForgotPasswordForm } from "@/features/login/components/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
   return (

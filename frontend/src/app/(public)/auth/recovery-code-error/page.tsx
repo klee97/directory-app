@@ -16,7 +16,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 function AuthCodeErrorContent() {
   const searchParams = useSearchParams()
-  const isVendor = searchParams.get('type') === 'vendor'
+  const isVendor = searchParams.get('userType') === 'vendor'
   const forgotPasswordUrl = isVendor ? '/partner/forgot-password' : '/forgot-password'
 
   return (
