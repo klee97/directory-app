@@ -47,7 +47,7 @@ export function ForgotPasswordForm({ isVendorSite = false }: ForgotPasswordFormP
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
           <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Reset Password
+            Forgot Password
           </Typography>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             {isSuccess ? (

@@ -1,13 +1,13 @@
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import { ForgotPasswordForm } from "@/features/login/components/ResetPasswordForm";
+import { ForgotPasswordForm } from "@/features/login/components/ForgotPasswordForm";
 
 export default function VendorForgotPasswordPage() {
   return (
     <Container maxWidth="sm">
       <br />
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
-        Reset Password
+        Forgot Password
       </Typography>
       <ForgotPasswordForm isVendorSite={true} />
     </Container>
