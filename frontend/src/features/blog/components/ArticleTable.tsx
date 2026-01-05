@@ -18,7 +18,7 @@ export async function ArticleTable() {
     }
     return true;
   });
-  const showRefreshButton = isDevOrPreview();
+  const shouldShowRefreshButton = isDevOrPreview();
 
   return (
     <>
