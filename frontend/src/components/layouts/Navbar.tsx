@@ -40,7 +40,7 @@ import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
-const vendorPages: string[] = [];
+const vendorPages: string[] = ["Manage"];
 const resources = ["Blog"];
 const Title = 'ASIAN WEDDING MAKEUP';
 const VendorsSubtitle = 'For Vendors';

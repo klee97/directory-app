@@ -192,7 +192,7 @@ export const Settings = ({
         {isVendorSettings && (
           <>
             <ListItem disablePadding>
-              <ListItemButton component={Link} href="/partner/manage">
+              <ListItemButton component={Link} href="/partner/manage/profile">
                 <ListItemIcon>
                   <ManageAccountsIcon />
                 </ListItemIcon>
