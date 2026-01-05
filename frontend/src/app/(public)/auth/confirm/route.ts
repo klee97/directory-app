@@ -29,7 +29,12 @@ export async function GET(request: NextRequest) {
 
   // redirect the user to an error page with some instructions
   if (type === 'recovery') {
-    redirect('/auth/recovery-code-error')
+    // Check if this is a vendor recovery by examining the 'next' parameter
+    const isVendorRecovery = next.includes('type=vendor');
+    const errorUrl = isVendorRecovery
+      ? '/auth/recovery-code-error?type=vendor'
+      : '/auth/recovery-code-error';
+    redirect(errorUrl);
   }
   redirect('/auth/auth-code-error')
 }

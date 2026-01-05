@@ -1,5 +1,7 @@
 'use client'
 
+import { Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Container from '@mui/material/Container'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -12,7 +14,10 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
-export default function AuthCodeErrorPage() {
+function AuthCodeErrorContent() {
+  const searchParams = useSearchParams()
+  const isVendor = searchParams.get('type') === 'vendor'
+  const forgotPasswordUrl = isVendor ? '/partner/forgot-password' : '/forgot-password'
 
   return (
     <Container maxWidth="sm">
@@ -45,7 +50,7 @@ export default function AuthCodeErrorPage() {
           </Typography>
 
           <Stack spacing={2} alignItems="center" sx={{ mt: 3 }}>
-            <Link href="/forgot-password" style={{ textDecoration: 'none' }}>
+            <Link href={forgotPasswordUrl} style={{ textDecoration: 'none' }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -73,5 +78,13 @@ export default function AuthCodeErrorPage() {
         </Paper>
       </Box>
     </Container>
+  )
+}
+
+export default function AuthCodeErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthCodeErrorContent />
+    </Suspense>
   )
 }

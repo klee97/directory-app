@@ -23,6 +23,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const isVendorLoginEnabled = process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED === 'true';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -153,7 +154,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 </Link>
               </Typography>
               )}
-              {!isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
+              {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Logging in as a vendor?{' '}
                 <Link component={NextLink} href="/partner/login">
                   Login here

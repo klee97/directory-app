@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -14,6 +14,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
+import CircularProgress from '@mui/material/CircularProgress';
 import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
 import { createClient } from '@/lib/supabase/client';
@@ -23,15 +24,17 @@ interface ApiError extends Error {
   message: string;
 }
 
-export default function UpdatePasswordAfterResetPage() {
+function UpdatePasswordAfterResetContent() {
   const { addNotification } = useNotification();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isVendor, setIsVendor] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   useEffect(() => {
@@ -42,9 +45,16 @@ export default function UpdatePasswordAfterResetPage() {
         router.push('/login');
         return;
       }
+
+      // Check if user is a vendor by looking at query param or checking profile
+      const typeParam = searchParams.get('type');
+
+      if (typeParam === 'vendor') {
+        setIsVendor(true);
+      }
     }
     checkLogin();
-  }, [router, supabase.auth]);
+  }, [router, supabase, searchParams]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,8 +78,10 @@ export default function UpdatePasswordAfterResetPage() {
       await updatePasswordAfterReset(newPassword);
       addNotification('Password updated successfully. Redirecting to login page...');
       await supabase.auth.signOut();
+
+      const loginUrl = isVendor ? '/partner/login' : '/login';
       setTimeout(() => {
-        router.push('/login');
+        router.push(loginUrl);
       }, 2000);
 
     } catch (error: unknown) {
@@ -81,8 +93,9 @@ export default function UpdatePasswordAfterResetPage() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-      <Typography variant="h4" component="h1" gutterBottom>
+    <Container maxWidth="sm">
+      <br />
+      <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Update Password
       </Typography>
 
@@ -155,5 +168,26 @@ export default function UpdatePasswordAfterResetPage() {
         </ListItem>
       </List>
     </Container>
+  );
+}
+
+export default function UpdatePasswordAfterResetPage() {
+  return (
+    <Suspense fallback={
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '80vh'
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      </Container>
+    }>
+      <UpdatePasswordAfterResetContent />
+    </Suspense>
   );
 } 
