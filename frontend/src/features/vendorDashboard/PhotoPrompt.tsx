@@ -23,7 +23,7 @@ export default function PhotoPrompt({ hasProfilePhoto }: PhotoPromptProps) {
 
   return (
     <Alert 
-      severity="info" 
+      severity="info"
       icon={<CameraAltOutlinedIcon />}
       sx={{ mb: 3 }}
       action={
@@ -38,15 +38,16 @@ export default function PhotoPrompt({ hasProfilePhoto }: PhotoPromptProps) {
       }
     >
       <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
-        Add a client photo to get more than twice the views!
+        Add a client photo to get more engagement!
       </Typography>
       <Typography variant="body2" sx={{ mb: 1 }}>
-        Profiles with photos receive significantly more engagement from brides.
+        Artist profiles with photos receive more than twice the views from brides.
       </Typography>
       <Button 
         variant="contained" 
         size="small"
         onClick={() => router.push("/partner/manage/profile")}
+        sx={{ bgcolor: "info.main", color: "white" }}
       >
         Add Photo
       </Button>
