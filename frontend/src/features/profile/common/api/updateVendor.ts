@@ -4,6 +4,7 @@ import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData, VendorDataInput } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
+import { revalidateVendor } from "@/lib/actions/revalidate";
 
 interface VendorLookup {
   id?: string;
@@ -256,6 +257,8 @@ export const updateVendor = async (
   }
 
   console.debug(`[${operationId}] ✅ Vendor update complete`);
+
+  revalidateVendor(updatedVendor.slug);
   return { success: true, data: updatedVendor };
 };
 

@@ -3,7 +3,7 @@ import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
-import { getCachedVendors } from '@/features/directory/api/fetchVendors';
+import { getCachedVendors } from '@/lib/vendor/fetchVendors';
 import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 
 export const metadata: Metadata = {

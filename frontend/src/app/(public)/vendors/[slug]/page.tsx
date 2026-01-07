@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import VendorProfile from '@/features/profile/common/components/VendorProfile';
-import { fetchVendorBySlug } from '@/features/profile/common/api/fetchVendor';
+import { getCachedVendor } from '@/lib/vendor/fetchVendors';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
@@ -18,7 +18,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const slug = (await params).slug;
-  const vendor: Vendor | null = await fetchVendorBySlug(slug);
+  const vendor: Vendor | null = await getCachedVendor(slug);
 
   if (!vendor) {
     return { title: 'Vendor Not Found' };
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function VendorPage({ params }: PageProps) {
   const slug = (await params).slug;
-  const vendor = await fetchVendorBySlug(slug);
+  const vendor = await getCachedVendor(slug);
 
   if (!vendor) {
     notFound(); // Return 404 if vendor is not found

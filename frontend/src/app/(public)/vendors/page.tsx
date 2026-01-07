@@ -1,7 +1,7 @@
 import VendorsList from "@/features/directory/components/VendorsList";
 import { Metadata } from "next";
 import defaultImage from '@/assets/website_preview.jpeg';
-import { getCachedVendors } from "@/features/directory/api/fetchVendors";
+import { getCachedVendors } from '@/lib/vendor/fetchVendors';
 
 export const metadata: Metadata = {
   openGraph: {

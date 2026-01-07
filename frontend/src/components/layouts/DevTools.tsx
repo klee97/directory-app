@@ -8,7 +8,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorIcon from '@mui/icons-material/Error';
 import { isDevelopment } from '@/lib/env/env';
-import { invalidateVendorCache } from '@/actions/cache';
+import { revalidateVendors } from '@/lib/actions/revalidate';
 
 export default function DevTools() {
   const [cacheStatus, setCacheStatus] = useState('ready');
@@ -21,7 +21,7 @@ export default function DevTools() {
   const handleCacheRefresh = async () => {
     setCacheStatus('refreshing');
     try {
-      await invalidateVendorCache();
+      await revalidateVendors();
       setCacheStatus('refreshed');
       setTimeout(() => setCacheStatus('ready'), 2000);
     } catch (error) {
