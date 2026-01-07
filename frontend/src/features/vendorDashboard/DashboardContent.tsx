@@ -12,6 +12,7 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import Refresh from "@mui/icons-material/Refresh";
 import ProfileEditCard from "./cards/ProfileEditCard";
+import Link from "@mui/material/Link";
 
 interface DashboardContentProps {
   vendor: VendorByDistance | null;
@@ -60,8 +61,17 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
               <Typography variant="h4" gutterBottom>
                 Welcome back, {vendor.business_name}!
               </Typography>
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                Use this dashboard to manage your business profile and edit your page.
+              </Typography>
               <Typography variant="body1" color="text.secondary">
-                Manage your business profile and edit your page.
+                <Link
+                  href={`/vendors/${vendor.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View current profile page.
+                </Link>
               </Typography>
             </Box>
           </Grid>
