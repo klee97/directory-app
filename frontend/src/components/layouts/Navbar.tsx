@@ -122,7 +122,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
         <AppBar
           position={isVendorNavbar ? "fixed" : "static"}
           sx={{
-            bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
+            bgcolor: isVendorNavbar ? 'background.vendorNavbar' : 'background.publicNavbar',
             zIndex: (theme) => theme.zIndex.drawer + 1
           }}
         >
@@ -295,7 +295,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
       <AppBar
         position={isVendorNavbar ? "fixed" : "static"}
         sx={{
-          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
+          bgcolor: isVendorNavbar ? 'background.vendorNavbar' : 'background.publicNavbar',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >

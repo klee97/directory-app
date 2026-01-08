@@ -45,7 +45,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
       label: 'Client Photo',
       description: 'Upload a client photo',
       completed: vendor.images.length > 0,
-      icon: <ImageIcon />,
+      icon: <ImageIcon />
     },
   ];
 
@@ -72,13 +72,13 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
             {item.completed ? (
               <CheckCircle sx={{ color: 'grey.400', fontSize: 24, flexShrink: 0 }} />
             ) : (
-              <RadioButtonUnchecked sx={{ color: 'info.main', fontSize: 24, flexShrink: 0 }} />
+              <RadioButtonUnchecked sx={{ color: 'text.primary', fontSize: 24, flexShrink: 0 }} />
             )}
 
             {/* Item Icon */}
             <Box
               sx={{
-                color: item.completed ? 'grey.500' : 'info.main',
+                color: item.completed ? 'grey.400' : 'text.primary',
                 display: 'flex',
                 alignItems: 'center',
                 fontSize: 20,
