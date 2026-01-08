@@ -304,7 +304,7 @@ function VendorClaimPageContent() {
 
 
               {vendorInfo && (
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
                   <Typography variant="subtitle2">
                     Vendor to be claimed
                   </Typography>
@@ -371,7 +371,7 @@ function VendorClaimPageContent() {
                   You can change your email later if needed.
                 </Typography>
 
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
                     Business Found: <strong>
                       <Link
@@ -456,7 +456,7 @@ function VendorClaimPageContent() {
                     fullWidth
                     disabled={isClaiming}
                   >
-                    {isClaiming ? <CircularProgress size={24} /> : "Create Account & Claim Profile"}
+                    {isClaiming ? <CircularProgress size={24} /> : "Create Account"}
                   </Button>
                 </Box>
 

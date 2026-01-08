@@ -152,7 +152,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
         {/* Mobile App Bar */}
         {isMobile && (
           <AppBar position="fixed" sx={{
-            bgcolor: 'info.dark',
+            bgcolor: 'background.vendorNavbar',
             color: 'white',
             zIndex: (theme) => theme.zIndex.drawer + 1
           }}>
@@ -277,12 +277,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
             {/* Preview Content with frame effect */}
             <Box sx={{
               p: 3,
+              bgcolor: 'background.back',
               maxWidth: 1400,
               mx: 'auto'
             }}>
               <Box sx={{
-                bgcolor: 'white',
                 borderRadius: 2,
+                bgcolor: 'background.default',
                 overflow: 'hidden',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 p: 2
