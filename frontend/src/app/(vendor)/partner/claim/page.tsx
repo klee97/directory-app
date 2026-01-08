@@ -464,8 +464,8 @@ function VendorClaimPageContent() {
                 <Box sx={{ mt: 2, textAlign: "center" }}>
                   <Typography variant="body2">
                     Already have an account?{" "}
-                    <Button variant="text" onClick={() => router.push("/partner/login")} sx={{ p: 0 }}>
-                      Sign in instead
+                    <Button variant="text" onClick={() => router.push("/partner/login")} sx={{ p: 0, textTransform: 'none' }}>
+                      Log in here.
                     </Button>
                   </Typography>
                 </Box>
