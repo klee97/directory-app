@@ -1,9 +1,9 @@
 import { logEnvironmentInfo } from "@/lib/env/env";
-import { fetchVendorBySlug } from "./fetchVendor";
+import { getCachedVendor } from '@/lib/vendor/fetchVendors';
 
 export async function verifyVendorMagicLink(slug: string, email: string, token: string) {  
   logEnvironmentInfo();
-  const vendor = await fetchVendorBySlug(slug);
+  const vendor = await getCachedVendor(slug);
   
   if (!vendor) {
     return { success: false, error: 'Vendor not found' };

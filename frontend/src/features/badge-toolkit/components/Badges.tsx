@@ -10,7 +10,8 @@ import CardContent from '@mui/material/CardContent';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';import Grid from '@mui/material/Grid2'
 import { useEffect, useState } from 'react'
-import { fetchVendorBySlug } from '@/features/badge-toolkit/api/fetchVendor'
+import { getCachedVendor } from '@/lib/vendor/fetchVendors';
+import { VendorByDistance } from '@/types/vendor';
 
 export function Badges() {
   const params = useParams();
@@ -25,8 +26,8 @@ export function Badges() {
   useEffect(() => {
     async function loadVendor() {
       if (!slug) return;
-      const result = await fetchVendorBySlug(slug as string);
-      setVendorId(result);
+      const result: VendorByDistance | null = await getCachedVendor(slug as string);
+      setVendorId(result?.id || null);
       setLoading(false);
     }
     loadVendor();

@@ -1,4 +1,4 @@
-import { fetchAllVendors } from '@/features/directory/api/fetchVendors';
+import { getCachedVendors } from '@/lib/vendor/fetchVendors';
 import { createClient } from '@/lib/supabase/client';
 import { Vendor, VendorId } from "@/types/vendor";
 
@@ -26,7 +26,7 @@ export async function getFavoriteVendors(): Promise<Vendor[]> {
     return [];
   }
   const favoriteVendorIdsSet = new Set(favoriteVendorIds);
-  const vendors = await fetchAllVendors();
+  const vendors = await getCachedVendors();
   return vendors
     .filter((vendor) => favoriteVendorIdsSet.has(vendor.id))
     .sort((a, b) => {
