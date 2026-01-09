@@ -19,6 +19,8 @@ export const updateEmail = async (currentPassword: string, newEmail: string) => 
   // Step 2: Attempt email update
   const { error: updateError } = await supabase.auth.updateUser({
     email: newEmail,
+  }, {
+    emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/partner/settings`,
   });
 
   // Step 3: Handle duplicate email errors
