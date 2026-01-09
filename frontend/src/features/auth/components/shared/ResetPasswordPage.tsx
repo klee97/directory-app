@@ -26,9 +26,10 @@ interface ApiError extends Error {
 
 interface ResetPasswordPageProps {
   loginUrl: string;
+  isVendorSite?: boolean;
 }
 
-export function ResetPasswordPage({ loginUrl }: ResetPasswordPageProps) {
+export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageProps) {
   const { addNotification } = useNotification();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,7 +71,7 @@ export function ResetPasswordPage({ loginUrl }: ResetPasswordPageProps) {
     }
 
     try {
-      await updatePasswordAfterReset(newPassword);
+      await updatePasswordAfterReset(newPassword, !!isVendorSite);
       addNotification('Password updated successfully. Redirecting to login page...');
       await supabase.auth.signOut();
       setTimeout(() => {

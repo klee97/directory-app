@@ -106,7 +106,7 @@ export const Settings = ({
       if (hasPasswordState) {
         await updatePassword(currentPassword, newPassword);
       } else {
-        await updatePasswordAfterReset(newPassword);
+        await updatePasswordAfterReset(newPassword, isVendorSettings);
       }
       addNotification('Password updated successfully');
       setCurrentPassword('');
