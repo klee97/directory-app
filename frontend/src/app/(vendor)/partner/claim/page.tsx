@@ -167,7 +167,7 @@ function VendorClaimPageContent() {
       }
 
       addNotification("Welcome! Your vendor account has been created.");
-      router.push("/partner/manage");
+      router.push("/partner/manage/profile");
     } catch {
       setFormError("Failed to claim business profile. Please try again.");
       setIsClaiming(false);
@@ -304,7 +304,7 @@ function VendorClaimPageContent() {
 
 
               {vendorInfo && (
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
                   <Typography variant="subtitle2">
                     Vendor to be claimed
                   </Typography>
@@ -317,10 +317,10 @@ function VendorClaimPageContent() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Button
                   variant="contained"
-                  onClick={() => router.push("/partner/manage")}
+                  onClick={() => router.push("/partner/manage/profile")}
                   fullWidth
                 >
-                  Go to my profile
+                  Edit my profile
                 </Button>
 
                 <Button
@@ -371,7 +371,7 @@ function VendorClaimPageContent() {
                   You can change your email later if needed.
                 </Typography>
 
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "grey.50" }}>
+                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
                   <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
                     Business Found: <strong>
                       <Link
@@ -456,7 +456,7 @@ function VendorClaimPageContent() {
                     fullWidth
                     disabled={isClaiming}
                   >
-                    {isClaiming ? <CircularProgress size={24} /> : "Create Account & Claim Profile"}
+                    {isClaiming ? <CircularProgress size={24} /> : "Create Account"}
                   </Button>
                 </Box>
 
@@ -464,8 +464,8 @@ function VendorClaimPageContent() {
                 <Box sx={{ mt: 2, textAlign: "center" }}>
                   <Typography variant="body2">
                     Already have an account?{" "}
-                    <Button variant="text" onClick={() => router.push("/partner/login")} sx={{ p: 0 }}>
-                      Sign in instead
+                    <Button variant="text" onClick={() => router.push("/partner/login")} sx={{ p: 0, textTransform: 'none' }}>
+                      Log in here.
                     </Button>
                   </Typography>
                 </Box>

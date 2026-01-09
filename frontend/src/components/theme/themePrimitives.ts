@@ -61,6 +61,9 @@ export const colorSchemes = {
       background: {
         default: '#ffffff',
         paper: '#fbf9f8',
+        back: '#eeeeee',
+        publicNavbar: '#d18f90',
+        vendorNavbar: '#85a07a'
       },
       divider: '#ececec',
     },
@@ -72,7 +75,7 @@ export const colorSchemes = {
         main: '#d18f90',
       },
       secondary: {
-        main: '#a8a6a9',
+        main: '#85a07a',
       },
       success: {
         main: '#30c74d',
@@ -84,6 +87,9 @@ export const colorSchemes = {
       background: {
         default: '#0f0d10',
         paper: '#313033',
+        back: '#212121',
+        publicNavbar: '#181514',
+        vendorNavbar: '#313033'
       },
       divider: '#313033',
       text: {

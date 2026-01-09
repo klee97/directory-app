@@ -9,7 +9,7 @@ import KoFiButton from "../ui/KoFiButton";
 export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
   return (
     <>
-      <CallToAction />
+      {!isVendorFooter && <CallToAction />}
 
       <Box
         component="footer"
