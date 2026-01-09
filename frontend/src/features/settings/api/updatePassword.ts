@@ -21,12 +21,17 @@ export const updatePassword = async (currentPassword: string, newPassword: strin
   if (error) throw error;
 };
 
-export const updatePasswordAfterReset = async (newPassword: string) => {
+export const updatePasswordAfterReset = async (newPassword: string, isVendorSite: boolean) => {
+  const redirectToUrl = isVendorSite
+    ? `${process.env.NEXT_PUBLIC_SITE_URL}/partner/login`
+    : `${process.env.NEXT_PUBLIC_SITE_URL}/login`;
   const { error } = await supabase.auth.updateUser({
     password: newPassword,
     data: {
       has_password: 'true'
     }
+  }, {
+    emailRedirectTo: redirectToUrl,
   });
   if (error) throw error;
 };
