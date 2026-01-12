@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 
 interface BaseCardProps extends Omit<BoxProps, 'title'> {
   title?: string;
+  icon?: ReactNode;
   action?: ReactNode;
   children: ReactNode;
   hoverable?: boolean;
@@ -13,6 +14,7 @@ interface BaseCardProps extends Omit<BoxProps, 'title'> {
 
 export default function BaseCard({
   title,
+  icon,
   action,
   children,
   hoverable = false,
@@ -46,9 +48,14 @@ export default function BaseCard({
             borderColor: 'divider'
           }}
         >
-          <Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            {icon && (
+              <Box sx={{ display: 'flex', alignItems: 'center', color: 'primary.main' }}>
+                {icon}
+              </Box>
+            )}
             {title && (
-              <Typography variant="h5" component="h2" gutterBottom={true}>
+              <Typography variant="h5" component="h2" gutterBottom={false}>
                 {title}
               </Typography>
             )}

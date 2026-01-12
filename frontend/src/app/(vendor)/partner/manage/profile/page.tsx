@@ -12,12 +12,12 @@ export default async function VendorEditPage() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/manage');
+    redirect('/partner/login?redirect=/partner/manage/profile');
   }
 
   const { userId } = currentUser;
 
-  console.log('[VendorEditPage] userId from getCurrentUserAction:', userId);
+  console.debug('[VendorEditPage] userId from getCurrentUserAction:', userId);
 
   return (
     <Suspense fallback={<VendorEditSkeleton />}>

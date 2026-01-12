@@ -7,7 +7,7 @@ import BaseCard from "./BaseCard";
 export default function PerformanceStatsCard() {
   return (
     <BaseCard title="Performance Stats">
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body1" color="text.secondary">
         Coming Soon...
       </Typography>
     </BaseCard>

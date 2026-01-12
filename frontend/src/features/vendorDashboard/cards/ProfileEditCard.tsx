@@ -5,9 +5,7 @@ import Link from "next/link";
 import {
   CheckCircle,
   RadioButtonUnchecked,
-  Image as ImageIcon,
-  Description,
-  Business
+  Edit
 } from "@mui/icons-material";
 import { VendorByDistance } from "@/types/vendor";
 import BaseCard from "./BaseCard";
@@ -21,7 +19,6 @@ interface ChecklistItem {
   label: string;
   description: string;
   completed: boolean;
-  icon: React.ReactNode;
 }
 
 export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardProps) {
@@ -29,30 +26,26 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
     {
       id: 'basic_info',
       label: 'Basic Business Info',
-      description: 'List your business name, location, and links',
+      description: 'List your business name, location, and links.',
       completed: !!vendor.business_name,
-      icon: <Business />,
     },
     {
       id: 'bio',
       label: 'Bio',
-      description: 'Write a compelling bio to let clients know who you are (150+ characters)',
-      completed: !!(vendor.description && vendor.description.length >= 150),
-      icon: <Description />,
+      description: 'Write a compelling bio to let clients know who you are. We recommend at least 50 words.',
+      completed: !!(vendor.description && vendor.description.split(' ').length >= 50),
     },
     {
       id: 'photo',
       label: 'Client Photo',
-      description: 'Upload a client photo',
+      description: 'Upload a photo of your work.',
       completed: vendor.images.length > 0,
-      icon: <ImageIcon />
     },
   ];
 
 
   return (
-    <BaseCard title="Edit Profile Page">
-
+    <BaseCard title="Edit Profile Page" icon={<Edit sx={{ color: 'text.primary' }}/>}>
       {/* Checklist Items */}
       <Box sx={{ mb: 3 }}>
         {checklistItems.map((item, index) => (
@@ -75,23 +68,10 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
               <RadioButtonUnchecked sx={{ color: 'text.primary', fontSize: 24, flexShrink: 0 }} />
             )}
 
-            {/* Item Icon */}
-            <Box
-              sx={{
-                color: item.completed ? 'grey.400' : 'text.primary',
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: 20,
-                flexShrink: 0
-              }}
-            >
-              {item.icon}
-            </Box>
-
             {/* Content */}
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
-                variant="body2"
+                variant="body1"
                 fontWeight={500}
                 sx={{
                   color: item.completed ? 'text.secondary' : 'text.primary',
@@ -116,7 +96,6 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
         component={Link}
         href="/partner/manage/profile"
         variant={"contained"}
-        sx={{ bgcolor: "info.main", color: "white" }}
       >
         Edit Profile
       </Button>

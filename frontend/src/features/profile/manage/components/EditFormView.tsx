@@ -23,6 +23,8 @@ import { VendorFormData } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
 import { Section } from './Section';
 
+const RECOMMENDED_BIO_WORD_COUNT = 50;
+
 interface EditFormViewProps {
   activeSection: string | null;
   sections: Section[];
@@ -50,7 +52,7 @@ export default function EditFormView({
   // Track changes efficiently
   const initialFormDataRef = useRef<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  
+
   // Initialize or update the reference when activeSection changes
   useEffect(() => {
     initialFormDataRef.current = JSON.stringify(formData);
@@ -329,16 +331,40 @@ export default function EditFormView({
         {activeSection === 'bio' && (
           <Box>
             <FormFieldLabel required>Artist Bio</FormFieldLabel>
-            <TextField
-              fullWidth
-              multiline
-              rows={8}
-              required
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              error={!!getFieldError('description')}
-              helperText={getFieldError('description')}
-            />
+            <Typography variant="body2" color="text.primary" gutterBottom>
+              Tell clients about your artistic style, experience, and what makes your work unique. Aim for at least 50 words.
+            </Typography>
+            {(() => {
+              const text = formData.description || '';
+              const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+              const remaining = Math.max(RECOMMENDED_BIO_WORD_COUNT - wordCount, 0);
+
+              const fieldError = getFieldError('description');
+
+              let helperText;
+              if (fieldError) {
+                helperText = fieldError;
+              } else if (wordCount === 0 || wordCount < RECOMMENDED_BIO_WORD_COUNT) {
+                helperText = `${wordCount} of ${RECOMMENDED_BIO_WORD_COUNT} words (${remaining} more to go)`;
+              } else {
+                helperText = `${wordCount} words — great! Your bio gives clients a good sense of who you are.`;
+              }
+
+              return (
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={8}
+                  required
+                  value={text}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  error={!!fieldError}
+                  helperText={helperText}
+                />
+              );
+            })()}
           </Box>
         )}
 

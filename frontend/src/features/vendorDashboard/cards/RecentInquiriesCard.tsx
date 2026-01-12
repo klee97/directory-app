@@ -6,7 +6,7 @@ import BaseCard from "./BaseCard";
 export default function RecentInquiriesCard() {
   return (
     <BaseCard title="Bridal Inquiries">
-      <Typography variant="body2" color="text.secondary">
+      <Typography variant="body1" color="text.secondary">
         Coming Soon...
       </Typography>
     </BaseCard>
