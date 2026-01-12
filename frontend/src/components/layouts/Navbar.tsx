@@ -407,16 +407,6 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                             </Typography>
                           </ListItemText>
                         </MenuItem>
-                        <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
-                          <ListItemIcon>
-                            <Settings fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>
-                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                              Settings
-                            </Typography>
-                          </ListItemText>
-                        </MenuItem>
                         <Divider />
                         <MenuItem onClick={handleSignOut}>
                           <ListItemIcon>

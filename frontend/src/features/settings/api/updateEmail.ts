@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { getBaseUrl } from '@/lib/env/env';
 
 const supabase = createClient();
 
@@ -20,7 +21,7 @@ export const updateEmail = async (currentPassword: string, newEmail: string, isV
   const { error: updateError } = await supabase.auth.updateUser({
     email: newEmail,
   }, {
-    emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${isVendor ? '/partner/settings' : '/settings'}`,
+    emailRedirectTo: `${getBaseUrl()}${isVendor ? '/partner/settings' : '/settings'}`,
   });
 
   // Step 3: Handle duplicate email errors
