@@ -106,7 +106,7 @@ export const Settings = ({
       if (hasPasswordState) {
         await updatePassword(currentPassword, newPassword);
       } else {
-        await updatePasswordAfterReset(newPassword);
+        await updatePasswordAfterReset(newPassword, isVendorSettings);
       }
       addNotification('Password updated successfully');
       setCurrentPassword('');
@@ -127,7 +127,7 @@ export const Settings = ({
     setIsSubmitting(true);
 
     try {
-      await updateEmail(emailChangePassword, email);
+      await updateEmail(emailChangePassword, email, isVendorSettings);
 
       addNotification(
         'Check your inbox to verify your new vendor account email address: ' + email,

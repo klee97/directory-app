@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 
 const supabase = createClient();
 
-export const updateEmail = async (currentPassword: string, newEmail: string) => {
+export const updateEmail = async (currentPassword: string, newEmail: string, isVendor: boolean) => {
   // Step 1: Verify current password via sign-in
   const { data: userData } = await supabase.auth.getUser();
   const currentEmail = userData.user?.email || '';
@@ -19,6 +19,8 @@ export const updateEmail = async (currentPassword: string, newEmail: string) => 
   // Step 2: Attempt email update
   const { error: updateError } = await supabase.auth.updateUser({
     email: newEmail,
+  }, {
+    emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}${isVendor ? '/partner/settings' : '/settings'}`,
   });
 
   // Step 3: Handle duplicate email errors

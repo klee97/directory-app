@@ -132,8 +132,12 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
     // Only send reset email if account type matches the site type
     if (isVendorAccount === isVendorSite) {
       console.debug(`Sending password reset email for ${isVendorAccount ? 'vendor' : 'customer'}:`, email);
+      const redirectToUrl = isVendorAccount
+        ? `${process.env.NEXT_PUBLIC_SITE_URL}/partner/auth/reset-password`
+        : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`;
+
       const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`,
+        redirectTo: redirectToUrl,
       });
 
       if (resetError) {
