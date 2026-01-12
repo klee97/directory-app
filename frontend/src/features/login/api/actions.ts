@@ -136,6 +136,8 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
         ? `${process.env.NEXT_PUBLIC_SITE_URL}/partner/auth/reset-password`
         : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`;
 
+      console.debug('Password reset redirect URL:', redirectToUrl);
+
       const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
         redirectTo: redirectToUrl,
       });
