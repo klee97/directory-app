@@ -94,7 +94,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
       {/* Action Button */}
       <Button
         component={Link}
-        href="/partner/manage/profile"
+        href="/partner/dashboard/profile"
         variant={"contained"}
       >
         Edit Profile

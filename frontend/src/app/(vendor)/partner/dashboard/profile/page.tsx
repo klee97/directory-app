@@ -1,18 +1,18 @@
 import { redirect } from 'next/navigation';
-import VendorEditProfile from '@/features/profile/manage/components/VendorEditProfile';
+import VendorEditProfile from '@/features/profile/dashboard/components/VendorEditProfile';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { getTags } from '@/features/profile/common/api/getTags';
-import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
+import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 import { Suspense } from 'react';
-import VendorEditSkeleton from '@/features/profile/manage/components/VendorEditSkeleton';
-import NoVendorLinked from '@/features/profile/manage/components/NoVendorLinked';
+import VendorEditSkeleton from '@/features/profile/dashboard/components/VendorEditSkeleton';
+import NoVendorLinked from '@/features/profile/dashboard/components/NoVendorLinked';
 
 export default async function VendorEditPage() {
   // Check authentication
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/manage/profile');
+    redirect('/partner/login?redirect=/partner/dashboard/profile');
   }
 
   const { userId } = currentUser;

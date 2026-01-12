@@ -15,7 +15,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { verifyVendorMagicLink } from "@/features/profile/common/api/magicLink";
-import { signUpAndClaimVendor } from "@/features/profile/manage/hooks/claimVendor";
+import { signUpAndClaimVendor } from "@/features/profile/dashboard/hooks/claimVendor";
 import { useNotification } from "@/contexts/NotificationContext";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import Visibility from "@mui/icons-material/Visibility";
@@ -167,7 +167,7 @@ function VendorClaimPageContent() {
       }
 
       addNotification("Welcome! Your vendor account has been created.");
-      router.push("/partner/manage/profile");
+      router.push("/partner/dashboard/profile");
     } catch {
       setFormError("Failed to claim business profile. Please try again.");
       setIsClaiming(false);
@@ -317,7 +317,7 @@ function VendorClaimPageContent() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Button
                   variant="contained"
-                  onClick={() => router.push("/partner/manage/profile")}
+                  onClick={() => router.push("/partner/dashboard/profile")}
                   fullWidth
                 >
                   Edit my profile

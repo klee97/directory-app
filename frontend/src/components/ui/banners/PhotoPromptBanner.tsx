@@ -19,7 +19,7 @@ export default function PhotoPromptBanner({ hasProfilePhoto, onClose }: PhotoPro
       icon={<Info sx={{ fontSize: 20 }} />}
       title="Add a client photo to get more engagement!"
       description="Artist profiles with photos receive more than twice the views from brides."
-      actionUrl="/partner/manage/profile"
+      actionUrl="/partner/dashboard/profile"
       buttonText="Add Photo"
       onClose={onClose}
       fullWidth

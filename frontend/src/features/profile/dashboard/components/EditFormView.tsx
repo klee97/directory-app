@@ -17,7 +17,7 @@ import { useImageUploader } from '@/features/profile/common/hooks/useImageUpload
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
-import { useLocationForm } from '@/features/profile/manage/hooks/useLocationForm';
+import { useLocationForm } from '@/features/profile/dashboard/hooks/useLocationForm';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { VendorFormData } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';

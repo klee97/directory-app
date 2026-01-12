@@ -68,7 +68,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const homeUrl = isVendorNavbar ? '/partner/manage' : '/';
+  const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
 
   // Handle hydration and initial loading
   React.useEffect(() => {
@@ -251,13 +251,13 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </MenuItem>
             )}
             {isVendorNavbar && (
-              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/manage')}>
+              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
                 <ListItemIcon>
                   <Edit fontSize="small" />
                 </ListItemIcon>
                 <ListItemText>
                   <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                    Manage Profile
+                    Dashboard
                   </Typography>
                 </ListItemText>
               </MenuItem>
@@ -413,13 +413,13 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                           </MenuItem>
                         )}
                         {isVendorNavbar && (
-                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/manage')}>
+                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
                             <ListItemIcon>
                               <Edit fontSize="small" />
                             </ListItemIcon>
                             <ListItemText>
                               <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                                Manage Profile
+                                Dashboard
                               </Typography>
                             </ListItemText>
                           </MenuItem>
