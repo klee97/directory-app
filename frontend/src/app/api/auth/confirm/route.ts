@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     })
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      const successRedirectUrl = new URL(redirectTo, request.url)
+      const successRedirectUrl = new URL(redirectTo)
       successRedirectUrl.searchParams.set('message', 'Email verification code successfully verified!')
       redirect(successRedirectUrl.toString())
     } else {
