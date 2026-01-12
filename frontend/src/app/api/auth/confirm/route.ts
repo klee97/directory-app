@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
-  const next = searchParams.get('next') ?? '/'
+  const redirectTo = searchParams.get('redirectTo') ?? '/'
+  const isVendor = redirectTo.includes('partner')
 
   if (token_hash && type) {
     const supabase = await createClient()
@@ -19,7 +20,7 @@ export async function GET(request: NextRequest) {
     })
     if (!error) {
       // redirect user to specified redirect URL or root of app
-      const successRedirectUrl = new URL(next, request.url)
+      const successRedirectUrl = new URL(redirectTo, request.url)
       successRedirectUrl.searchParams.set('message', 'Email verification code successfully verified!')
       redirect(successRedirectUrl.toString())
     } else {
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
 
   // redirect the user to an error page with some instructions
   if (type === 'recovery') {
-    redirect('/partner/auth/recovery-code-error')
+    redirect(isVendor ? '/partner/auth/recovery-code-error' : '/auth/recovery-code-error')
   }
-  redirect('/partner/auth/auth-code-error')
+  redirect(isVendor ? '/partner/auth/auth-code-error' : '/auth/auth-code-error')
 }

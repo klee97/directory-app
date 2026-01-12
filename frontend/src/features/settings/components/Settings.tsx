@@ -127,7 +127,7 @@ export const Settings = ({
     setIsSubmitting(true);
 
     try {
-      await updateEmail(emailChangePassword, email);
+      await updateEmail(emailChangePassword, email, isVendorSettings);
 
       addNotification(
         'Check your inbox to verify your new vendor account email address: ' + email,
