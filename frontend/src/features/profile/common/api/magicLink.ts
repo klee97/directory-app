@@ -1,3 +1,4 @@
+"use server";
 import { logEnvironmentInfo } from "@/lib/env/env";
 import { getCachedVendor } from '@/lib/vendor/fetchVendors';
 
