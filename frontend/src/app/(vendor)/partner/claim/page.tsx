@@ -167,7 +167,7 @@ function VendorClaimPageContent() {
       }
 
       addNotification("Welcome! Your vendor account has been created.");
-      router.push("/partner/dashboard/profile");
+      router.push("/partner/dashboard");
     } catch {
       setFormError("Failed to claim business profile. Please try again.");
       setIsClaiming(false);

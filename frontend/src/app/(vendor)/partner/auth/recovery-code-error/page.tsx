@@ -7,7 +7,7 @@ export default function VendorRecoveryCodeErrorPage() {
       routes={{
         login: '/partner/login',
         verifyOrForgot: '/partner/forgot-password',
-        home: '/partner/manage',
+        home: '/partner/dashboard',
         support: '/partner/contact'
       }}
       labels={{
