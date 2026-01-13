@@ -1,77 +1,29 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';import Grid from '@mui/material/Grid2'
-import { useEffect, useState } from 'react'
-import { getCachedVendor } from '@/lib/vendor/fetchVendors';
+import { useState } from 'react'
 import { VendorByDistance } from '@/types/vendor';
 
-export function Badges() {
-  const params = useParams();
-  const slug = params && typeof params.slug === 'string' ? params.slug : Array.isArray(params?.slug) ? params?.slug[0] : undefined;
+
+interface BadgesContentProps {
+  vendor: VendorByDistance | null;
+  badges: Array<{
+    id: string;
+    label: string;
+    imageUrl: string;
+    embedCode: string;
+  }>;
+}
+
+export function BadgesContent({ vendor, badges }: BadgesContentProps) {
   const [copied, setCopied] = useState<string | null>(null);
-  const [vendorId, setVendorId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const baseUrl = 'https://www.asianweddingmakeup.com';
-  const vendorUrl = `${baseUrl}/vendors/${slug}`;
-
-  useEffect(() => {
-    async function loadVendor() {
-      if (!slug) return;
-      const result: VendorByDistance | null = await getCachedVendor(slug as string);
-      setVendorId(result?.id || null);
-      setLoading(false);
-    }
-    loadVendor();
-  }, [slug]);
-
-  if (loading) {
-    return (
-      <Box p={4} textAlign="center">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!vendorId) {
-    return (
-      <Box p={4} textAlign="center">
-        <Typography variant="h2">Artist not found</Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          We could not find a badge toolkit for this artist. Please check the URL or contact us for assistance.
-        </Typography>
-      </Box>
-    );
-  }
-
-  const badges = [
-    {
-      id: 'rectangle',
-      label: 'Recommended Artist — Rectangle',
-      imageUrl: `/badges/recommended-rectangle.svg`,
-      embedCode: `<a href="${vendorUrl}" target="_blank" rel="noopener"><img src="${baseUrl}/badges/recommended-rectangle.svg" alt="Asian Wedding Makeup Recommended Artist" width="300"/></a>`,
-    },
-    {
-      id: 'circle',
-      label: 'Recommended Artist – Circle',
-      imageUrl: `/badges/recommended-circle.svg`,
-      embedCode: `<a href="${vendorUrl}" target="_blank" rel="noopener"><img src="${baseUrl}/badges/recommended-circle.svg" alt="Asian Wedding Makeup Recommended Artist" width="200"/></a>`,
-    },
-    {
-      id: 'award',
-      label: 'Recommended Artist – Award',
-      imageUrl: `/badges/recommended-award.svg`,
-      embedCode: `<a href="${vendorUrl}" target="_blank" rel="noopener"><img src="${baseUrl}/badges/recommended-circle.svg" alt="Asian Wedding Makeup Recommended Artist" width="200"/></a>`,
-    },
-  ];
   const handleCopy = (code: string, id: string) => {
     navigator.clipboard.writeText(code).then(() => {
       setCopied(id);
