@@ -4,14 +4,14 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { redirect } from 'next/dist/client/components/navigation';
-import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
+import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 
 export default async function VendorBadgeToolkit() {
   // Check authentication
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/badge-toolkit');
+    redirect('/partner/login?redirect=/partner/dashboard/badge-toolkit');
   }
 
   const { userId } = currentUser;

@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
 import WorkspacePremium from '@mui/icons-material/WorkspacePremium';
-export default function BadgeToolkitCard({slug}: {slug: string}) {
+export default function BadgeToolkitCard() {
   const router = useRouter();
 
   return (
@@ -14,7 +14,7 @@ export default function BadgeToolkitCard({slug}: {slug: string}) {
 
         <Button
           variant="contained"
-          onClick={() => router.push(`/partner/badge-toolkit/${slug}`)}
+          onClick={() => router.push(`/partner/dashboard/badge-toolkit`)}
         >
           Get Your Badge
         </Button>

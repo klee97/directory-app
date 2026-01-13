@@ -90,7 +90,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
           </Grid>
 
           <Grid size={{ xs: 12 }}>
-            <BadgeToolkitCard slug={vendor.slug || ""} />
+            <BadgeToolkitCard />
           </Grid>
 
           <Grid size={{ xs: 12 }}>
