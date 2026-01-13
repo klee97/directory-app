@@ -6,13 +6,12 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Link from '@mui/material/Link';import Grid from '@mui/material/Grid2'
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid2'
 import { useState } from 'react'
-import { VendorByDistance } from '@/types/vendor';
 
 
 interface BadgesContentProps {
-  vendor: VendorByDistance | null;
   badges: Array<{
     id: string;
     label: string;
@@ -21,7 +20,7 @@ interface BadgesContentProps {
   }>;
 }
 
-export function BadgesContent({ vendor, badges }: BadgesContentProps) {
+export function BadgesContent({ badges }: BadgesContentProps) {
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = (code: string, id: string) => {
