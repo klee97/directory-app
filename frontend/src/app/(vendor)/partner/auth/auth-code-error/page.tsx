@@ -7,7 +7,7 @@ export default function VendorAuthCodeErrorPage() {
       routes={{
         login: '/partner/login',
         verifyOrForgot: '/partner/auth/verify-email',
-        home: '/partner/manage',
+        home: '/partner/dashboard',
         support: '/partner/contact'
       }}
       labels={{

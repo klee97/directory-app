@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
-import { getVendorForCurrentUser } from '@/features/profile/manage/api/getVendorForCurrentUser';
+import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 import { Settings } from '@/features/settings/components/Settings';
 
 export default async function VendorSettingsPage() {

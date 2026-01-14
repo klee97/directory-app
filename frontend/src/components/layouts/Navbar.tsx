@@ -38,6 +38,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useNotification } from '@/contexts/NotificationContext';
 import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
+import Edit from '@mui/icons-material/Edit';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
@@ -66,6 +67,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
 
   // Handle hydration and initial loading
   React.useEffect(() => {
@@ -119,7 +122,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
         <AppBar
           position={isVendorNavbar ? "fixed" : "static"}
           sx={{
-            bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
+            bgcolor: isVendorNavbar ? 'background.vendorNavbar' : 'background.publicNavbar',
             zIndex: (theme) => theme.zIndex.drawer + 1
           }}
         >
@@ -247,6 +250,18 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 </ListItemText>
               </MenuItem>
             )}
+            {isVendorNavbar && (
+              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
+                <ListItemIcon>
+                  <Edit fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>
+                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                    Dashboard
+                  </Typography>
+                </ListItemText>
+              </MenuItem>
+            )}
             <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
               <ListItemIcon>
                 <Settings fontSize="small" />
@@ -280,7 +295,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
       <AppBar
         position={isVendorNavbar ? "fixed" : "static"}
         sx={{
-          bgcolor: isVendorNavbar ? 'secondary.main' : 'primary.main',
+          bgcolor: isVendorNavbar ? 'background.vendorNavbar' : 'background.publicNavbar',
           zIndex: (theme) => theme.zIndex.drawer + 1
         }}
       >
@@ -397,16 +412,18 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                             </ListItemText>
                           </MenuItem>
                         )}
-                        <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
-                          <ListItemIcon>
-                            <Settings fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>
-                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                              Settings
-                            </Typography>
-                          </ListItemText>
-                        </MenuItem>
+                        {isVendorNavbar && (
+                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
+                            <ListItemIcon>
+                              <Edit fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>
+                              <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+                                Dashboard
+                              </Typography>
+                            </ListItemText>
+                          </MenuItem>
+                        )}
                         <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
                           <ListItemIcon>
                             <Settings fontSize="small" />
@@ -434,7 +451,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 )}
               </Menu>
             </Box>
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <Link href={homeUrl} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
               <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
               <Box style={{ alignItems: 'end' }} >
                 <Typography
