@@ -23,11 +23,11 @@ export default function NoVendorLinked() {
         </Typography>
         <Button
           component={Link}
-          href="/partner/onboarding"
+          href="/partner/contact"
           variant="contained"
           size="large"
         >
-          Create Vendor Profile
+          Conttact us for help
         </Button>
       </Box>
     </Container>

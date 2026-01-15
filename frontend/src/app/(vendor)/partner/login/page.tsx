@@ -29,7 +29,7 @@ function VendorLoginPageContent() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        router.push(`/partner/manage`);
+        router.push(`/partner/dashboard`);
         return;
       }
 
