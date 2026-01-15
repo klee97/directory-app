@@ -31,7 +31,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
     setIsSubmitting(true);
 
     try {
-      const result = await login(formData);
+      const result = await login(formData, isVendorLogin);
       if (result && result.action === 'verify-email') {
         setVerificationNeeded(true);
         return;
