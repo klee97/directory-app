@@ -51,10 +51,8 @@ export async function login(formData: FormData, isVendorLogin: boolean) {
 
   const isVendorAccount = await getAccountType(email) === 'vendor';
 
-  // Let vendors login to the customer and vendor site
-  // but prevent customers from logging into the vendor site
-  if (!isVendorAccount && isVendorLogin) {
-    console.debug(`Vendor login attempt with non-vendor account: ${email}`);
+  if (isVendorAccount !== isVendorLogin) {
+    log.debug('Account type does not match login site type for email:', email);
     return { error: 'Invalid email or password.' };
   }
 
