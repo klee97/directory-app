@@ -128,3 +128,12 @@ export const logEnvironmentInfo = () => {
   console.log('Environment Info:', info)
   return info
 }
+
+export const getBaseUrl = () => {
+  const baseUrl = isDevelopment() ? "http://localhost:3000"
+    : (isPreview() ? `https://${process.env.NEXT_PUBLIC_VERCEL_BRANCH_URL}`
+      : `https://${process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`)
+
+  console.log("Base URL:", baseUrl);
+  return baseUrl
+};

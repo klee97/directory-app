@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
+import { getBaseUrl } from '@/lib/env/env';
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -63,7 +64,7 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      emailRedirectTo: `${getBaseUrl()}/auth/callback`,
     },
   });
 
@@ -133,10 +134,8 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
     if (isVendorAccount === isVendorSite) {
       console.debug(`Sending password reset email for ${isVendorAccount ? 'vendor' : 'customer'}:`, email);
       const redirectToUrl = isVendorAccount
-        ? `${process.env.NEXT_PUBLIC_SITE_URL}/partner/auth/reset-password`
-        : `${process.env.NEXT_PUBLIC_SITE_URL}/auth/reset-password`;
-
-      console.debug('Password reset redirect URL:', redirectToUrl);
+        ? `${getBaseUrl()}/partner/auth/reset-password`
+        : `${getBaseUrl()}/auth/reset-password`;
 
       const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
         redirectTo: redirectToUrl,

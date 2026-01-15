@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { getBaseUrl } from '@/lib/env/env';
 
 const supabase = createClient();
 
@@ -23,8 +24,8 @@ export const updatePassword = async (currentPassword: string, newPassword: strin
 
 export const updatePasswordAfterReset = async (newPassword: string, isVendorSite: boolean) => {
   const redirectToUrl = isVendorSite
-    ? `${process.env.NEXT_PUBLIC_SITE_URL}/partner/login`
-    : `${process.env.NEXT_PUBLIC_SITE_URL}/login`;
+    ? `${getBaseUrl()}/partner/login`
+    : `${getBaseUrl()}/login`;
   const { error } = await supabase.auth.updateUser({
     password: newPassword,
     data: {
