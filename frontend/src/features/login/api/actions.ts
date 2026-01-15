@@ -6,7 +6,12 @@ import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 import { getBaseUrl } from '@/lib/env/env';
 
-const getAccountType = async (email: string): Promise<'vendor' | 'customer' | null> => {
+enum AccountType {
+  VENDOR = 'vendor',
+  CUSTOMER = 'customer'
+}
+
+const getAccountType = async (email: string): Promise<AccountType | null> => {
   const { data: userId, error } = await supabaseAdmin
     .rpc("get_user_id_by_email",
       {
@@ -34,9 +39,9 @@ const getAccountType = async (email: string): Promise<'vendor' | 'customer' | nu
   }
 
   if (profile?.vendor_id && profile?.role === 'vendor') {
-    return 'vendor';
+    return AccountType.VENDOR;
   }
-  return 'customer';
+  return AccountType.CUSTOMER;
 }
 
 export async function login(formData: FormData, isVendorLogin: boolean) {
@@ -49,10 +54,10 @@ export async function login(formData: FormData, isVendorLogin: boolean) {
     return { error: 'Email and password are required' };
   }
 
-  const isVendorAccount = await getAccountType(email) === 'vendor';
+  const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
 
   if (isVendorAccount !== isVendorLogin) {
-    log.debug('Account type does not match login site type for email:', email);
+    console.debug('Account type does not match login site type for email:', email);
     return { error: 'Invalid email or password.' };
   }
 
@@ -135,7 +140,7 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
   }
 
   try {
-    const isVendorAccount = await getAccountType(email) === 'vendor';
+    const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
 
     // Only send reset email if account type matches the site type
     if (isVendorAccount === isVendorSite) {
