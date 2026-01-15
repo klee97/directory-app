@@ -6,7 +6,45 @@ import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 import { getBaseUrl } from '@/lib/env/env';
 
-export async function login(formData: FormData) {
+enum AccountType {
+  VENDOR = 'vendor',
+  CUSTOMER = 'customer'
+}
+
+const getAccountType = async (email: string): Promise<AccountType | null> => {
+  const { data: userId, error } = await supabaseAdmin
+    .rpc("get_user_id_by_email",
+      {
+        p_email: email
+      }
+    );
+
+  if (error || !userId) {
+    console.debug('Error looking up user by email for account type:', error);
+    return null;
+  }
+
+  const { data: profile, error: profileError } = await supabaseAdmin
+    .from('profiles')
+    .select(`
+      vendor_id,
+      role
+    `)
+    .eq('id', userId)
+    .single();
+
+  if (profileError) {
+    console.debug(`Error fetching profile for user id ${userId}:`, profileError);
+    return null;
+  }
+
+  if (profile?.vendor_id && profile?.role === 'vendor') {
+    return AccountType.VENDOR;
+  }
+  return AccountType.CUSTOMER;
+}
+
+export async function login(formData: FormData, isVendorLogin: boolean) {
   const supabase = await createClient();
 
   const email = formData.get('email') as string;
@@ -14,6 +52,13 @@ export async function login(formData: FormData) {
 
   if (!email || !password) {
     return { error: 'Email and password are required' };
+  }
+
+  const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
+
+  if (isVendorAccount !== isVendorLogin) {
+    console.debug('Account type does not match login site type for email:', email);
+    return { error: 'Invalid email or password.' };
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -95,40 +140,7 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
   }
 
   try {
-    const { data: userId, error } = await supabaseAdmin
-      .rpc("get_user_id_by_email",
-        {
-          p_email: email
-        }
-      );
-
-    if (error) {
-      console.debug('Error looking up user by email:', error);
-      // We always return success for security
-      return { success: true };
-    }
-
-    if (!userId) {
-      console.debug('No user found with email for password reset', email);
-      return { success: true };
-    }
-
-    // Check user profile to determine account type
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .select(`
-        vendor_id,
-        role
-      `)
-      .eq('id', userId)
-      .single();
-
-    if (profileError) {
-      console.debug(`Error fetching profile for user id ${userId}:`, profileError);
-      return { success: true };
-    }
-
-    const isVendorAccount = !!profile?.vendor_id && profile?.role === 'vendor';
+    const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
 
     // Only send reset email if account type matches the site type
     if (isVendorAccount === isVendorSite) {
