@@ -37,8 +37,8 @@ const errorContent = {
       'The link was already used',
       'The authentication token is invalid'
     ],
-    primaryButtonText: 'Try logging in',
-    secondaryButtonText: 'Get a new verification link',
+    primaryButtonText: 'Log in',
+    secondaryButtonText: 'Get a new link',
     secondaryButtonIcon: <EmailIcon />
   },
   passwordReset: {
@@ -48,7 +48,7 @@ const errorContent = {
       'The reset link has expired',
       'The reset link was already used'
     ],
-    primaryButtonText: 'Request another password reset link',
+    primaryButtonText: 'Get a new link',
     secondaryButtonText: null,
     secondaryButtonIcon: null
   }

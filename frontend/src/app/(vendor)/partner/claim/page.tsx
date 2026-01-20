@@ -317,10 +317,10 @@ function VendorClaimPageContent() {
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
                 <Button
                   variant="contained"
-                  onClick={() => router.push("/partner/dashboard/profile")}
+                  onClick={() => router.push("/partner/dashboard")}
                   fullWidth
                 >
-                  Edit my profile
+                  My Dashboard
                 </Button>
 
                 <Button
