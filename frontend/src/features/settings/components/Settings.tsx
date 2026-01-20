@@ -63,7 +63,17 @@ export const Settings = ({
   const [emailChangePassword, setEmailChangePassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Password visibility for updating email
   const [showPassword, setShowPassword] = useState(false);
+
+  // Password visibility for changing password
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Password visibility for deleting account
+const [showDeletePassword, setShowDeletePassword] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -276,18 +286,29 @@ export const Settings = ({
             <form onSubmit={handlePasswordChange}>
               {hasPasswordState && (<TextField
                 fullWidth
-                type="password"
+                type={showCurrentPassword ? "text" : "password"}
                 label="Current Password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 margin="normal"
                 required
                 disabled={isSubmitting}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
+                          {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }
+                }}
               />
               )}
               <TextField
                 fullWidth
-                type={showPassword ? "text" : "password"}
+                type={showNewPassword ? "text" : "password"}
                 label="New Password"
                 value={newPassword}
                 onChange={(e) => {
@@ -303,8 +324,8 @@ export const Settings = ({
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end">
+                          {showNewPassword ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -313,13 +334,24 @@ export const Settings = ({
               />
               <TextField
                 fullWidth
-                type={showPassword ? "text" : "password"}
+                type={showConfirmPassword ? "text" : "password"}
                 label="Confirm New Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 margin="normal"
                 required
                 disabled={isSubmitting}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }
+                }}
               />
               <Alert severity="info" sx={{ mt: 2 }}>
                 Password must contain:
@@ -364,12 +396,14 @@ export const Settings = ({
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Update the email address for your account. Current email: {userEmail}</DialogTitle>
+        <DialogTitle>Update the email address for your account. <br />
+          Current email: {userEmail}
+        </DialogTitle>
         <DialogContent>
           <form onSubmit={handleEmailChange}>
             <TextField
               fullWidth
-              type="password"
+              type={showPassword ? "text" : "password"}
               label="Current Password"
               value={emailChangePassword}
               onChange={(e) => setEmailChangePassword(e.target.value)}
@@ -377,6 +411,17 @@ export const Settings = ({
               required
               disabled={isSubmitting}
               helperText="Enter your current password to update your email address"
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              }}
             />
             <TextField
               fullWidth
@@ -387,6 +432,12 @@ export const Settings = ({
               margin="normal"
               required
               disabled={isSubmitting}
+              error={email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()}
+              helperText={
+                email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()
+                  ? "New email address must be different from current email"
+                  : ""
+              }
             />
           </form>
         </DialogContent>
@@ -425,13 +476,23 @@ export const Settings = ({
           </Typography>
           <TextField
             fullWidth
-            type="password"
+            type={showDeletePassword ? "text" : "password"}
             label="Current Password"
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
             margin="normal"
             required
-            disabled={isSubmitting}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={() => setShowDeletePassword(!showDeletePassword)} edge="end">
+                      {showDeletePassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }
+            }}
           />
         </DialogContent>
         <DialogActions>

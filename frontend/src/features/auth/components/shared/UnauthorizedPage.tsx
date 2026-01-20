@@ -24,8 +24,8 @@ export function UnauthorizedPage({ homeUrl, homeButtonText }: UnauthorizedPagePr
         <Typography variant="h3" component="h1" gutterBottom>
           Access Denied
         </Typography>
-        <Typography variant="body1" paragraph>
-          You don&apos;t have permission to access this page. Only administrators can view this content.
+        <Typography variant="body1" component={"p"}>
+          You don&apos;t have permission to access this page.
         </Typography>
         <Button variant="contained" component={Link} href={homeUrl}>
           {homeButtonText}

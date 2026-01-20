@@ -36,7 +36,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -136,13 +136,23 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                   />
                   <TextField
                     fullWidth
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     label="Confirm New Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     margin="normal"
                     required
-                    disabled={isSubmitting}
+                    slotProps={{
+                      input: {
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end">
+                              {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }
+                    }}
                   />
                   <Alert severity="info" sx={{ mt: 2 }}>
                     Password must contain:
