@@ -188,14 +188,14 @@ function VendorClaimPageContent() {
                 fullWidth
                 sx={{ mb: 1 }}
               >
-                Go to Sign In
+                Sign In
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => router.push("/for-vendors")}
+                onClick={() => router.push("/partner")}
                 fullWidth
               >
-                Return to Home
+                Return Home
               </Button>
             </>
           )
@@ -216,10 +216,10 @@ function VendorClaimPageContent() {
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => router.push("/for-vendors")}
+                onClick={() => router.push("/partner")}
                 fullWidth
               >
-                Return to Home
+                Return Home
               </Button>
             </>
           )
@@ -236,14 +236,14 @@ function VendorClaimPageContent() {
                 fullWidth
                 sx={{ mb: 1 }}
               >
-                Go to Sign In
+                Sign In
               </Button>
               <Button
                 variant="outlined"
                 onClick={() => router.push("/for-vendors")}
                 fullWidth
               >
-                Return to Home
+                Return Home
               </Button>
             </>
           )
@@ -267,7 +267,7 @@ function VendorClaimPageContent() {
                 onClick={() => router.push("/partner/login")}
                 fullWidth
               >
-                Go to Sign In
+                Sign In
               </Button>
             </>
           )

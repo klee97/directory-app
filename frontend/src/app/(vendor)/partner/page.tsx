@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "For Vendors — Join Our Curated Directory of Wedding Makeup Artists for Asian Brides",
     description: "Specialize in Asian bridal beauty? Join our trusted directory and connect with brides who value your expertise.",
-    url: "https://www.asianweddingmakeup.com/for-vendors",
+    url: "https://www.asianweddingmakeup.com/partner",
     type: "website",
     siteName: "Asian Wedding Makeup",
     images: [
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: "https://www.asianweddingmakeup.com/for-vendors",
+    canonical: "https://www.asianweddingmakeup.com/partner",
   },
 };
 
