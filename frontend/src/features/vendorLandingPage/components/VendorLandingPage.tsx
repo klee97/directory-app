@@ -152,7 +152,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
                 size="large"
                 href="#how-it-works"
                 sx={{ py: 1.5, px: 4}}
-                color="text.primary"
+                color="inherit"
               >
                 How it works
               </Button>
