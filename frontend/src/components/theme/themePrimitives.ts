@@ -62,6 +62,7 @@ export const colorSchemes = {
         default: '#ffffff',
         paper: '#fbf9f8',
         back: '#eeeeee',
+        light: '#fbf9f8',
         publicNavbar: '#d18f90',
         vendorNavbar: '#85a07a'
       },
@@ -81,20 +82,21 @@ export const colorSchemes = {
         main: '#30c74d',
       },
       info: {
-        main: '#009688',
-        light: '#80CBC4',
+        main: '#00695c',
+        light: '#00695c',
       },
       background: {
         default: '#0f0d10',
         paper: '#313033',
         back: '#212121',
+        light: '#fbf9f8',
         publicNavbar: '#181514',
-        vendorNavbar: '#313033'
+        vendorNavbar: '#556a4f'
       },
       divider: '#313033',
       text: {
-        primary: '#edecef',
-        secondary: '#a8a6a9',
+        primary: '#f4f4f5ff',
+        secondary: 'rgba(199, 198, 198, 1)',
       },
     },
     typography: typography,

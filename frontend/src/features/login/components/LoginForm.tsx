@@ -87,6 +87,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               autoFocus
               variant="outlined"
               disabled={isSubmitting}
+              color={isVendorLogin ? "secondary" : "primary"}
             />
 
             <TextField
@@ -111,6 +112,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                   ),
                 }
               }}
+              color={isVendorLogin ? "secondary" : "primary"}
             />
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
@@ -120,12 +122,13 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 variant="contained"
                 size="large"
                 disabled={isSubmitting}
+                color={isVendorLogin ? "secondary" : "primary"}
               >
                 {isSubmitting ? 'Logging in...' : 'Log In'}
               </Button>
 
               {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                <Typography variant="body2" align="center" sx={{ mt: 2 }} color={isVendorLogin ? "secondary" : "primary"}>
                   Don&apos;t have an account?{' '}
                   <Link component={NextLink} href="/signup">
                     Sign up
@@ -135,28 +138,29 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               {isVendorLogin && (
                 <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/partner/contact">
+                  <Link component={NextLink} href="/partner/contact" color={isVendorLogin ? "secondary" : "primary"}>
                     Contact us</Link> to access your vendor profile.
 
                 </Typography>
               )}
-              {!isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Forgot your password?{' '}
-                <Link component={NextLink} href="/forgot-password">
-                  Reset your password
-                </Link>
-              </Typography>
+              {!isVendorLogin && (
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                  Forgot your password?{' '}
+                  <Link component={NextLink} href="/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
+                    Reset your password
+                  </Link>
+                </Typography>
               )}
               {isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Forgot your password or need to create one?{' '}
-                <Link component={NextLink} href="/partner/forgot-password">
+                <Link component={NextLink} href="/partner/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
                   Reset your password
                 </Link>
               </Typography>
               )}
               {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
                 Logging in as a vendor?{' '}
-                <Link component={NextLink} href="/partner/login">
+                <Link component={NextLink} href="/partner/login" color={isVendorLogin ? "secondary" : "primary"}>
                   Login here
                 </Link>
               </Typography>
