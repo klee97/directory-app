@@ -1,6 +1,8 @@
 import { Json } from "@/types/supabase";
 import { BackendVendorDraft } from "@/types/vendorDraft";
 import { VendorFormData } from "@/types/vendorFormData";
+import { normalizeUrl } from "./normalizeUrl";
+import { normalizeInstagramHandle } from "./normalizeInstagram";
 
 
 
@@ -20,9 +22,9 @@ export function formDataToDraft(
     
     // Business
     business_name: formData.business_name || null,
-    website: formData.website || null,
+    website: normalizeUrl(formData.website) || null,
     email: null,
-    ig_handle: formData.instagram || null,
+    ig_handle: normalizeInstagramHandle(formData.instagram) || null,
     google_maps_place: formData.google_maps_place || null,
     description: formData.description || null,
     
