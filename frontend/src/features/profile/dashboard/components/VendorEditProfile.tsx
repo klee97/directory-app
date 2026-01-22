@@ -23,6 +23,7 @@ import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 
 const DRAWER_WIDTH = 400;
 
@@ -85,7 +86,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     latitude: formData.locationResult?.lat || null,
     longitude: formData.locationResult?.lon || null,
     travels_world_wide: formData.travels_world_wide,
-    website: formData.website,
+    website: normalizeUrl(formData.website),
     instagram: formData.instagram,
     google_maps_place: formData.google_maps_place,
     description: formData.description,

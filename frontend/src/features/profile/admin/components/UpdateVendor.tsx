@@ -23,6 +23,9 @@ import { ImageUpload, ImageUploadRef } from '../../common/components/ImageUpload
 import { useImageUploader } from '../../common/hooks/useImageUploader';
 import { VendorTag } from '@/types/vendor';
 import { VendorDataInput } from '../util/vendorHelper';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
+import InputAdornment from '@mui/material/InputAdornment';
 
 export const UPDATE_VENDOR_INPUT_DEFAULT: VendorDataInput = {
   business_name: null,
@@ -228,7 +231,7 @@ export const AdminUpdateVendorManagement = () => {
               label="Website"
               variant="outlined"
               value={newVendor.website ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'website')}
+              onChange={(e) => handleTextFieldChange(normalizeUrl(e.target.value), 'website')}
             />
           </Grid>
           <Grid size={4}>
@@ -241,11 +244,22 @@ export const AdminUpdateVendorManagement = () => {
           </Grid>
           <Grid size={4}>
             <TextField
+              required
               label="Instagram Handle"
-              helperText="e.g., @yourhandle"
               variant="outlined"
-              value={newVendor.ig_handle ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'ig_handle')}
+              value={newVendor.ig_handle ?? ""}
+              onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
+              onBlur={(e) => {
+                const normalized = normalizeInstagramHandle(e.target.value);
+                if (normalized !== e.target.value) {
+                  setNewVendor({ ...newVendor, ig_handle: normalized });
+                }
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start">@</InputAdornment>
+                }
+              }}
             />
           </Grid>
         </Grid>

@@ -22,6 +22,8 @@ import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { VendorFormData } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
 import { Section } from './Section';
+import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
+import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 
 const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -228,9 +230,20 @@ export default function EditFormView({
               <FormFieldLabel required>Instagram Handle</FormFieldLabel>
               <TextField
                 fullWidth
-                helperText="Your handle (without @ symbol)"
+                label="Instagram Handle"
                 value={formData.instagram}
                 onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeInstagramHandle(e.target.value);
+                  if (normalized !== e.target.value) {
+                    setFormData({ ...formData, instagram: normalized });
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: <InputAdornment position="start">@</InputAdornment>
+                  }
+                }}
               />
             </Grid>
             <Grid size={12}>
