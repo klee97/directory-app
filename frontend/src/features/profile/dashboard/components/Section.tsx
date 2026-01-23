@@ -4,7 +4,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import ContrastIcon from '@mui/icons-material/Contrast';
 import React from 'react';
-import { VendorFormData } from '@/types/vendorFormData';
+import { VendorFormData, VendorFormField } from '@/types/vendorFormData';
 
 interface SectionIconProps {
   status: 'complete' | 'inProgress' | 'empty';
@@ -21,15 +21,16 @@ export function SectionIcon({ status }: SectionIconProps) {
   }
 }
 
+export type ValidationResult = {
+  isValid: boolean;
+  isComplete: boolean;
+  errors: Partial<Record<VendorFormField, string | null>>;
+};
 
 export interface Section {
   id: string;
   label: string;
-  validate: (formData: VendorFormData) => {
-    isValid: boolean;
-    isComplete: boolean;
-    errors: Record<string, string | null>;
-  };
+  validate: (formData: VendorFormData) => ValidationResult;
 }
 
 export const SECTIONS: Section[] = [
@@ -96,17 +97,33 @@ export const SECTIONS: Section[] = [
     id: 'pricing',
     label: 'Pricing',
     validate: (formData: VendorFormData) => {
+      const errors: Record<string, string> = {};
+
+      const priceFields = [
+        'bridal_hair_price',
+        'bridal_makeup_price',
+        'bridesmaid_hair_price',
+        'bridesmaid_makeup_price',
+        'bridal_hair_&_makeup_price',
+        'bridesmaid_hair_&_makeup_price'
+      ] as const;
+
+      priceFields.forEach(field => {
+        if (formData[field] !== null && formData[field] !== undefined && formData[field]! < 0) {
+          errors[field] = 'Price cannot be negative';
+        }
+      });
+
+      // Check if all price fields are filled
+      const isComplete = priceFields.every(field =>
+        formData[field] !== null && formData[field] !== undefined
+      );
+
       return {
-        isValid: true,
-        isComplete: !!(formData.bridal_hair_price
-          && formData.bridal_makeup_price
-          && formData.bridal_hair_price
-          && formData.bridesmaid_hair_price
-          && formData.bridesmaid_makeup_price
-          && formData["bridal_hair_&_makeup_price"]
-          && formData["bridesmaid_hair_&_makeup_price"]),
-        errors: {}
-      }
+        isValid: Object.keys(errors).length === 0,
+        isComplete: isComplete && Object.keys(errors).length === 0,
+        errors
+      };
     }
   },
   {

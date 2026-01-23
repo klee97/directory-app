@@ -19,9 +19,9 @@ import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
 import { useLocationForm } from '@/features/profile/dashboard/hooks/useLocationForm';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
-import { VendorFormData } from '@/types/vendorFormData';
+import { VendorFormData, VendorFormField } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
-import { Section } from './Section';
+import { Section, ValidationResult } from './Section';
 import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 
@@ -92,7 +92,12 @@ export default function EditFormView({
   const serviceOptions = tags.filter(tag => tag.type === 'SERVICE');
   const skillOptions = tags.filter(tag => tag.type === 'SKILL');
   const currentSection = sections.find(s => s.id === activeSection);
-  const validationResult = currentSection?.validate(formData) ?? { isValid: true, errors: {} };
+  const validationResult: ValidationResult =
+    currentSection?.validate(formData) ?? {
+      isValid: true,
+      isComplete: true,
+      errors: {}
+    };
 
   const handleCoverImageSelect = async (file: File | null) => {
     if (!file) {
@@ -125,10 +130,9 @@ export default function EditFormView({
   };
 
   // Helper to get error message for a field
-  const getFieldError = (fieldName: string): string | null => {
+  const getFieldError = (fieldName: VendorFormField): string | null => {
     if (!showValidation) return null;
-    const errors = validationResult.errors as Record<string, string | null>;
-    return errors[fieldName] ?? null;
+    return validationResult.errors[fieldName] ?? null;
   };
 
   const isSaveDisabled = !hasUnsavedChanges || loading;
@@ -149,8 +153,15 @@ export default function EditFormView({
       {showValidation && !validationResult.isValid && (
         <Box sx={{ p: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
           <Typography variant="body2">
-            Please fill out all required fields before saving
+            {Object.keys(validationResult.errors).length > 0
+              ? 'Please fix the errors below before saving'
+              : 'Please fill out all required fields before saving'}
           </Typography>
+          {Object.entries(validationResult.errors).map(([field, error]) => (
+            <Typography key={field} variant="body2" sx={{ mt: 0.5 }}>
+              • {error}
+            </Typography>
+          ))}
         </Box>
       )}
 
@@ -221,7 +232,6 @@ export default function EditFormView({
               <FormFieldLabel>Website</FormFieldLabel>
               <TextField
                 fullWidth
-                label="Website"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
               />
@@ -230,7 +240,6 @@ export default function EditFormView({
               <FormFieldLabel required>Instagram Handle</FormFieldLabel>
               <TextField
                 fullWidth
-                label="Instagram Handle"
                 value={formData.instagram}
                 onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 onBlur={(e) => {
@@ -271,9 +280,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData.bridal_hair_price || ''}
+                        error={getFieldError('bridal_hair_price') ? true : false}
+                        helperText={getFieldError('bridal_hair_price')}
                         onChange={(e) => setFormData({ ...formData, bridal_hair_price: e.target.value ? Number(e.target.value) : null })}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                     <Grid size={12}>
@@ -281,9 +299,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData.bridesmaid_hair_price || ''}
                         onChange={(e) => setFormData({ ...formData, bridesmaid_hair_price: e.target.value ? Number(e.target.value) : null })}
+                        error={getFieldError('bridesmaid_hair_price') ? true : false}
+                        helperText={getFieldError('bridesmaid_hair_price')}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                   </>
@@ -295,9 +322,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData.bridal_makeup_price || ''}
                         onChange={(e) => setFormData({ ...formData, bridal_makeup_price: e.target.value ? Number(e.target.value) : null })}
+                        error={getFieldError('bridal_makeup_price') ? true : false}
+                        helperText={getFieldError('bridal_makeup_price')}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                     <Grid size={12}>
@@ -305,9 +341,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData.bridesmaid_makeup_price || ''}
                         onChange={(e) => setFormData({ ...formData, bridesmaid_makeup_price: e.target.value ? Number(e.target.value) : null })}
+                        error={getFieldError('bridesmaid_makeup_price') ? true : false}
+                        helperText={getFieldError('bridesmaid_makeup_price')}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                   </>
@@ -319,9 +364,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData["bridal_hair_&_makeup_price"] || ''}
                         onChange={(e) => setFormData({ ...formData, "bridal_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
+                        error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
+                        helperText={getFieldError('bridal_hair_&_makeup_price')}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                     <Grid size={12}>
@@ -329,9 +383,18 @@ export default function EditFormView({
                       <TextField
                         fullWidth
                         type="number"
-                        placeholder="$"
                         value={formData["bridesmaid_hair_&_makeup_price"] || ''}
                         onChange={(e) => setFormData({ ...formData, "bridesmaid_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
+                        error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
+                        helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
+                        slotProps={{
+                          input: {
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            inputProps: {
+                              min: 0
+                            }
+                          }
+                        }}
                       />
                     </Grid>
                   </>

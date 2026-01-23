@@ -19,3 +19,8 @@ export interface VendorFormData {
   tags: VendorTag[];
   images: string[] | null;
 }
+
+export type VendorFormField =
+  | keyof VendorFormData
+  | 'services'
+  | 'location';
