@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
@@ -44,8 +44,12 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+  const initialFormData = useMemo(() => vendorToFormData(vendor), [vendor.id]);
   const [formData, setFormData] = useState<VendorFormData>(
-    vendorToFormData(vendor) // Show vendor data immediately. Replace once draft loads
+    initialFormData // Show vendor data immediately. Replace once draft loads
+  );
+  const [lastSavedData, setLastSavedData] = useState<VendorFormData>(
+    initialFormData
   );
   const { completedSections, inProgressSections } = useSectionCompletion(SECTIONS, formData);
 
@@ -62,6 +66,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           setDraftId(draft.id);
           const formData = draftToFormData(draft);
           setFormData(formData);
+          setLastSavedData(formData);
           setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization
@@ -109,13 +114,30 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   };
 
   const handleBackToMenu = () => {
-    setActiveSection(null);
+    // Check if current formData differs from savedDraftData
+    const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
+
+    if (hasUnsavedChanges) {
+      const shouldStay = window.confirm(
+        'You have unsaved changes. Stay and save your work?'
+      );
+
+      if (!shouldStay) {
+        // Discard changes - revert to saved draft
+        setFormData(lastSavedData);
+        setActiveSection(null);
+      }
+      // If Cancel, just stay on the page - they can click Save
+    } else {
+      setActiveSection(null);
+    }
   };
 
   const handleSave = async () => {
     try {
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
+      setLastSavedData(formData);
       setHasUnpublishedChanges(true);
       addNotification('Changes saved!', 'success');
     } catch (error) {
@@ -143,6 +165,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       return;
     } else {
       setHasUnpublishedChanges(false);
+      setLastSavedData(formData);
       addNotification('Changes published successfully!', 'success');
     }
   };
