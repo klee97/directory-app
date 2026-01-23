@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -50,23 +50,6 @@ export default function EditFormView({
 }: EditFormViewProps) {
   const { upload, loading } = useImageUploader();
   const [showValidation, setShowValidation] = useState(false);
-
-  // Track changes efficiently
-  const initialFormDataRef = useRef<string | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  // Initialize or update the reference when activeSection changes
-  useEffect(() => {
-    initialFormDataRef.current = JSON.stringify(formData);
-    setHasUnsavedChanges(false);
-  }, [activeSection]);
-
-  // Track changes whenever formData updates
-  useEffect(() => {
-    if (initialFormDataRef.current === null) return;
-    const currentData = JSON.stringify(formData);
-    setHasUnsavedChanges(currentData !== initialFormDataRef.current);
-  }, [formData]);
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -121,10 +104,6 @@ export default function EditFormView({
     // Save data
     handleSave();
 
-    // Update the reference to the new saved state
-    initialFormDataRef.current = JSON.stringify(formData);
-    setHasUnsavedChanges(false);
-
     // Hide validation after a successful save
     setShowValidation(false);
   };
@@ -135,7 +114,7 @@ export default function EditFormView({
     return validationResult.errors[fieldName] ?? null;
   };
 
-  const isSaveDisabled = !hasUnsavedChanges || loading;
+  const isSaveDisabled = loading;
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -517,7 +496,7 @@ export default function EditFormView({
           onClick={handleSaveClick}
           disabled={isSaveDisabled}
         >
-          {'Save Changes'}
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </Box>
     </Box>
