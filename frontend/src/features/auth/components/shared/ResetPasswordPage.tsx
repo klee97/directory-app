@@ -122,6 +122,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                     disabled={isSubmitting}
                     error={!!passwordError}
                     helperText={passwordError}
+                    color={isVendorSite ? "secondary" : "primary"}
                     slotProps={{
                       input: {
                         endAdornment: (
@@ -142,6 +143,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     margin="normal"
                     required
+                    color={isVendorSite ? "secondary" : "primary"}
                     slotProps={{
                       input: {
                         endAdornment: (
@@ -168,7 +170,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                     <Button
                       type="submit"
                       variant="contained"
-                      color="primary"
+                      color={isVendorSite ? "secondary" : "primary"}
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? 'Updating...' : 'Update Password'}

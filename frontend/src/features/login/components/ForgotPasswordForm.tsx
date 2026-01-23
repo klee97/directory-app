@@ -69,6 +69,7 @@ export function ForgotPasswordForm({ isVendorSite = false }: ForgotPasswordFormP
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}
+                  color={isVendorSite ? "secondary" : "primary"}
                 />
 
                 <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
@@ -78,6 +79,7 @@ export function ForgotPasswordForm({ isVendorSite = false }: ForgotPasswordFormP
                     size="large"
                     disabled={isSubmitting}
                     startIcon={isSubmitting ? <CircularProgress size={20} /> : null}
+                    color={isVendorSite ? "secondary" : "primary"}
                   >
                     {isSubmitting ? 'Sending...' : 'Send Link to Email'}
                   </Button>
