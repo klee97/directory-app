@@ -24,6 +24,7 @@ export function SectionIcon({ status }: SectionIconProps) {
 export type ValidationResult = {
   isValid: boolean;
   isComplete: boolean;
+  isEmpty: boolean;
   errors: Partial<Record<VendorFormField, string | null>>;
 };
 
@@ -43,6 +44,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: !!(business_name && formData.locationResult),
         isComplete: !!(business_name && formData.locationResult),
+        isEmpty: !(business_name || formData.locationResult),
         errors: {
           business_name: !business_name ? 'Business name is required' : null,
           location: !formData.locationResult ? 'Location is required' : null,
@@ -58,6 +60,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: !!description,
         isComplete: !!description,
+        isEmpty: !description,
         errors: {
           description: !description ? 'Bio is required' : null,
         }
@@ -73,6 +76,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: !!(instagram),
         isComplete: !!(instagram && formData.website?.trim() && formData.google_maps_place?.trim()),
+        isEmpty: !(instagram || formData.website?.trim() || formData.google_maps_place?.trim()),
         errors: {
           instagram: !instagram ? 'Instagram handle is required' : null,
         }
@@ -87,6 +91,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: hasService,
         isComplete: !!(hasService && formData.tags.some(tag => tag.type === 'SKILL')),
+        isEmpty: !formData.tags || formData.tags.length === 0,
         errors: {
           services: !hasService ? 'Please select at least one service' : null,
         }
@@ -114,6 +119,10 @@ export const SECTIONS: Section[] = [
         }
       });
 
+      // Check if at least one price field is filled
+      const isEmpty = !priceFields.some(field =>
+        formData[field] !== null && formData[field] !== undefined
+      );
       // Check if all price fields are filled
       const isComplete = priceFields.every(field =>
         formData[field] !== null && formData[field] !== undefined
@@ -122,6 +131,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: Object.keys(errors).length === 0,
         isComplete: isComplete && Object.keys(errors).length === 0,
+        isEmpty,
         errors
       };
     }
@@ -133,6 +143,7 @@ export const SECTIONS: Section[] = [
       return {
         isValid: true,
         isComplete: !!(formData.images && formData.images.length > 0),
+        isEmpty: !(formData.images && formData.images.length > 0),
         errors: {}
       };
     }
