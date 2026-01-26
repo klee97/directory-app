@@ -25,6 +25,7 @@ import { Section, ValidationResult } from './Section';
 import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 
 const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -53,6 +54,7 @@ export default function EditFormView({
 }: EditFormViewProps) {
   const { upload, loading } = useImageUploader();
   const [showValidation, setShowValidation] = useState(false);
+  const image = useImageUploadField();
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -86,23 +88,18 @@ export default function EditFormView({
       errors: {}
     };
 
-  const handleCoverImageSelect = async (file: File | null) => {
-    if (!file) {
-      setFormData(prev => ({ ...prev, cover_image: null }));
-      return;
-    }
-    try {
-      const url = await upload(file, vendorIdentifier);
-      setFormData(prev => ({ ...prev, cover_image: url }));
-    } catch {
-      // error notification handled in hook
-    }
-  };
-
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     if (!validationResult.isValid) {
       setShowValidation(true);
       return;
+    }
+    const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
+
+    if (uploadedImageUrl) {
+      setFormData(prev => ({
+        ...prev,
+        cover_image: uploadedImageUrl,
+      }));
     }
 
     // Save data
@@ -184,12 +181,13 @@ export default function EditFormView({
         {activeSection === 'cover' && (
           <Box>
             <Typography variant="body2" color="text.secondary" paragraph>
-              Upload a cover image to showcase your work
+              Upload a client image to showcase your work
             </Typography>
             <ImageUpload
+              ref={image.imageUploadRef}
               currentImageUrl={formData.cover_image ?? undefined}
-              onImageSelect={handleCoverImageSelect}
-              disabled={loading}
+              onImageSelect={image.onSelect}
+              disabled={image.loading}
             />
           </Box>
         )}
