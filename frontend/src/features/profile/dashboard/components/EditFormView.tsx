@@ -24,6 +24,7 @@ import { VendorTag } from '@/types/vendor';
 import { Section, ValidationResult } from './Section';
 import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -34,6 +35,7 @@ interface EditFormViewProps {
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
   handleSave: () => void;
+  isSaving: boolean;
   vendorIdentifier?: string;
   tags: VendorTag[];
 }
@@ -45,6 +47,7 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
+  isSaving,
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
@@ -79,6 +82,7 @@ export default function EditFormView({
     currentSection?.validate(formData) ?? {
       isValid: true,
       isComplete: true,
+      isEmpty: false,
       errors: {}
     };
 
@@ -117,7 +121,38 @@ export default function EditFormView({
   const isSaveDisabled = loading;
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+      opacity: isSaving ? 0.6 : 1,
+      pointerEvents: isSaving ? 'none' : 'auto',
+      transition: 'opacity 0.2s'
+    }}>
+      {/* Loading overlay */}
+      {isSaving && (
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'rgba(255, 255, 255, 0.7)',
+          zIndex: 1000,
+        }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress size={40} />
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              Saving...
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
       {/* Header with back button */}
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
         <IconButton onClick={handleBackToMenu} size="small">
@@ -252,131 +287,155 @@ export default function EditFormView({
               const showHair = hasTagByName(formData.tags, VendorSpecialty.SPECIALTY_HAIR);
               const showMakeup = hasTagByName(formData.tags, VendorSpecialty.SPECIALTY_MAKEUP);
               return <>
+                {showHair && showMakeup && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Hair & Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData["bridal_hair_&_makeup_price"] || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridal_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
+                      helperText={getFieldError('bridal_hair_&_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
                 {showHair && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Hair Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData.bridal_hair_price || ''}
-                        error={getFieldError('bridal_hair_price') ? true : false}
-                        helperText={getFieldError('bridal_hair_price')}
-                        onChange={(e) => setFormData({ ...formData, bridal_hair_price: e.target.value ? Number(e.target.value) : null })}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Hair Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridal_hair_price || ''}
+                      error={getFieldError('bridal_hair_price') ? true : false}
+                      helperText={getFieldError('bridal_hair_price')}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
                           }
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Hair Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData.bridesmaid_hair_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridesmaid_hair_price: e.target.value ? Number(e.target.value) : null })}
-                        error={getFieldError('bridesmaid_hair_price') ? true : false}
-                        helperText={getFieldError('bridesmaid_hair_price')}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
-                          }
-                        }}
-                      />
-                    </Grid>
-                  </>
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
                 {showMakeup && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData.bridal_makeup_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridal_makeup_price: e.target.value ? Number(e.target.value) : null })}
-                        error={getFieldError('bridal_makeup_price') ? true : false}
-                        helperText={getFieldError('bridal_makeup_price')}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridal_makeup_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridal_makeup_price') ? true : false}
+                      helperText={getFieldError('bridal_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
                           }
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData.bridesmaid_makeup_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridesmaid_makeup_price: e.target.value ? Number(e.target.value) : null })}
-                        error={getFieldError('bridesmaid_makeup_price') ? true : false}
-                        helperText={getFieldError('bridesmaid_makeup_price')}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
-                          }
-                        }}
-                      />
-                    </Grid>
-                  </>
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
                 {showHair && showMakeup && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Hair & Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData["bridal_hair_&_makeup_price"] || ''}
-                        onChange={(e) => setFormData({ ...formData, "bridal_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
-                        error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
-                        helperText={getFieldError('bridal_hair_&_makeup_price')}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Hair & Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData["bridesmaid_hair_&_makeup_price"] || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridesmaid_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
                           }
-                        }}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Hair & Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        value={formData["bridesmaid_hair_&_makeup_price"] || ''}
-                        onChange={(e) => setFormData({ ...formData, "bridesmaid_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
-                        error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
-                        helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
-                        slotProps={{
-                          input: {
-                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                            inputProps: {
-                              min: 0
-                            }
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
+                {showHair && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Hair Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridesmaid_hair_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_hair_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_hair_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
                           }
-                        }}
-                      />
-                    </Grid>
-                  </>
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
+                {showMakeup && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridesmaid_makeup_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_makeup_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
               </>;
             })()}
@@ -499,7 +558,7 @@ export default function EditFormView({
           {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </Box>
-    </Box>
+    </Box >
   );
 }
 

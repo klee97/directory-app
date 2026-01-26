@@ -51,6 +51,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   const [lastSavedData, setLastSavedData] = useState<VendorFormData>(
     initialFormData
   );
+  const [isSaving, setIsSaving] = useState(false);
   const { completedSections, inProgressSections } = useSectionCompletion(SECTIONS, formData);
 
   useEffect(() => {
@@ -135,6 +136,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
       setLastSavedData(formData);
@@ -143,6 +145,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     } catch (error) {
       console.error('Error saving:', error);
       addNotification('Failed to save changes', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -228,6 +232,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
+              isSaving={isSaving}
               vendorIdentifier={vendor.slug ?? vendor.id}
               tags={tags}
             />

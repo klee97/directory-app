@@ -15,11 +15,11 @@ export function useSectionCompletion(
     const inProgress: string[] = [];
 
     for (const section of sections) {
-      const { isValid, isComplete, errors } = section.validate(formData);
+      const { isValid, isComplete, isEmpty } = section.validate(formData);
 
       if (isComplete && isValid) {
         completed.push(section.id);
-      } else if (Object.values(errors).some(Boolean) || !isComplete) {
+      } else if (!isEmpty) {
         inProgress.push(section.id);
       }
     }

@@ -31,7 +31,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
     },
     {
       id: 'bio',
-      label: 'Bio',
+      label: 'Detailed Bio',
       description: 'Write a compelling bio to let clients know who you are. We recommend at least 50 words.',
       completed: !!(vendor.description && vendor.description.split(' ').length >= 50),
     },
