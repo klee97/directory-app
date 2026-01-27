@@ -27,9 +27,14 @@ export const getVendorsByState = unstable_cache(
       return [];
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('vendors')
       .select(SEARCH_QUERY)
+
+    if (!shouldIncludeTestVendors()) {
+      query = query.not('id', 'like', 'TEST-%');
+    }
+    const { data, error } = await query
       .ilike('state', location.address.state);
 
     if (error) {
@@ -52,9 +57,14 @@ export const getVendorsByCountry = unstable_cache(
       return [];
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('vendors')
       .select(SEARCH_QUERY)
+
+    if (!shouldIncludeTestVendors()) {
+      query = query.not('id', 'like', 'TEST-%');
+    }
+    const { data, error } = await query
       .ilike('country', location.address.country);
 
     if (error) {
