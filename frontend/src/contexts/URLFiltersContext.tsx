@@ -3,8 +3,14 @@ import { useURLFilters } from "@/hooks/useURLFilters";
 
 const URLFiltersContext = createContext<ReturnType<typeof useURLFilters> | null>(null);
 
-export const URLFiltersProvider = ({ children }: { children: React.ReactNode }) => {
-  const value = useURLFilters();
+export const URLFiltersProvider = ({
+  children,
+  preservePathname = false,
+}: {
+  children: React.ReactNode;
+  preservePathname?: boolean;
+}) => {
+  const value = useURLFilters(preservePathname);
   return <URLFiltersContext.Provider value={value}>{children}</URLFiltersContext.Provider>;
 };
 

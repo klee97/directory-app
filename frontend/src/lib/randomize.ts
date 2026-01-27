@@ -36,6 +36,12 @@ export function shuffleVendorsWithSeed(array: Vendor[], seed: string) {
 }
 
 export function shuffleMediaWithSeed(array: string[], seed: string) {
+  if (!array || array.length === 0 || !seed) {
+    return {
+      array: [],
+      indices: []
+    };
+  }
 
   const shuffledIndices = shuffleArray([...Array(array.length).keys()], seed);
 

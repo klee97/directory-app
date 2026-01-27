@@ -39,7 +39,7 @@ export const getCachedVendor = (slug: string) =>
     [`vendor-${slug}`],
     {
       revalidate: 86400, // 24 hours
-      tags: [`vendor-${slug}`, 'vendors']
+      tags: [`vendor-${slug}`, 'all-vendors']
     }
   )();
 

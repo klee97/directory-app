@@ -7,7 +7,7 @@ import BackButton from '@/components/ui/BackButton';
 import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
-import { getVendorsByDistanceWithFallback } from '@/features/directory/api/searchVendors';
+import { getVendorsByDistanceWithFallback } from '@/features/directory/api/fetchVendorsByLocation';
 import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';

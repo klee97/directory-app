@@ -1,7 +1,7 @@
-import { supabase } from "@/lib/api-client";
-import { shouldIncludeTestVendors } from "@/lib/env/env";
-import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_RESULTS_MINIMUM, SEARCH_VENDORS_LIMIT_DEFAULT } from "@/types/location";
-import { transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
+"use client";
+
+import { LOCATION_TYPE_COUNTRY, LOCATION_TYPE_PRESET_REGION, LOCATION_TYPE_STATE, LocationResult } from "@/types/location";
+import { VendorByDistance } from "@/types/vendor";
 
 export function searchVendors(searchQuery: string, vendors: VendorByDistance[]): VendorByDistance[] {
   const regex = new RegExp(searchQuery, "i"); // "i" makes it case-insensitive
@@ -15,22 +15,22 @@ export function searchVendors(searchQuery: string, vendors: VendorByDistance[]):
   return results;
 }
 
-export async function getVendorsByLocation(location: LocationResult, vendors: VendorByDistance[] = []): Promise<VendorByDistance[]> {
+export function filterVendorsByLocation(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
   if (location.type === LOCATION_TYPE_PRESET_REGION) {
-    return await filterVendorByRegion(location.display_name, vendors);
-  } else if (isCountrySelection(location) && location.address?.country) {
+    return filterVendorByRegion(location.display_name, vendors);
+  } else if (location.type === LOCATION_TYPE_COUNTRY && location.address?.country) {
     return filterVendorsByCountry(location, vendors);
-  } else if (isStateSelection(location) && location.address?.state) {
+  } else if (location.type === LOCATION_TYPE_STATE && location.address?.state) {
     return filterVendorsByState(location, vendors);
-  } else if (!!location.lat && !!location.lon) {
-    return await getVendorsByDistanceWithFallback(location.lat, location.lon, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT);
   } else {
-    console.warn("Location type not recognized or missing coordinates:", location);
-    return [];
+    return vendors; // Return all if no specific filter
   }
 }
 
-export function filterVendorsByState(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
+export function filterVendorsByState(
+  location: LocationResult,
+  vendors: VendorByDistance[]
+): VendorByDistance[] {
   if (!location.address?.state) {
     console.warn("No state provided in location:", location);
     return [];
@@ -40,26 +40,10 @@ export function filterVendorsByState(location: LocationResult, vendors: VendorBy
   );
 }
 
-export async function getVendorsByState(location: LocationResult) {
-  if (!location.address?.state) {
-    console.warn("No state provided in location:", location);
-    return [];
-  }
-
-  const { data, error } = await supabase
-    .from('vendors')
-    .select('*')
-    .ilike('state', location.address.state);
-
-  if (error) {
-    console.error('Error fetching vendors:', error);
-    return [];
-  }
-  return data;
-}
-
-
-export function filterVendorsByCountry(location: LocationResult, vendors: VendorByDistance[]): VendorByDistance[] {
+export function filterVendorsByCountry(
+  location: LocationResult,
+  vendors: VendorByDistance[]
+): VendorByDistance[] {
   if (!location.address?.country) {
     console.warn("No country provided in location:", location);
     return [];
@@ -69,86 +53,25 @@ export function filterVendorsByCountry(location: LocationResult, vendors: Vendor
   );
 }
 
-export async function getVendorsByCountry(location: LocationResult) {
-  if (!location.address?.country) {
-    console.warn("No country provided in location:", location);
-    return [];
-  }
 
-  const { data, error } = await supabase
-    .from('vendors')
-    .select('*')
-    .ilike('country', location.address.country);
-
-  if (error) {
-    console.error('Error fetching vendors:', error);
-    return [];
-  }
-  return data;
-}
-
-export async function getVendorsByDistanceWithFallback(
-  lat: number,
-  lon: number,
-  initialRadius = SEARCH_RADIUS_MILES_DEFAULT,
-  limit = SEARCH_VENDORS_LIMIT_DEFAULT
-)
-  : Promise<VendorByDistance[]> {
-  let radiusMi = initialRadius;
-  let results: VendorByDistance[] = [];
-  let attempts = 0;
-
-  while (results.length < SEARCH_RESULTS_MINIMUM && attempts < 3) { // Try up to 3 times
-    results = await getVendorsByDistance(lat, lon, radiusMi, limit);
-    radiusMi += SEARCH_RADIUS_MILES_DEFAULT; // Increase radius by 25 miles each time
-    attempts++;
-  }
-
+export function filterVendorByRegion(
+  region: string,
+  vendors: VendorByDistance[]
+): VendorByDistance[] {
+  const results = vendors.filter(vendor =>
+    vendor.metro_region?.toLowerCase().includes(region.toLowerCase())
+  );
   return results;
 }
 
-export async function getVendorsByDistance(
-  lat: number,
-  lon: number,
-  radiusMi = SEARCH_RADIUS_MILES_DEFAULT,
-  limit = SEARCH_VENDORS_LIMIT_DEFAULT
-)
-  : Promise<VendorByDistance[]> {
-  const { data, error } = await supabase
-    .rpc("get_vendors_by_location_with_distinct_tags_and_media",
-      {
-        lat: lat,
-        lon: lon,
-        radius_miles: radiusMi,
-        limit_results: limit
-      }
-    );
-
-  const filteredData = shouldIncludeTestVendors()
-    ? data
-    : data?.filter((vendor: VendorByDistance) => !vendor.id.startsWith('TEST-'));
-  if (error) {
-    console.error("Error fetching artists by distance:", error);
-  }
-
-  return filteredData.map(transformBackendVendorToFrontend) || [];
-}
-
-function isStateSelection(location: LocationResult) {
+export function isStateSelection(location: LocationResult) {
   return (
     location.type === LOCATION_TYPE_STATE
   );
 }
 
-function isCountrySelection(location: LocationResult) {
+export function isCountrySelection(location: LocationResult) {
   return (
     location.type === LOCATION_TYPE_COUNTRY
   );
-}
-
-async function filterVendorByRegion(region: string, vendors: VendorByDistance[]): Promise<VendorByDistance[]> {
-  const results = vendors.filter(vendor =>
-    vendor.metro_region?.toLowerCase().includes(region.toLowerCase())
-  );
-  return results;
 }

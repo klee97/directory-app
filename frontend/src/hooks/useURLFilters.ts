@@ -1,14 +1,23 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 
-export function useURLFilters() {
+export function useURLFilters(preservePathname: boolean = false) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname() || ''; // SSR-safe
 
+  // Store the latest values in refs to avoid recreating callbacks
+  const searchParamsRef = useRef(searchParams);
+  const pathnameRef = useRef(pathname);
+
+  // Update refs on every render
+  searchParamsRef.current = searchParams;
+  pathnameRef.current = pathname;
+
   // Return a stable string version to memoize dependencies
   const paramsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
 
+  // stable callbacks using refs
   const getParam = useCallback(
     (key: string) => searchParams?.get(key),
     [searchParams]
@@ -21,7 +30,8 @@ export function useURLFilters() {
 
   const setParams = useCallback(
     (updates: Record<string, string | null>) => {
-      const newParams = new URLSearchParams(paramsString);
+      const currentParams = searchParamsRef.current?.toString() ?? "";
+      const newParams = new URLSearchParams(currentParams);
       Object.entries(updates).forEach(([key, value]) => {
         if (value === null) {
           newParams.delete(key);
@@ -30,10 +40,11 @@ export function useURLFilters() {
         }
       });
       const search = newParams.toString();
-      const newUrl = search ? `${pathname}?${search}` : pathname;
+      const targetPath = preservePathname ? pathnameRef.current : '/';
+      const newUrl = search ? `${targetPath}?${search}` : targetPath;
       router.push(newUrl, { scroll: false });
     },
-    [router, pathname, paramsString]
+    [router, preservePathname]
   );
 
   const setParam = useCallback(
@@ -45,16 +56,18 @@ export function useURLFilters() {
 
   const setArrayParam = useCallback(
     (key: string, values: string[] | null) => {
-      const newParams = new URLSearchParams(paramsString);
+      const currentParams = searchParamsRef.current?.toString() ?? "";
+      const newParams = new URLSearchParams(currentParams);
       newParams.delete(key);
       if (values && values.length > 0) {
         values.forEach(value => newParams.append(key, value));
       }
       const search = newParams.toString();
-      const newUrl = search ? `${pathname}?${search}` : pathname;
+      const targetPath = preservePathname ? pathnameRef.current : '/';
+      const newUrl = search ? `${targetPath}?${search}` : targetPath;
       router.push(newUrl, { scroll: false });
     },
-    [router, pathname, paramsString]
+    [router, preservePathname]
   );
 
   return {
