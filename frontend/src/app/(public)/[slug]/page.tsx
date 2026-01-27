@@ -6,7 +6,7 @@ import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, Locatio
 import { Metadata } from 'next';
 import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 import { supabase } from '@/lib/api-client';
-import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/searchVendors';
+import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/fetchVendorsByLocation';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 
 interface LocationPageProps {
@@ -105,7 +105,11 @@ export default async function LocationPage({ params }: LocationPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </section>
-      <Directory vendors={vendors} tags={uniqueTags} selectedLocation={location} />
+      <Directory
+        vendors={vendors}
+        tags={uniqueTags}
+        selectedLocation={location}
+      />
     </>
   );
 }

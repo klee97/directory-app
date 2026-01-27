@@ -1,10 +1,11 @@
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
-import { useEffect, useMemo, useState } from "react";
-import { getVendorsByLocation, searchVendors } from "../api/searchVendors";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "../api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
 import { SORT_OPTIONS, SortOption } from "@/types/sort";
 import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
+import { getVendorsByLocation } from "../api/fetchVendorsByLocation";
 
 export const useVendorFiltering = ({
   vendors,
@@ -25,6 +26,7 @@ export const useVendorFiltering = ({
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
   const [initialLoad, setInitialLoad] = useState(true);
+  const prevLocationRef = useRef<LocationResult | null>(null);
 
   const { getParam } = useURLFiltersContext();
   const urlLat = getParam(LATITUDE_PARAM);
@@ -32,6 +34,7 @@ export const useVendorFiltering = ({
 
   // Load vendors based on location filter
   useEffect(() => {
+
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
@@ -83,22 +86,30 @@ export const useVendorFiltering = ({
 
       setLoading(true);
       console.debug('Fetching vendors for location:', selectedLocation.display_name);
-
-      try {
-        const results = await getVendorsByLocation(selectedLocation, vendors);
+      if (isStateSelection(selectedLocation) || isCountrySelection(selectedLocation)) {
+        const results = filterVendorsByLocation(selectedLocation, vendors);
         if (!cancelled) {
-          console.debug('Vendors loaded:', results.length);
           setVendorsInRadius(results);
-        }
-      } catch (error) {
-        console.error('Error loading vendors by location:', error);
-        if (!cancelled) {
-          setVendorsInRadius(vendors); // fallback to all vendors
-        }
-      } finally {
-        if (!cancelled) {
           setLoading(false);
           setInitialLoad(false);
+        }
+      } else {
+        try {
+          const results = await getVendorsByLocation(selectedLocation);
+          if (!cancelled) {
+            console.debug('Vendors loaded:', results.length);
+            setVendorsInRadius(results);
+          }
+        } catch (error) {
+          console.error('Error loading vendors by location:', error);
+          if (!cancelled) {
+            setVendorsInRadius(vendors); // fallback to all vendors
+          }
+        } finally {
+          if (!cancelled) {
+            setLoading(false);
+            setInitialLoad(false);
+          }
         }
       }
     };
@@ -107,14 +118,14 @@ export const useVendorFiltering = ({
     return () => {
       cancelled = true;
     };
-  }, [urlLat, urlLon, selectedLocation, vendors, initialLoad]);
+  }, [urlLat, urlLon, selectedLocation, vendors]);
 
   // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {
     return vendorsInRadius.filter((vendor) => {
       const matchesTravel = travelsWorldwide ? vendor.travels_world_wide : true;
       if (!matchesTravel) return false; // short circuit if travel doesn't match
-      
+
       const matchesAnySkill = selectedSkills.length > 0
         ? selectedSkills.some(skill =>
           vendor.tags.some((tag: VendorTag) =>
@@ -123,7 +134,7 @@ export const useVendorFiltering = ({
         )
         : true;
       if (!matchesAnySkill) return false;
-      
+
       const matchesAnyService = selectedServices.length > 0
         ? selectedServices.some(service =>
           vendor.tags.some((tag: VendorTag) =>
@@ -178,11 +189,19 @@ export const useVendorFiltering = ({
 
   // set default sort option. If location is selected, default to distance sort
   useEffect(() => {
-    if (selectedLocation) {
-      setSortOption(SORT_OPTIONS.DISTANCE_ASC);
-    } else {
-      setSortOption(SORT_OPTIONS.DEFAULT);
+    const hadLocation = prevLocationRef.current !== null;
+    const hasLocation = selectedLocation !== null;
+
+    // Only change sort option when transitioning between having/not having a location
+    if (hadLocation !== hasLocation) {
+      if (hasLocation) {
+        setSortOption(SORT_OPTIONS.DISTANCE_ASC);
+      } else {
+        setSortOption(SORT_OPTIONS.DEFAULT);
+      }
     }
+
+    prevLocationRef.current = selectedLocation;
   }, [selectedLocation]);
 
 

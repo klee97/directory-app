@@ -41,8 +41,7 @@ export function FilterableVendorTableContent({
   tags,
   vendors,
   favoriteVendorIds,
-  preselectedLocation = null,
-  useLocationPages = false,
+  preselectedLocation = null
 }: FilterableVendorTableContentProps) {
   const searchParams = useSearchParams();
   const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
@@ -60,7 +59,7 @@ export function FilterableVendorTableContent({
 
   useScrollRestoration(true);
 
-  const locationManagement = useLocationManagement({ preselectedLocation, useLocationPages });
+  const locationManagement = useLocationManagement({ preselectedLocation });
 
   const vendorFiltering = useVendorFiltering({
     vendors,
@@ -249,11 +248,10 @@ export default function FilterableVendorTable(props: {
 }) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <URLFiltersProvider>
+      <URLFiltersProvider preservePathname={props.useLocationPages ?? false}>
         <FilterableVendorTableContent
           {...props}
           preselectedLocation={props.preselectedLocation ?? null}
-          useLocationPages={props.useLocationPages ?? false}
         />
       </URLFiltersProvider>
     </Suspense>

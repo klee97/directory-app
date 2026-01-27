@@ -25,19 +25,28 @@ export default function useResolvedLocation({
     const lon = getParam(LONGITUDE_PARAM);
 
     useEffect(() => {
+        // undefined = not set, null = explicitly cleared, LocationResult = selected
+
         // Handle immediate location (from user selection) - highest priority
-        if (immediateLocation) {
+        if (immediateLocation !== undefined) {
             setResolvedLocation(immediateLocation);
             // Update lastCoordsRef to prevent redundant resolution
-            if (immediateLocation.lat && immediateLocation.lon) {
+            if (immediateLocation?.lat && immediateLocation?.lon) {
                 const coordsKey = createGeocodeKey(immediateLocation.lat, immediateLocation.lon);
                 lastCoordsRef.current = coordsKey;
             }
             return;
         }
 
-        // Handle preselected location
-        if (preselectedLocation && lastCoordsRef.current === null) {
+        // If immediateLocation is explicitly null (not undefined), user cleared it
+        if (immediateLocation === null) {
+            setResolvedLocation(null);
+            lastCoordsRef.current = null;
+            return;
+        }
+
+        // Handle preselected location - use it if present and user hasn't cleared
+        if (preselectedLocation) {
             setResolvedLocation(preselectedLocation);
             lastCoordsRef.current = 'preselected';
             return;

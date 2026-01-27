@@ -65,6 +65,7 @@ export default function InputWithDebounce({
     // Sync from parent value only when not typing
     if (!isTypingRef.current && value !== inputValue) {
       setInputValue(value);
+      wasManuallyEnteredRef.current = false;
     }
   }, [value, inputValue]);
 
