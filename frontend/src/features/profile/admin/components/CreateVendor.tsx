@@ -24,6 +24,9 @@ import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
 import { VendorTag } from '@/types/vendor';
 import { shouldIncludeTestVendors } from '@/lib/env/env';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
+import InputAdornment from '@mui/material/InputAdornment';
 
 // Define types directly in the file
 export interface CreateVendorInput {
@@ -76,7 +79,7 @@ export const AdminAddVendorManagement = () => {
   const [selectedTags, setSelectedTags] = useState<VendorTag[] | null>(null);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // ✅ Test vendor state
   const [isTestVendor, setIsTestVendor] = useState(false);
   const [testVendorId, setTestVendorId] = useState('');
@@ -86,21 +89,21 @@ export const AdminAddVendorManagement = () => {
 
     try {
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
-      
+
       // ✅ Add test vendor ID if creating a test vendor
       if (isTestVendor && testVendorId.trim()) {
-        const id = testVendorId.trim().startsWith('TEST-') 
-          ? testVendorId.trim() 
+        const id = testVendorId.trim().startsWith('TEST-')
+          ? testVendorId.trim()
           : `TEST-${testVendorId.trim()}`;
         newVendorData.id = id;
       }
-      
+
       const data = await createVendor(newVendorData, firstName, lastName, selectedTags);
 
       if (data) {
         addNotification(
-          isTestVendor 
-            ? "Test vendor added successfully!" 
+          isTestVendor
+            ? "Test vendor added successfully!"
             : "Vendor added successfully!"
         );
         setNewVendor(VENDOR_INPUT_DEFAULT);
@@ -167,17 +170,17 @@ export const AdminAddVendorManagement = () => {
               <AlertTitle>Development Mode</AlertTitle>
               You can create test vendors that won&apos;t be visible in production and won&apos;t sync to HubSpot.
             </Alert>
-            
+
             <FormControlLabel
               control={
-                <Checkbox 
+                <Checkbox
                   checked={isTestVendor}
                   onChange={(e) => setIsTestVendor(e.target.checked)}
                 />
               }
               label="Create as test vendor"
             />
-            
+
             {isTestVendor && (
               <Box sx={{ mt: 2 }}>
                 <TextField
@@ -222,7 +225,7 @@ export const AdminAddVendorManagement = () => {
               label="Website"
               variant="outlined"
               value={newVendor.website ?? ""}
-              onChange={(e) => setNewVendor({ ...newVendor, website: e.target.value })}
+              onChange={(e) => setNewVendor({ ...newVendor, website: normalizeUrl(e.target.value) })}
             />
             <TextField
               label="Email"
@@ -233,10 +236,20 @@ export const AdminAddVendorManagement = () => {
             <TextField
               required
               label="Instagram Handle"
-              helperText="e.g., @yourhandle"
               variant="outlined"
               value={newVendor.ig_handle ?? ""}
               onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
+              onBlur={(e) => {
+                const normalized = normalizeInstagramHandle(e.target.value);
+                if (normalized !== e.target.value) {
+                  setNewVendor({ ...newVendor, ig_handle: normalized });
+                }
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start">@</InputAdornment>
+                }
+              }}
             />
           </Grid>
 
