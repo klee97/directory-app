@@ -19,7 +19,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Alert from "@mui/material/Alert";
 import Email from "@mui/icons-material/Email";
 import Favorite from "@mui/icons-material/Favorite";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Lock from "@mui/icons-material/Lock";
 import Delete from "@mui/icons-material/Delete";
 import Link from "next/link";
@@ -73,7 +72,7 @@ export const Settings = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password visibility for deleting account
-const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
