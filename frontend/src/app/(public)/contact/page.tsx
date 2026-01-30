@@ -36,7 +36,7 @@ export default function ContactUs() {
       </Typography>
       <Typography variant="body1" gutterBottom>
         If you&apos;re a vendor interested in joining our directory, learn more at the{" "}
-          <Link href="/for-vendors" style={{ color: "primary.main", textDecoration: "underline" }}>For Vendors</Link> page.
+          <Link href="/partner" style={{ color: "primary.main", textDecoration: "underline" }}>For Vendors</Link> page.
       </Typography>
       <Typography variant="body1" gutterBottom>
         Have other questions? Fill out the form below.

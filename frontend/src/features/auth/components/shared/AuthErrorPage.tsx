@@ -12,6 +12,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
 import EmailIcon from '@mui/icons-material/Email'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import LoginIcon from '@mui/icons-material/Login'
 
 type ErrorType = 'verification' | 'passwordReset';
 
@@ -111,7 +112,7 @@ export function AuthErrorPage({ errorType, routes, labels }: AuthErrorPageProps)
               <Button
                 variant="outlined"
                 color="primary"
-                startIcon={<HomeIcon />}
+                startIcon={errorType === 'passwordReset' ? <LoginIcon /> : <HomeIcon />}
               >
                 {labels.homeButton}
               </Button>

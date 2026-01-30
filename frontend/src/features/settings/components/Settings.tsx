@@ -199,19 +199,6 @@ const [showDeletePassword, setShowDeletePassword] = useState(false);
             <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
           </>
         )}
-        {isVendorSettings && (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} href="/partner/dashboard/profile">
-                <ListItemIcon>
-                  <ManageAccountsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Edit Profile" secondary="Edit your vendor profile" />
-              </ListItemButton>
-            </ListItem>
-            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
-          </>
-        )}
         {isVendorSettings &&
           <>
             <ListItem disablePadding>
