@@ -26,6 +26,7 @@ import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 
 const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -168,11 +169,6 @@ export default function EditFormView({
               ? 'Please fix the errors below before saving'
               : 'Please fill out all required fields before saving'}
           </Typography>
-          {Object.entries(validationResult.errors).map(([field, error]) => (
-            <Typography key={field} variant="body2" sx={{ mt: 0.5 }}>
-              • {error}
-            </Typography>
-          ))}
         </Box>
       )}
 
@@ -246,6 +242,12 @@ export default function EditFormView({
                 fullWidth
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeUrl(e.target.value);
+                  setFormData({ ...formData, website: normalized });
+                }}
+                error={!!getFieldError('website')}
+                helperText={getFieldError('website')}
               />
             </Grid>
             <Grid size={12}>
@@ -265,14 +267,22 @@ export default function EditFormView({
                     startAdornment: <InputAdornment position="start">@</InputAdornment>
                   }
                 }}
+                error={!!getFieldError('instagram')}
+                helperText={getFieldError('instagram')}
               />
             </Grid>
             <Grid size={12}>
-              <FormFieldLabel>Google Maps Place Link</FormFieldLabel>
+              <FormFieldLabel>Google Maps Link</FormFieldLabel>
               <TextField
                 fullWidth
                 value={formData.google_maps_place}
                 onChange={(e) => setFormData({ ...formData, google_maps_place: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeUrl(e.target.value);
+                  setFormData({ ...formData, google_maps_place: normalized });
+                }}
+                error={!!getFieldError('google_maps_place')}
+                helperText={getFieldError('google_maps_place')}
               />
             </Grid>
           </Grid>
@@ -539,6 +549,11 @@ export default function EditFormView({
                   }}
                   options={skillOptions}
                 />
+                {getFieldError('skills') && (
+                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                    {getFieldError('skills')}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
           </Box>

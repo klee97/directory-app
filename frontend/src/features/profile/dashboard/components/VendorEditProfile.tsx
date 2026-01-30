@@ -24,6 +24,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 const DRAWER_WIDTH = 400;
 
@@ -39,6 +40,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
   const { addNotification } = useNotification();
 
@@ -119,19 +121,16 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
 
     if (hasUnsavedChanges) {
-      const shouldStay = window.confirm(
-        'You have unsaved changes. Stay and save your work?'
-      );
-
-      if (!shouldStay) {
-        // Discard changes - revert to saved draft
-        setFormData(lastSavedData);
-        setActiveSection(null);
-      }
-      // If Cancel, just stay on the page - they can click Save
+      setShowUnsavedModal(true);
     } else {
       setActiveSection(null);
     }
+  };
+
+  const handleDiscardChanges = () => {
+    setFormData(lastSavedData);
+    setShowUnsavedModal(false);
+    setActiveSection(null);
   };
 
   const handleSave = async () => {
@@ -331,6 +330,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           </Box>
         </Box>
       </Box>
+      {/* Unsaved Changes Modal */}
+      <UnsavedChangesModal
+        open={showUnsavedModal}
+        onClose={() => setShowUnsavedModal(false)}
+        onKeepEditing={() => setShowUnsavedModal(false)}
+        onDiscardChanges={handleDiscardChanges}
+      />
     </>
   );
 }

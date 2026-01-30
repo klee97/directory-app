@@ -5,6 +5,7 @@ import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import ContrastIcon from '@mui/icons-material/Contrast';
 import React from 'react';
 import { VendorFormData, VendorFormField } from '@/types/vendorFormData';
+import { getGoogleMapsErrorMessage, getUrlErrorMessage } from '@/lib/profile/normalizeUrl';
 
 interface SectionIconProps {
   status: 'complete' | 'inProgress' | 'empty';
@@ -72,13 +73,22 @@ export const SECTIONS: Section[] = [
     label: 'Website & Socials',
     validate: (formData: VendorFormData) => {
       const instagram = formData.instagram?.trim();
+      const website = formData.website?.trim();
+      const googleMaps = formData.google_maps_place?.trim();
 
+      // Validate URLs
+      const websiteError = website ? getUrlErrorMessage(website) : null;
+      const googleMapsError = googleMaps ? getGoogleMapsErrorMessage(googleMaps) : null;
+
+      const hasErrors = !instagram || websiteError || googleMapsError;
       return {
-        isValid: !!(instagram),
-        isComplete: !!(instagram && formData.website?.trim() && formData.google_maps_place?.trim()),
-        isEmpty: !(instagram || formData.website?.trim() || formData.google_maps_place?.trim()),
+        isValid: !!(instagram) && !hasErrors,
+        isComplete: !!(instagram && website && googleMaps && !hasErrors),
+        isEmpty: !(instagram || website || googleMaps),
         errors: {
           instagram: !instagram ? 'Instagram handle is required' : null,
+          website: websiteError,
+          google_maps_place: googleMapsError,
         }
       }
     }

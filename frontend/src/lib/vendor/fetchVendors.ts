@@ -21,7 +21,6 @@ export async function fetchVendorBySlug(slug: string) {
     query = query.not('id', 'like', 'TEST-%');
   }
 
-  console.log("Query: " + query.toString());
   const { data: vendor, error } = await query
     .eq('slug', slug)
     .single();
