@@ -240,7 +240,7 @@ function VendorClaimPageContent() {
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => router.push("/for-vendors")}
+                onClick={() => router.push("/partner")}
                 fullWidth
               >
                 Return Home

@@ -19,7 +19,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Alert from "@mui/material/Alert";
 import Email from "@mui/icons-material/Email";
 import Favorite from "@mui/icons-material/Favorite";
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import Lock from "@mui/icons-material/Lock";
 import Delete from "@mui/icons-material/Delete";
 import Link from "next/link";
@@ -73,7 +72,7 @@ export const Settings = ({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Password visibility for deleting account
-const [showDeletePassword, setShowDeletePassword] = useState(false);
+  const [showDeletePassword, setShowDeletePassword] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -194,19 +193,6 @@ const [showDeletePassword, setShowDeletePassword] = useState(false);
                   <Favorite />
                 </ListItemIcon>
                 <ListItemText primary="View Favorites" secondary="See the makeup artists that you have favorited" />
-              </ListItemButton>
-            </ListItem>
-            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
-          </>
-        )}
-        {isVendorSettings && (
-          <>
-            <ListItem disablePadding>
-              <ListItemButton component={Link} href="/partner/dashboard/profile">
-                <ListItemIcon>
-                  <ManageAccountsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Edit Profile" secondary="Edit your vendor profile" />
               </ListItemButton>
             </ListItem>
             <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
