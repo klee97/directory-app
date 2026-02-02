@@ -94,7 +94,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     description: vendor.description,
     email: vendor.email,
     website: vendor.website,
-    instagram: (vendor.ig_handle ?? '').replace('@', ''),
+    instagram: (vendor.ig_handle ?? '').replace('@', ''), // TODO: remove @ from db field
     google_maps_place: vendor.google_maps_place,
     latitude: vendor.latitude,
     longitude: vendor.longitude,

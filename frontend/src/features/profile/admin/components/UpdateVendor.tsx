@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -19,10 +19,13 @@ import RegionSelector, { RegionOption } from '@/features/profile/common/componen
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
-import { ImageUpload, ImageUploadRef } from '../../common/components/ImageUpload';
-import { useImageUploader } from '../../common/hooks/useImageUploader';
+import { ImageUpload } from '../../common/components/ImageUpload';
 import { VendorTag } from '@/types/vendor';
 import { VendorDataInput } from '../util/vendorHelper';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
+import InputAdornment from '@mui/material/InputAdornment';
+import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 
 export const UPDATE_VENDOR_INPUT_DEFAULT: VendorDataInput = {
   business_name: null,
@@ -54,14 +57,12 @@ export const AdminUpdateVendorManagement = () => {
   const [selectedTags, setSelectedTags] = useState<VendorTag[] | null>(null);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const imageUploadRef = useRef<ImageUploadRef>(null);
-  const { upload, loading: imageUploading } = useImageUploader();
 
   // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
   const [lookupSlug, setLookupSlug] = useState<string>('');
 
-  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const image = useImageUploadField();
 
   // Helper function to handle text field changes - prevents empty strings
   const handleTextFieldChange = (value: string, field: keyof VendorDataInput) => {
@@ -94,7 +95,7 @@ export const AdminUpdateVendorManagement = () => {
 
       // Check if there are any changes to update
       const hasVendorChanges = Object.values(newVendor).some(value => value !== null);
-      const hasImageChange = selectedImageFile !== null;
+      const hasImageChange = image.file !== null;
 
       if (!hasVendorChanges && !hasImageChange) {
         addNotification("No changes to update. Please modify at least one field.", "warning");
@@ -103,11 +104,9 @@ export const AdminUpdateVendorManagement = () => {
       }
 
       // Upload image first if selected
-      let uploadedImageUrl: string | null = null;
-      if (selectedImageFile) {
-        const vendorIdentifier = lookupSlug.trim() || lookupId.trim();
-        uploadedImageUrl = await upload(selectedImageFile, vendorIdentifier);
-      }
+      const vendorIdentifier = lookupSlug.trim();
+      const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier);
+      console.info("Uploaded image URL:", uploadedImageUrl);
 
       // Prepare vendor data with uploaded image URL
       const newVendorData = JSON.parse(JSON.stringify(newVendor));
@@ -137,8 +136,7 @@ export const AdminUpdateVendorManagement = () => {
           setSelectedTags(null);
           setLookupId('');
           setLookupSlug('');
-          setSelectedImageFile(null);
-          imageUploadRef.current?.reset();
+          image.reset();
         } else {
           addNotification("Failed to update vendor. Please try again.", "error");
         }
@@ -177,12 +175,6 @@ export const AdminUpdateVendorManagement = () => {
     if (value === "false") return false;
     return null;
   };
-
-  // Handle image file selection
-  const handleImageSelect = (file: File | null) => {
-    setSelectedImageFile(file);
-  };
-
 
   return (
     <Container maxWidth="md">
@@ -228,7 +220,7 @@ export const AdminUpdateVendorManagement = () => {
               label="Website"
               variant="outlined"
               value={newVendor.website ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'website')}
+              onChange={(e) => handleTextFieldChange(normalizeUrl(e.target.value), 'website')}
             />
           </Grid>
           <Grid size={4}>
@@ -241,11 +233,22 @@ export const AdminUpdateVendorManagement = () => {
           </Grid>
           <Grid size={4}>
             <TextField
+              required
               label="Instagram Handle"
-              helperText="e.g., @yourhandle"
               variant="outlined"
-              value={newVendor.ig_handle ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'ig_handle')}
+              value={newVendor.ig_handle ?? ""}
+              onChange={(e) => setNewVendor({ ...newVendor, ig_handle: e.target.value })}
+              onBlur={(e) => {
+                const normalized = normalizeInstagramHandle(e.target.value);
+                if (normalized !== e.target.value) {
+                  setNewVendor({ ...newVendor, ig_handle: normalized });
+                }
+              }}
+              slotProps={{
+                input: {
+                  startAdornment: <InputAdornment position="start">@</InputAdornment>
+                }
+              }}
             />
           </Grid>
         </Grid>
@@ -404,10 +407,11 @@ export const AdminUpdateVendorManagement = () => {
 
         {/* Cover Image Upload Section */}
         <ImageUpload
-          ref={imageUploadRef}
+          ref={image.imageUploadRef}
           currentImageUrl={newVendor.cover_image ?? undefined}
-          onImageSelect={handleImageSelect}
-          disabled={!lookupSlug || imageUploading}
+          onImageSelect={image.onSelect}
+          disabled={!lookupSlug || image.loading}
+          admin={true}
         />
         <Divider />
         <Button

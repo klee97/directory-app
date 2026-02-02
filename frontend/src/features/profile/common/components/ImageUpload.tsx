@@ -10,6 +10,7 @@ interface ImageUploadProps {
   currentImageUrl?: string;
   onImageSelect?: (file: File | null) => void;
   disabled?: boolean;
+  admin?: boolean;
 }
 
 export interface ImageUploadRef {
@@ -19,7 +20,8 @@ export interface ImageUploadRef {
 export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   currentImageUrl,
   onImageSelect,
-  disabled = false
+  disabled = false,
+  admin = false,
 }, ref) => {
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
@@ -99,9 +101,6 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
 
   return (
     <Box sx={{ my: 2 }}>
-      <Typography variant="subtitle1" gutterBottom>
-        Cover Image
-      </Typography>
 
       {previewUrl && (
         <Box
@@ -164,11 +163,10 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
         <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>
           ✓ Image selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)}KB)
           <br />
-          Will be uploaded when you click &quot;Update Vendor&quot;
         </Typography>
       )}
 
-      {disabled && (
+      {admin && disabled && (
         <Typography variant="caption" display="block" sx={{ mt: 1, color: 'warning.main' }}>
           ⚠️ Please enter the vendor slug first
         </Typography>

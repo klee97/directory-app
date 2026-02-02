@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -13,15 +13,19 @@ import Radio from '@mui/material/Radio';
 import Grid from '@mui/material/Grid2';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { ImageUpload } from '@/features/profile/common/components/ImageUpload';
-import { useImageUploader } from '@/features/profile/common/hooks/useImageUploader';
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
 import { useLocationForm } from '@/features/profile/dashboard/hooks/useLocationForm';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
-import { VendorFormData } from '@/types/vendorFormData';
+import { VendorFormData, VendorFormField } from '@/types/vendorFormData';
 import { VendorTag } from '@/types/vendor';
-import { Section } from './Section';
+import { Section, ValidationResult } from './Section';
+import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
+import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useImageUploadField } from '../../common/hooks/useImageUploadField';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 
 const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -32,6 +36,7 @@ interface EditFormViewProps {
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
   handleSave: () => void;
+  isSaving: boolean;
   vendorIdentifier?: string;
   tags: VendorTag[];
 }
@@ -43,28 +48,13 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
+  isSaving,
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
-  const { upload, loading } = useImageUploader();
   const [showValidation, setShowValidation] = useState(false);
-
-  // Track changes efficiently
-  const initialFormDataRef = useRef<string | null>(null);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  // Initialize or update the reference when activeSection changes
-  useEffect(() => {
-    initialFormDataRef.current = JSON.stringify(formData);
-    setHasUnsavedChanges(false);
-  }, [activeSection]);
-
-  // Track changes whenever formData updates
-  useEffect(() => {
-    if (initialFormDataRef.current === null) return;
-    const currentData = JSON.stringify(formData);
-    setHasUnsavedChanges(currentData !== initialFormDataRef.current);
-  }, [formData]);
+  const image = useImageUploadField();
+  const loading = image.loading || isSaving;
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -90,49 +80,76 @@ export default function EditFormView({
   const serviceOptions = tags.filter(tag => tag.type === 'SERVICE');
   const skillOptions = tags.filter(tag => tag.type === 'SKILL');
   const currentSection = sections.find(s => s.id === activeSection);
-  const validationResult = currentSection?.validate(formData) ?? { isValid: true, errors: {} };
+  const validationResult: ValidationResult =
+    currentSection?.validate(formData) ?? {
+      isValid: true,
+      isComplete: true,
+      isEmpty: false,
+      errors: {}
+    };
 
-  const handleCoverImageSelect = async (file: File | null) => {
-    if (!file) {
-      setFormData(prev => ({ ...prev, cover_image: null }));
-      return;
-    }
-    try {
-      const url = await upload(file, vendorIdentifier);
-      setFormData(prev => ({ ...prev, cover_image: url }));
-    } catch {
-      // error notification handled in hook
-    }
-  };
-
-  const handleSaveClick = () => {
+  const handleSaveClick = async () => {
     if (!validationResult.isValid) {
       setShowValidation(true);
       return;
     }
+    const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
+
+    if (uploadedImageUrl) {
+      setFormData(prev => ({
+        ...prev,
+        cover_image: uploadedImageUrl,
+      }));
+    }
 
     // Save data
     handleSave();
-
-    // Update the reference to the new saved state
-    initialFormDataRef.current = JSON.stringify(formData);
-    setHasUnsavedChanges(false);
 
     // Hide validation after a successful save
     setShowValidation(false);
   };
 
   // Helper to get error message for a field
-  const getFieldError = (fieldName: string): string | null => {
+  const getFieldError = (fieldName: VendorFormField): string | null => {
     if (!showValidation) return null;
-    const errors = validationResult.errors as Record<string, string | null>;
-    return errors[fieldName] ?? null;
+    return validationResult.errors[fieldName] ?? null;
   };
 
-  const isSaveDisabled = !hasUnsavedChanges || loading;
+  const isSaveDisabled = loading;
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      position: 'relative',
+      opacity: isSaving ? 0.6 : 1,
+      pointerEvents: isSaving ? 'none' : 'auto',
+      transition: 'opacity 0.2s'
+    }}>
+      {/* Loading overlay */}
+      {isSaving && (
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'rgba(255, 255, 255, 0.7)',
+          zIndex: 1000,
+        }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress size={40} />
+            <Typography variant="body2" sx={{ mt: 2 }}>
+              Saving...
+            </Typography>
+          </Box>
+        </Box>
+      )}
+
       {/* Header with back button */}
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
         <IconButton onClick={handleBackToMenu} size="small">
@@ -147,7 +164,9 @@ export default function EditFormView({
       {showValidation && !validationResult.isValid && (
         <Box sx={{ p: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
           <Typography variant="body2">
-            Please fill out all required fields before saving
+            {Object.keys(validationResult.errors).length > 0
+              ? 'Please fix the errors below before saving'
+              : 'Please fill out all required fields before saving'}
           </Typography>
         </Box>
       )}
@@ -157,12 +176,13 @@ export default function EditFormView({
         {activeSection === 'cover' && (
           <Box>
             <Typography variant="body2" color="text.secondary" paragraph>
-              Upload a cover image to showcase your work
+              Upload a client image to showcase your work
             </Typography>
             <ImageUpload
+              ref={image.imageUploadRef}
               currentImageUrl={formData.cover_image ?? undefined}
-              onImageSelect={handleCoverImageSelect}
-              disabled={loading}
+              onImageSelect={image.onSelect}
+              disabled={image.loading}
             />
           </Box>
         )}
@@ -219,26 +239,49 @@ export default function EditFormView({
               <FormFieldLabel>Website</FormFieldLabel>
               <TextField
                 fullWidth
-                label="Website"
                 value={formData.website}
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeUrl(e.target.value);
+                  setFormData({ ...formData, website: normalized });
+                }}
+                error={!!getFieldError('website')}
+                helperText={getFieldError('website')}
               />
             </Grid>
             <Grid size={12}>
               <FormFieldLabel required>Instagram Handle</FormFieldLabel>
               <TextField
                 fullWidth
-                helperText="Your handle (without @ symbol)"
                 value={formData.instagram}
                 onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeInstagramHandle(e.target.value);
+                  if (normalized !== e.target.value) {
+                    setFormData({ ...formData, instagram: normalized });
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    startAdornment: <InputAdornment position="start">@</InputAdornment>
+                  }
+                }}
+                error={!!getFieldError('instagram')}
+                helperText={getFieldError('instagram')}
               />
             </Grid>
             <Grid size={12}>
-              <FormFieldLabel>Google Maps Place Link</FormFieldLabel>
+              <FormFieldLabel>Google Maps Link</FormFieldLabel>
               <TextField
                 fullWidth
                 value={formData.google_maps_place}
                 onChange={(e) => setFormData({ ...formData, google_maps_place: e.target.value })}
+                onBlur={(e) => {
+                  const normalized = normalizeUrl(e.target.value);
+                  setFormData({ ...formData, google_maps_place: normalized });
+                }}
+                error={!!getFieldError('google_maps_place')}
+                helperText={getFieldError('google_maps_place')}
               />
             </Grid>
           </Grid>
@@ -251,77 +294,155 @@ export default function EditFormView({
               const showHair = hasTagByName(formData.tags, VendorSpecialty.SPECIALTY_HAIR);
               const showMakeup = hasTagByName(formData.tags, VendorSpecialty.SPECIALTY_MAKEUP);
               return <>
+                {showHair && showMakeup && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Hair & Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData["bridal_hair_&_makeup_price"] || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridal_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
+                      helperText={getFieldError('bridal_hair_&_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
                 {showHair && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Hair Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData.bridal_hair_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridal_hair_price: e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Hair Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData.bridesmaid_hair_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridesmaid_hair_price: e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                  </>
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Hair Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridal_hair_price || ''}
+                      error={getFieldError('bridal_hair_price') ? true : false}
+                      helperText={getFieldError('bridal_hair_price')}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
                 {showMakeup && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData.bridal_makeup_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridal_makeup_price: e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData.bridesmaid_makeup_price || ''}
-                        onChange={(e) => setFormData({ ...formData, bridesmaid_makeup_price: e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                  </>
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridal Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridal_makeup_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridal_makeup_price') ? true : false}
+                      helperText={getFieldError('bridal_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
                 {showHair && showMakeup && (
-                  <>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridal Hair & Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData["bridal_hair_&_makeup_price"] || ''}
-                        onChange={(e) => setFormData({ ...formData, "bridal_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                    <Grid size={12}>
-                      <FormFieldLabel>Bridesmaid Hair & Makeup Price</FormFieldLabel>
-                      <TextField
-                        fullWidth
-                        type="number"
-                        placeholder="$"
-                        value={formData["bridesmaid_hair_&_makeup_price"] || ''}
-                        onChange={(e) => setFormData({ ...formData, "bridesmaid_hair_&_makeup_price": e.target.value ? Number(e.target.value) : null })}
-                      />
-                    </Grid>
-                  </>
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Hair & Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData["bridesmaid_hair_&_makeup_price"] || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridesmaid_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
+                {showHair && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Hair Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridesmaid_hair_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_hair_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_hair_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
+                )}
+                {showMakeup && (
+                  <Grid size={12}>
+                    <FormFieldLabel>Bridesmaid Makeup Price</FormFieldLabel>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={formData.bridesmaid_makeup_price || ''}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
+                      error={getFieldError('bridesmaid_makeup_price') ? true : false}
+                      helperText={getFieldError('bridesmaid_makeup_price')}
+                      slotProps={{
+                        input: {
+                          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                          inputProps: {
+                            min: 0
+                          }
+                        }
+                      }}
+                    />
+                  </Grid>
                 )}
               </>;
             })()}
@@ -441,10 +562,10 @@ export default function EditFormView({
           onClick={handleSaveClick}
           disabled={isSaveDisabled}
         >
-          {'Save Changes'}
+          {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </Box>
-    </Box>
+    </Box >
   );
 }
 

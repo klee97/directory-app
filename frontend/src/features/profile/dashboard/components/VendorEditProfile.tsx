@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import AppBar from '@mui/material/AppBar';
@@ -23,6 +23,8 @@ import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
+import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 const DRAWER_WIDTH = 400;
 
@@ -38,14 +40,20 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
+  const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 
   const { addNotification } = useNotification();
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+  const initialFormData = useMemo(() => vendorToFormData(vendor), [vendor.id]);
   const [formData, setFormData] = useState<VendorFormData>(
-    vendorToFormData(vendor) // Show vendor data immediately. Replace once draft loads
+    initialFormData // Show vendor data immediately. Replace once draft loads
   );
+  const [lastSavedData, setLastSavedData] = useState<VendorFormData>(
+    initialFormData
+  );
+  const [isSaving, setIsSaving] = useState(false);
   const { completedSections, inProgressSections } = useSectionCompletion(SECTIONS, formData);
 
   useEffect(() => {
@@ -61,6 +69,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           setDraftId(draft.id);
           const formData = draftToFormData(draft);
           setFormData(formData);
+          setLastSavedData(formData);
           setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization
@@ -85,7 +94,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     latitude: formData.locationResult?.lat || null,
     longitude: formData.locationResult?.lon || null,
     travels_world_wide: formData.travels_world_wide,
-    website: formData.website,
+    website: normalizeUrl(formData.website),
     instagram: formData.instagram,
     google_maps_place: formData.google_maps_place,
     description: formData.description,
@@ -108,18 +117,35 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   };
 
   const handleBackToMenu = () => {
+    // Check if current formData differs from savedDraftData
+    const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
+
+    if (hasUnsavedChanges) {
+      setShowUnsavedModal(true);
+    } else {
+      setActiveSection(null);
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    setFormData(lastSavedData);
+    setShowUnsavedModal(false);
     setActiveSection(null);
   };
 
   const handleSave = async () => {
     try {
+      setIsSaving(true);
       const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
       setDraftId(draft.id);
+      setLastSavedData(formData);
       setHasUnpublishedChanges(true);
       addNotification('Changes saved!', 'success');
     } catch (error) {
       console.error('Error saving:', error);
       addNotification('Failed to save changes', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -142,6 +168,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       return;
     } else {
       setHasUnpublishedChanges(false);
+      setLastSavedData(formData);
       addNotification('Changes published successfully!', 'success');
     }
   };
@@ -204,6 +231,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
+              isSaving={isSaving}
               vendorIdentifier={vendor.slug ?? vendor.id}
               tags={tags}
             />
@@ -302,6 +330,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           </Box>
         </Box>
       </Box>
+      {/* Unsaved Changes Modal */}
+      <UnsavedChangesModal
+        open={showUnsavedModal}
+        onClose={() => setShowUnsavedModal(false)}
+        onKeepEditing={() => setShowUnsavedModal(false)}
+        onDiscardChanges={handleDiscardChanges}
+      />
     </>
   );
 }
