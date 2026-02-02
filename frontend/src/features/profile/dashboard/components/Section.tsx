@@ -41,13 +41,20 @@ export const SECTIONS: Section[] = [
     label: 'Business info',
     validate: (formData: VendorFormData) => {
       const business_name = formData.business_name?.trim();
+      let businessNameError = null;
+
+      if (!business_name) {
+        businessNameError = 'Business name is required';
+      } else if (business_name.length > 100) {
+        businessNameError = 'Business name cannot exceed 100 characters';
+      }
 
       return {
-        isValid: !!(business_name && formData.locationResult),
-        isComplete: !!(business_name && formData.locationResult),
+        isValid: !!(business_name && formData.locationResult && !businessNameError),
+        isComplete: !!(business_name && formData.locationResult && !businessNameError),
         isEmpty: !(business_name || formData.locationResult),
         errors: {
-          business_name: !business_name ? 'Business name is required' : null,
+          business_name: businessNameError,
           location: !formData.locationResult ? 'Location is required' : null,
         }
       }
@@ -58,12 +65,20 @@ export const SECTIONS: Section[] = [
     label: 'Bio',
     validate: (formData: VendorFormData) => {
       const description = formData.description?.trim();
+      let descriptionError = null;
+
+      if (!description) {
+        descriptionError = 'Bio is required';
+      } else if (description.length > 5000) {
+        descriptionError = 'Bio cannot exceed 5000 characters';
+      }
+
       return {
-        isValid: !!description,
-        isComplete: !!description,
+        isValid: !!description && !descriptionError,
+        isComplete: !!description && !descriptionError,
         isEmpty: !description,
         errors: {
-          description: !description ? 'Bio is required' : null,
+          description: descriptionError,
         }
       }
     }
@@ -76,17 +91,32 @@ export const SECTIONS: Section[] = [
       const website = formData.website?.trim();
       const googleMaps = formData.google_maps_place?.trim();
 
-      // Validate URLs
-      const websiteError = website ? getUrlErrorMessage(website) : null;
-      const googleMapsError = googleMaps ? getGoogleMapsErrorMessage(googleMaps) : null;
+      // Validate Instagram
+      let instagramError = null;
+      if (!instagram) {
+        instagramError = 'Instagram handle is required';
+      } else if (instagram.length > 30) {
+        instagramError = 'Instagram handle cannot exceed 30 characters';
+      }
 
-      const hasErrors = !instagram || websiteError || googleMapsError;
+      // Validate URLs
+      let websiteError = website ? getUrlErrorMessage(website) : null;
+      if (!websiteError && website && website.length > 2000) {
+        websiteError = 'Website URL cannot exceed 2000 characters';
+      }
+
+      let googleMapsError = googleMaps ? getGoogleMapsErrorMessage(googleMaps) : null;
+      if (!googleMapsError && googleMaps && googleMaps.length > 2000) {
+        googleMapsError = 'Google Maps URL cannot exceed 2000 characters';
+      }
+
+      const hasErrors = instagramError || websiteError || googleMapsError;
       return {
         isValid: !!(instagram) && !hasErrors,
         isComplete: !!(instagram && website && googleMaps && !hasErrors),
         isEmpty: !(instagram || website || googleMaps),
         errors: {
-          instagram: !instagram ? 'Instagram handle is required' : null,
+          instagram: instagramError,
           website: websiteError,
           google_maps_place: googleMapsError,
         }
@@ -125,8 +155,13 @@ export const SECTIONS: Section[] = [
       ] as const;
 
       priceFields.forEach(field => {
-        if (formData[field] !== null && formData[field] !== undefined && formData[field]! < 0) {
-          errors[field] = 'Price cannot be negative';
+        const value = formData[field];
+        if (value !== null && value !== undefined) {
+          if (value < 0) {
+            errors[field] = 'Price cannot be negative';
+          } else if (value > 999999) {
+            errors[field] = 'Price cannot exceed $999,999';
+          }
         }
       });
 

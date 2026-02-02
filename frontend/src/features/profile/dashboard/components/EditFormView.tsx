@@ -195,15 +195,9 @@ export default function EditFormView({
                 fullWidth
                 required
                 value={formData.business_name}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= 100) {
-                    setFormData({ ...formData, business_name: value });
-                  }
-                }}
+                onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
                 error={!!getFieldError('business_name')}
                 helperText={getFieldError('business_name')}
-                inputProps={{ maxLength: 100 }}
               />
             </Grid>
             <Grid size={12}>
@@ -246,19 +240,13 @@ export default function EditFormView({
               <TextField
                 fullWidth
                 value={formData.website}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= 2000) {
-                    setFormData({ ...formData, website: value });
-                  }
-                }}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 onBlur={(e) => {
                   const normalized = normalizeUrl(e.target.value);
                   setFormData({ ...formData, website: normalized });
                 }}
                 error={!!getFieldError('website')}
                 helperText={getFieldError('website')}
-                inputProps={{ maxLength: 2000 }}
               />
             </Grid>
             <Grid size={12}>
@@ -266,12 +254,7 @@ export default function EditFormView({
               <TextField
                 fullWidth
                 value={formData.instagram}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= 30) {
-                    setFormData({ ...formData, instagram: value });
-                  }
-                }}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
                 onBlur={(e) => {
                   const normalized = normalizeInstagramHandle(e.target.value);
                   if (normalized !== e.target.value) {
@@ -285,7 +268,6 @@ export default function EditFormView({
                 }}
                 error={!!getFieldError('instagram')}
                 helperText={getFieldError('instagram')}
-                inputProps={{ maxLength: 30 }}
               />
             </Grid>
             <Grid size={12}>
@@ -293,19 +275,13 @@ export default function EditFormView({
               <TextField
                 fullWidth
                 value={formData.google_maps_place}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value.length <= 2000) {
-                    setFormData({ ...formData, google_maps_place: value });
-                  }
-                }}
+                onChange={(e) => setFormData({ ...formData, google_maps_place: e.target.value })}
                 onBlur={(e) => {
                   const normalized = normalizeUrl(e.target.value);
                   setFormData({ ...formData, google_maps_place: normalized });
                 }}
                 error={!!getFieldError('google_maps_place')}
                 helperText={getFieldError('google_maps_place')}
-                inputProps={{ maxLength: 2000 }}
               />
             </Grid>
           </Grid>
@@ -325,23 +301,18 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData["bridal_hair_&_makeup_price"] || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, "bridal_hair_&_makeup_price": null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, "bridal_hair_&_makeup_price": numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridal_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
                       helperText={getFieldError('bridal_hair_&_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -357,21 +328,16 @@ export default function EditFormView({
                       value={formData.bridal_hair_price || ''}
                       error={getFieldError('bridal_hair_price') ? true : false}
                       helperText={getFieldError('bridal_hair_price')}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, bridal_hair_price: null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, bridal_hair_price: numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -385,23 +351,18 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridal_makeup_price || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, bridal_makeup_price: null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, bridal_makeup_price: numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridal_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       error={getFieldError('bridal_makeup_price') ? true : false}
                       helperText={getFieldError('bridal_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -415,23 +376,18 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData["bridesmaid_hair_&_makeup_price"] || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, "bridesmaid_hair_&_makeup_price": null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, "bridesmaid_hair_&_makeup_price": numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        "bridesmaid_hair_&_makeup_price":
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
                       helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -445,23 +401,18 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridesmaid_hair_price || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, bridesmaid_hair_price: null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, bridesmaid_hair_price: numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_hair_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       error={getFieldError('bridesmaid_hair_price') ? true : false}
                       helperText={getFieldError('bridesmaid_hair_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -475,23 +426,18 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridesmaid_makeup_price || ''}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const numValue = Number(value);
-                        if (value === '' || numValue === 0) {
-                          setFormData({ ...formData, bridesmaid_makeup_price: null });
-                        } else if (numValue >= 0 && numValue <= 999999) {
-                          setFormData({ ...formData, bridesmaid_makeup_price: numValue });
-                        }
-                      }}
+                      onChange={(e) => setFormData({
+                        ...formData,
+                        bridesmaid_makeup_price:
+                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
+                      })}
                       error={getFieldError('bridesmaid_makeup_price') ? true : false}
                       helperText={getFieldError('bridesmaid_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0,
-                            max: 999999
+                            min: 0
                           }
                         }
                       }}
@@ -532,15 +478,11 @@ export default function EditFormView({
                   rows={8}
                   required
                   value={text}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value.length <= 5000) {
-                      setFormData({ ...formData, description: value });
-                    }
-                  }}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                   error={!!fieldError}
                   helperText={helperText}
-                  inputProps={{ maxLength: 5000 }}
                 />
               );
             })()}
