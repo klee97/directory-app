@@ -108,6 +108,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     images: formData.images || [],
     tags: formData.tags,
   };
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -133,12 +134,16 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     setActiveSection(null);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (uploadedImageUrl?: string) => {
+    const dataToSave = uploadedImageUrl
+      ? { ...formData, cover_image: uploadedImageUrl }
+      : formData;
     try {
       setIsSaving(true);
-      const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
+      const draft = await createOrUpdateDraft(dataToSave, vendor.id, userId, draftId);
       setDraftId(draft.id);
-      setLastSavedData(formData);
+      setFormData(dataToSave);
+      setLastSavedData(dataToSave);
       setHasUnpublishedChanges(true);
       addNotification('Changes saved!', 'success');
     } catch (error) {
