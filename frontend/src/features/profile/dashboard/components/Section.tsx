@@ -104,6 +104,7 @@ export const SECTIONS: Section[] = [
         isEmpty: !formData.tags || formData.tags.length === 0,
         errors: {
           services: !hasService ? 'Please select at least one service' : null,
+          skills: null
         }
       };
     }

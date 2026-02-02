@@ -13,7 +13,6 @@ import Radio from '@mui/material/Radio';
 import Grid from '@mui/material/Grid2';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { ImageUpload } from '@/features/profile/common/components/ImageUpload';
-import { useImageUploader } from '@/features/profile/common/hooks/useImageUploader';
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
@@ -53,9 +52,9 @@ export default function EditFormView({
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
-  const { upload, loading } = useImageUploader();
   const [showValidation, setShowValidation] = useState(false);
   const image = useImageUploadField();
+  const loading = image.loading || isSaving;
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -549,11 +548,6 @@ export default function EditFormView({
                   }}
                   options={skillOptions}
                 />
-                {getFieldError('skills') && (
-                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                    {getFieldError('skills')}
-                  </Typography>
-                )}
               </Grid>
             </Grid>
           </Box>
