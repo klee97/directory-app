@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
@@ -35,7 +35,7 @@ interface EditFormViewProps {
   formData: VendorFormData;
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
-  handleSave: () => void;
+  handleSave: (uploadedImageUrl?: string) => void;
   isSaving: boolean;
   vendorIdentifier?: string;
   tags: VendorTag[];
@@ -52,7 +52,10 @@ export default function EditFormView({
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
+
   const [showValidation, setShowValidation] = useState(false);
+  const previousBlobUrlRef = useRef<string | null>(null);
+
   const image = useImageUploadField();
   const loading = image.loading || isSaving;
 
@@ -94,20 +97,19 @@ export default function EditFormView({
       return;
     }
     const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
-
-    if (uploadedImageUrl) {
-      setFormData(prev => ({
-        ...prev,
-        cover_image: uploadedImageUrl,
-      }));
-    }
-
-    // Save data
-    handleSave();
+    handleSave(uploadedImageUrl || undefined);
 
     // Hide validation after a successful save
     setShowValidation(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (previousBlobUrlRef.current?.startsWith('blob:')) {
+        URL.revokeObjectURL(previousBlobUrlRef.current);
+      }
+    };
+  }, []);
 
   // Helper to get error message for a field
   const getFieldError = (fieldName: VendorFormField): string | null => {
@@ -173,19 +175,6 @@ export default function EditFormView({
 
       {/* Scrollable content */}
       <Box sx={{ flexGrow: 1, overflow: 'auto', p: 3 }}>
-        {activeSection === 'cover' && (
-          <Box>
-            <Typography variant="body2" color="text.secondary" paragraph>
-              Upload a client image to showcase your work
-            </Typography>
-            <ImageUpload
-              ref={image.imageUploadRef}
-              currentImageUrl={formData.cover_image ?? undefined}
-              onImageSelect={image.onSelect}
-              disabled={image.loading}
-            />
-          </Box>
-        )}
 
         {activeSection === 'business' && (
           <Grid container spacing={3}>
@@ -495,10 +484,35 @@ export default function EditFormView({
             <Typography variant="body2" color="text.primary" gutterBottom>
               We recommend a photo with natural lighting or an outdoor setting.
             </Typography>
-            <Button variant="outlined" component="label">
-              Upload Photo
-              <input type="file" hidden accept="image/*" multiple />
-            </Button>
+            <ImageUpload
+              ref={image.imageUploadRef}
+              currentImageUrl={formData.cover_image ?? undefined}
+              onImageSelect={(file) => {
+                // Clean up previous blob URL to prevent memory leak
+                if (previousBlobUrlRef.current?.startsWith('blob:')) {
+                  URL.revokeObjectURL(previousBlobUrlRef.current);
+                }
+
+                image.onSelect(file);
+                // Immediately update preview with local file URL
+                if (file) {
+                  const previewUrl = URL.createObjectURL(file);
+                  previousBlobUrlRef.current = previewUrl;
+                  setFormData(prev => ({
+                    ...prev,
+                    cover_image: previewUrl, // Temporary local URL
+                  }));
+                } else {
+                  // File was cleared - remove preview
+                  previousBlobUrlRef.current = null;
+                  setFormData(prev => ({
+                    ...prev,
+                    cover_image: null,
+                  }));
+                }
+              }}
+              disabled={image.loading}
+            />
           </Box>
         )}
 

@@ -26,8 +26,8 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
     {
       id: 'basic_info',
       label: 'Basic Business Info',
-      description: 'List your business name, location, and links.',
-      completed: !!vendor.business_name,
+      description: 'List your services, business name, location, and links.',
+      completed: !!(vendor.business_name && vendor.longitude && vendor.latitude && vendor.tags.length > 0 && vendor.instagram),
     },
     {
       id: 'bio',

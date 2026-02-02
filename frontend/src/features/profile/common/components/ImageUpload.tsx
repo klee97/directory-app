@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -31,7 +31,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   // Expose reset method to parent
   useImperativeHandle(ref, () => ({
     reset: () => {
-      console.log("ImageUpload: reset() called");
+      console.debug("ImageUpload: reset() called");
       setPreviewUrl(null);
       setSelectedFile(null);
       setError(null);
@@ -41,21 +41,16 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     }
   }));
 
-  
+
   useEffect(() => {
-    console.log("Current image URL changed:", currentImageUrl);
-    if (!currentImageUrl) {
-      setPreviewUrl(null);
-      setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    } else {
+    console.debug("Current image URL changed:", currentImageUrl);
+    if (currentImageUrl) {
       setPreviewUrl(currentImageUrl);
     }
   }, [currentImageUrl]);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    console.debug("Image file selected:", event.target.files);
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -85,11 +80,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     if (onImageSelect) {
       onImageSelect(file);
     }
-  };
+  }, [onImageSelect]);
 
   const handleClear = () => {
     setSelectedFile(null);
-    setPreviewUrl(currentImageUrl || null);
+    setPreviewUrl(null);
     setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -106,7 +101,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
         <Box
           sx={{
             mb: 2,
-            maxWidth: 400,
+            maxWidth: 200,
             borderRadius: 1,
             overflow: 'hidden',
             border: '1px solid',

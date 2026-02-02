@@ -29,18 +29,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
-
-    if (!profile?.is_admin) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Get the uploaded file
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const vendorSlug = formData.get('vendorSlug') as string;
@@ -53,33 +41,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
     }
 
-    let query = supabase
+    // Check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    const isAdmin = profile?.is_admin;
+
+    // Get vendor by slug
+    let vendorQuery = supabase
       .from('vendors')
       .select('id, slug');
 
     if (!shouldIncludeTestVendors()) {
-      query = query.not('id', 'like', 'TEST-%');
+      vendorQuery = vendorQuery.not('id', 'like', 'TEST-%');
     }
 
-    console.log("Uploading image for vendor:", vendorSlug);
-
-    // Get vendor by slug to verify it exists and get the ID
-    const { data: vendor, error: vendorError } = await query
+    const { data: vendor, error: vendorError } = await vendorQuery
       .eq('slug', vendorSlug)
       .single();
 
-
-    if (!vendor) {
-      console.error("Vendor not found for slug:", vendorSlug);
-      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
+    // Use generic error message to avoid leaking vendor existence
+    if (vendorError || !vendor) {
+      console.error("Vendor not found for slug:", vendorSlug, vendorError);
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
-    if (vendorError) {
-      console.error("Vendor fetch error:", vendorError);
-      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 });
+
+    // Check authorization: admins can upload for anyone, regular users only for their own vendor
+    if (!isAdmin) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('vendor_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.vendor_id !== vendor.id) {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      }
     }
 
     const isTestData = isTestVendor(vendor.id);
-    console.log("[upload-image] isTestData:", isTestData);
+    console.debug("[upload-image] isTestData:", isTestData);
     let r2Bucket;
     if (isTestData) {
       if (!shouldIncludeTestVendors()) {
@@ -89,7 +93,7 @@ export async function POST(request: NextRequest) {
           { status: 403 }
         );
       }
-      console.log("⚠️  Uploading image for TEST vendor (development only)");
+      console.debug("Uploading image for TEST vendor (development only)");
       r2Bucket = process.env.R2_TEST_BUCKET_NAME;
     } else {
       r2Bucket = process.env.R2_BUCKET_NAME!;
@@ -101,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     // Get original image info
     const originalMeta = await sharp(imageBuffer).metadata();
-    console.log(`Processing image: ${originalMeta.width}x${originalMeta.height}, ${originalMeta.format}`);
+    console.debug(`Processing image: ${originalMeta.width}x${originalMeta.height}, ${originalMeta.format}`);
 
     // Process image with Sharp
     const processedBuffer = await sharp(imageBuffer)
@@ -128,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     await s3.send(uploadCommand);
 
-    const r2Url = isTestData ? `${process.env.R2_TEST_URL}/${filename}`: `${R2_PUBLIC_URL}/${filename}`;
+    const r2Url = isTestData ? `${process.env.R2_TEST_URL}/${filename}` : `${R2_PUBLIC_URL}/${filename}`;
 
     return NextResponse.json({
       success: true,
