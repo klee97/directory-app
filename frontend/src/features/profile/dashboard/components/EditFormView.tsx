@@ -27,7 +27,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 
-const RECOMMENDED_BIO_WORD_COUNT = 50;
+export const RECOMMENDED_BIO_WORD_COUNT = 50;
 
 interface EditFormViewProps {
   activeSection: string | null;
@@ -442,22 +442,18 @@ export default function EditFormView({
           <Box>
             <FormFieldLabel required>Artist Bio</FormFieldLabel>
             <Typography variant="body2" color="text.primary" gutterBottom>
-              Tell clients about your artistic style, experience, and what makes your work unique. Aim for at least 50 words.
+              Tell clients about your artistic style, experience, and what makes your work unique. Aim for at least ${RECOMMENDED_BIO_WORD_COUNT} words.
             </Typography>
             {(() => {
               const text = formData.description || '';
               const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-              const remaining = Math.max(RECOMMENDED_BIO_WORD_COUNT - wordCount, 0);
-
               const fieldError = getFieldError('description');
 
               let helperText;
               if (fieldError) {
                 helperText = fieldError;
-              } else if (wordCount === 0 || wordCount < RECOMMENDED_BIO_WORD_COUNT) {
-                helperText = `${wordCount} of ${RECOMMENDED_BIO_WORD_COUNT} words (${remaining} more to go)`;
               } else {
-                helperText = `${wordCount} words — great! Your bio gives clients a good sense of who you are.`;
+                helperText = `Length: ${wordCount} words`;
               }
 
               return (
