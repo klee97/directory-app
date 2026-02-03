@@ -9,6 +9,7 @@ import {
 } from "@mui/icons-material";
 import { VendorByDistance } from "@/types/vendor";
 import BaseCard from "./BaseCard";
+import { RECOMMENDED_BIO_WORD_COUNT } from "@/features/profile/dashboard/components/EditFormView";
 
 interface ProfileChecklistCardProps {
   vendor: VendorByDistance;
@@ -32,8 +33,8 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
     {
       id: 'bio',
       label: 'Detailed Bio',
-      description: 'Write a compelling bio to let clients know who you are. We recommend at least 50 words.',
-      completed: !!(vendor.description && vendor.description.split(' ').length >= 50),
+      description: `Write a compelling bio to let clients know who you are. We recommend at least ${RECOMMENDED_BIO_WORD_COUNT} words.`,
+      completed: !!(vendor.description && vendor.description.split(' ').length >= RECOMMENDED_BIO_WORD_COUNT),
     },
     {
       id: 'photo',
@@ -45,7 +46,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
 
 
   return (
-    <BaseCard title="Edit Profile Page" icon={<Edit sx={{ color: 'text.primary' }}/>}>
+    <BaseCard title="Edit Profile Page" titleHref="/partner/dashboard/profile" icon={<Edit sx={{ color: 'text.primary' }}/>}>
       {/* Checklist Items */}
       <Box sx={{ mb: 3 }}>
         {checklistItems.map((item, index) => (
@@ -63,7 +64,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
           >
             {/* Checkbox Icon */}
             {item.completed ? (
-              <CheckCircle sx={{ color: 'grey.400', fontSize: 24, flexShrink: 0 }} />
+              <CheckCircle sx={{ color: 'success.main', fontSize: 24, flexShrink: 0 }} />
             ) : (
               <RadioButtonUnchecked sx={{ color: 'text.primary', fontSize: 24, flexShrink: 0 }} />
             )}
@@ -72,7 +73,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
             <Box sx={{ flex: 1, minWidth: 0 }}>
               <Typography
                 variant="body1"
-                fontWeight={500}
+                fontWeight={item.completed ? 500 : 600}
                 sx={{
                   color: item.completed ? 'text.secondary' : 'text.primary',
                 }}
@@ -80,7 +81,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
                 {item.label}
               </Typography>
               <Typography
-                variant="caption"
+                variant="body1"
                 color="text.secondary"
                 sx={{ display: 'block' }}
               >

@@ -2,10 +2,12 @@ import Box, { BoxProps } from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
+import Link from "next/link";
 import { ReactNode } from "react";
 
 interface BaseCardProps extends Omit<BoxProps, 'title'> {
   title?: string;
+  titleHref?: string;
   icon?: ReactNode;
   action?: ReactNode;
   children: ReactNode;
@@ -14,6 +16,7 @@ interface BaseCardProps extends Omit<BoxProps, 'title'> {
 
 export default function BaseCard({
   title,
+  titleHref,
   icon,
   action,
   children,
@@ -55,9 +58,31 @@ export default function BaseCard({
               </Box>
             )}
             {title && (
-              <Typography variant="h5" component="h2" gutterBottom={false}>
-                {title}
-              </Typography>
+              titleHref ? (
+                <Link
+                  href={titleHref}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <Typography
+                    variant="h5"
+                    component="h2"
+                    gutterBottom={false}
+                    sx={{
+                      cursor: 'pointer',
+                      transition: 'color 0.2s',
+                      '&:hover': {
+                        color: 'primary.main',
+                      }
+                    }}
+                  >
+                    {title}
+                  </Typography>
+                </Link>
+              ) : (
+                <Typography variant="h5" component="h2" gutterBottom={false}>
+                  {title}
+                </Typography>
+              )
             )}
           </Box>
           {action && <Box>{action}</Box>}
