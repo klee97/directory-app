@@ -4,12 +4,14 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import ContrastIcon from '@mui/icons-material/Contrast';
 import React from 'react';
-import { VendorFormData, VendorFormField } from '@/types/vendorFormData';
+import { COMBO_PRICE_FIELDS, HAIR_PRICE_FIELDS, MAKEUP_PRICE_FIELDS, VendorFormData, VendorFormField } from '@/types/vendorFormData';
 import { getGoogleMapsErrorMessage, getUrlErrorMessage } from '@/lib/profile/normalizeUrl';
+import { hasTagByName, VendorSpecialty } from '@/types/tag';
 
 interface SectionIconProps {
   status: 'complete' | 'inProgress' | 'empty';
 }
+
 
 export function SectionIcon({ status }: SectionIconProps) {
   if (status === 'complete') {
@@ -145,40 +147,62 @@ export const SECTIONS: Section[] = [
     validate: (formData: VendorFormData) => {
       const errors: Record<string, string> = {};
 
-      const priceFields = [
-        'bridal_hair_price',
-        'bridal_makeup_price',
-        'bridesmaid_hair_price',
-        'bridesmaid_makeup_price',
-        'bridal_hair_&_makeup_price',
-        'bridesmaid_hair_&_makeup_price'
-      ] as const;
+      const includeHair = hasTagByName(
+        formData.tags,
+        VendorSpecialty.SPECIALTY_HAIR
+      );
+      const includeMakeup = hasTagByName(
+        formData.tags,
+        VendorSpecialty.SPECIALTY_MAKEUP
+      );
 
-      priceFields.forEach(field => {
+      const isFilled = (field: keyof VendorFormData) =>
+        formData[field] !== null && formData[field] !== undefined;
+
+      const anyFilled = (fields: readonly (keyof VendorFormData)[]) =>
+        fields.some(isFilled);
+
+      const allFilled = (fields: readonly (keyof VendorFormData)[]) =>
+        fields.every(isFilled);
+
+      const relevantFields: (keyof VendorFormData)[] = [
+        ...(includeHair ? HAIR_PRICE_FIELDS : []),
+        ...(includeMakeup ? MAKEUP_PRICE_FIELDS : []),
+        ...(includeHair && includeMakeup ? COMBO_PRICE_FIELDS : []),
+      ];
+
+      // Validate non-negative pricing
+      relevantFields.forEach(field => {
         const value = formData[field];
-        if (value !== null && value !== undefined) {
-          if (value < 0) {
-            errors[field] = 'Price cannot be negative';
-          } else if (value > 999999) {
-            errors[field] = 'Price cannot exceed $999,999';
-          }
+        if (typeof value === 'number' && value < 0) {
+          errors[field] = 'Price cannot be negative';
         }
       });
 
-      // Check if at least one price field is filled
-      const isEmpty = !priceFields.some(field =>
-        formData[field] !== null && formData[field] !== undefined
-      );
-      // Check if all price fields are filled
-      const isComplete = priceFields.every(field =>
-        formData[field] !== null && formData[field] !== undefined
-      );
+      // Determine completion rules
+      let isComplete = false;
+
+      if (includeHair && !includeMakeup) {
+        // Hair-only vendor
+        isComplete = allFilled(HAIR_PRICE_FIELDS);
+      } else if (!includeHair && includeMakeup) {
+        // Makeup-only vendor
+        isComplete = allFilled(MAKEUP_PRICE_FIELDS);
+      } else if (includeHair && includeMakeup) {
+        // Hair + Makeup vendor
+        isComplete =
+          allFilled(COMBO_PRICE_FIELDS)
+          && allFilled(HAIR_PRICE_FIELDS)
+          && allFilled(MAKEUP_PRICE_FIELDS);
+      }
+
+      const isEmpty = !anyFilled(relevantFields);
 
       return {
         isValid: Object.keys(errors).length === 0,
         isComplete: isComplete && Object.keys(errors).length === 0,
         isEmpty,
-        errors
+        errors,
       };
     }
   },

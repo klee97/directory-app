@@ -24,3 +24,18 @@ export type VendorFormField =
   | keyof VendorFormData
   | 'services'
   | 'location';
+
+export const HAIR_PRICE_FIELDS = [
+  'bridal_hair_price',
+  'bridesmaid_hair_price',
+] as const;
+
+export const MAKEUP_PRICE_FIELDS = [
+  'bridal_makeup_price',
+  'bridesmaid_makeup_price',
+] as const;
+
+export const COMBO_PRICE_FIELDS = [
+  'bridal_hair_&_makeup_price',
+  'bridesmaid_hair_&_makeup_price',
+] as const;

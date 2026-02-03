@@ -454,10 +454,8 @@ export default function EditFormView({
               let helperText;
               if (fieldError) {
                 helperText = fieldError;
-              } else if (wordCount === 0 || wordCount < RECOMMENDED_BIO_WORD_COUNT) {
-                helperText = `${wordCount} of ${RECOMMENDED_BIO_WORD_COUNT} words (${remaining} more to go)`;
               } else {
-                helperText = `${wordCount} words — great! Your bio gives clients a good sense of who you are.`;
+                helperText = `Length: ${wordCount} words`;
               }
 
               return (
