@@ -3,13 +3,13 @@
 import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function revalidateVendor(slug: string) {
-  revalidateTag(`vendor-${slug}`);
-  revalidateTag('all-vendors');
+  revalidateTag(`vendor-${slug}`, { expire: 0 });
+  revalidateTag('all-vendors', { expire: 0 });
   revalidatePath(`/vendors/${slug}`);
 }
 
 export async function revalidateVendors() {
-  revalidateTag('all-vendors');
+  revalidateTag('all-vendors', { expire: 0 });
 }
 
 export async function revalidateBlog() {
