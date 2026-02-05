@@ -76,6 +76,9 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
           <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
             Privacy Policy
           </Link>
+          <Link href="/user-terms" style={{ color: "inherit", textDecoration: "none" }}>
+            Terms of Service
+          </Link>
         </Box>
         {/* Copyright */}
         <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
