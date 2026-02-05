@@ -37,7 +37,6 @@ interface EditFormViewProps {
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
   handleSave: (uploadedImageUrl?: string) => void;
-  isSaving: boolean;
   vendorIdentifier?: string;
   tags: VendorTag[];
 }
@@ -49,12 +48,12 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
-  isSaving,
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
 
   const [showValidation, setShowValidation] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const previousBlobUrlRef = useRef<string | null>(null);
 
   const image = useImageUploadField();
@@ -97,11 +96,19 @@ export default function EditFormView({
       setShowValidation(true);
       return;
     }
-    const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
-    handleSave(uploadedImageUrl || undefined);
+    try {
+      setIsSaving(true);
+      const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
 
-    // Hide validation after a successful save
-    setShowValidation(false);
+      // Call handleSave but tell it NOT to manage isSaving
+      await handleSave(uploadedImageUrl || undefined);
+
+      setShowValidation(false);
+    } catch (error) {
+      console.error('Save failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   useEffect(() => {

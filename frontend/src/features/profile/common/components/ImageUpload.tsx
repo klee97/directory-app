@@ -139,11 +139,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
             disabled={disabled}
             startIcon={<CloudUpload />}
           >
-            {selectedFile ? 'Change Image' : 'Select Image'}
+            {previewUrl ? 'Change Image' : 'Select Image'}
           </Button>
         </label>
 
-        {selectedFile && (
+        {previewUrl && (
           <Button
             variant="text"
             color="error"
@@ -173,9 +173,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
         </Alert>
       )}
 
-      <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
-        Recommended: 800px wide or larger. Max file size: 3MB. Image will be automatically resized and optimized.
-      </Typography>
+      {admin &&
+        <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
+          Recommended: 800px wide or larger. Max file size: 3MB. Image will be automatically resized and optimized.
+        </Typography>
+      }
     </Box>
   );
 });
