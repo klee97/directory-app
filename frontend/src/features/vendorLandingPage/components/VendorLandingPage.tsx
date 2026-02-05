@@ -1,3 +1,5 @@
+"use client";
+
 import Grid from "@mui/material/Grid2";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
@@ -16,6 +18,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import Image, { StaticImageData } from "next/image";
 import Divider from "@mui/material/Divider";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface VendorLandingPageProps {
   makeupImage: StaticImageData;
@@ -103,6 +106,8 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
     }
   ];
 
+  const { isLoggedIn, isVendor } = useAuth();
+
   return (
     <Box>
       {/* Hero Section */}
@@ -138,20 +143,33 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
               Enjoy a free business profile, and get discovered by Asian brides who are specifically looking for artists experienced with Asian features.
             </Typography>
             <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-              <Button
-                variant="contained"
-                size="large"
-                sx={{ py: 1.5, px: 4 }}
-                href="/recommend"
-                color="info"
-              >
-                Join for free
-              </Button>
+              {isLoggedIn && isVendor ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{ py: 1.5, px: 4 }}
+                  href="partner/dashboard"
+                  color="info"
+                >
+                  Go to Dashboard
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{ py: 1.5, px: 4 }}
+                  href="/recommend"
+                  color="info"
+                >
+                  Join for free
+                </Button>
+              )
+              }
               <Button
                 variant="outlined"
                 size="large"
                 href="#how-it-works"
-                sx={{ py: 1.5, px: 4}}
+                sx={{ py: 1.5, px: 4 }}
                 color="inherit"
               >
                 How it works
@@ -408,7 +426,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
           </Box>
         </Container>
       </Box>
-    </Box>
+    </Box >
   );
 };
 
