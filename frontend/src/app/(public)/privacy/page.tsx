@@ -7,5 +7,7 @@ export const metadata = {
 
 export default function PrivacyPage() {
   const content = loadMarkdown('privacy');
-  return <MarkdownPage content={content} />;
+  return (
+    <MarkdownPage content={content} />
+  );
 }

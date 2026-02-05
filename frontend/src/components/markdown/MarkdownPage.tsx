@@ -9,17 +9,22 @@ export default function MarkdownPage({ content }: { content: string }) {
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children }) => (
-            <Typography variant="h4" gutterBottom>
+            <Typography variant="h2" gutterBottom sx={{ mt: 4 }}>
               {children}
             </Typography>
           ),
           h2: ({ children }) => (
-            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            <Typography variant="h3" gutterBottom sx={{ mt: 4 }}>
+              {children}
+            </Typography>
+          ),
+          h3: ({ children }) => (
+            <Typography variant="h4" gutterBottom sx={{ mt: 4 }}>
               {children}
             </Typography>
           ),
           p: ({ children }) => (
-            <Typography paragraph>
+            <Typography component={"p"} gutterBottom>
               {children}
             </Typography>
           ),
