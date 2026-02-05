@@ -40,7 +40,6 @@ export function vendorToFormData(vendor: Vendor): VendorFormData {
     bridesmaid_makeup_price: vendor.bridesmaid_makeup_price,
     "bridesmaid_hair_&_makeup_price": vendor.bridesmaid_hair_makeup_price,
     cover_image: vendor.cover_image,
-    images: vendor.images || [],
     tags: vendor.tags || [],
   };
 }

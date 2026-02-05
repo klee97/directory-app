@@ -17,7 +17,6 @@ export interface VendorFormData {
   "bridesmaid_hair_&_makeup_price": number | null;
   cover_image: string | null;
   tags: VendorTag[];
-  images: string[] | null;
 }
 
 export type VendorFormField =
