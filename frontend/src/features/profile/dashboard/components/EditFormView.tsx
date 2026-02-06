@@ -26,6 +26,7 @@ import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
+import FormHelperText from '@mui/material/FormHelperText';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
 
@@ -36,7 +37,6 @@ interface EditFormViewProps {
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
   handleSave: (uploadedImageUrl?: string) => void;
-  isSaving: boolean;
   vendorIdentifier?: string;
   tags: VendorTag[];
 }
@@ -48,12 +48,12 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
-  isSaving,
   vendorIdentifier,
   tags
 }: EditFormViewProps) {
 
   const [showValidation, setShowValidation] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const previousBlobUrlRef = useRef<string | null>(null);
 
   const image = useImageUploadField();
@@ -96,11 +96,19 @@ export default function EditFormView({
       setShowValidation(true);
       return;
     }
-    const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
-    handleSave(uploadedImageUrl || undefined);
+    try {
+      setIsSaving(true);
+      const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
 
-    // Hide validation after a successful save
-    setShowValidation(false);
+      // Call handleSave but tell it NOT to manage isSaving
+      await handleSave(uploadedImageUrl || undefined);
+
+      setShowValidation(false);
+    } catch (error) {
+      console.error('Save failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   useEffect(() => {
@@ -190,25 +198,25 @@ export default function EditFormView({
               />
             </Grid>
             <Grid size={12}>
-              <FormFieldLabel required>Location</FormFieldLabel>
-              <LocationAutocomplete
-                inputValue={locationForm.locationInputValue}
-                onInputChange={locationForm.handleLocationInputChange}
-                onDebouncedChange={locationForm.handleLocationDebouncedChange}
-                selectedLocation={locationForm.selectedLocation}
-                onSelect={locationForm.handleSelectLocation}
-                results={locationForm.combinedLocationResults}
-                loading={locationForm.isLoading}
-                placeholder="Select your primary city location"
-              />
-              {getFieldError('location') && (
-                <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+              <FormControl fullWidth error={!!getFieldError('location')}>
+                <FormFieldLabel required>Location</FormFieldLabel>
+                <LocationAutocomplete
+                  inputValue={locationForm.locationInputValue}
+                  onInputChange={locationForm.handleLocationInputChange}
+                  onDebouncedChange={locationForm.handleLocationDebouncedChange}
+                  selectedLocation={locationForm.selectedLocation}
+                  onSelect={locationForm.handleSelectLocation}
+                  results={locationForm.combinedLocationResults}
+                  loading={locationForm.isLoading}
+                  placeholder="Select your primary city location"
+                />
+                <FormHelperText>
                   {getFieldError('location')}
-                </Typography>
-              )}
+                </FormHelperText>
+              </FormControl>
             </Grid>
             <Grid size={12}>
-              <FormControl>
+              <FormControl fullWidth error={!!getFieldError('travels_world_wide')}>
                 <FormFieldLabel>Travels Worldwide</FormFieldLabel>
                 <RadioGroup
                   value={String(formData.travels_world_wide)}
@@ -217,6 +225,9 @@ export default function EditFormView({
                   <FormControlLabel value="true" control={<Radio />} label="Yes" />
                   <FormControlLabel value="false" control={<Radio />} label="No" />
                 </RadioGroup>
+                <FormHelperText>
+                  {getFieldError('travels_world_wide')}
+                </FormHelperText>
               </FormControl>
             </Grid>
           </Grid>
@@ -442,7 +453,7 @@ export default function EditFormView({
           <Box>
             <FormFieldLabel required>Artist Bio</FormFieldLabel>
             <Typography variant="body2" color="text.primary" gutterBottom>
-              Tell clients about your artistic style, experience, and what makes your work unique. Aim for at least ${RECOMMENDED_BIO_WORD_COUNT} words.
+              Tell clients about your artistic style, experience, and what makes your work unique. Aim for at least {RECOMMENDED_BIO_WORD_COUNT} words.
             </Typography>
             {(() => {
               const text = formData.description || '';
@@ -478,7 +489,7 @@ export default function EditFormView({
           <Box>
             <FormFieldLabel>Upload a client photo</FormFieldLabel>
             <Typography variant="body2" color="text.primary" gutterBottom>
-              We recommend a photo with natural lighting or an outdoor setting.
+              We recommend a vertical (portrait) photo with natural lighting or an outdoor setting.
             </Typography>
             <ImageUpload
               ref={image.imageUploadRef}

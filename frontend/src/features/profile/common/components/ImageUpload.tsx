@@ -6,6 +6,8 @@ import Alert from '@mui/material/Alert';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Image from 'next/image';
 
+const MAX_FILE_SIZE_MB = 10;
+
 interface ImageUploadProps {
   currentImageUrl?: string;
   onImageSelect?: (file: File | null) => void;
@@ -60,9 +62,9 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
       return;
     }
 
-    // Validate file size (max 3MB)
-    if (file.size > 3 * 1024 * 1024) {
-      setError('Image must be less than 3MB');
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      setError('Image must be less than 10MB');
       return;
     }
 
@@ -139,11 +141,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
             disabled={disabled}
             startIcon={<CloudUpload />}
           >
-            {selectedFile ? 'Change Image' : 'Select Image'}
+            {previewUrl ? 'Change Image' : 'Select Image'}
           </Button>
         </label>
 
-        {selectedFile && (
+        {previewUrl && (
           <Button
             variant="text"
             color="error"
@@ -173,9 +175,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
         </Alert>
       )}
 
-      <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
-        Recommended: 800px wide or larger. Max file size: 3MB. Image will be automatically resized and optimized.
-      </Typography>
+      {admin &&
+        <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
+          Max file size: {MAX_FILE_SIZE_MB}MB
+        </Typography>
+      }
     </Box>
   );
 });

@@ -212,8 +212,8 @@ export const SECTIONS: Section[] = [
     validate: (formData: VendorFormData) => {
       return {
         isValid: true,
-        isComplete: !!(formData.images && formData.images.length > 0),
-        isEmpty: !(formData.images && formData.images.length > 0),
+        isComplete: !!(formData.cover_image),
+        isEmpty: !formData.cover_image,
         errors: {}
       };
     }

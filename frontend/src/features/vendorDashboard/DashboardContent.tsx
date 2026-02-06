@@ -69,6 +69,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
               href={`/vendors/${vendor.slug}`}
               target="_blank"
               rel="noopener noreferrer"
+              color="info.main"
             >
               View current profile page
             </Link>

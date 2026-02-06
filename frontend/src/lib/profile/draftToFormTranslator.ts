@@ -1,13 +1,12 @@
 import { BackendVendorDraft } from "@/types/vendorDraft";
 import { VendorFormData } from "@/types/vendorFormData";
-import { parseStringArray, parseVendorTags } from "./jsonParser";
+import { parseVendorTags } from "./jsonParser";
 
 /**
  * Convert DB draft to UI form state
  */
 export function draftToFormData(draft: BackendVendorDraft): VendorFormData {
   const tags = parseVendorTags(Array.isArray(draft.tags) ? draft.tags : []);
-  const images = parseStringArray(Array.isArray(draft.images) ? draft.images : []);
   const locationResult = draft.location_data
     ? JSON.parse(JSON.stringify(draft.location_data))
     : null;
@@ -33,7 +32,6 @@ export function draftToFormData(draft: BackendVendorDraft): VendorFormData {
 
     // Images
     cover_image: draft.cover_image,
-    images,
     tags
   };
 }

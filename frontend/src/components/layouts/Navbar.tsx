@@ -39,6 +39,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 import Edit from '@mui/icons-material/Edit';
+import { useAuth } from '@/contexts/AuthContext';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
@@ -52,7 +53,6 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const [anchorElResources, setAnchorElResources] = React.useState<null | HTMLElement>(null);
   const [resourcesExpanded, setResourcesExpanded] = React.useState(false);
   const [anchorElProfile, setAnchorElProfile] = React.useState<null | HTMLElement>(null);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [notification, setNotification] = React.useState<{
     open: boolean;
     message: string;
@@ -62,6 +62,9 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     message: '',
     severity: 'success',
   });
+
+  const { isLoggedIn } = useAuth();
+
   const supabase = createClient();
   const { addNotification } = useNotification();
 
@@ -74,26 +77,6 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   React.useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Check authentication status
-  React.useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsLoggedIn(!!session);
-    };
-
-    if (mounted) {
-      checkAuth();
-    }
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [mounted, supabase]);
 
   // Close menus when screen size changes
   React.useEffect(() => {

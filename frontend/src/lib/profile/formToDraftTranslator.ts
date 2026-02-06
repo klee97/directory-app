@@ -4,8 +4,6 @@ import { VendorFormData } from "@/types/vendorFormData";
 import { normalizeUrl } from "./normalizeUrl";
 import { normalizeInstagramHandle } from "./normalizeInstagram";
 
-
-
 /**
  * Convert VendorFormData (UI) to VendorDraft (DB)
  */
@@ -14,12 +12,12 @@ export function formDataToDraft(
   vendorId: string,
   userId: string,
   existingDraftId: string | null
-): Omit<BackendVendorDraft, 'created_at' | 'updated_at' | 'last_saved_at'> {
+): Omit<BackendVendorDraft, 'images' | 'created_at' | 'updated_at' | 'last_saved_at'> {
   return {
     id: existingDraftId ?? crypto.randomUUID(),
     vendor_id: vendorId,
     user_id: userId,
-    
+
     // Business
     business_name: formData.business_name || null,
     website: normalizeUrl(formData.website) || null,
@@ -27,12 +25,12 @@ export function formDataToDraft(
     ig_handle: normalizeInstagramHandle(formData.instagram) || null,
     google_maps_place: formData.google_maps_place || null,
     description: formData.description || null,
-    
+
     // Location - just store the full object
     location_data: formData.locationResult as Json | null,
 
     travels_world_wide: formData.travels_world_wide,
-    
+
     // Pricing
     lists_prices: hasAnyPrice(formData),
     bridal_hair_price: formData.bridal_hair_price,
@@ -41,16 +39,15 @@ export function formDataToDraft(
     bridesmaid_hair_price: formData.bridesmaid_hair_price,
     bridesmaid_makeup_price: formData.bridesmaid_makeup_price,
     "bridesmaid_hair_&_makeup_price": formData["bridesmaid_hair_&_makeup_price"],
-    
+
     // Images
     cover_image: formData.cover_image,
     profile_image: null,
     logo: null,
-    images: formData.images,
-    
+
     // Tags
     tags: formData.tags.length > 0 ? formData.tags : null,
-    
+
     // Metadata
     is_published: false,
   };

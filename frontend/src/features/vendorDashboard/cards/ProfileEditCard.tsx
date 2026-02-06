@@ -64,7 +64,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
           >
             {/* Checkbox Icon */}
             {item.completed ? (
-              <CheckCircle sx={{ color: 'success.main', fontSize: 24, flexShrink: 0 }} />
+              <CheckCircle sx={{ color: 'grey.400', fontSize: 24, flexShrink: 0 }} />
             ) : (
               <RadioButtonUnchecked sx={{ color: 'text.primary', fontSize: 24, flexShrink: 0 }} />
             )}
