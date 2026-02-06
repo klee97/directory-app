@@ -1,12 +1,12 @@
-# TERMS OF SERVICE FOR USERS
+# TERMS OF SERVICE
 
-*Last Updated: February 2, 2026*
+*Last Updated: February 6, 2026*
 
-These Terms of Service (**"Terms"**) govern your access to and use of our wedding vendor directory services available at asianweddingmakeup.com and whiterabbitbrides.com (the **"Site"**) and any related services we provide (collectively, the **"Services"**). The Services are operated by White Rabbit Brides LLC.
+These Terms of Service (**"Terms"**) govern your access to and use of our wedding vendor directory services available at asianweddingmakeup.com (the **"Site"**) and any related services we provide (collectively, the **"Services"**). The Services are operated by White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**).
 
-These Terms apply to brides, couples, and wedding planners (**"Users"**) who use our directory to search for vendors, submit inquiries, and plan their weddings. *Vendors have separate Terms of Service* that govern their use of our vendor portal.
+These Terms apply to anyone who accesses or uses our Site or Services (**"Users"** or **"you"**). *Vendors who create partner accounts and use our vendor portal are also subject to separate Vendor Terms of Service in addition to these Terms.*
 
-By accessing or using the Services, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use the Services.
+**By accessing or using the Site or Services, you agree to be bound by these Terms.** If you do not agree to these Terms, you may not use the Site or Services.
 
 ## 1. Overview of Services
 
@@ -128,7 +128,7 @@ The Services are provided "as is" and "as available" without warranties of any k
 
 In no event shall White Rabbit Brides LLC, its officers, directors, employees, or agents be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data, use, goodwill, or other intangible losses, arising from: (a) your use or inability to use the Services; (b) any conduct or content of vendors or third parties; (c) unauthorized access to or alteration of your transmissions or data; or (d) any other matter relating to the Services.
 
-Our total liability to you for any claims arising from or related to the Services shall not exceed the greater of (a) $100 or (b) the amount you paid us, if any, in the twelve (12) months preceding the claim.
+Our total liability to you for any claims arising from or related to the Services shall not exceed the amount you paid us, if any, in the twelve (12) months preceding the claim.
 
 ## 8. Indemnification
 
@@ -209,7 +209,7 @@ We shall not be liable for any delay or failure to perform resulting from causes
 
 If you have any questions about these Terms or the Services, please contact us at:
 
-- **Email:** katrina@asianweddingmakeup.com
+- **Email:** support@asianweddingmakeup.com
 - **Company:** White Rabbit Brides LLC
 
 ---

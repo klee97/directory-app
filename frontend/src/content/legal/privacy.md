@@ -1,14 +1,12 @@
 # PRIVACY POLICY FOR USERS
 
-*Last Updated: February 2, 2026*
+*Last Updated: February 6, 2026*
 
-This Privacy Policy describes how White Rabbit Brides LLC, operating the websites asianweddingmakeup.com and whiterabbitbrides.com (the **"Site"**), collects, uses, and discloses your personal information when you visit or use our wedding vendor directory services or otherwise communicate with us (collectively, the **"Services"**).
+This Privacy Policy describes how White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**), operating the website asianweddingmakeup.com (the **"Site"**), collects, uses, and discloses your personal information when you visit or use our wedding vendor directory services or otherwise communicate with us (collectively, the **"Services"**).
 
-**Important:** This Privacy Policy applies to **users** who browse our directory, submit inquiries to vendors, and use our platform to plan their weddings. *Vendors have a separate Privacy Policy* that governs their use of our vendor portal.
+This Privacy Policy applies to anyone who accesses or uses our Site or Services (**"users"** or **"you"**). *Vendors who create partner accounts and use our vendor portal are subject to a separate Vendor Privacy Policy in addition to this Privacy Policy.*
 
-For purposes of this Privacy Policy, **"you"** and **"your"** means you as a user of the Services, whether you are browsing our directory as a visitor, have created a user account, or are submitting inquiries to wedding vendors through our platform.
-
-**Please read this Privacy Policy carefully.** By using and accessing any of the Services, you agree to the collection, use, and disclosure of your information as described in this Privacy Policy. If you do not agree to this Privacy Policy, please do not use or access any of the Services.
+**Please read this Privacy Policy carefully.** By using and accessing the Site or Services, you agree to the collection, use, and disclosure of your information as described in this Privacy Policy. If you do not agree to this Privacy Policy, you may not use the Site or Services.
 
 ## 1. Changes to This Privacy Policy
 
@@ -28,7 +26,7 @@ When you create an account, submit vendor inquiries, or use our Services, we col
 
 - **User Preferences:** Favorited vendors, saved searches, and directory browsing preferences.
 
-- **Authentication Data:** Information needed for user authentication through our service provider, Supabase.
+- **Authentication Data:** Information needed for user authentication through our service provider.
 
 ### Information We Collect Through Your Usage
 
@@ -36,7 +34,7 @@ We collect information about your interaction with the Services, including:
 
 - **Activity Data:** Pages visited, features used, vendors viewed or contacted, search queries, and inquiry submissions.
 
-- **Analytics Data:** Through Microsoft Clarity, we collect usage patterns, heatmaps, and session recordings to improve our Services and user experience.
+- **Analytics Data:** We collect usage patterns, heatmaps, and session recordings to improve our Services and user experience.
 
 ### Information We Collect Through Cookies
 
@@ -46,9 +44,9 @@ We automatically collect certain information about your interaction with the Ser
 
 We may obtain information about you from third parties, including from vendors and service providers who may collect information on our behalf, such as:
 
-- Authentication service providers, such as Supabase
-- Analytics providers, such as Microsoft Clarity
-- Payment processors, such as Stripe (for future payment features)
+- Authentication service providers
+- Analytics providers
+- Payment processors
 
 Any information we obtain from third parties will be treated in accordance with this Privacy Policy. We are not responsible or liable for the accuracy of the information provided to us by third parties and are not responsible for any third party's policies or practices.
 
@@ -70,7 +68,7 @@ We analyze user behavior and preferences to enhance user experience, improve ven
 
 ### Marketing and Advertising
 
-We may use your personal information for marketing and promotional purposes, such as to send marketing, advertising and promotional communications by email. This may include wedding planning guides, new vendor recommendations, and updates about our Services. You can opt out of these communications at any time using the unsubscribe link in our emails.
+We may use your personal information to send you marketing, advertising and promotional communications by email. This may include wedding planning guides, new vendor recommendations, and updates about our Services. You can opt out of marketing communications at any time using the unsubscribe link.
 
 ### Communicating with You
 
@@ -91,10 +89,10 @@ In certain circumstances, we may disclose your personal information to third par
 We may share your information with vendors or other third parties who perform services on our behalf, including:
 
 - IT management and cloud storage providers
-- Payment processing (Stripe)
-- Data analytics providers (Microsoft Clarity)
-- Authentication services (Supabase)
-- Customer support and email communication services
+- Payment processing
+- Data analytics providers
+- Authentication services
+- Email communication services
 
 ### Business Transfers and Legal Obligations
 
@@ -107,7 +105,7 @@ We may disclose the following categories of personal information about users for
 - Identifiers such as basic contact details and certain account information
 - Internet or other similar network activity, such as Usage Data
 - User preferences, favorited vendors, and wedding planning information
-- Vendor inquiry submissions (shared with selected vendors only)
+- Vendor inquiry submissions (shared with user-selected vendors only)
 
 **We do not sell your personal information.** We do not use or disclose sensitive personal information for the purposes of inferring characteristics about you.
 
@@ -115,7 +113,7 @@ We may disclose the following categories of personal information about users for
 
 Like many websites, we use Cookies on our Site. We use Cookies to power and improve our Site and our Services (including to remember your actions and preferences), to run analytics and better understand user interaction with the Services (in our legitimate interests to administer, improve and optimize the Services). We may also permit third parties and service providers to use Cookies on our Site to better tailor the services, products and advertising on our Site and other websites.
 
-Most browsers automatically accept Cookies by default, but you can choose to set your browser to remove or reject Cookies through your browser controls. Please keep in mind that removing or blocking Cookies can negatively impact your user experience and may cause some of the Services, including certain features and general functionality, to work incorrectly or no longer be available. Additionally, blocking Cookies may not completely prevent how we share information with third parties such as our advertising partners.
+Most browsers automatically accept Cookies by default, but you can choose to set your browser to remove or reject Cookies through your browser controls. Please keep in mind that removing or blocking Cookies can negatively impact your user experience and may cause some of the Services, including certain features and general functionality, to work incorrectly or no longer be available. Additionally, blocking Cookies may not completely prevent how we share information with third parties.
 
 ## 6. Third-Party Websites and Links
 
@@ -171,5 +169,5 @@ If we transfer your personal information out of Europe, we will rely on recogniz
 
 Should you have any questions about our privacy practices or this Privacy Policy, or if you would like to exercise any of the rights available to you, please contact us at:
 
-- **Email:** katrina@asianweddingmakeup.com
+- **Email:** support@mail.asianweddingmakeup.com
 - **Company:** White Rabbit Brides LLC
