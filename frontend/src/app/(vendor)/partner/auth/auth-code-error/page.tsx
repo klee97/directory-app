@@ -6,12 +6,12 @@ export default function VendorAuthCodeErrorPage() {
       errorType="verification"
       routes={{
         login: '/partner/login',
-        verifyOrForgot: '/partner/auth/verify-email',
+        verifyOrForgot: '/partner/forgot-password',
         home: '/partner/dashboard',
         support: '/partner/contact'
       }}
       labels={{
-        homeButton: 'Return to dashboard'
+        homeButton: 'Return to home'
       }}
     />
   );
