@@ -489,7 +489,7 @@ export default function EditFormView({
           <Box>
             <FormFieldLabel>Upload a client photo</FormFieldLabel>
             <Typography variant="body2" color="text.primary" gutterBottom>
-              We recommend a photo with natural lighting or an outdoor setting.
+              We recommend a vertical (portrait) photo with natural lighting or an outdoor setting.
             </Typography>
             <ImageUpload
               ref={image.imageUploadRef}
