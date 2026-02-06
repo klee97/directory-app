@@ -76,10 +76,13 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
           <Link href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
             Privacy Policy
           </Link>
+          <Link href="/terms" style={{ color: "inherit", textDecoration: "none" }}>
+            Terms of Service
+          </Link>
         </Box>
         {/* Copyright */}
         <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
-          © {new Date().getFullYear()} Hair and Makeup Artists for Asian Beauty. All rights reserved.
+          © {new Date().getFullYear()} White Rabbit Brides LLC. All rights reserved.
         </Typography>
       </Box>
     </>

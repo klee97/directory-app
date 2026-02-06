@@ -10,4 +10,4 @@ export const getTags = unstable_cache(async (): Promise<VendorTag[]> => {
     .order('display_name', { ascending: true });
   if (error || !data) return [];
   return data;
-}, ['tags'], { revalidate: 3600 * 24 }); // cache for 24 hours
+}, ['tags', 'all-vendors'], { revalidate: 3600 * 24 }); // cache for 24 hours
