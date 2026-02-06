@@ -128,9 +128,9 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               </Button>
 
               {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }} color={isVendorLogin ? "secondary" : "primary"}>
+                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/signup">
+                  <Link component={NextLink} href="/signup" color={isVendorLogin ? "secondary" : "primary"}>
                     Sign up
                   </Link>
                 </Typography>
