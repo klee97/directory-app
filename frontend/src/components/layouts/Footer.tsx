@@ -54,16 +54,15 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
           <Link href="/partner" style={{ color: "inherit", textDecoration: "none" }}>
             For Vendors
           </Link>
-          {!isVendorFooter && (<Link href="/contact" style={{ color: "inherit", textDecoration: "none" }}>
-            Contact
-          </Link>
-          )}
           {isVendorFooter && (<Link href="/partner/contact" style={{ color: "inherit", textDecoration: "none" }}>
             Contact
           </Link>
           )}
           {!isVendorFooter && (
             <>
+              <Link href="/contact" style={{ color: "inherit", textDecoration: "none" }}>
+                Contact
+              </Link>
               <Link href="/faq" style={{ color: "inherit", textDecoration: "none" }}>
                 FAQ
               </Link>

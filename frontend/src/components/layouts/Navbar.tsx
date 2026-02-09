@@ -21,8 +21,6 @@ import Image from 'next/image';
 import Logo from '@/assets/logo.jpeg';
 import Collapse from '@mui/material/Collapse';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import Skeleton from '@mui/material/Skeleton';
 import Snackbar from '@mui/material/Snackbar';
@@ -31,15 +29,10 @@ import { AlertColor } from '@mui/material/Alert';
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import Settings from "@mui/icons-material/Settings";
-import Favorite from "@mui/icons-material/Favorite";
-import Logout from "@mui/icons-material/Logout";
-import { createClient } from '@/lib/supabase/client';
-import { useNotification } from '@/contexts/NotificationContext';
 import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
-import Edit from '@mui/icons-material/Edit';
 import { useAuth } from '@/contexts/AuthContext';
+import NavigationMenu from '@/components/layouts/NavigationMenu';
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
@@ -63,10 +56,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     severity: 'success',
   });
 
-  const { isLoggedIn } = useAuth();
-
-  const supabase = createClient();
-  const { addNotification } = useNotification();
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -99,7 +89,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   }, []);
 
   const { mode, setMode } = useColorScheme();
-  if (!mounted || !mode) {
+  if (!mounted || !mode || isAuthLoading) {
     return (
       <>
         <AppBar
@@ -162,18 +152,10 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     setNotification(prev => ({ ...prev, open: false }));
   };
 
-  const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      window.location.reload();
-      addNotification('Successfully logged out');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      addNotification('Failed to log out', 'error');
-    }
-  };
-
   const renderAuthButtons = () => {
+    if (isAuthLoading) {
+      return null; // Don't show anything while loading
+    }
     if (!isLoggedIn) {
       return (
         <Button
@@ -193,6 +175,9 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   const renderProfileMenu = () => {
+    if (isAuthLoading) {
+      return null; // Don't show anything while loading
+    }
     if (isLoggedIn) {
       return (
         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
@@ -221,51 +206,11 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             open={Boolean(anchorElProfile)}
             onClose={handleCloseProfileMenu}
           >
-            {!isVendorNavbar && (
-              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-                <ListItemIcon>
-                  <Favorite fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                    My Favorites
-                  </Typography>
-                </ListItemText>
-              </MenuItem>
-            )}
-            {isVendorNavbar && (
-              <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
-                <ListItemIcon>
-                  <Edit fontSize="small" />
-                </ListItemIcon>
-                <ListItemText>
-                  <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                    Dashboard
-                  </Typography>
-                </ListItemText>
-              </MenuItem>
-            )}
-            <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  Settings
-                </Typography>
-              </ListItemText>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={handleSignOut}>
-              <ListItemIcon>
-                <Logout fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>
-                <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  Sign Out
-                </Typography>
-              </ListItemText>
-            </MenuItem>
+            <NavigationMenu
+              isVendorNavbar={isVendorNavbar}
+              variant="menu"
+              onItemClick={handleCloseProfileMenu}
+            />
           </Menu>
         </Box>
       );
@@ -372,7 +317,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Collapse>
                   </Box>
                 )}
-                {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && (
+                {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && !isAuthLoading && (
                   <Box sx={{ width: '100%' }}>
                     <Divider />
                     {!isLoggedIn ? (
@@ -382,53 +327,11 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                         </Typography>
                       </MenuItem>
                     ) : (
-                      <>
-                        {!isVendorNavbar && (
-                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/favorites')}>
-                            <ListItemIcon>
-                              <Favorite fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>
-                              <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                                My Favorites
-                              </Typography>
-                            </ListItemText>
-                          </MenuItem>
-                        )}
-                        {isVendorNavbar && (
-                          <MenuItem onClick={(e) => handleMenuLinkClick(e, '/partner/dashboard')}>
-                            <ListItemIcon>
-                              <Edit fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>
-                              <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                                Dashboard
-                              </Typography>
-                            </ListItemText>
-                          </MenuItem>
-                        )}
-                        <MenuItem onClick={(e) => handleMenuLinkClick(e, !isVendorNavbar ? '/settings' : '/partner/settings')}>
-                          <ListItemIcon>
-                            <Settings fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>
-                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                              Settings
-                            </Typography>
-                          </ListItemText>
-                        </MenuItem>
-                        <Divider />
-                        <MenuItem onClick={handleSignOut}>
-                          <ListItemIcon>
-                            <Logout fontSize="small" />
-                          </ListItemIcon>
-                          <ListItemText>
-                            <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                              Sign Out
-                            </Typography>
-                          </ListItemText>
-                        </MenuItem>
-                      </>
+                      <NavigationMenu
+                        isVendorNavbar={isVendorNavbar}
+                        variant="menu"
+                        onItemClick={handleCloseNavMenu}
+                      />
                     )}
                   </Box>
                 )}
