@@ -7,6 +7,7 @@ import React from 'react';
 import { COMBO_PRICE_FIELDS, HAIR_PRICE_FIELDS, MAKEUP_PRICE_FIELDS, VendorFormData, VendorFormField } from '@/types/vendorFormData';
 import { getGoogleMapsErrorMessage, getUrlErrorMessage } from '@/lib/profile/normalizeUrl';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
+import { MAX_SERVICE_PRICE, MIN_SERVICE_PRICE } from './EditFormView';
 
 interface SectionIconProps {
   status: 'complete' | 'inProgress' | 'empty';
@@ -171,11 +172,15 @@ export const SECTIONS: Section[] = [
         ...(includeHair && includeMakeup ? COMBO_PRICE_FIELDS : []),
       ];
 
-      // Validate non-negative pricing
+      // Validate pricing constraints
       relevantFields.forEach(field => {
         const value = formData[field];
-        if (typeof value === 'number' && value < 0) {
-          errors[field] = 'Price cannot be negative';
+        if (typeof value === 'number') {
+          if (value < MIN_SERVICE_PRICE) {
+            errors[field] = 'Price cannot be negative';
+          } else if (value > MAX_SERVICE_PRICE) {
+            errors[field] = 'Price cannot exceed $99,999';
+          }
         }
       });
 
