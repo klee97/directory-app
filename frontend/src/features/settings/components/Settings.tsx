@@ -133,6 +133,13 @@ export const Settings = ({
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Prevent submission if email is the same as current
+    if (email.trim() === '' || email.toLowerCase() === userEmail?.toLowerCase()) {
+      addNotification('New email address must be different from current email', 'error');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -442,7 +449,7 @@ export const Settings = ({
             onClick={handleEmailChange}
             color="primary"
             variant="contained"
-            disabled={isSubmitting}
+            disabled={isSubmitting || email.trim() === '' || email.toLowerCase() === userEmail?.toLowerCase()}
           >
             {isSubmitting ? 'Updating...' : 'Update Email'}
           </Button>

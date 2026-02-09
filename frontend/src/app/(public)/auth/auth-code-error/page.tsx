@@ -11,7 +11,7 @@ export default function PublicAuthCodeErrorPage() {
         support: '/contact'
       }}
       labels={{
-        homeButton: 'Return to homepage'
+        homeButton: 'Return to home'
       }}
     />
   );

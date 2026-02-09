@@ -11,7 +11,7 @@ export default function VendorRecoveryCodeErrorPage() {
         support: '/partner/contact'
       }}
       labels={{
-        homeButton: 'Return to login'
+        homeButton: 'Return to home'
       }}
     />
   );
