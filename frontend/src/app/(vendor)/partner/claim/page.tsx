@@ -154,14 +154,14 @@ function VendorClaimPageContent() {
         return;
       }
 
-      // Sign in automatically
+      // Login in automatically
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email: vendorInfo.email,
         password,
       });
 
       if (signInError) {
-        setFormError("Account created, but sign-in failed. Please sign in manually.");
+        setFormError("Account created, but sign-in failed. Please log in manually.");
         setIsClaiming(false);
         return;
       }
@@ -188,7 +188,7 @@ function VendorClaimPageContent() {
                 fullWidth
                 sx={{ mb: 1 }}
               >
-                Sign In
+                Log In
               </Button>
               <Button
                 variant="outlined"
@@ -236,7 +236,7 @@ function VendorClaimPageContent() {
                 fullWidth
                 sx={{ mb: 1 }}
               >
-                Sign In
+                Log In
               </Button>
               <Button
                 variant="outlined"
@@ -267,7 +267,7 @@ function VendorClaimPageContent() {
                 onClick={() => router.push("/partner/login")}
                 fullWidth
               >
-                Sign In
+                Log In
               </Button>
             </>
           )
@@ -294,12 +294,12 @@ function VendorClaimPageContent() {
           <Card>
             <CardContent>
               <Typography variant="h2" gutterBottom>
-                You&apos;re already signed in
+                You&apos;re already logged in
               </Typography>
 
               <Typography variant="body1" sx={{ mb: 2 }}>
-                You&apos;re currently signed in as: <strong>{existingSession.user.email}</strong>.
-                Please sign out if you want to claim a different vendor profile.
+                You&apos;re currently logged in as: <strong>{existingSession.user.email}</strong>.
+                Please log out if you want to claim a different vendor profile.
               </Typography>
 
 
@@ -328,7 +328,7 @@ function VendorClaimPageContent() {
                   onClick={handleSignOutAndReload}
                   fullWidth
                 >
-                  Sign out
+                  Log out
                 </Button>
               </Box>
             </CardContent>

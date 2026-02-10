@@ -8,8 +8,12 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import Divider from '@mui/material/Divider';
 import { Section, SectionIcon } from './Section';
 import Alert from '@mui/material/Alert';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import NavigationMenu from '@/components/layouts/NavigationMenu';
 
 interface MenuViewProps {
   sections: Section[];
@@ -28,6 +32,9 @@ export default function MenuView({
   onPublish,
   hasUnpublishedChanges,
 }: MenuViewProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -91,6 +98,16 @@ export default function MenuView({
           );
         })}
       </List>
+
+      {/* Navigation options (visible on mobile) */}
+      {isMobile && (
+        <>
+          <Divider />
+          <List sx={{ py: 1 }}>
+            <NavigationMenu isVendorNavbar={true} variant="list" />
+          </List>
+        </>
+      )}
     </Box>
   );
 }
