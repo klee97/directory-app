@@ -25,6 +25,7 @@ import { validatePassword } from "@/utils/passwordValidation";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
 import { Session } from "@supabase/supabase-js";
+import TermsCheckbox from "@/components/layouts/TermsCheckbox";
 
 type ErrorType =
   | "invalid_link"
@@ -52,6 +53,8 @@ function VendorClaimPageContent() {
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
   const [errorType, setErrorType] = useState<ErrorType>(null);
   const [formError, setFormError] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   // Form fields
   const [password, setPassword] = useState("");
@@ -139,6 +142,11 @@ function VendorClaimPageContent() {
 
     if (!vendorInfo?.email) {
       setFormError("Missing vendor email.");
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setTermsError(true);
       return;
     }
 
@@ -449,6 +457,16 @@ function VendorClaimPageContent() {
                     </ul>
                   </Alert>
 
+                  <TermsCheckbox
+                    isVendorTerms={true}
+                    checked={acceptedTerms}
+                    onChange={(checked) => {
+                      setAcceptedTerms(checked);
+                      setTermsError(false);
+                    }}
+                    error={termsError}
+                  />
+
                   {/* Submit */}
                   <Button
                     onClick={handleClaim}
@@ -474,7 +492,7 @@ function VendorClaimPageContent() {
           </CardContent>
         </Card>
       </Box>
-    </Container>
+    </Container >
   );
 }
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export function loadMarkdown(slug: 'privacy' | 'user-terms') {
+export function loadMarkdown(slug: 'privacy' | 'user-terms' | 'vendor-terms') {
   const filePath = path.join(
     process.cwd(),
     'src',

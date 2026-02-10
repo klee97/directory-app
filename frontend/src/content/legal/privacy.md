@@ -4,7 +4,7 @@
 
 This Privacy Policy describes how White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**), operating the website asianweddingmakeup.com (the **"Site"**), collects, uses, and discloses your personal information when you visit or use our wedding vendor directory services or otherwise communicate with us (collectively, the **"Services"**).
 
-This Privacy Policy applies to anyone who accesses or uses our Site or Services (**"users"** or **"you"**). *Vendors who create partner accounts and use our vendor portal are subject to a separate Vendor Privacy Policy in addition to this Privacy Policy.*
+This Privacy Policy applies to anyone who accesses or uses our Site or Services (**"users"** or **"you"**).
 
 **Please read this Privacy Policy carefully.** By using and accessing the Site or Services, you agree to the collection, use, and disclosure of your information as described in this Privacy Policy. If you do not agree to this Privacy Policy, you may not use the Site or Services.
 

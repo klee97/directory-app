@@ -1,26 +1,29 @@
 # TERMS OF SERVICE
 
-*Last Updated: February 6, 2026*
+*Last Updated: February 10, 2026*
 
 These Terms of Service (**"Terms"**) govern your access to and use of our wedding vendor directory services available at asianweddingmakeup.com (the **"Site"**) and any related services we provide (collectively, the **"Services"**). The Services are operated by White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**).
 
-These Terms apply to anyone who accesses or uses our Site or Services (**"Users"** or **"you"**). *Vendors who create partner accounts and use our vendor portal are also subject to separate Vendor Terms of Service in addition to these Terms.*
+These Terms apply to anyone who accesses or uses our Site or Services (**"Users"** or **"you"**). *Vendors who create partner accounts and use our vendor portal are also subject to separate [Vendor Terms of Service](/vendor-terms) in addition to these Terms.*
 
 **By accessing or using the Site or Services, you agree to be bound by these Terms.** If you do not agree to these Terms, you may not use the Site or Services.
 
 ## 1. Overview of Services
 
-We operate a wedding vendor directory platform that connects Users with wedding vendors. Our Services allow you to:
+We operate a wedding vendor directory platform that connects Users with wedding vendors. The Platform curates vendors based on demonstrated experience, skill, and relevance to its intended audience. Vendor inclusion is not based on the vendor’s race, ethnicity, or personal identity.
+
+Our Services allow you to:
 
 - Browse and search our directory of wedding vendors
 - View vendor profiles, services, pricing, and portfolios
 - Submit inquiries to vendors you're interested in working with
 - Create an account to save favorite vendors and manage your preferences
 - Receive wedding planning resources and vendor recommendations
+- View vendor profiles, services, pricing, and portfolios, including profiles we prepopulate using publicly available business information for vendors who have not yet claimed their profiles
 
 ## 2. Account Registration and Security
 
-### Account Creation
+### 2.1 Account Creation
 
 While you may browse our directory without an account, creating an account allows you to save favorite vendors and manage your wedding planning preferences. When you create an account, you must:
 
@@ -29,15 +32,17 @@ While you may browse our directory without an account, creating an account allow
 - Be at least 18 years of age
 - Maintain the security of your password and account
 
-### Account Responsibility
+### 2.2 Account Responsibility
 
-You are responsible for all activities that occur under your account. You agree to notify us immediately of any unauthorized use of your account. We are not liable for any loss or damage arising from your failure to maintain account security.
+You are responsible for all activities that occur under your account. We are not liable for any loss or damage arising from your failure to maintain account security or from unauthorized access to your account.
 
 ## 3. Nature of Platform: Vendor Recommendations and Limitations
 
 We are a directory platform, not a wedding vendor. We provide a curated platform that recommends and connects users with independent third-party vendors. We do not provide wedding services such as makeup, photography, catering, or any other wedding-related services ourselves.
 
-### Our Recommendations and Limitations
+Some vendor profiles displayed on the Platform may be unclaimed and prepopulated by us using publicly available information. These profiles are provided for discovery and informational purposes only. We do not represent that such vendors have a relationship with us, have reviewed their profiles, or have agreed to be listed on the Platform.
+
+### 3.1 Our Recommendations and Limitations
 
 We curate our directory and provide vendor recommendations to help you find wedding professionals. However, we do not guarantee, warrant, or assume responsibility for the performance, quality, or conduct of any vendor. While we aim to feature quality vendors in our directory:
 
@@ -50,7 +55,7 @@ We curate our directory and provide vendor recommendations to help you find wedd
 
 Our recommendations are based on information available to us at the time of listing and do not constitute a guarantee of vendor performance or suitability for your specific needs.
 
-### Your Responsibility
+### 3.2 Your Responsibility
 
 You are solely responsible for: (a) evaluating vendors before engaging their services; (b) conducting your own due diligence, including checking current references, reviews, licenses, and insurance; (c) negotiating terms, pricing, and contracts directly with vendors; (d) ensuring vendors meet your specific needs and standards; and (e) resolving any disputes with vendors directly.
 
@@ -85,15 +90,30 @@ You agree to use the Services only for lawful purposes and in accordance with th
 
 ## 6. Intellectual Property Rights
 
-### Our Intellectual Property
+### 6.1 Our Intellectual Property
 
-The Services, including all content, features, functionality, software, text, graphics, logos, design elements, and the compilation and organization of vendor directory information (**"Platform Content"**), are owned by White Rabbit Brides LLC and are protected by copyright, trademark, and other intellectual property laws. This does not include Vendor Content submitted by third-party vendors.
+The Services, including all content, blog posts, features, functionality, software, text, graphics, logos, design elements, and the compilation and organization of vendor directory information (**"Platform Content"**), are owned by White Rabbit Brides LLC and are protected by copyright, trademark, and other intellectual property laws. This does not include Vendor Content submitted by third-party vendors.
 
 You may not copy, reproduce, distribute, modify, create derivative works of, publicly display, republish, download, store, or transmit any Platform Content except as necessary to use the Services for their intended purpose.
 
-### Vendor Content
+### 6.2 Vendor Content
 
-Vendor profiles, photos, portfolios, and other content submitted by vendors (**"Vendor Content"**) are owned by the respective vendors or their licensors. You may view Vendor Content for your personal, non-commercial use in connection with planning your wedding, but you may not copy, reproduce, or redistribute such content.
+Content submitted directly by vendors, including photos, portfolios, descriptions, and other materials ("Vendor Content"), is owned by the respective vendors or their licensors. You may view Vendor Content for your personal, non-commercial use in connection with planning your wedding, but you may not copy, reproduce, or redistribute such content.
+
+For vendors who have not claimed their profiles on the Platform, we may create and display profiles using basic factual information obtained from publicly available sources ("Prepopulated Vendor Information"), such as:
+
+- Business name and location
+- Pricing
+- Services offered
+- Specialty skills
+- Service area and travel capabilities
+- Links to public websites and social media profiles
+
+Prepopulated Vendor Information does not include client photos, creative works, or subjective editorial descriptions.
+
+Prepopulated Vendor Information is provided for informational and discovery purposes only and does not constitute an endorsement, guarantee, or recommendation of any vendor or their services. We do not guarantee the accuracy, completeness, or timeliness of such information and are not responsible for errors or omissions.
+
+You may view Prepopulated Vendor Information for personal, non-commercial use only and may not copy, reproduce, or redistribute it without our prior written consent.
 
 ### User Content and Inquiries
 
@@ -159,9 +179,9 @@ To the extent permitted by California law, you agree that any dispute will be re
 
 ## 10. Privacy and Data Protection
 
-Your use of the Services is also governed by our Privacy Policy, which is incorporated into these Terms by reference. By using the Services, you consent to our collection, use, and disclosure of your information as described in the Privacy Policy.
+Your use of the Services is also governed by our [Privacy Policy](/privacy), which is incorporated into these Terms by reference. By using the Services, you consent to our collection, use, and disclosure of your information as described in the Privacy Policy.
 
-If you are a resident of the European Economic Area (EEA), United Kingdom, or California, you may have additional rights under GDPR, UK GDPR, or the California Consumer Privacy Act (CCPA). Please see our Privacy Policy for information about exercising these rights.
+If you are a resident of the European Economic Area (EEA), United Kingdom, or California, you may have additional rights under GDPR, UK GDPR, or the California Consumer Privacy Act (CCPA). Please see our [Privacy Policy](/privacy) for information about exercising these rights.
 
 ## 11. Modifications to Terms and Services
 
@@ -179,7 +199,7 @@ Provisions of these Terms that by their nature should survive termination shall 
 
 ## 13. Third-Party Links and Services
 
-The Services may contain links to third-party websites, services, or resources, including vendor websites. We do not endorse and are not responsible for the content, products, services, or practices of any third parties. Your interactions with third parties are solely between you and the third party.
+The Services may contain links to third-party websites, services, or resources, including vendor websites. We do not endorse and are not responsible for the content, products, services, or practices of any third parties. Your interactions with third parties are solely between you and the third party. Vendor profiles may include links to third-party websites or social media pages, including for vendors who have not claimed their profiles. We do not control and are not responsible for the content or practices of such third-party sites.
 
 You acknowledge and agree that we shall not be responsible or liable for any damage or loss caused by your use of any third-party websites, services, or resources.
 
@@ -205,7 +225,41 @@ You may not assign or transfer these Terms or your account without our prior wri
 
 We shall not be liable for any delay or failure to perform resulting from causes outside our reasonable control, including but not limited to acts of God, war, terrorism, riots, embargoes, acts of civil or military authorities, fire, floods, accidents, network infrastructure failures, strikes, or shortages of transportation facilities, fuel, energy, labor, or materials.
 
-## 15. Contact Information
+
+## 15. Vendor Profile Corrections, Takedown Requests, and Content Claims
+
+### 15.1 Unclaimed Vendor Profile Corrections and Takedown Requests
+
+We respect the rights and interests of vendors listed on the Platform.
+
+If you are a vendor with an unclaimed or prepopulated profile and believe that:
+
+- any factual information displayed is inaccurate or outdated;
+- your business information is being displayed in error; or
+- you wish to claim, correct, or request removal of your profile,
+
+you may contact us through the contact page on the Site or by emailing support@mail.asianweddingmakeup.com. Upon receiving a reasonable request, we will make commercially reasonable efforts to review and address the request in a timely manner, which may include correcting information, temporarily disabling the profile, or removing the profile from the Platform.
+
+Submission of a request does not guarantee removal, correction, or modification, and we reserve the right to retain information where permitted by law.
+
+## 15.2 Photo and Visual Content Claims
+
+We do not intentionally include client photos, portfolio images, or other creative works in unclaimed or prepopulated vendor profiles. Any such content displayed on the Platform is either:
+
+- submitted directly by a vendor who has claimed their profile; or
+- displayed via links to third-party websites or social media platforms not controlled by us.
+
+If you believe that a photo or visual asset displayed on the Platform:
+
+- infringes your intellectual property rights;
+- violates your right of publicity or privacy; or
+- has been displayed in error,
+
+please contact us at support@mail.asianweddingmakeup.com with sufficient information to identify the content and your basis for the request. We will review the request and, where appropriate, remove or disable access to the content.
+
+Nothing in this section shall be construed as an admission of liability, wrongdoing, or fault.
+
+## 16. Contact Information
 
 If you have any questions about these Terms or the Services, please contact us at:
 
