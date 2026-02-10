@@ -52,7 +52,7 @@ const navigationOptions: NavigationOption[] = [
   },
   {
     id: 'signout',
-    label: 'Sign Out',
+    label: 'Log Out',
     icon: <LogoutIcon fontSize="small" />,
     action: 'signout',
     showForVendor: true,

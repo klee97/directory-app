@@ -4,7 +4,7 @@ import { getBaseUrl } from '@/lib/env/env';
 const supabase = createClient();
 
 export const updateEmail = async (currentPassword: string, newEmail: string, isVendor: boolean) => {
-  // Step 1: Verify current password via sign-in
+  // Step 1: Verify current password via log-in
   const { data: userData } = await supabase.auth.getUser();
   const currentEmail = userData.user?.email || '';
 

@@ -38,8 +38,8 @@ const errorContent = {
       'The authentication token is invalid'
     ],
     primaryButtonText: 'Log in',
-    secondaryButtonText: 'Get a new link',
-    secondaryButtonIcon: <EmailIcon />
+    secondaryButtonText: null,
+    secondaryButtonIcon: null
   },
   passwordReset: {
     title: 'Password Reset Link Failed',
