@@ -29,6 +29,8 @@ import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
+export const MIN_SERVICE_PRICE = 0;
+export const MAX_SERVICE_PRICE = 99999; // maximum price for validation
 
 interface EditFormViewProps {
   activeSection: string | null;
@@ -54,6 +56,7 @@ export default function EditFormView({
 
   const [showValidation, setShowValidation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [priceErrors, setPriceErrors] = useState<Partial<Record<string, string | null>>>({});
   const previousBlobUrlRef = useRef<string | null>(null);
 
   const image = useImageUploadField();
@@ -92,6 +95,11 @@ export default function EditFormView({
     };
 
   const handleSaveClick = async () => {
+    // Check for price errors first
+    if (hasPriceErrors) {
+      return; // Errors are already shown, no need to do anything
+    }
+
     if (!validationResult.isValid) {
       setShowValidation(true);
       return;
@@ -119,13 +127,50 @@ export default function EditFormView({
     };
   }, []);
 
+  // Clear price errors when section changes
+  useEffect(() => {
+    setPriceErrors({});
+  }, [activeSection]);
+
+  // Helper to validate a price value
+  const validatePrice = (value: number | null): string | null => {
+    if (value === null || value === undefined) return null;
+    if (value < MIN_SERVICE_PRICE) return 'Price cannot be negative';
+    if (value > MAX_SERVICE_PRICE) return `Price cannot exceed $${MAX_SERVICE_PRICE.toLocaleString()}`;
+    return null;
+  };
+
+  // Helper to handle price change with validation
+  const handlePriceChange = (fieldName: keyof VendorFormData, value: string) => {
+    const numValue = value === '' || Number(value) === 0 ? null : Number(value);
+
+    // Update form data
+    setFormData({
+      ...formData,
+      [fieldName]: numValue
+    });
+
+    // Validate and update error state
+    const error = validatePrice(numValue);
+    setPriceErrors(prev => ({
+      ...prev,
+      [fieldName]: error
+    }));
+  };
+
   // Helper to get error message for a field
   const getFieldError = (fieldName: VendorFormField): string | null => {
+    // Always show price errors in real-time
+    if (priceErrors[fieldName]) {
+      return priceErrors[fieldName] ?? null;
+    }
+    // Show other validation errors only after save attempt
     if (!showValidation) return null;
     return validationResult.errors[fieldName] ?? null;
   };
 
-  const isSaveDisabled = loading;
+  const hasPriceErrors = Object.values(priceErrors).some(error => error !== null && error !== undefined);
+  const isSaveDisabled = loading || hasPriceErrors;
 
   return (
     <Box sx={{
@@ -301,18 +346,15 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData["bridal_hair_&_makeup_price"] || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        "bridal_hair_&_makeup_price":
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange("bridal_hair_&_makeup_price", e.target.value)}
                       error={getFieldError('bridal_hair_&_makeup_price') ? true : false}
                       helperText={getFieldError('bridal_hair_&_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}
@@ -328,16 +370,13 @@ export default function EditFormView({
                       value={formData.bridal_hair_price || ''}
                       error={getFieldError('bridal_hair_price') ? true : false}
                       helperText={getFieldError('bridal_hair_price')}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        bridal_hair_price:
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange('bridal_hair_price', e.target.value)}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}
@@ -351,18 +390,15 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridal_makeup_price || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        bridal_makeup_price:
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange('bridal_makeup_price', e.target.value)}
                       error={getFieldError('bridal_makeup_price') ? true : false}
                       helperText={getFieldError('bridal_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}
@@ -376,18 +412,15 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData["bridesmaid_hair_&_makeup_price"] || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        "bridesmaid_hair_&_makeup_price":
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange("bridesmaid_hair_&_makeup_price", e.target.value)}
                       error={getFieldError('bridesmaid_hair_&_makeup_price') ? true : false}
                       helperText={getFieldError('bridesmaid_hair_&_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}
@@ -401,18 +434,15 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridesmaid_hair_price || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        bridesmaid_hair_price:
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange('bridesmaid_hair_price', e.target.value)}
                       error={getFieldError('bridesmaid_hair_price') ? true : false}
                       helperText={getFieldError('bridesmaid_hair_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}
@@ -426,18 +456,15 @@ export default function EditFormView({
                       fullWidth
                       type="number"
                       value={formData.bridesmaid_makeup_price || ''}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        bridesmaid_makeup_price:
-                          e.target.value === '' || Number(e.target.value) === 0 ? null : Number(e.target.value)
-                      })}
+                      onChange={(e) => handlePriceChange('bridesmaid_makeup_price', e.target.value)}
                       error={getFieldError('bridesmaid_makeup_price') ? true : false}
                       helperText={getFieldError('bridesmaid_makeup_price')}
                       slotProps={{
                         input: {
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                           inputProps: {
-                            min: 0
+                            min: MIN_SERVICE_PRICE,
+                            max: MAX_SERVICE_PRICE
                           }
                         }
                       }}

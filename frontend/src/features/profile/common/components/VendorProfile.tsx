@@ -135,16 +135,17 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
 
   const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
-  const resolvedLowestPrice = Math.min(
-    vendor.bridal_hair_makeup_price ?? Infinity,
-    vendor.bridal_hair_price ?? Infinity,
-    vendor.bridal_makeup_price ?? Infinity,
-    vendor.bridesmaid_hair_makeup_price ?? Infinity,
-    vendor.bridesmaid_hair_price ?? Infinity,
-    vendor.bridesmaid_makeup_price ?? Infinity
-  )
+  const prices = [
+    vendor.bridal_hair_makeup_price,
+    vendor.bridal_hair_price,
+    vendor.bridal_makeup_price,
+    vendor.bridesmaid_hair_makeup_price,
+    vendor.bridesmaid_hair_price,
+    vendor.bridesmaid_makeup_price
+  ].filter((price): price is number => price !== null && price !== undefined && price > 0);
 
-  const hasPricing = resolvedLowestPrice < Infinity;
+  const hasPricing = prices.length > 0;
+  const resolvedLowestPrice = hasPricing ? Math.min(...prices) : 0;
 
   const description = vendor.description
     ? vendor.description
