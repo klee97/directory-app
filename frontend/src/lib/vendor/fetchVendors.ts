@@ -53,7 +53,9 @@ export async function fetchAllVendors() {
         regions!metro_region_id(name),
         tags (id, display_name, name, type, is_visible, style),
         vendor_media (id, media_url)
-      `);
+      `)
+      .eq('include_in_directory', true)
+      ;
 
     if (!shouldIncludeTestVendors()) {
       query = query.not('id', 'like', 'TEST-%');
@@ -75,7 +77,7 @@ export const getCachedVendors = unstable_cache(
   fetchAllVendors,
   ["all-vendors", shouldIncludeTestVendors() ? "with-test" : "production-only"],
   {
-    revalidate: 86400,
+    revalidate: 86400, // 24 hours
     tags: ["all-vendors"]
   }
 );

@@ -6,6 +6,7 @@ on:
 
 jobs:
   deploy-preview:
+    if: github.actor != github.repository_owner # Skip if the PR is created by repo owner
     runs-on: ubuntu-latest
 
     steps:
