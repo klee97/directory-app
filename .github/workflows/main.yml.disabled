@@ -9,7 +9,7 @@ jobs:
   deploy:
     if: |
       github.event.pull_request.merged == true &&
-      (github.event.pull_request.merged_by.login == 'imalao')
+      (github.event.pull_request.merged_by.login == 'klee97')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
