@@ -29,7 +29,7 @@ jobs:
       - name: Deploy Preview
         id: deploy
         run: |
-          DEPLOY_URL=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --yes)
+          DEPLOY_URL=$(vercel deploy --archive=tgz --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --yes)
           echo "url=$DEPLOY_URL" >> $GITHUB_OUTPUT
 
       # 5️⃣ Comment PR with preview URL (sticky comment)
