@@ -1,6 +1,6 @@
 # VENDOR TERMS OF SERVICE
 
-*Last Updated: February 10, 2025*
+*Last Updated: February 11, 2025*
 
 These Vendor Terms of Service (**"Vendor Terms"**) govern your use of the vendor partner portal and services available through asianweddingmakeup.com (the **"Platform"**). The Platform is operated by White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**).
 
@@ -22,34 +22,28 @@ As a vendor on our Platform, you can:
 
 ## 2. Vendor Account Registration and Profile Management
 
-### 2.1 Profile Creation and Prepopulation
+### 2.1 When These Vendor Terms Apply
 
-We curate our vendor directory to provide value to Platform users seeking wedding vendors. As part of this curation, we may create and prepopulate vendor profiles using publicly available factual information about your business, including but not limited to:
+These Vendor Terms apply only once you claim your profile and create a vendor account. 
 
-- Business name and location
-- General pricing ranges from your public website or social media
-- Services offered
-- Service area and travel capabilities
-- Specialty skills
-- Links to your public website and social media profiles
-
-**We do not include client photos, creative content, or subjective editorial descriptions in prepopulated profiles.** Prepopulated profiles contain only basic factual business information to help prospective clients discover your services.
-
-**Profile prepopulation is for informational purposes only and does not constitute an endorsement, guarantee, or recommendation of quality.** We make reasonable efforts to ensure accuracy of prepopulated information but cannot verify all information in real-time. Prepopulated profiles are subject to our general Terms of Service Section 3 (Nature of Platform: Vendor Recommendations and Limitations).
-
-**When Vendor Terms Apply:** These Vendor Terms apply only once you claim your profile and create a vendor account. If you have not claimed your profile, only our general Terms of Service apply to the display of your business information on the Platform.
+If you have not claimed your profile, only our general Terms of Service apply to the display of your business information on the Platform. See our general [Terms of Service Section 6.3](/terms#63-vendor-content) for information about how we display unclaimed vendor profiles.
 
 ### 2.2 Claiming Your Business Profile
 
-You may claim your prepopulated business profile for free by:
+If we have created an unclaimed profile for your business, you may claim 
+it for free by:
 
 - Requesting a verification link sent to your business email address
 - Following the link to verify your identity and create a vendor account
 - Completing the account setup process
 
-By claiming your profile, you represent and warrant that you are authorized to represent the business and manage its listing on our Platform. Once you claim your profile, these Vendor Terms apply in full.
+If your business is not yet listed on the Platform and you would like to 
+be considered for inclusion, please contact us at support@mail.asianweddingmakeup.com.
 
-**Verified Badge:** Profiles that have been claimed and are actively managed by the vendor will display a "Verified" badge to distinguish them from prepopulated profiles.
+By claiming your profile, you represent and warrant that you are authorized 
+to represent the business and manage its listing on our Platform.
+
+**Verified Badge:** Profiles that have been claimed and are actively managed by the vendor will display a "Verified" badge to distinguish them from unclaimed profiles.
 
 ### 2.3 Profile Editing and Updates
 
@@ -63,11 +57,7 @@ Once you claim your profile, you gain the ability to:
 
 You are responsible for maintaining accurate and current information in your profile. We are not liable for any losses resulting from outdated or incorrect information in your profile.
 
-### 2.4 Unclaimed Profile Management
-
-If you have not claimed your profile, you may still request updates or removal by contacting us at support@mail.asianweddingmakeup.com. We will review and process such requests within 5 business days.
-
-### 2.5 Profile Deletion and Data Rights
+### 2.4 Profile Deletion and Data Rights
 
 You may request deletion of your claimed business profile at any time by contacting us at support@mail.asianweddingmakeup.com. Upon receiving a valid deletion request:
 
@@ -76,7 +66,7 @@ You may request deletion of your claimed business profile at any time by contact
 - Any unused inquiry credits will be forfeited (see Section 4.7)
 - We may retain certain information as required by law or for legitimate business purposes, as described in our [Privacy Policy](/privacy)
 
-### 2.6 Account Security
+### 2.5 Account Security
 
 When you create a vendor account, you must:
 
@@ -92,7 +82,7 @@ You are responsible for all activities that occur under your account. We are not
 
 ### 3.1 Your Content Ownership and License
 
-You retain all ownership rights to content you upload to your profile, including photos, descriptions, pricing information, and other materials (**"Vendor Content"**). By uploading Vendor Content to the Platform, you grant us a non-exclusive, worldwide, royalty-free, sublicensable license to:
+You retain all ownership rights to content you upload, submit, provide to us, authorize us to use, or allow to remain on your profile, including photos, descriptions, pricing information, and other materials ("Vendor Content"). By uploading Vendor Content to the Platform, you grant us a non-exclusive, worldwide, royalty-free, sublicensable license to:
 
 - Display your Vendor Content on the Platform and in promotional materials
 - Reproduce, distribute, and transmit your Vendor Content to Platform users
@@ -103,19 +93,16 @@ This license continues for as long as your profile is active and for a reasonabl
 
 ### 3.2 Photo Upload Requirements and Representations
 
-When uploading photos to your profile, you represent and warrant that:
+When uploading photos to your profile, providing photos to us, authorizing us to use photos (including from social media), or allowing photos to remain on your claimed profile, you represent and warrant that:
 
-- You own all rights to the photos or have obtained all necessary permissions and licenses
+- You either own the copyright in the photos or have obtained all necessary rights, licenses, and permissions from the copyright owner (including, where applicable, the photographer)
+- Any license obtained permits you to upload the photo to the Platform and to grant us the license described in Section 3.1
+- You have complied with any applicable attribution or credit requirements associated with the photos.
 - For photos containing identifiable people (including clients, models, or subjects), you have obtained written consent from all individuals depicted to use their image for commercial purposes, including publication on third-party platforms
 - Your photos do not infringe any copyright, trademark, privacy right, publicity right, or other intellectual property or proprietary right
 - Your photos do not contain any defamatory, obscene, or unlawful content
-- You have the right to grant us the license described in Section 3.1
 
-**Special Requirements for Client Photos:** If you upload photos of real weddings or clients:
-
-- You must have a signed photo release from the couple and any identifiable individuals
-- The release must permit commercial use and publication on third-party platforms
-- You must remove photos immediately upon request from the individuals depicted
+You are solely responsible for ensuring that your use of any photo complies with your agreements with photographers, clients, or other third parties.
 
 ### 3.3 Indemnification for Content Claims
 
@@ -151,7 +138,24 @@ We may remove or suspend profiles that contain materially false or misleading in
 
 ### 3.6 Use of Crowdsourced and Third-Party Content
 
-We may display crowdsourced content, user reviews, recommendations, and publicly available information about your business as part of your profile, even if you have not claimed your profile. This is permitted under our general Terms of Service. If you believe any such content is factually inaccurate or inappropriate, you may request review by contacting us at support@mail.asianweddingmakeup.com. We will review such requests but reserve final discretion on content decisions.
+We may display crowdsourced content, user reviews, recommendations, and publicly available information about your business as part of your profile. If you believe any such content is factually inaccurate or inappropriate, you may request review by contacting us at support@mail.asianweddingmakeup.com. We will review such requests but reserve final discretion on content decisions.
+
+### 3.7 Pre-Existing and Platform-Added Content
+
+We may create unclaimed profiles for vendors using publicly available information, including business descriptions, social media content, and portfolio images.
+
+If we have added photos or other content to your unclaimed profile prior to your claiming it, such content will be considered “Vendor Content” once you claim your profile.
+
+By claiming your profile and allowing any existing photos or content to remain published on the Platform, you:
+
+- Represent and warrant that you have reviewed such content
+- Confirm that you have the necessary rights, licenses, permissions, and releases required under Section 3.2
+- Adopt such content as your own Vendor Content under these Vendor Terms
+- Grant us the license described in Section 3.1 with respect to such content
+
+If you do not have the necessary rights to any pre-existing content, you must promptly remove it upon claiming your profile.
+
+We reserve the right to remove pre-existing content from unclaimed profiles at any time in our discretion.
 
 ## 4. Inquiry System and Payment Terms
 
@@ -678,7 +682,6 @@ You agree that all agreements, notices, disclosures, and other communications th
 
 You may opt out of marketing and promotional emails by:
 - Clicking the "unsubscribe" link in any marketing email
-- Adjusting your communication preferences in your vendor account settings
 - Contacting us at support@mail.asianweddingmakeup.com
 
 **Note:** You cannot opt out of transactional or administrative communications related to your vendor account (inquiry notifications, account security, terms updates, etc.).
