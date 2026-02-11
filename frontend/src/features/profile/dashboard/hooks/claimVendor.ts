@@ -142,10 +142,10 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     };
   }
 
-  // Clear the access token so it can't be reused
+  // Clear the access token so it can't be reused and update verified_at timestamp
   await supabaseAdmin
     .from('vendors')
-    .update({ access_token: null })
+    .update({ access_token: null, verified_at: new Date().toISOString() })
     .eq('id', vendor.id);
 
   return {

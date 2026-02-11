@@ -10,7 +10,6 @@ import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import HomeIcon from '@mui/icons-material/Home'
-import EmailIcon from '@mui/icons-material/Email'
 import RefreshIcon from '@mui/icons-material/Refresh'
 
 type ErrorType = 'verification' | 'passwordReset';
