@@ -15,6 +15,7 @@ import Link from "@mui/material/Link";
 import PhotoPromptBanner from "@/components/ui/banners/PhotoPromptBanner";
 import BadgeToolkitCard from "./cards/BadgeToolkitCard";
 import PremiumWaitlistCard from "./cards/PremiumCard";
+import PhotoReviewCard from "./cards/PhotoReviewCard";
 
 interface DashboardContentProps {
   vendor: VendorByDistance | null;
@@ -52,6 +53,16 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
     );
   }
 
+
+  const handlePhotoSubmit = (approved: boolean, credits?: string) => {
+    console.log("Photo approved:", approved, "Credits:", credits);
+    // TODO: Call your API to save approval and credits
+  };
+
+  // Assume a single photo workflow
+  const pendingPhotoUrl =
+    vendor.images.length > 0 && !vendor.photoApproved ? vendor.images[0] : null;
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ mt: 4, mb: 6 }}>
@@ -77,11 +88,15 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
         </Box>
 
         {/* Photo Prompt CTA */}
-        {vendor.images.length === 0 && (
-          <Box sx={{ mb: 4 }}>
-            <PhotoPromptBanner hasProfilePhoto={vendor.images.length > 0} />
-          </Box>
+        <Box sx={{ mb: 4 }}>
+          <PhotoPromptBanner hasProfilePhoto={false} />
+        </Box>
 
+        {/* Review Photo Card */}
+        {pendingPhotoUrl && (
+          <Box sx={{ mb: 4 }}>
+            <PhotoReviewCard photoUrl={pendingPhotoUrl} onSubmit={handlePhotoSubmit} />
+          </Box>
         )}
 
         <Grid container spacing={3}>
