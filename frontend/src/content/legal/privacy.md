@@ -6,11 +6,11 @@ This Privacy Policy describes how White Rabbit Brides LLC, doing business as Asi
 
 This Privacy Policy applies to anyone who accesses or uses our Site or Services, including:
 - **Users** who browse, access, or use our Services for personal event planning purposes
-- **Vendors** who create vendor accounts, claim profiles, or are listed on our Platform (whether or not they have claimed their profiles)
+- **Vendors** who create Vendor accounts, claim profiles, or are listed on our Platform (whether or not they have claimed their profiles)
 
 **Please read this Privacy Policy carefully.** By using and accessing the Site or Services, you agree to the collection, use, and disclosure of your information as described in this Privacy Policy. If you do not agree to this Privacy Policy, you may not use the Site or Services.
 
-**For Vendors:** This Privacy Policy applies to you whether you have claimed your profile or not. If you have claimed a vendor account, you are also subject to our [Vendor Terms of Service](/vendor-terms), which contain additional provisions about how we use Vendor information.
+**For Vendors:** This Privacy Policy applies to you whether you have claimed your profile or not. If you have claimed a Vendor account, you are also subject to our [Vendor Terms of Service](/vendor-terms), which contain additional provisions about how we use Vendor information.
 
 ## 1. Changes to This Privacy Policy
 
@@ -26,13 +26,13 @@ The types of personal information we obtain about you depends on how you interac
 
 #### Information You Provide Directly
 
-When you create a user account, submit vendor inquiries, or use our Services, we collect:
+When you create a User account, submit vendor inquiries, or use our Services, we collect:
 
 - **User Account Information:** Name, email address, password, profile information, and preferences.
 
 - **Vendor Inquiry Information:** Name, email address, wedding or event date, location, estimated number of people, budget range, service preferences (such as makeup style preferences), and any message or details you provide about your event needs.
 
-- **User Preferences:** Favorited vendors, saved searches, and directory browsing preferences.
+- **User Preferences:** Favorited Vendors, saved searches, and directory browsing preferences.
 
 - **Authentication Data:** Information needed for user authentication through our service provider.
 
@@ -40,7 +40,7 @@ When you create a user account, submit vendor inquiries, or use our Services, we
 
 We collect information about your interaction with the Services, including:
 
-- **Activity Data:** Pages visited, features used, vendors viewed or contacted, search queries, and inquiry submissions.
+- **Activity Data:** Pages visited, features used, Vendors viewed or contacted, search queries, and inquiry submissions.
 
 - **Analytics Data:** We collect usage patterns, heatmaps, and session recordings to improve our Services and user experience.
 
@@ -48,7 +48,7 @@ We collect information about your interaction with the Services, including:
 
 #### Information You Provide Directly (Claimed Vendor Accounts)
 
-When you claim a vendor account or use our vendor portal, we collect:
+When you claim a Vendor account or use our Vendor portal, we collect:
 
 - **Vendor Account Information:** Business name, your name, email address, password, and account preferences.
 
@@ -64,7 +64,7 @@ When you claim a vendor account or use our vendor portal, we collect:
 
 #### Information We Collect About Unclaimed Vendor Profiles
 
-For vendors who have not yet claimed their profiles, we may collect and display:
+For Vendors who have not yet claimed their profiles, we may collect and display:
 
 - **Publicly Available Business Information:** Business name, location, services offered, pricing ranges, service areas, specialty skills, and links to your public website and social media profiles obtained from public sources.
 
@@ -130,10 +130,10 @@ Unless we have your consent, we will only use the personal information we collec
 
 **For Users Planning Events:**
 - Create, maintain and manage your account
-- Save your vendor favorites and preferences
+- Save your Vendor favorites and preferences
 - **Facilitate vendor inquiries by transmitting your inquiry information to the vendors you choose to contact**
 - Provide wedding planning resources and vendor recommendations
-- Recommend suitable vendors to you based on your preferences
+- Recommend suitable Vendors to you based on your preferences
 
 **For Vendors:**
 - Create, maintain and manage your account
@@ -157,15 +157,15 @@ Unless we have your consent, we will only use the personal information we collec
 
 **Marketing Communications:**
 - Send marketing, advertising, and promotional emails
-- Provide wedding planning guides and vendor recommendations (for users)
-- Share platform updates and new vendor opportunities (for vendors)
+- Provide wedding planning guides and vendor recommendations for Users
+- Share platform updates and new opportunities for Vendors
 - Send newsletters and promotional offers
 
 You can opt out of marketing communications at any time using the unsubscribe link in our emails or by contacting us.
 
 **Transactional Communications:**
 - Send account-related notifications
-- Deliver inquiry notifications (for vendors)
+- Deliver inquiry notifications for Vendors
 - Provide customer support responses
 - Send service updates and important notices
 
@@ -250,9 +250,9 @@ Most browsers automatically accept Cookies by default, but you can choose to set
 
 ## 6. Third-Party Websites and Links
 
-Our Site may provide links to third-party websites (including vendor websites and social media profiles). We do not endorse and are not responsible for the content, privacy practices, or security of these third parties.
+Our Site may provide links to third-party websites (including Vendor websites and social media profiles). We do not endorse and are not responsible for the content, privacy practices, or security of these third parties.
 
-**Vendor Websites:** Vendor profiles and blog posts may include links to external websites and social media pages. We do not control these sites or their privacy practices.
+**Vendor Websites:** Vendor profiles may include links to external websites and social media pages. We do not control these sites or their privacy practices.
 
 Information you provide on third-party platforms may be viewable by others and is subject to those platforms' terms and privacy policies.
 
@@ -292,7 +292,7 @@ How long we retain your personal information depends on different factors, such 
 
 Depending on where you live, you may have some or all of the rights listed below. However, these rights are not absolute, may apply only in certain circumstances, and we may decline your request as permitted by law.
 
-### 9.1 Rights for All Users
+### 9.1 Rights for All Users and Vendors
 
 - **Right to Access:** Request access to personal information we hold about you
 
@@ -332,7 +332,7 @@ Contact us at support@mail.asianweddingmakeup.com or through our [Contact](/part
 
 **Claimed Vendor Accounts:**
 
-See our [Vendor Terms of Service Section 2.4](/vendor-terms#24-profile-deletion-and-data-rights) for information about deleting your claimed vendor account and associated data.
+See our [Vendor Terms of Service Section 2.4](/vendor-terms#24-profile-deletion-and-data-rights) for information about deleting your claimed Vendor account and associated data.
 
 ### 9.4 How to Exercise Your Rights
 
@@ -365,11 +365,10 @@ We collect and may disclose the following categories of personal information to 
 |----------|----------|
 | Identifiers | Name, email, IP address, device ID |
 | Personal Information (Cal. Civ. Code § 1798.80) | Name, address, phone, payment info |
-| Protected Classifications | Demographic info (if voluntarily provided) |
-| Commercial Information | Inquiry history, purchase records, vendor interactions |
+| Commercial Information | Inquiry history, purchase records, Vendor interactions |
 | Internet/Network Activity | Browsing history, search history, site interactions |
 | Geolocation Data | General location based on IP |
-| Professional Information | Business name, services offered (vendors) |
+| Professional Information | Business name, services offered (Vendors) |
 | Inferences | Preferences, characteristics, behavior |
 
 **We do not sell or share your personal information for cross-context behavioral advertising (targeted advertising).**
@@ -408,7 +407,7 @@ If you are not satisfied with our response, depending on where you live, you may
 - Lodge a complaint with your local data protection authority (for EEA/UK residents)
 - File a complaint with the California Attorney General (for California residents)
 
-## 13. Vendor Data Responsibilities (For Vendors Only)
+## 13. Data Responsibilities For Vendors
 
 ### 13.1 How Vendors Receive and Use Inquiry Data
 
@@ -456,9 +455,9 @@ If you use our vendor badge on your website:
 
 When we make material changes to this Privacy Policy:
 - We will update the "Last Updated" date
-- We will notify active account holders via email
+- We will notify active User account holders via email
 - We will post a prominent notice on our Site
-- For vendors, we will provide 30 days notice before material changes take effect
+- For Vendors with accounts, we will provide 30 days notice before material changes take effect
 
 Your continued use of the Services after changes become effective constitutes acceptance of the updated Privacy Policy.
 
