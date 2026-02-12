@@ -1,6 +1,6 @@
 # VENDOR TERMS OF SERVICE
 
-*Last Updated: February 11, 2025*
+*Last Updated: February 12, 2026*
 
 These Vendor Terms of Service (**"Vendor Terms"**) govern your use of the vendor partner portal and services available through asianweddingmakeup.com (the **"Platform"**). The Platform is operated by White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**).
 
@@ -19,6 +19,7 @@ As a vendor on our Platform, you can:
 - Receive qualified wedding inquiries from prospective clients
 - Purchase leads on a pay-per-inquiry basis
 - Showcase your work to couples planning their weddings
+- Display a directory membership badge on your website (see Section 3.8)
 
 ## 2. Vendor Account Registration and Profile Management
 
@@ -157,6 +158,52 @@ If you do not have the necessary rights to any pre-existing content, you must pr
 
 We reserve the right to remove pre-existing content from unclaimed profiles at any time in our discretion.
 
+
+### 3.8 Vendor Badge License
+
+**Badge Availability:**
+
+Vendors with active, claimed profiles in good standing may display a directory membership badge (the **"Vendor Badge"**) on their own websites and marketing materials to indicate their listing on our Platform.
+
+**License Grant:**
+
+We grant you a limited, non-exclusive, non-transferable, revocable license to use the Vendor Badge solely to indicate that your business is listed on the Platform, subject to the following restrictions:
+
+**Permitted Uses:**
+- Display the badge on your business website
+- Include the badge in email signatures
+- Use the badge in printed marketing materials (business cards, brochures, etc.)
+- The badge must link directly to your Platform profile when used on digital media
+
+**Prohibited Uses:**
+
+You may not:
+- Modify, alter, or create derivative works of the Vendor Badge
+- Use the Vendor Badge in any way that implies endorsement, sponsorship, partnership, or official affiliation beyond your directory listing
+- Use the Vendor Badge to suggest we guarantee, warrant, or verify your services or quality
+- Make false or misleading claims about your relationship with the Platform
+- Use the Vendor Badge after your vendor account is terminated or suspended
+- Use the Vendor Badge in a manner that disparages us or damages our reputation
+- Sell, transfer, or sublicense the Vendor Badge to third parties
+
+**Trademark Ownership:**
+
+The Vendor Badge, the "Asian Wedding Makeup" name, logo, and all related trademarks remain our exclusive property. Your use of the Vendor Badge does not grant you any ownership rights in our trademarks.
+
+**Revocation:**
+
+We may revoke your right to use the Vendor Badge at any time, with or without cause, including but not limited to if:
+- Your vendor account is suspended or terminated
+- You violate these usage restrictions
+- You are no longer in good standing on the Platform
+- We discontinue the badge program
+
+Upon revocation or termination of your vendor account, you must immediately remove the Vendor Badge from all websites, marketing materials, and other uses.
+
+**No Obligation to Provide:**
+
+We are not obligated to provide the Vendor Badge and may modify, discontinue, or change the badge design at any time without notice.
+
 ## 4. Inquiry System and Payment Terms
 
 ### 4.1 Pay-Per-Inquiry Model
@@ -218,11 +265,11 @@ When a prospective client submits an inquiry to your business:
 
 ### 4.6 Payment Methods and Processing
 
-Payment is processed through third-party payment processors using your selected payment method. We reserve the right to change payment methods, processors, or implement in-platform payment processing with notice to vendors.
+Payment is processed through third-party payment processors using your selected payment method. We reserve the right to change payment methods, processors, or implement in-platform payment processing at any time.
+
+We will provide 30 days advance notice of changes to how you make payments or access purchased inquiries.
 
 All payments are in U.S. Dollars. You are responsible for any currency conversion fees, bank fees, or payment processing fees charged by your financial institution or payment processor.
-
-**Future Payment Processing:** We reserve the right to implement in-platform payment processing, change payment processors, or modify payment methods at any time. We will provide 30 days advance notice of material changes to payment processing methods.
 
 ### 4.7 Real Response Guarantee
 
@@ -355,7 +402,7 @@ You may not use the Platform or vendor services to:
 
 ### 7.1 Independent Contractor Relationship
 
-You are an independent business and contractor. Nothing in these Vendor Terms creates an employment, partnership, joint venture, agency, or franchise relationship between you and Asian Wedding Makeup. You are solely responsible for:
+You are an independent business and contractor. Nothing in these Vendor Terms creates an employment, partnership, joint venture, agency, or franchise relationship between you and White Rabbit Brides LLC. You are solely responsible for:
 
 - Operating your business in accordance with all applicable laws and regulations
 - Negotiating contracts and terms with prospective clients
@@ -420,9 +467,6 @@ Your continued use of the vendor services after any changes constitutes acceptan
 We may introduce new services, features, or functionality to the Platform, including but not limited to:
 
 - In-platform inquiry management and communication tools
-- Integrated payment processing between vendors and clients
-- Calendar and booking management
-- Contract generation tools
 - Analytics and reporting dashboards
 - Advertising or featured placement opportunities
 
@@ -481,7 +525,7 @@ Upon termination by either party:
 
 - Your access to the vendor portal will be immediately revoked
 - Your profile will be removed from public display (subject to reasonable technical processing time)
-- You must immediately cease using our trademarks, branding, and Platform materials
+- You must immediately cease using our trademarks, branding, and Platform materials, including removing any Vendor Badges from your website and marketing materials
 - All inquiry purchases and payments made before termination remain final and non-refundable (subject to Section 4.7)
 - We may retain your information as described in our [Privacy Policy](/privacy) and as required by law
 - You will remain bound by provisions that survive termination

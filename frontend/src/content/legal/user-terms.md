@@ -1,6 +1,6 @@
 # TERMS OF SERVICE
 
-*Last Updated: February 11, 2026*
+*Last Updated: February 12, 2026*
 
 These Terms of Service (**"Terms"**) govern your access to and use of our wedding vendor directory services available at asianweddingmakeup.com (the **"Site"**) and any related services we provide (collectively, the **"Services"**). The Services are operated by White Rabbit Brides LLC, doing business as Asian Wedding Makeup (**"we"**, **"us"**, or **"our"**).
 
