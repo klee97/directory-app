@@ -44,7 +44,7 @@ be considered for inclusion, please contact us at support@mail.asianweddingmakeu
 By claiming your profile, you represent and warrant that you are authorized 
 to represent the business and manage its listing on our Platform.
 
-**Verified Badge:** Profiles that have been claimed and are actively managed by the vendor will display a "Verified" badge to distinguish them from unclaimed profiles.
+**Verified Checkmark:** Profiles that have been claimed and are actively managed by the vendor will display a "Verified" checkmark to distinguish them from unclaimed profiles.
 
 ### 2.3 Profile Editing and Updates
 

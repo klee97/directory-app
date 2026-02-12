@@ -103,7 +103,7 @@ Content submitted directly by vendors, including photos, portfolios, description
 
 Some vendor profiles displayed on the Platform have not been claimed by the vendor through our vendor portal ("Unclaimed Profiles").
 
-**Verified Badge:** Profiles that have been claimed by the vendor and are actively managed will display a "Verified" badge. Unclaimed Profiles do not display this badge.
+**Verified Checkmark:** Profiles that have been claimed by the vendor and are actively managed will display a "Verified" checkmark. Unclaimed Profiles do not display this checkmark.
 
 Unclaimed Profiles may include:
 - Basic factual business information from publicly available sources
