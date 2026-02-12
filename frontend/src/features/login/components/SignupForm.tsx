@@ -19,6 +19,7 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
+import TermsCheckbox from "@/components/layouts/TermsCheckbox";
 
 export function SignupForm() {
   const router = useRouter();
@@ -27,6 +28,8 @@ export function SignupForm() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [termsError, setTermsError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,6 +48,12 @@ export function SignupForm() {
     const validation = validatePassword(password);
     if (!validation.isValid) {
       setPasswordError(validation.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setTermsError(true);
       setIsSubmitting(false);
       return;
     }
@@ -153,6 +162,16 @@ export function SignupForm() {
                 <li>At least one special character: {'!@#$%^&*(),.?'}</li>
               </ul>
             </Alert>
+
+            <TermsCheckbox
+              isVendorTerms={false}
+              checked={acceptedTerms}
+              onChange={(checked) => {
+                setAcceptedTerms(checked);
+                setTermsError(false);
+              }}
+              error={termsError}
+            />
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
               <Button
