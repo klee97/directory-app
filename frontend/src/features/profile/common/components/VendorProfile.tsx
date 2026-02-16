@@ -35,6 +35,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 import { getDefaultBio } from '../utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
+import { Email } from '@mui/icons-material';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -43,7 +44,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
+const ContactCard = ({ vendor, isFavorite, isPaused }: { vendor: Vendor, isFavorite: boolean, isPaused: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
@@ -60,38 +61,52 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
         Love their work?
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-        <Button
-          variant="contained"
-          sx={{ borderRadius: 6, paddingY: 1 }}
-          onClick={() => setFormOpen(true)}
-        >
-          Get a Quote
-        </Button>
+        {isPaused ? (
+          <Button
+            variant="contained"
+            startIcon={<Email />}
+            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
+            target="_blank"
+            rel={vendor.email ? undefined : 'noopener noreferrer'}
+          >
+            Contact Artist
+          </Button>
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              sx={{ borderRadius: 6, paddingY: 1 }}
+              onClick={() => setFormOpen(true)}
+            >
+              Get a Quote
+            </Button>
 
-        <Dialog
-          open={formOpen}
-          onClose={(event, reason) => {
-            if (reason !== 'backdropClick') {
-              setFormOpen(false);
-            }
-          }} maxWidth="md"
-          fullWidth
-          fullScreen={isMobile}
-        >
-          <DialogContent sx={{ p: 0 }}>
-            <LeadCaptureForm
-              onClose={() => setFormOpen(false)}
-              vendor={{
-                name: vendor.business_name ?? '',
-                slug: vendor.slug ?? '',
-                id: vendor.id,
-                serviceTags: serviceTags,
-                location: defaultLocation ?? '',
-              }}
-              isModal={true}
-            />
-          </DialogContent>
-        </Dialog>
+            <Dialog
+              open={formOpen}
+              onClose={(event, reason) => {
+                if (reason !== 'backdropClick') {
+                  setFormOpen(false);
+                }
+              }} maxWidth="md"
+              fullWidth
+              fullScreen={isMobile}
+            >
+              <DialogContent sx={{ p: 0 }}>
+                <LeadCaptureForm
+                  onClose={() => setFormOpen(false)}
+                  vendor={{
+                    name: vendor.business_name ?? '',
+                    slug: vendor.slug ?? '',
+                    id: vendor.id,
+                    serviceTags: serviceTags,
+                    location: defaultLocation ?? '',
+                  }}
+                  isModal={true}
+                />
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
 
         {/* Favorite Button */}
         <FavoriteButton
@@ -129,6 +144,10 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
   const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
   const searchQuery = searchParams?.get(SEARCH_PARAM);
+
+  const allowlistIds = process.env.NEXT_PUBLIC_ALLOWLIST_VENDOR_SLUGS?.split(',') || [];
+  const isAllowlisted = vendor.slug ? allowlistIds.includes(vendor.slug) : false;
+  const isPaused = process.env.NEXT_PUBLIC_TRANSITION_ENABLED === 'true' && !isAllowlisted;
 
   const theme = useTheme();
   const supabase = createClient();
@@ -462,7 +481,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                 </Paper>
               </Box>
               {/* Testimonials */}
-              {vendor.testimonials && vendor.testimonials[0] && (
+              {!isPaused && vendor.testimonials && vendor.testimonials[0] && (
                 <>
                   <Divider sx={{ marginTop: 4, marginBottom: 4 }} />
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
@@ -517,7 +536,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                   display: { xs: 'block', md: 'none' }, // show only when stacked
                 }}
               />
-              <ContactCard vendor={vendor} isFavorite={isFavorite} />
+              <ContactCard vendor={vendor} isFavorite={isFavorite} isPaused={isPaused} />
             </Grid>
           </Grid>
           {nearbyVendors && nearbyVendors.length > 0 && (

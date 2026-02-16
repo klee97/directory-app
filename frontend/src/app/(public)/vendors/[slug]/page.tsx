@@ -12,6 +12,7 @@ import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
+import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -91,6 +92,9 @@ export default async function VendorPage({ params }: PageProps) {
     country: vendor.country,
   }
 
+  const breadcrumbs = await generateBreadcrumbSlugs(address);
+
+
   // Define JSON-LD schema for the vendor
   const jsonLd = {
     "@context": "https://schema.org",
@@ -123,7 +127,7 @@ export default async function VendorPage({ params }: PageProps) {
       <Suspense fallback={<div>Loading...</div>}>
         <BackButton />
         <Container sx={{ py: 4 }}>
-          <LocationBreadcrumbs address={address} />
+          <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
         </Container>
       </Suspense>
       <VendorProfile vendor={vendor} nearbyVendors={nearbyVendors} />
