@@ -70,7 +70,8 @@ For Vendors who have not yet claimed their profiles, we may collect and display:
 
 - **Vendor-Provided Content:** Photos, business descriptions, and other content you previously provided to us directly (via email, forms, or other communication) prior to claiming your profile.
 
-We do not scrape client photos, creative works, or proprietary content from third-party sources without permission.
+We collect only factual business information from publicly available sources (such as business name, location, services, and pricing). We do not collect 
+client photos, portfolio images, creative works, or proprietary content without the vendor's permission.
 
 #### Information About Vendor Performance
 
