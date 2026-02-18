@@ -8,7 +8,6 @@ export type VendorMedia = Pick<BackendVendorMedia, 'id'
   | 'credits'
   | 'media_url'
   | 'is_featured'
-  | 'approved_at'
   | 'vendor_id'
 > & {
   source: string,

@@ -230,7 +230,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
-              vendorSlug={vendor.slug || ''}
+              vendorSlug={vendor.slug!}
               vendorId={vendor.id}
               tags={tags}
             />

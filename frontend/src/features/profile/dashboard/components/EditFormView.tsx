@@ -28,6 +28,7 @@ import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Checkbox from '@mui/material/Checkbox';
+import { VendorMediaDraft, VendorMediaForm } from '@/types/vendorMedia';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
 export const MIN_SERVICE_PRICE = 0;
@@ -111,20 +112,29 @@ export default function EditFormView({
       setIsSaving(true);
       // Upload image if changed and get the real URL
       const uploadedUrl = await image.uploadIfChanged(vendorSlug, formData.cover_image);
+
+      let coverImage: VendorMediaForm | null;
+
       // Ensure the constructed object includes required VendorMediaBase fields
-      const coverImage = uploadedUrl === undefined
-        ? formData.cover_image          // unchanged
-        : uploadedUrl === null
-          ? null                         // cleared
-          : {
-              ...(formData.cover_image ?? {}),
-              media_url: uploadedUrl,
-              vendor_id: vendorId,
-              // Provide defaults for VendorMediaBase fields so the shape matches VendorMediaForm
-              consent_given: formData.cover_image?.consent_given ?? false,
-              credits: formData.cover_image?.credits ?? null,
-              is_featured: formData.cover_image?.is_featured ?? false,
-            };
+      if (uploadedUrl === undefined) {
+        // Image unchanged — keep as-is
+        coverImage = formData.cover_image ?? null;
+      } else if (uploadedUrl === null) {
+        // Image was cleared
+        coverImage = null;
+      } else if (formData.cover_image) {
+        // New upload replacing existing media — preserve id and metadata
+        coverImage = { ...formData.cover_image, media_url: uploadedUrl, vendor_id: vendorId };
+      } else {
+        // New upload with no prior media object
+        coverImage = {
+          media_url: uploadedUrl,
+          vendor_id: vendorId,
+          is_featured: true,
+          consent_given: false,
+          credits: null,
+        } satisfies VendorMediaDraft;
+      }
 
       handleSave({ ...formData, cover_image: coverImage });
       setShowValidation(false);
@@ -539,6 +549,10 @@ export default function EditFormView({
               ref={image.imageUploadRef}
               currentImageUrl={formData.cover_image?.media_url ?? undefined}
               onImageSelect={(file) =>
+                // handleSelect does three things:
+                // 1. Revokes the previous blob URL to prevent memory leaks
+                // 2. Creates a new blob URL from `file` for immediate preview (or clears it if file is null)
+                // 3. Calls the third argument to sync the new preview URL into form state
                 image.handleSelect(
                   file,
                   previousBlobUrlRef,
@@ -559,7 +573,7 @@ export default function EditFormView({
                         credits: e.target.value || null
                       }))
                     }
-                    helperText="Give credit to the photographer if applicable"
+                    helperText="Add photographer credit if you'd like"
                   />
                 </Box>
                 {getFieldError('cover_image') && (

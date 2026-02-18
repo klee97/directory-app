@@ -27,7 +27,7 @@ import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import InputAdornment from '@mui/material/InputAdornment';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { VendorFormDataAdmin } from '@/types/vendorFormData';
-import { VendorMediaBase, VendorMediaDraft, VendorMediaForm } from "@/types/vendorMedia";
+import { VendorMediaDraft, VendorMediaForm } from "@/types/vendorMedia";
 
 import { formDataToVendor } from '@/lib/profile/formToVendorTranslator';
 import Checkbox from '@mui/material/Checkbox';
@@ -103,12 +103,18 @@ export const AdminUpdateVendorManagement = () => {
     setIsSubmitting(true);
 
     try {
-      // Create lookup object from separate state
-      const lookup = {
-        id: lookupId.trim() || undefined,
-        slug: lookupSlug.trim() || undefined,
-      };
-
+      const vendorId = lookupId.trim();
+      if (!vendorId) {
+        addNotification("Vendor ID is required.", "error");
+        setIsSubmitting(false);
+        return;
+      }
+      const slug = lookupSlug.trim();
+      if (!slug) {
+        addNotification("Vendor slug is required.", "error");
+        setIsSubmitting(false);
+        return;
+      }
       // Check if there are any changes to update
       const hasVendorChanges = Object.values(newFormData).some(value => value !== null);
 
@@ -116,10 +122,9 @@ export const AdminUpdateVendorManagement = () => {
         addNotification("No changes to update.", "warning");
         return;
       }
+
       // Upload image first if selected and delete old one if needed
-      const vendorIdentifier = lookupSlug.trim();
-      // Upload to R2 if changed, get back url | null | undefined
-      const uploadedUrl = await image.uploadIfChanged(vendorIdentifier, newFormData.cover_image ?? null);
+      const uploadedUrl = await image.uploadIfChanged(slug, newFormData.cover_image ?? null);
 
       let coverImage: VendorMediaForm | null;
 
@@ -131,12 +136,12 @@ export const AdminUpdateVendorManagement = () => {
         coverImage = null;
       } else if (newFormData.cover_image) {
         // New upload, existing draft media — preserve id and metadata
-        coverImage = { ...newFormData.cover_image, media_url: uploadedUrl, vendor_id: vendorIdentifier };
+        coverImage = { ...newFormData.cover_image, media_url: uploadedUrl, vendor_id: vendorId };
       } else {
         // New upload, no prior media object — build a fresh draft
         coverImage = {
           media_url: uploadedUrl,
-          vendor_id: vendorIdentifier,
+          vendor_id: vendorId,
           is_featured: true,
           consent_given: false,
           credits: null,
@@ -150,7 +155,7 @@ export const AdminUpdateVendorManagement = () => {
       // Update vendor if there are any changes
       if (hasVendorChanges || coverImage) {
         const data = await updateVendor(
-          lookup,
+          {id: vendorId},
           newVendorData,
           firstName,
           lastName,
@@ -227,6 +232,7 @@ export const AdminUpdateVendorManagement = () => {
               variant="outlined"
               value={lookupId ?? ''}
               onChange={(e) => setLookupId(e.target.value)}
+              required
             />
           </Grid>
           <Grid size={6}>
@@ -236,6 +242,7 @@ export const AdminUpdateVendorManagement = () => {
               variant="outlined"
               value={lookupSlug ?? ''}
               onChange={(e) => setLookupSlug(e.target.value)}
+              required
             />
           </Grid>
           <Grid size={12}>
@@ -461,8 +468,7 @@ export const AdminUpdateVendorManagement = () => {
             <Box sx={{ mt: 2 }}>
               <TextField
                 fullWidth
-                label="Photo Credits (Optional)"
-                placeholder="e.g., Photo by Jane Smith"
+                label="Photo Credits"
                 variant="outlined"
                 value={newFormData.cover_image?.credits ?? ''}
                 onChange={(e) =>

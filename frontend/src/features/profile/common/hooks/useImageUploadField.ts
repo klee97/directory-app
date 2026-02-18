@@ -41,7 +41,7 @@ export const useImageUploadField = () => {
    *   string     — new R2 URL, caller should update cover_image.media_url
    */
   const uploadIfChanged = async (
-    identifier: string,
+    vendorSlug: string,
     currentMedia: VendorMediaForm | null,
   ): Promise<string | null | undefined> => {
     if (!imageChanged) return undefined;
@@ -51,11 +51,15 @@ export const useImageUploadField = () => {
 
     // New file selected — upload it, clean up old one
     if (file) {
-      const uploadedUrl = await upload(file, identifier);
-
+      let uploadedUrl: string;
+      try {
+        uploadedUrl = await upload(file, vendorSlug);
+      } catch (err) {
+        throw new Error('Failed to upload image. Please try again.');
+      }
       if (hasStoredImage) {
         try {
-          await deleteExisting(existingUrl, identifier);
+          await deleteExisting(existingUrl, vendorSlug);
         } catch (err) {
           console.error('Failed to delete old image after upload:', err);
           // Non-fatal
@@ -68,10 +72,10 @@ export const useImageUploadField = () => {
     // Cleared — delete from R2 if there was a stored image
     if (hasStoredImage) {
       try {
-        await deleteExisting(existingUrl, identifier);
+        await deleteExisting(existingUrl, vendorSlug);
       } catch (err) {
         console.error('Failed to delete image from storage:', err);
-        throw err;
+        // Non-fatal
       }
     }
 
@@ -130,6 +134,7 @@ export const useImageUploadField = () => {
 
   const reset = () => {
     setFile(null);
+    setImageChanged(true); // Track that the image has changed
     imageUploadRef.current?.reset();
   };
 

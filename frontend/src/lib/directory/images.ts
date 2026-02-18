@@ -257,14 +257,7 @@ export function processVendorImages(
 
   if (!vendor.vendor_media || vendor.vendor_media.length === 0) {
     if (vendor.cover_image) {
-      console.warn("Vendor %s has no vendor_media but has cover_image. Consider migrating cover_image to vendor_media for better image handling.", vendor.business_name);
-      const media = createVendorMedia(vendor.cover_image, vendor.id, {
-        id: `legacy-${vendor.id}`,
-        is_featured: true, // Treat legacy cover image as featured
-        consent_given: false, // Assume no consent for legacy images until we can confirm
-      });
-
-      return media ? [media] : [];
+      console.warn("Vendor %s has no vendor_media but has cover_image. Consider migrating cover_image to vendor_media for image handling.", vendor.business_name);
     }
     return [];
   }
@@ -309,7 +302,6 @@ function createVendorMedia(
     is_featured: overrides.is_featured ?? false,
     consent_given: overrides.consent_given ?? false,
     credits: overrides.credits ?? null,
-    approved_at: null,
     media_url: migratedUrl,
     original_url: originalUrl,
     source: source,

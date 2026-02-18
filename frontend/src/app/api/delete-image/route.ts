@@ -35,7 +35,15 @@ export async function DELETE(request: NextRequest) {
     const isTestData = isTestVendor(vendor.id);
     const r2Bucket = isTestData
       ? process.env.R2_TEST_BUCKET_NAME
-      : process.env.R2_BUCKET_NAME!;
+      : process.env.R2_BUCKET_NAME;
+
+    if (!r2Bucket) {
+      console.error('No R2 bucket found when deleting image');
+      return NextResponse.json(
+        { error: 'Failed to delete image' },
+        { status: 500 }
+      );
+    }
 
     // Delete from R2
     const deleteCommand = new DeleteObjectCommand({

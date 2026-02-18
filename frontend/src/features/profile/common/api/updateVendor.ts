@@ -215,8 +215,8 @@ export const updateVendor = async (
 
   // Handle vendor_media table updates if cover image changed
   if (newImages !== null) {
-    const existingMedia = existingVendorData.vendor_media ?? [];
-    const mutations = deriveMediaMutations(newImages, existingMedia);
+    const existingImages = existingVendorData.vendor_media ?? [];
+    const mutations = deriveMediaMutations(newImages, existingImages);
 
     for (const mutation of mutations) {
       const { error } = await applyVendorMediaMutation(supabase, mutation);
