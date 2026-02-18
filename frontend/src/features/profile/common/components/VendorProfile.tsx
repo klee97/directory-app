@@ -36,6 +36,8 @@ import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 import { getDefaultBio } from '../utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { Email } from '@mui/icons-material';
+import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
+import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -152,6 +154,8 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const theme = useTheme();
   const supabase = createClient();
 
+  const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
+
   const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
   const prices = [
@@ -193,7 +197,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
         });
       }
     };
-  }, [resolvedImageCount, vendor.cover_image, vendor.is_premium, vendor.slug, vendor.testimonials.length]);
+  }, [resolvedImageCount, vendor.images, vendor.cover_image, vendor.is_premium, vendor.slug, vendor.testimonials.length]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -226,6 +230,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
           {showImageCarousel && (<PhotoCarousel
             photos={randomizedImageList}
             vendorSlug={vendor.slug}
+            placeholderImage={placeholderImage}
           />
           )}
           {/* Main Content */}
@@ -516,7 +521,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                     }}
                   >
                     <Image
-                      src={vendor.cover_image}
+                      src={vendor.cover_image?.media_url ?? placeholderImage}
                       alt={vendor.business_name ?? ''}
                       fill
                       sizes="(max-width: 768px) 100vw, 600px"

@@ -215,12 +215,22 @@ export const SECTIONS: Section[] = [
     id: 'image',
     label: 'Client photo',
     validate: (formData: VendorFormData) => {
+      const hasCoverImage = !!formData.cover_image?.media_url;
+      const hasConsent = formData.cover_image?.consent_given === true;
+
+      let consentError = null;
+      if (hasCoverImage && !hasConsent) {
+        consentError = 'Please confirm you have permission to use this photo';
+      }
+
       return {
-        isValid: true,
-        isComplete: !!(formData.cover_image),
-        isEmpty: !formData.cover_image,
-        errors: {}
+        isValid: !hasCoverImage || hasConsent,
+        isComplete: hasCoverImage && hasConsent,
+        isEmpty: !hasCoverImage,
+        errors: {
+          cover_image: consentError
+        }
       };
     }
-  },
+  }
 ];

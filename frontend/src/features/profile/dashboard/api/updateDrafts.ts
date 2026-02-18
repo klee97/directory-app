@@ -76,6 +76,7 @@ export async function publishDraft(
     };
     // Get vendor tags if they exist in draft
     const tags = draft.tags ?? [];
+    const images = draft.images ?? [];
 
     // Reuse the existing updateVendor function
     const result = await updateVendor(
@@ -83,7 +84,8 @@ export async function publishDraft(
       vendorInput,
       null, // first name of vendor
       null, // last name of vendor
-      tags
+      tags,
+      images
     );
 
     if (!result.success) {

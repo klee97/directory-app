@@ -60,8 +60,8 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
   };
 
   // Assume a single photo workflow
-  const pendingPhotoUrl =
-    vendor.images.length > 0 && !vendor.photoApproved ? vendor.images[0] : null;
+  const pendingPhoto =
+    vendor.images.length > 0 && !vendor.images[0].consent_given ? vendor.images[0] : null;
 
   return (
     <Container maxWidth="lg">
@@ -93,9 +93,9 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
         </Box>
 
         {/* Review Photo Card */}
-        {pendingPhotoUrl && (
+        {pendingPhoto && pendingPhoto.media_url && (
           <Box sx={{ mb: 4 }}>
-            <PhotoReviewCard photoUrl={pendingPhotoUrl} onSubmit={handlePhotoSubmit} />
+            <PhotoReviewCard photoUrl={pendingPhoto.media_url} onSubmit={handlePhotoSubmit} />
           </Box>
         )}
 

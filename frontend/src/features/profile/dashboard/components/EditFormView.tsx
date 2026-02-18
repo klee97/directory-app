@@ -27,6 +27,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
+import Checkbox from '@mui/material/Checkbox';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
 export const MIN_SERVICE_PRICE = 0;
@@ -38,8 +39,9 @@ interface EditFormViewProps {
   formData: VendorFormData;
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
-  handleSave: (uploadedImageUrl?: string) => void;
-  vendorIdentifier?: string;
+  handleSave: (dataToSave: VendorFormData) => void;
+  vendorSlug: string;
+  vendorId: string;
   tags: VendorTag[];
 }
 
@@ -50,7 +52,8 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
-  vendorIdentifier,
+  vendorSlug,
+  vendorId,
   tags
 }: EditFormViewProps) {
 
@@ -106,12 +109,26 @@ export default function EditFormView({
     }
     try {
       setIsSaving(true);
-      const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
+      // Upload image if changed and get the real URL
+      const uploadedUrl = await image.uploadIfChanged(vendorSlug, formData.cover_image);
+      // Ensure the constructed object includes required VendorMediaBase fields
+      const coverImage = uploadedUrl === undefined
+        ? formData.cover_image          // unchanged
+        : uploadedUrl === null
+          ? null                         // cleared
+          : {
+              ...(formData.cover_image ?? {}),
+              media_url: uploadedUrl,
+              vendor_id: vendorId,
+              // Provide defaults for VendorMediaBase fields so the shape matches VendorMediaForm
+              consent_given: formData.cover_image?.consent_given ?? false,
+              credits: formData.cover_image?.credits ?? null,
+              is_featured: formData.cover_image?.is_featured ?? false,
+            };
 
-      // Call handleSave but tell it NOT to manage isSaving
-      await handleSave(uploadedImageUrl || undefined);
-
+      handleSave({ ...formData, cover_image: coverImage });
       setShowValidation(false);
+
     } catch (error) {
       console.error('Save failed:', error);
     } finally {
@@ -520,36 +537,58 @@ export default function EditFormView({
             </Typography>
             <ImageUpload
               ref={image.imageUploadRef}
-              currentImageUrl={formData.cover_image ?? undefined}
-              onImageSelect={(file) => {
-                // Clean up previous blob URL to prevent memory leak
-                if (previousBlobUrlRef.current?.startsWith('blob:')) {
-                  URL.revokeObjectURL(previousBlobUrlRef.current);
-                }
-
-                image.onSelect(file);
-                // Immediately update preview with local file URL
-                if (file) {
-                  const previewUrl = URL.createObjectURL(file);
-                  previousBlobUrlRef.current = previewUrl;
-                  setFormData(prev => ({
-                    ...prev,
-                    cover_image: previewUrl, // Temporary local URL
-                  }));
-                } else {
-                  // File was cleared - remove preview
-                  previousBlobUrlRef.current = null;
-                  setFormData(prev => ({
-                    ...prev,
-                    cover_image: null,
-                  }));
-                }
-              }}
+              currentImageUrl={formData.cover_image?.media_url ?? undefined}
+              onImageSelect={(file) =>
+                image.handleSelect(
+                  file,
+                  previousBlobUrlRef,
+                  (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, vendorId, options))
+                )
+              }
               disabled={image.loading}
             />
+            {formData.cover_image?.media_url && (
+              <Box sx={{ mt: 2 }}>
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    label="Photo Credit"
+                    fullWidth
+                    value={formData.cover_image?.credits ?? ''}
+                    onChange={(e) =>
+                      setFormData(prev => image.updateMediaMetadata(prev, {
+                        credits: e.target.value || null
+                      }))
+                    }
+                    helperText="Give credit to the photographer if applicable"
+                  />
+                </Box>
+                {getFieldError('cover_image') && (
+                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                    {getFieldError('cover_image')}
+                  </Typography>
+                )}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.cover_image?.consent_given ?? false}
+                      onChange={(e) =>
+                        setFormData(prev => image.updateMediaMetadata(prev, {
+                          consent_given: e.target.checked
+                        }))
+                      }
+                    />
+                  }
+                  label={
+                    <Typography variant="body2">
+                      I confirm I have permission to use this photo and all necessary rights & licenses
+                    </Typography>
+                  }
+                />
+              </Box>
+
+            )}
           </Box>
         )}
-
         {activeSection === 'services' && (
           <Box>
             <Grid container spacing={3}>

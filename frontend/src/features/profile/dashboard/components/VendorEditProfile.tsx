@@ -25,6 +25,7 @@ import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import UnsavedChangesModal from './UnsavedChangesModal';
+import { VendorMedia, VendorMediaMutation } from '@/types/vendorMedia';
 
 const DRAWER_WIDTH = 400;
 
@@ -103,7 +104,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     bridesmaid_hair_price: formData.bridesmaid_hair_price,
     bridesmaid_makeup_price: formData.bridesmaid_makeup_price,
     bridesmaid_hair_makeup_price: formData["bridesmaid_hair_&_makeup_price"],
-    cover_image: isLoadingDraft ? null : formData.cover_image,
+    cover_image: isLoadingDraft ? null : formData.cover_image as Partial<VendorMedia> | null, // Show existing cover image until draft loads
+    images: formData.cover_image ? [formData.cover_image as Partial<VendorMedia>] : [],
     tags: formData.tags,
   };
 
@@ -132,10 +134,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     setActiveSection(null);
   };
 
-  const handleSave = async (uploadedImageUrl?: string) => {
-    const dataToSave = uploadedImageUrl
-      ? { ...formData, cover_image: uploadedImageUrl }
-      : formData;
+  const handleSave = async (dataToSave: VendorFormData) => {
     try {
       const draft = await createOrUpdateDraft(dataToSave, vendor.id, userId, draftId);
       setDraftId(draft.id);
@@ -231,7 +230,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
-              vendorIdentifier={vendor.slug ?? vendor.id}
+              vendorSlug={vendor.slug || ''}
+              vendorId={vendor.id}
               tags={tags}
             />
           ) : (

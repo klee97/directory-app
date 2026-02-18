@@ -77,7 +77,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
         "additionalType": "https://schema.org/BeautySalon",
         "name": vendor.business_name,
         "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-        "image": vendor.cover_image,
+        "image": vendor.cover_image?.media_url || defaultImage.src,
         "description": "Trusted wedding makeup artist for Asian features.",
         "areaServed": {
           "@type": "Place",

@@ -1,5 +1,6 @@
 import { LocationResult } from "./location";
 import { VendorTag } from "./vendor";
+import { VendorMediaForm } from "./vendorMedia";
 
 export interface VendorFormData {
   business_name: string;
@@ -15,8 +16,30 @@ export interface VendorFormData {
   bridesmaid_hair_price: number | null;
   bridesmaid_makeup_price: number | null;
   "bridesmaid_hair_&_makeup_price": number | null;
-  cover_image: string | null;
+  cover_image: VendorMediaForm | null;
   tags: VendorTag[];
+}
+
+export interface VendorFormDataAdmin {
+  "bridal_hair_&_makeup_price": number | null;
+  bridal_hair_price: number | null;
+  bridal_makeup_price: number | null;
+  "bridesmaid_hair_&_makeup_price": number | null;
+  bridesmaid_hair_price: number | null;
+  bridesmaid_makeup_price: number | null;
+  business_name: string | null;
+  cover_image: VendorMediaForm | null;
+  description: string | null;
+  email: string | null;
+  google_maps_place: string | null;
+  instagram: string | null;
+  latitude: number | null;
+  lists_prices: boolean | null;
+  longitude: number | null;
+  region: string | null;
+  tags: VendorTag[] | null;
+  travels_world_wide: boolean | null;
+  website: string | null;
 }
 
 export type VendorFormField =

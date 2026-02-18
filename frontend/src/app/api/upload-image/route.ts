@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
-import { createClient } from '@/lib/supabase/server';
-import { isTestVendor, shouldIncludeTestVendors } from '@/lib/env/env';
+import { isTestVendor } from '@/lib/env/env';
+import { requireAuth, requireVendorAccess } from '@/lib/auth/serverAuth';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -20,14 +20,8 @@ const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Check if user is authenticated
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const { user, error: authError, supabase } = await requireAuth();
+    if (authError) return authError;
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -41,58 +35,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
     }
 
-    // Check if user is admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', user.id)
-      .single();
+    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, user, supabase);
 
-    const isAdmin = profile?.is_admin;
-
-    // Get vendor by slug
-    let vendorQuery = supabase
-      .from('vendors')
-      .select('id, slug');
-
-    if (!shouldIncludeTestVendors()) {
-      vendorQuery = vendorQuery.not('id', 'like', 'TEST-%');
-    }
-
-    const { data: vendor, error: vendorError } = await vendorQuery
-      .eq('slug', vendorSlug)
-      .single();
-
-    // Use generic error message to avoid leaking vendor existence
-    if (vendorError || !vendor) {
-      console.error("Vendor not found for slug:", vendorSlug, vendorError);
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // Check authorization: admins can upload for anyone, regular users only for their own vendor
-    if (!isAdmin) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('vendor_id')
-        .eq('id', user.id)
-        .single();
-
-      if (profile?.vendor_id !== vendor.id) {
-        return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-      }
-    }
+    if (accessError) return accessError;
 
     const isTestData = isTestVendor(vendor.id);
+
     console.debug("[upload-image] isTestData:", isTestData);
     let r2Bucket;
     if (isTestData) {
-      if (!shouldIncludeTestVendors()) {
-        console.error("Cannot upload images for test vendors in production");
-        return NextResponse.json(
-          { error: "Test vendor images can only be uploaded in development environment" },
-          { status: 403 }
-        );
-      }
       console.debug("Uploading image for TEST vendor (development only)");
       r2Bucket = process.env.R2_TEST_BUCKET_NAME;
     } else {

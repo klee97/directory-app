@@ -1,4 +1,5 @@
 import { Vendor } from "@/types/vendor";
+import { VendorMedia } from "@/types/vendorMedia";
 
 // Function to get a consistent seed for the entire day
 export function getTodaySeed() {
@@ -22,9 +23,9 @@ function shuffleArray(array: any[], seed: string) {
 // Deterministic shuffle function
 export function shuffleVendorsWithSeed(array: Vendor[], seed: string) {
   // Separate vendors into different buckets
-  const premiumVendorsWithPictures = array.filter(vendor => vendor.is_premium && vendor.cover_image);
-  const withPictures = array.filter(vendor => !vendor.is_premium && vendor.cover_image);
-  const withoutPictures = array.filter(vendor => !vendor.cover_image);
+  const premiumVendorsWithPictures = array.filter(vendor => vendor.is_premium && vendor.images.length > 0);
+  const withPictures = array.filter(vendor => !vendor.is_premium && vendor.images.length > 0);
+  const withoutPictures = array.filter(vendor => vendor.images.length === 0);
 
   // Shuffle all groups
   const shuffledPremiumWithPictures = shuffleArray(premiumVendorsWithPictures, seed);
@@ -35,7 +36,7 @@ export function shuffleVendorsWithSeed(array: Vendor[], seed: string) {
   return [...shuffledPremiumWithPictures, ...shuffledWithPictures, ...shuffledWithoutPictures];
 }
 
-export function shuffleMediaWithSeed(array: string[], seed: string) {
+export function shuffleMediaWithSeed(array: Partial<VendorMedia>[], seed: string) {
   if (!array || array.length === 0 || !seed) {
     return {
       array: [],

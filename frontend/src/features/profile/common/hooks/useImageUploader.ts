@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { uploadImage } from '../api/uploadImage';
+import { deleteImage } from '../api/deleteImage';
 import { useNotification } from '@/contexts/NotificationContext';
 
 export function useImageUploader() {
@@ -25,5 +26,22 @@ export function useImageUploader() {
     }
   }, [addNotification]);
 
-  return { upload, loading, error };
+  const deleteExisting = useCallback(async (imageUrl: string, vendorSlug: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await deleteImage(imageUrl, vendorSlug);
+      console.debug("Image deleted successfully");
+      addNotification('Image deleted', 'success');
+    } catch (err) {
+      const message = (err instanceof Error) ? err.message : 'Delete failed';
+      setError(message);
+      addNotification(message, 'error');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [addNotification]);
+
+  return { upload, deleteExisting, loading, error };
 }

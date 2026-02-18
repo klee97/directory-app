@@ -1,9 +1,14 @@
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import Box from '@mui/material/Box';
 import { SwiperCarousel } from './SwiperCarousel';
 import { useState } from 'react';
+import { VendorMedia } from '@/types/vendorMedia';
 
-export const PhotoCarousel = ({ photos, vendorSlug }: { photos: string[], vendorSlug: string | null }) => {
+export const PhotoCarousel = ({ photos, vendorSlug, placeholderImage }: {
+  photos: Partial<VendorMedia>[],
+  vendorSlug: string | null,
+  placeholderImage: StaticImageData,
+}) => {
   const [swiperIndex, setSwiperIndex] = useState(0);
 
   return (
@@ -30,7 +35,7 @@ export const PhotoCarousel = ({ photos, vendorSlug }: { photos: string[], vendor
             }}
           >
             <Image
-              src={photo}
+              src={photo.media_url ?? placeholderImage}
               alt={`${vendorSlug} photo ${index + 1}`}
               fill
               sizes="(max-width: 600px) 45vw, 400px"

@@ -28,7 +28,7 @@ const RELATED_FIELDS = new Set<string>([
 
 // Input type for the preparation function
 export interface VendorDataInput {
-"bridal_hair_&_makeup_price"?: number | null;
+  "bridal_hair_&_makeup_price"?: number | null;
   bridal_hair_price?: number | null;
   bridal_makeup_price?: number | null;
   "bridesmaid_hair_&_makeup_price"?: number | null;

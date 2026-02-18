@@ -437,6 +437,7 @@ export type Database = {
           created_at: string
           credits: string | null
           id: string
+          is_featured: boolean | null
           media_url: string
           vendor_id: string
         }
@@ -446,6 +447,7 @@ export type Database = {
           created_at?: string
           credits?: string | null
           id?: string
+          is_featured?: boolean | null
           media_url: string
           vendor_id: string
         }
@@ -455,6 +457,7 @@ export type Database = {
           created_at?: string
           credits?: string | null
           id?: string
+          is_featured?: boolean | null
           media_url?: string
           vendor_id?: string
         }

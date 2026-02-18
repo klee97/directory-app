@@ -14,7 +14,7 @@ export async function fetchVendorBySlug(slug: string) {
       regions!metro_region_id(name),
       vendor_testimonials (review, author),
       tags (id, display_name, name, type, is_visible, style),
-      vendor_media (id, media_url)
+      vendor_media (id, media_url, is_featured, consent_given, credits)
     `);
 
   if (!shouldIncludeTestVendors()) {
@@ -52,7 +52,7 @@ export async function fetchAllVendors() {
         usmetro!metro_id(display_name), 
         regions!metro_region_id(name),
         tags (id, display_name, name, type, is_visible, style),
-        vendor_media (id, media_url)
+        vendor_media (id, media_url, is_featured, consent_given, credits)
       `)
       .eq('include_in_directory', true)
       ;
