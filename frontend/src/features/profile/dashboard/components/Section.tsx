@@ -216,19 +216,17 @@ export const SECTIONS: Section[] = [
     label: 'Client photo',
     validate: (formData: VendorFormData) => {
       const hasCoverImage = !!formData.cover_image?.media_url;
-      const hasConsent = formData.cover_image?.consent_given === true;
-
-      let consentError = null;
-      if (hasCoverImage && !hasConsent) {
-        consentError = 'Please confirm you have permission to use this photo';
+      let creditError = null;
+      if (formData.cover_image?.credits && formData.cover_image?.credits.length > 30) {
+        creditError = 'Credits cannot exceed 30 characters';
       }
 
       return {
-        isValid: !hasCoverImage || hasConsent,
-        isComplete: hasCoverImage && hasConsent,
+        isValid: true,
+        isComplete: hasCoverImage && formData.cover_image?.credits !== null,
         isEmpty: !hasCoverImage,
         errors: {
-          cover_image: consentError
+          cover_image: creditError
         }
       };
     }

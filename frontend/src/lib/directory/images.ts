@@ -296,6 +296,7 @@ function createVendorMedia(
   const migratedUrl = getMigratedUrl(originalUrl);
   const source = migratedUrl !== originalUrl ? 'r2' : 'supabase';
 
+  console.debug(`overrides:`, overrides);
   return {
     id: overrides.id,
     vendor_id: vendorId,

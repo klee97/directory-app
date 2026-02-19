@@ -25,7 +25,7 @@ import { useSectionCompletion } from '../hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import UnsavedChangesModal from './UnsavedChangesModal';
-import { VendorMedia, VendorMediaMutation } from '@/types/vendorMedia';
+import { VendorMedia } from '@/types/vendorMedia';
 
 const DRAWER_WIDTH = 400;
 

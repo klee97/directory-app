@@ -42,7 +42,7 @@ export function formDataToDraft(
 
     // Images
     cover_image: formData.cover_image?.media_url || null,
-    images: [formData.cover_image || null],
+    images: formData.cover_image ? [formData.cover_image] : [],
     profile_image: null,
     logo: null,
 

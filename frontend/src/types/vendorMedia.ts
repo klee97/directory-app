@@ -44,7 +44,7 @@ export type VendorMediaUpdate = VendorMediaBase & {
   id: string; // Required — we need to know which row to update
 };
 
-export type VendorMediaDelete = {
+export type VendorMediaDelete = Pick<VendorMediaBase, 'media_url'> & {
   operation: 'delete';
   id: string; // Only need the id to delete
 };

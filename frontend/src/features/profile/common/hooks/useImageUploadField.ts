@@ -7,6 +7,8 @@ export const useImageUploadField = () => {
   const imageUploadRef = useRef<ImageUploadRef>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imageChanged, setImageChanged] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const { upload, deleteExisting, loading } = useImageUploader();
 
   const handleSelect = (
@@ -23,12 +25,12 @@ export const useImageUploadField = () => {
     setImageChanged(true); // Track that the image has changed
 
     if (file) {
-      // New file selected - show preview
-      const previewUrl = URL.createObjectURL(file);
-      previousBlobUrlRef.current = previewUrl;
-      updateFormData(previewUrl, { preserveMetadata: true });
+      const blobUrl = URL.createObjectURL(file);
+      previousBlobUrlRef.current = blobUrl;
+      setPreviewUrl(blobUrl);
     } else {
       // File cleared
+      setPreviewUrl(null);
       previousBlobUrlRef.current = null;
       updateFormData(null);
     }
@@ -46,8 +48,7 @@ export const useImageUploadField = () => {
   ): Promise<string | null | undefined> => {
     if (!imageChanged) return undefined;
 
-    const existingUrl = currentMedia?.media_url;
-    const hasStoredImage = existingUrl && !existingUrl.startsWith('blob:');
+    const existingUrl = currentMedia?.media_url ?? null;
 
     // New file selected — upload it, clean up old one
     if (file) {
@@ -57,7 +58,7 @@ export const useImageUploadField = () => {
       } catch (err) {
         throw new Error('Failed to upload image. Please try again.');
       }
-      if (hasStoredImage) {
+      if (existingUrl) {
         try {
           await deleteExisting(existingUrl, vendorSlug);
         } catch (err) {
@@ -70,7 +71,7 @@ export const useImageUploadField = () => {
     }
 
     // Cleared — delete from R2 if there was a stored image
-    if (hasStoredImage) {
+    if (existingUrl) {
       try {
         await deleteExisting(existingUrl, vendorSlug);
       } catch (err) {
@@ -87,33 +88,35 @@ export const useImageUploadField = () => {
     prev: T,
     url: string | null,
     vendorId: string,
+    admin: boolean,
     options?: { preserveMetadata?: boolean }
   ): T => {
     if (url === null) {
+      console.debug("Clearing cover image");
       return { ...prev, cover_image: null };
     }
 
     if (options?.preserveMetadata && prev.cover_image) {
+      console.debug("Preserving cover image metadata");
       // Preserve id and other metadata — important for the update path
       return {
         ...prev,
         cover_image: {
           ...prev.cover_image,
           media_url: url,
-          is_featured: true,
-          vendor_id: vendorId,
         } satisfies VendorMediaForm,
       };
     }
 
-    // Fresh cover image, no existing row yet
+    console.debug("creating fresh cover image with new URL");
+    // Fresh cover image
     return {
       ...prev,
       cover_image: {
         media_url: url,
         is_featured: true,
         credits: null,
-        consent_given: false,
+        consent_given: admin ? false : true, // user uploads default to consent given, admin uploads require explicit consent
         vendor_id: vendorId,
       } satisfies VendorMediaForm,
     };
@@ -134,7 +137,8 @@ export const useImageUploadField = () => {
 
   const reset = () => {
     setFile(null);
-    setImageChanged(true); // Track that the image has changed
+    setPreviewUrl(null);
+    setImageChanged(false);
     imageUploadRef.current?.reset();
   };
 
@@ -147,5 +151,6 @@ export const useImageUploadField = () => {
     reset,
     updateMediaUrl,
     updateMediaMetadata,
+    previewUrl
   };
 };

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallba
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Alert from '@mui/material/Alert';
 import CloudUpload from '@mui/icons-material/CloudUpload';
 import Image from 'next/image';
 
@@ -11,6 +10,7 @@ const MAX_FILE_SIZE_MB = 10;
 interface ImageUploadProps {
   currentImageUrl?: string;
   onImageSelect?: (file: File | null) => void;
+  onError: (error: string | null) => void;
   disabled?: boolean;
   admin?: boolean;
 }
@@ -22,10 +22,10 @@ export interface ImageUploadRef {
 export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   currentImageUrl,
   onImageSelect,
+  onError,
   disabled = false,
   admin = false,
 }, ref) => {
-  const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +36,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
       console.debug("ImageUpload: reset() called");
       setPreviewUrl(null);
       setSelectedFile(null);
-      setError(null);
+      onError(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -58,17 +58,17 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      setError('Please select an image file');
+      onError?.('Please select an image file');
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-      setError('Image must be less than 10MB');
+      onError?.(`Image must be less than ${MAX_FILE_SIZE_MB}MB`);
       return;
     }
 
-    setError(null);
+    onError?.(null);
 
     // Create preview URL
     const reader = new FileReader();
@@ -87,7 +87,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   const handleClear = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    setError(null);
+    onError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -97,7 +97,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   };
 
   return (
-    <Box sx={{ my: 2 }}>
+    <Box sx={{ my: 3 }}>
 
       {previewUrl && (
         <Box
@@ -121,6 +121,12 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
             priority
           />
         </Box>
+      )}
+
+      {admin && selectedFile && (
+        <Typography variant="caption" display="block" sx={{ mb: 1, color: 'success.main' }}>
+          File size: {(selectedFile.size / (1024 * 1024)).toFixed(2)}MB
+        </Typography>
       )}
 
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -156,23 +162,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
         )}
       </Box>
 
-      {selectedFile && (
-        <Typography variant="caption" display="block" sx={{ mt: 1, color: 'success.main' }}>
-          ✓ Image selected: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)}KB)
-          <br />
-        </Typography>
-      )}
 
       {admin && disabled && (
         <Typography variant="caption" display="block" sx={{ mt: 1, color: 'warning.main' }}>
           ⚠️ Please enter the vendor slug first
         </Typography>
-      )}
-
-      {error && (
-        <Alert severity="error" sx={{ mt: 2 }}>
-          {error}
-        </Alert>
       )}
 
       {admin &&

@@ -1,5 +1,6 @@
 
 export async function deleteImage(imageUrl: string, vendorSlug: string): Promise<void> {
+  console.debug(`Attempting to delete image from R2: ${imageUrl} for vendor: ${vendorSlug}`);
   const res = await fetch('/api/delete-image', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },

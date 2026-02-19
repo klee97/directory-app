@@ -6,8 +6,10 @@ export async function applyVendorMediaMutation(
   supabase: SupabaseClient<Database>,
   mutation: VendorMediaMutation,
 ) {
+  console.debug(`Applying media mutation: ${mutation.operation}`);
   switch (mutation.operation) {
     case 'create': {
+      console.debug("Creating new media for vendor ID:", mutation.vendor_id);
       const { operation, ...insertPayload } = mutation;
       return supabase
         .from('vendor_media')
@@ -15,6 +17,7 @@ export async function applyVendorMediaMutation(
     }
 
     case 'update': {
+      console.debug("Updating media for vendor ID:", mutation.vendor_id);
       const { operation, id, ...updatePayload } = mutation;
       return supabase
         .from('vendor_media')
@@ -23,6 +26,7 @@ export async function applyVendorMediaMutation(
     }
 
     case 'delete': {
+      console.debug("Deleting media for mutation ID:", mutation.id);
       return supabase
         .from('vendor_media')
         .delete()

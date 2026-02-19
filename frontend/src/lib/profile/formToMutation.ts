@@ -6,7 +6,7 @@ export function formMediaToMutation(
 ): VendorMediaMutation {
   if (deleted) {
     if (!media.id) throw new Error('Cannot delete a draft that was never saved');
-    return { operation: 'delete', id: media.id };
+    return { operation: 'delete', id: media.id, media_url: media.media_url };
   }
 
   if (media.id) {

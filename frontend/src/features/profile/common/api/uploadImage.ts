@@ -3,7 +3,7 @@ export async function uploadImage(file: File, vendorIdentifier?: string): Promis
   fd.append('file', file);
   if (vendorIdentifier) fd.append('vendorSlug', vendorIdentifier);
 
-  const res = await fetch('/api/admin/upload-image', {
+  const res = await fetch('/api/upload-image', {
     method: 'POST',
     body: fd,
   });

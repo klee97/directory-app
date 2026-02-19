@@ -64,6 +64,7 @@ export const AdminUpdateVendorManagement = () => {
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const previousBlobUrlRef = useRef<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null)
 
   // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
@@ -115,6 +116,7 @@ export const AdminUpdateVendorManagement = () => {
         setIsSubmitting(false);
         return;
       }
+      console.debug("Updating vendor with ID:", vendorId, "Slug:", slug);
       // Check if there are any changes to update
       const hasVendorChanges = Object.values(newFormData).some(value => value !== null);
 
@@ -123,8 +125,10 @@ export const AdminUpdateVendorManagement = () => {
         return;
       }
 
+      console.debug("Vendor changes detected:", hasVendorChanges);
       // Upload image first if selected and delete old one if needed
       const uploadedUrl = await image.uploadIfChanged(slug, newFormData.cover_image ?? null);
+      console.debug("Image upload result:", uploadedUrl);
 
       let coverImage: VendorMediaForm | null;
 
@@ -155,7 +159,7 @@ export const AdminUpdateVendorManagement = () => {
       // Update vendor if there are any changes
       if (hasVendorChanges || coverImage) {
         const data = await updateVendor(
-          {id: vendorId},
+          { id: vendorId },
           newVendorData,
           firstName,
           lastName,
@@ -450,16 +454,25 @@ export const AdminUpdateVendorManagement = () => {
           <Typography variant="h6" gutterBottom>
             Cover Image
           </Typography>
+          {imageError && (
+            <Typography variant="body1" color="error" sx={{ mb: 1 }}>
+              {imageError}
+            </Typography>
+          )}
+
+
           <ImageUpload
             ref={image.imageUploadRef}
-            currentImageUrl={newFormData.cover_image?.media_url ?? undefined}
-            onImageSelect={(file) =>
+            currentImageUrl={image.previewUrl ?? newFormData.cover_image?.media_url ?? undefined}
+            onError={setImageError}
+            onImageSelect={(file) => {
+              setImageError(null);
               image.handleSelect(
                 file,
                 previousBlobUrlRef,
-                (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, lookupId, options))
-              )
-            }
+                (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, lookupId, true, options))
+              );
+            }}
             disabled={!lookupSlug || image.loading}
             admin={true}
           />

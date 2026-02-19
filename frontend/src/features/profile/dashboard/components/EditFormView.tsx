@@ -27,7 +27,6 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
-import Checkbox from '@mui/material/Checkbox';
 import { VendorMediaDraft, VendorMediaForm } from '@/types/vendorMedia';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
@@ -61,6 +60,8 @@ export default function EditFormView({
   const [showValidation, setShowValidation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [priceErrors, setPriceErrors] = useState<Partial<Record<string, string | null>>>({});
+  const [imageError, setImageError] = useState<string | null>(null);
+
   const previousBlobUrlRef = useRef<string | null>(null);
 
   const image = useImageUploadField();
@@ -131,7 +132,7 @@ export default function EditFormView({
           media_url: uploadedUrl,
           vendor_id: vendorId,
           is_featured: true,
-          consent_given: false,
+          consent_given: true,
           credits: null,
         } satisfies VendorMediaDraft;
       }
@@ -197,7 +198,7 @@ export default function EditFormView({
   };
 
   const hasPriceErrors = Object.values(priceErrors).some(error => error !== null && error !== undefined);
-  const isSaveDisabled = loading || hasPriceErrors;
+  const isSaveDisabled = loading || hasPriceErrors || !!imageError;
 
   return (
     <Box sx={{
@@ -243,10 +244,10 @@ export default function EditFormView({
       </Box>
 
       {/* Show validation alert at top if there are errors */}
-      {showValidation && !validationResult.isValid && (
+      {(showValidation && !validationResult.isValid || !!imageError || hasPriceErrors) && (
         <Box sx={{ p: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
           <Typography variant="body2">
-            {Object.keys(validationResult.errors).length > 0
+            {Object.keys(validationResult.errors).length > 0 || imageError || hasPriceErrors
               ? 'Please fix the errors below before saving'
               : 'Please fill out all required fields before saving'}
           </Typography>
@@ -547,7 +548,8 @@ export default function EditFormView({
             </Typography>
             <ImageUpload
               ref={image.imageUploadRef}
-              currentImageUrl={formData.cover_image?.media_url ?? undefined}
+              currentImageUrl={image.previewUrl ?? formData.cover_image?.media_url ?? undefined}
+              onError={setImageError}
               onImageSelect={(file) =>
                 // handleSelect does three things:
                 // 1. Revokes the previous blob URL to prevent memory leaks
@@ -556,47 +558,29 @@ export default function EditFormView({
                 image.handleSelect(
                   file,
                   previousBlobUrlRef,
-                  (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, vendorId, options))
+                  (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, vendorId, false, options))
                 )
               }
               disabled={image.loading}
             />
-            {formData.cover_image?.media_url && (
+            {imageError && (
+              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                {imageError}
+              </Typography>
+            )}
+            {(image.file || formData.cover_image?.media_url) && (
               <Box sx={{ mt: 2 }}>
-                <Box sx={{ mt: 2 }}>
-                  <TextField
-                    label="Photo Credit"
-                    fullWidth
-                    value={formData.cover_image?.credits ?? ''}
-                    onChange={(e) =>
-                      setFormData(prev => image.updateMediaMetadata(prev, {
-                        credits: e.target.value || null
-                      }))
-                    }
-                    helperText="Add photographer credit if you'd like"
-                  />
-                </Box>
-                {getFieldError('cover_image') && (
-                  <Typography variant="body2" color="error" sx={{ mb: 1 }}>
-                    {getFieldError('cover_image')}
-                  </Typography>
-                )}
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.cover_image?.consent_given ?? false}
-                      onChange={(e) =>
-                        setFormData(prev => image.updateMediaMetadata(prev, {
-                          consent_given: e.target.checked
-                        }))
-                      }
-                    />
+                <TextField
+                  label="Photographer Credit (optional)"
+                  fullWidth
+                  value={formData.cover_image?.credits ?? ''}
+                  onChange={(e) =>
+                    setFormData(prev => image.updateMediaMetadata(prev, {
+                      credits: e.target.value || null
+                    }))
                   }
-                  label={
-                    <Typography variant="body2">
-                      I confirm I have permission to use this photo and all necessary rights & licenses
-                    </Typography>
-                  }
+                  error={!!getFieldError('cover_image')}
+                  helperText={getFieldError('cover_image')}
                 />
               </Box>
 

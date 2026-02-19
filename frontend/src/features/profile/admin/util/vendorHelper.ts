@@ -102,7 +102,7 @@ export async function prepareVendorData(
 
   // Copy all non-computed fields
   for (const [key, value] of Object.entries(vendor)) {
-    if (value !== undefined && value !== null && !COMPUTED_FIELDS.has(key) && !RELATED_FIELDS.has(key)) {
+    if (value !== undefined && !COMPUTED_FIELDS.has(key) && !RELATED_FIELDS.has(key)) {
       updates[key as keyof BackendVendorInsert] = value;
     }
   }

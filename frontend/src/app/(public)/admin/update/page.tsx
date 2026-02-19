@@ -49,7 +49,10 @@ export default function UpdateVendor() {
         <Typography variant="h2" component="h2" gutterBottom>
           Update Vendor
         </Typography>
-        <AdminUpdateVendorManagement />
+        <Typography variant="body1" color="text.secondary">
+          Disabled until fixed
+        </Typography>
+        {/* <AdminUpdateVendorManagement /> */}
         <br />
       </Box>
     </Container>

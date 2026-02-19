@@ -114,6 +114,19 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               }}
               color={isVendorLogin ? "secondary" : "primary"}
             />
+            {!isVendorLogin && (
+              <Typography variant="body1" align="left" sx={{ mt: 2, ml: 1 }}>
+                <Link component={NextLink} href="/forgot-password" color={"inherit"}>
+                  Forgot password?
+                </Link>
+              </Typography>
+            )}
+            {isVendorLogin && (<Typography variant="body1" align="left" sx={{ mt: 2, ml: 1 }}>
+              <Link component={NextLink} href="/partner/forgot-password" color={"inherit"}>
+                Forgot password?
+              </Link>
+            </Typography>
+            )}
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
               <Button
@@ -128,9 +141,9 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               </Button>
 
               {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                <Typography variant="body1" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/signup" color={isVendorLogin ? "secondary" : "primary"}>
+                  <Link component={NextLink} href="/signup" color={"inherit"}>
                     Sign up
                   </Link>
                 </Typography>
@@ -138,29 +151,15 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               {isVendorLogin && (
                 <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/partner/contact" color={isVendorLogin ? "secondary" : "primary"}>
+                  <Link component={NextLink} href="/partner/contact" color={"inherit"}>
                     Contact us</Link> to access your vendor profile.
 
                 </Typography>
               )}
-              {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                  Forgot your password?{' '}
-                  <Link component={NextLink} href="/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
-                    Reset your password
-                  </Link>
-                </Typography>
-              )}
-              {isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Forgot your password or need to create one?{' '}
-                <Link component={NextLink} href="/partner/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
-                  Reset your password
-                </Link>
-              </Typography>
-              )}
-              {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
+
+              {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body1" align="center" sx={{ mt: 2 }}>
                 Logging in as a vendor?{' '}
-                <Link component={NextLink} href="/partner/login" color={isVendorLogin ? "secondary" : "primary"}>
+                <Link component={NextLink} href="/partner/login" color={"inherit"} >
                   Login here
                 </Link>
               </Typography>

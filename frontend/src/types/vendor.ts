@@ -78,8 +78,9 @@ export type Vendor = Pick<BackendVendor, 'id'
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
   const processedImages: VendorMedia[] = processVendorImages(vendor);
-  console.debug(`Processed ${processedImages.length} images for vendor ${vendor.business_name}`);
+  console.debug(`Processed ${processedImages.length} images for vendor ${vendor.business_name}: `, processedImages);
   const coverImage = processedImages.find(img => img.is_featured) || null;
+  console.debug(`Selected cover image for vendor ${vendor.business_name}: ${coverImage ? coverImage : 'None'}`);
   const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
     || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
 
