@@ -58,7 +58,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
     >
       {done ? (
         <Alert severity="info" icon={<CheckCircle />}>
-          All good! Your photo has been {done === "approved" ? "approved and will be displayed on your profile." : "removed from your profile."}
+          Success! Your photo has been approved.
         </Alert>
       ) : (
         <Box sx={{ display: "flex", gap: 3, flexDirection: { xs: "column", sm: "row" } }}>

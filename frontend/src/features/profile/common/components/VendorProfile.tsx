@@ -517,7 +517,10 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                       position: 'relative',
                       width: '100%',
                       height: 400,
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      '&:hover .photo-credit': {
+                        opacity: 1,
+                      },
                     }}
                   >
                     <Image
@@ -531,6 +534,26 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                       quality={80}
                       priority={true}
                     />
+                    {vendor.cover_image?.credits && (
+                      <Box
+                        className="photo-credit"
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          px: 1.5,
+                          py: 1,
+                          background: 'linear-gradient(transparent, rgba(0,0,0,0.55))',
+                          opacity: 0,
+                          transition: 'opacity 0.25s ease',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                        }}
+                      >
+                        {vendor.cover_image.credits}
+                      </Box>
+                    )}
                   </Box>
                 </Card>
               )}
