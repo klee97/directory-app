@@ -21,7 +21,11 @@ import Email from "@mui/icons-material/Email";
 import Favorite from "@mui/icons-material/Favorite";
 import Lock from "@mui/icons-material/Lock";
 import Delete from "@mui/icons-material/Delete";
+import Inbox from "@mui/icons-material/Inbox";
 import Link from "next/link";
+import MuiLink from "@mui/material/Link";
+import Switch from "@mui/material/Switch";
+import { updateInquiryAvailability } from "../api/updateInquiryAvailability";
 import { useRouter } from "next/navigation";
 import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { deleteAccount } from "../api/deleteAccount";
@@ -42,12 +46,16 @@ type SettingsProps = {
   isVendorSettings: boolean;
   userEmail: string | undefined;
   hasPassword: boolean;
+  vendorId?: string;
+  approvedInquiriesAt?: string | null;
 };
 
 export const Settings = ({
   isVendorSettings,
   userEmail,
-  hasPassword
+  hasPassword,
+  vendorId,
+  approvedInquiriesAt,
 }: SettingsProps) => {
   const { addNotification } = useNotification();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -73,6 +81,10 @@ export const Settings = ({
 
   // Password visibility for deleting account
   const [showDeletePassword, setShowDeletePassword] = useState(false);
+
+  // Vendor inquiries setting
+  const [inquiryEnabled, setInquiryEnabled] = useState(!!approvedInquiriesAt);
+  const [isUpdatingInquiry, setIsUpdatingInquiry] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -164,6 +176,23 @@ export const Settings = ({
     }
   };
 
+  const handleInquiryToggle = async () => {
+    if (!vendorId) return;
+    const newValue = !inquiryEnabled;
+    setInquiryEnabled(newValue);
+    setIsUpdatingInquiry(true);
+    try {
+      await updateInquiryAvailability(vendorId, newValue);
+      addNotification(newValue ? 'Vendor inquiries enabled' : 'Vendor inquiries disabled');
+    } catch (error: unknown) {
+      setInquiryEnabled(!newValue);
+      const apiError = error as ApiError;
+      addNotification(apiError.message || 'Failed to update inquiry settings', 'error');
+    } finally {
+      setIsUpdatingInquiry(false);
+    }
+  };
+
   const handleDeleteAccount = async () => {
     setIsSubmitting(true);
 
@@ -201,6 +230,38 @@ export const Settings = ({
                 </ListItemIcon>
                 <ListItemText primary="View Favorites" secondary="See the makeup artists that you have favorited" />
               </ListItemButton>
+            </ListItem>
+            <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
+          </>
+        )}
+        {isVendorSettings && (
+          <>
+            <ListItem
+              secondaryAction={
+                <Switch
+                  checked={inquiryEnabled}
+                  onChange={handleInquiryToggle}
+                  disabled={isUpdatingInquiry || !vendorId}
+                />
+              }
+            >
+              <ListItemIcon>
+                <Inbox />
+              </ListItemIcon>
+              <ListItemText
+                sx={{ pr: 8 }}
+                primary="Vendor Inquiries"
+                secondary={
+                  <span>
+                    {inquiryEnabled
+                      ? 'You consent to receive email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients. '
+                      : 'Enable to receive email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients. '}
+                    <MuiLink component={Link} href="/vendor-terms" target="_blank" rel="noopener noreferrer">
+                      See the Terms of Service
+                    </MuiLink>
+                  </span>
+                }
+              />
             </ListItem>
             <Divider sx={{ my: 1, borderColor: 'rgba(0, 0, 0, 0.08)' }} />
           </>

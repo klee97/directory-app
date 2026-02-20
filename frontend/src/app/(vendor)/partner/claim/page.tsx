@@ -22,6 +22,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { ReCaptchaRef } from "@/components/security/ReCaptcha";
 import { validatePassword } from "@/utils/passwordValidation";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
 import { Session } from "@supabase/supabase-js";
@@ -55,6 +57,7 @@ function VendorClaimPageContent() {
   const [formError, setFormError] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  const [enableInquiries, setEnableInquiries] = useState(true);
 
   // Form fields
   const [password, setPassword] = useState("");
@@ -154,7 +157,7 @@ function VendorClaimPageContent() {
     setFormError("");
 
     try {
-      const result = await signUpAndClaimVendor(vendorInfo.email, token, password);
+      const result = await signUpAndClaimVendor(vendorInfo.email, token, password, enableInquiries);
 
       if (!result.success) {
         setFormError(result.error || "Failed to claim vendor.");
@@ -465,6 +468,26 @@ function VendorClaimPageContent() {
                       setTermsError(false);
                     }}
                     error={termsError}
+                  />
+
+                  <FormControlLabel
+                    sx={{ mt: 1, mb: 2, alignItems: 'flex-start' }}
+                    control={
+                      <Checkbox
+                        checked={enableInquiries}
+                        onChange={(e) => setEnableInquiries(e.target.checked)}
+                        color="primary"
+                        sx={{ pt: 0 }}
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        I consent to receive email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients.{" "}
+                        <Link component={NextLink} href="/vendor-terms" target="_blank" rel="noopener noreferrer">
+                          See the Terms of Service
+                        </Link>
+                      </Typography>
+                    }
                   />
 
                   {/* Submit */}

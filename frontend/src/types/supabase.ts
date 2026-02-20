@@ -432,20 +432,32 @@ export type Database = {
       }
       vendor_media: {
         Row: {
+          approved_at: string | null
+          consent_given: boolean
           created_at: string
+          credits: string | null
           id: string
+          is_featured: boolean | null
           media_url: string
           vendor_id: string
         }
         Insert: {
+          approved_at?: string | null
+          consent_given?: boolean
           created_at?: string
+          credits?: string | null
           id?: string
+          is_featured?: boolean | null
           media_url: string
           vendor_id: string
         }
         Update: {
+          approved_at?: string | null
+          consent_given?: boolean
           created_at?: string
+          credits?: string | null
           id?: string
+          is_featured?: boolean | null
           media_url?: string
           vendor_id?: string
         }
@@ -577,6 +589,7 @@ export type Database = {
       vendors: {
         Row: {
           access_token: string | null
+          approved_inquiries_at: string | null
           "bridal_hair_&_makeup_price": number | null
           bridal_hair_price: number | null
           bridal_makeup_price: number | null
@@ -616,6 +629,7 @@ export type Database = {
         }
         Insert: {
           access_token?: string | null
+          approved_inquiries_at?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null
@@ -655,6 +669,7 @@ export type Database = {
         }
         Update: {
           access_token?: string | null
+          approved_inquiries_at?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null
