@@ -183,7 +183,7 @@ export const Settings = ({
     setIsUpdatingInquiry(true);
     try {
       await updateInquiryAvailability(vendorId, newValue);
-      addNotification(newValue ? 'Vendor inquiries enabled' : 'Vendor inquiries disabled');
+      addNotification(newValue ? 'Bridal inquiries enabled' : 'Bridal inquiries disabled');
     } catch (error: unknown) {
       setInquiryEnabled(!newValue);
       const apiError = error as ApiError;
@@ -250,14 +250,14 @@ export const Settings = ({
               </ListItemIcon>
               <ListItemText
                 sx={{ pr: 8 }}
-                primary="Vendor Inquiries"
+                primary="Bridal Inquiries"
                 secondary={
                   <span>
                     {inquiryEnabled
-                      ? 'You consent to receive email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients. '
-                      : 'Enable to receive email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients. '}
-                    <MuiLink component={Link} href="/vendor-terms" target="_blank" rel="noopener noreferrer">
-                      See the Terms of Service
+                      ? 'You are enrolled to receive inquiries from prospective clients through Asian Wedding Makeup. '
+                      : 'Enroll to receive inquiries from prospective clients through Asian Wedding Makeup. '}
+                    <MuiLink component={Link} href="/partner" target="_blank" rel="noopener noreferrer">
+                      Learn More
                     </MuiLink>
                   </span>
                 }

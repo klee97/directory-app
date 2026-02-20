@@ -482,9 +482,9 @@ function VendorClaimPageContent() {
                     }
                     label={
                       <Typography variant="body2">
-                        I consent to receiving email notifications for wedding inquiries from Asian Wedding Makeup on behalf of prospective clients.{" "}
-                        <Link component={NextLink} href="/vendor-terms" target="_blank" rel="noopener noreferrer">
-                          See the Terms of Service
+                        I want to receive inquiries from prospective clients through Asian Wedding Makeup.{" "}
+                        <Link component={NextLink} href="/partner" target="_blank" rel="noopener noreferrer">
+                          Learn More
                         </Link>
                       </Typography>
                     }
