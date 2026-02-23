@@ -28,6 +28,7 @@ export const useImageUploadField = () => {
       const blobUrl = URL.createObjectURL(file);
       previousBlobUrlRef.current = blobUrl;
       setPreviewUrl(blobUrl);
+      updateFormData(blobUrl, { preserveMetadata: true });
     } else {
       // File cleared
       setPreviewUrl(null);
