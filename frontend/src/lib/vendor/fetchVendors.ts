@@ -14,7 +14,7 @@ export async function fetchVendorBySlug(slug: string) {
       regions!metro_region_id(name),
       vendor_testimonials (review, author),
       tags (id, display_name, name, type, is_visible, style),
-      vendor_media (id, media_url)
+      vendor_media (id, media_url, is_featured, consent_given, credits)
     `);
 
   if (!shouldIncludeTestVendors()) {
@@ -29,6 +29,43 @@ export async function fetchVendorBySlug(slug: string) {
     return null;
   }
   return transformBackendVendorToFrontend(vendor);
+}
+
+export async function fetchVendorById(id: string) {
+  console.debug("Fetching vendor with id: %s", id);
+
+  let query = supabase
+    .from('vendors')
+    .select(`
+      *, 
+      usmetro!metro_id(display_name), 
+      regions!metro_region_id(name),
+      vendor_testimonials (review, author),
+      tags (id, display_name, name, type, is_visible, style),
+      vendor_media (id, media_url, is_featured, consent_given, credits)
+    `);
+
+  if (!shouldIncludeTestVendors()) {
+    query = query.not('id', 'like', 'TEST-%');
+  }
+
+  const { data: vendor, error } = await query
+    .eq('id', id)
+    .single();
+  if (error) {
+    console.error('Error fetching vendor: %s', error);
+    return null;
+  }
+  return transformBackendVendorToFrontend(vendor);
+}
+
+export async function getVendorByIdOrSlug({ id, slug }: { id?: string, slug?: string }) {
+  if (id) {
+    return fetchVendorById(id);
+  } else if (slug) {
+    return fetchVendorBySlug(slug);
+  }
+  return null;
 }
 
 // Cached version for individual vendor
@@ -52,7 +89,7 @@ export async function fetchAllVendors() {
         usmetro!metro_id(display_name), 
         regions!metro_region_id(name),
         tags (id, display_name, name, type, is_visible, style),
-        vendor_media (id, media_url)
+        vendor_media (id, media_url, is_featured, consent_given, credits)
       `)
       .eq('include_in_directory', true)
       ;

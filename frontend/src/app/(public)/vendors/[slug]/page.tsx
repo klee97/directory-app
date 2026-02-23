@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
       images: [
         {
-          url: vendor.cover_image || previewImage.src,
+          url: vendor.cover_image?.media_url || previewImage.src,
           width: 1200,
           height: 630,
           alt: `${vendor.business_name} Preview`,
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title: title,
       description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
-      images: [vendor.cover_image || previewImage.src],
+      images: [vendor.cover_image?.media_url || previewImage.src],
     },
     alternates: {
       canonical: `https://www.asianweddingmakeup.com/vendors/${slug}`,
@@ -103,7 +103,7 @@ export default async function VendorPage({ params }: PageProps) {
     "additionalType": "https://schema.org/BeautySalon",
     "name": vendor.business_name,
     "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-    "image": vendor.cover_image,
+    "image": vendor.cover_image?.media_url || previewImage.src,
     "provider": {
       "@type": "Organization",
       "name": "Asian Wedding Makeup",

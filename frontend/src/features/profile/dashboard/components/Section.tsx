@@ -215,12 +215,20 @@ export const SECTIONS: Section[] = [
     id: 'image',
     label: 'Client photo',
     validate: (formData: VendorFormData) => {
+      const hasCoverImage = !!formData.cover_image?.media_url;
+      let creditError = null;
+      if (formData.cover_image?.credits && formData.cover_image?.credits.length > 30) {
+        creditError = 'Credits cannot exceed 30 characters';
+      }
+
       return {
         isValid: true,
-        isComplete: !!(formData.cover_image),
-        isEmpty: !formData.cover_image,
-        errors: {}
+        isComplete: hasCoverImage && formData.cover_image?.credits !== null,
+        isEmpty: !hasCoverImage,
+        errors: {
+          cover_image: creditError
+        }
       };
     }
-  },
+  }
 ];

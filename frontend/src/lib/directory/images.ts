@@ -1,4 +1,5 @@
 import { BackendVendor } from "@/types/vendor";
+import { VendorMedia } from "@/types/vendorMedia";
 import { isAllowedPrefix } from "../images/prefixes";
 
 const URL_MIGRATION_MAP = new Map([
@@ -239,69 +240,71 @@ const URL_MIGRATION_MAP = new Map([
   ]
 ]);
 
-export function getMigratedUrl(originalUrl: string | null) {
-  if (!originalUrl) {
-    return null;
-  }
+export function getMigratedUrl(originalUrl: string): string {
   // Check if URL is in our migration allowlist
-  if (URL_MIGRATION_MAP.has(originalUrl)) {
-    return URL_MIGRATION_MAP.get(originalUrl);
-  }
+  const migrated = URL_MIGRATION_MAP.get(originalUrl);
 
+  if (migrated) {
+    return migrated;
+  }
   // Return original URL if not migrated yet
   return originalUrl;
 }
 
-type ProcessVendorImagesOptions = {
-  preferR2?: boolean;
-  fallbackToSupabase?: boolean;
-};
-
 export function processVendorImages(
   vendor: BackendVendor,
-  options: ProcessVendorImagesOptions = {}
-) {
-  const {
-    preferR2 = true,           // Prefer R2 URLs when available
-    fallbackToSupabase = true  // Fallback to Supabase if R2 not available
-  } = options;
+): VendorMedia[] {
 
   if (!vendor.vendor_media || vendor.vendor_media.length === 0) {
+    if (vendor.cover_image) {
+      console.warn("Vendor %s has no vendor_media but has cover_image. Consider migrating cover_image to vendor_media for image handling.", vendor.business_name);
+    }
     return [];
   }
 
-  const images = vendor.vendor_media
-    .map((image) => {
-      const originalUrl = image.media_url;
-      if (!isAllowedPrefix(originalUrl)) {
-        // Unsupported URL, skip
-        return null;
-      }
-
-      // Try to get migrated R2 URL first
-      const migratedUrl = getMigratedUrl(originalUrl);
-
-      if (preferR2 && migratedUrl !== originalUrl) {
-        // We have an R2 version, use it
-        return {
-          ...image,
-          media_url: migratedUrl,
-          source: 'r2',
-          original_url: originalUrl
-        };
-      } else if (fallbackToSupabase) {
-        // Use original Supabase URL
-        return {
-          ...image,
-          media_url: originalUrl,
-          source: 'supabase',
-          original_url: originalUrl
-        };
-      }
-
-      return null;
-    })
+  const images: VendorMedia[] = vendor.vendor_media
+    .map((image) =>
+      createVendorMedia(image.media_url, vendor.id, {
+        id: image.id,
+        is_featured: image.is_featured,
+        consent_given: image.consent_given,
+        credits: image.credits,
+      })
+    )
     .filter(image => image !== null);
-
   return images;
+}
+
+/**
+ * Creates a VendorMedia object from a URL with migration support
+ * Returns null if URL has unsupported prefix
+ */
+function createVendorMedia(
+  originalUrl: string,
+  vendorId: string,
+  overrides: {
+    id: string;
+    is_featured?: boolean | null;
+    consent_given?: boolean | null;
+    credits?: string | null;
+  }
+): VendorMedia | null {
+  if (!isAllowedPrefix(originalUrl)) {
+    return null;
+  }
+
+  const migratedUrl = getMigratedUrl(originalUrl);
+  const source = migratedUrl !== originalUrl ? 'r2' : 'supabase';
+
+  console.debug(`overrides:`, overrides);
+  return {
+    id: overrides.id,
+    vendor_id: vendorId,
+    is_featured: overrides.is_featured ?? false,
+    consent_given: overrides.consent_given ?? false,
+    credits: overrides.credits ?? null,
+    media_url: migratedUrl,
+    original_url: originalUrl,
+    source: source,
+  };
 }

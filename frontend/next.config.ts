@@ -32,6 +32,11 @@ if (shouldIncludeTestVendors() && process.env.R2_TEST_URL) {
 }
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   images: {
     deviceSizes: [360, 480, 600, 768, 1024, 1280, 1536, 1920],
     imageSizes: [400, 600],

@@ -56,9 +56,37 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Login
-          </Typography>
+          {!isVendorLogin && isVendorLoginEnabled && (
+            <Box
+              sx={{
+                backgroundColor: 'secondary.main',
+                color: 'secondary.contrastText',
+                px: 2,
+                py: 1.5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
+              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                Hair or Makeup Artist?
+              </Typography>
+              <Link
+                component={NextLink}
+                href="/partner/login"
+                color="secondary.contrastText"
+                sx={{
+                  fontWeight: 700,
+                  textDecorationColor: 'inherit',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Vendor Login here →
+              </Link>
+            </Box>
+          )}
 
           {verificationNeeded && (
             <Alert severity="warning" sx={{ mb: 2 }}>
@@ -114,6 +142,19 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               }}
               color={isVendorLogin ? "secondary" : "primary"}
             />
+            {!isVendorLogin && (
+              <Typography variant="body1" align="left" sx={{ mt: 2, ml: 1 }}>
+                <Link component={NextLink} href="/forgot-password" color={"inherit"}>
+                  Forgot password?
+                </Link>
+              </Typography>
+            )}
+            {isVendorLogin && (<Typography variant="body1" align="left" sx={{ mt: 2, ml: 1 }}>
+              <Link component={NextLink} href="/partner/forgot-password" color={"inherit"}>
+                Forgot password?
+              </Link>
+            </Typography>
+            )}
 
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
               <Button
@@ -128,9 +169,9 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               </Button>
 
               {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                <Typography variant="body1" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/signup" color={isVendorLogin ? "secondary" : "primary"}>
+                  <Link component={NextLink} href="/signup" color={"inherit"}>
                     Sign up
                   </Link>
                 </Typography>
@@ -138,32 +179,10 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
               {isVendorLogin && (
                 <Typography variant="body2" align="center" sx={{ mt: 2 }}>
                   Don&apos;t have an account?{' '}
-                  <Link component={NextLink} href="/partner/contact" color={isVendorLogin ? "secondary" : "primary"}>
+                  <Link component={NextLink} href="/partner/contact" color={"inherit"}>
                     Contact us</Link> to access your vendor profile.
 
                 </Typography>
-              )}
-              {!isVendorLogin && (
-                <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                  Forgot your password?{' '}
-                  <Link component={NextLink} href="/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
-                    Reset your password
-                  </Link>
-                </Typography>
-              )}
-              {isVendorLogin && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Forgot your password or need to create one?{' '}
-                <Link component={NextLink} href="/partner/forgot-password" color={isVendorLogin ? "secondary" : "primary"}>
-                  Reset your password
-                </Link>
-              </Typography>
-              )}
-              {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                Logging in as a vendor?{' '}
-                <Link component={NextLink} href="/partner/login" color={isVendorLogin ? "secondary" : "primary"}>
-                  Login here
-                </Link>
-              </Typography>
               )}
             </Stack>
           </Box>

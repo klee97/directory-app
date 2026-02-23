@@ -1,8 +1,9 @@
 import type { Database } from "@/types/supabase";
 import { BackendVendorTag } from "./tag";
 import { isDevOrPreview } from "@/lib/env/env";
-import { getMigratedUrl, processVendorImages } from "@/lib/directory/images";
+import { processVendorImages } from "@/lib/directory/images";
 import { isAllowedPrefix } from "@/lib/images/prefixes";
+import { BackendVendorMedia, VendorMedia } from "./vendorMedia";
 
 
 export type BackendVendor = Database['public']['Tables']['vendors']['Row']
@@ -20,7 +21,8 @@ export type BackendVendor = Database['public']['Tables']['vendors']['Row']
 export type BackendVendorInsert = Database['public']['Tables']['vendors']['Insert'];
 export type BackendVendorRecommendationInsert = Database['public']['Tables']['vendor_recommendations']['Insert'];
 export type BackendVendorTestimonial = Database['public']['Tables']['vendor_testimonials']['Row']
-export type BackendVendorMedia = Database['public']['Tables']['vendor_media']['Row'];
+
+
 export type VendorId = string;
 
 export type VendorTestimonial = Pick<BackendVendorTestimonial, 'id'
@@ -37,10 +39,6 @@ export type VendorTag = Pick<BackendVendorTag, 'id'
   | 'name'
 >
 
-export type VendorMedia = Pick<BackendVendorMedia, 'id'
-  | 'media_url'
->
-
 export type Vendor = Pick<BackendVendor, 'id'
   | 'business_name'
   | 'email'
@@ -51,7 +49,6 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'country'
   | 'travels_world_wide'
   | 'slug'
-  | 'cover_image'
   | 'bridal_hair_price'
   | 'bridal_makeup_price'
   | 'bridesmaid_hair_price'
@@ -73,20 +70,20 @@ export type Vendor = Pick<BackendVendor, 'id'
   'google_maps_place': string | null,
   'testimonials': VendorTestimonial[],
   'tags': VendorTag[],
-  'images': string[],
+  'images': Partial<VendorMedia>[],
+  'cover_image': Partial<VendorMedia> | null,
   'is_premium': boolean,
 };
 
 export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorByDistance {
   console.debug(`Transforming vendor: ${vendor.business_name} (ID: ${vendor.id})`);
-  const procesedImages = processVendorImages(vendor, { preferR2: true, fallbackToSupabase: true });
-  console.debug(`Processed ${procesedImages.length} images for vendor ${vendor.business_name}`);
-  const images = procesedImages.map(img => img.media_url).filter((url): url is string => typeof url === 'string');
-  const coverImage = getMigratedUrl(vendor.cover_image);
-
+  const processedImages: VendorMedia[] = processVendorImages(vendor);
+  console.debug(`Processed ${processedImages.length} images for vendor ${vendor.business_name}: `, processedImages);
+  const coverImage = processedImages.find(img => img.is_featured) || null;
+  console.debug(`Selected cover image for vendor ${vendor.business_name}: ${coverImage ? coverImage : 'None'}`);
   const isPremiumVendor = (vendor.vendor_type === 'PREMIUM' && process.env.NEXT_PUBLIC_FEATURE_PREMIUM_ENABLED === 'true')
     || (vendor.vendor_type === 'TRIAL' && isDevOrPreview());
-    
+
   return {
     id: vendor.id,
     is_premium: isPremiumVendor,
@@ -116,13 +113,11 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
     testimonials: vendor.vendor_testimonials ?? [],
     tags: vendor.tags ?? [],
     distance_miles: vendor.distance_miles ?? null,
-    images: images ?? [],
+    images: processedImages,
     profile_image: vendor.profile_image
       && isAllowedPrefix(vendor.profile_image)
       ? vendor.profile_image : null,
-    cover_image: coverImage
-      && isAllowedPrefix(coverImage)
-      ? coverImage : null,
+    cover_image: coverImage,
     access_token: vendor.access_token,
   }
 };

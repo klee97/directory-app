@@ -1,10 +1,14 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
+import { VendorMediaForm } from "@/types/vendorMedia";
 import { prepareVendorData, VendorDataInput } from "../../admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 import { revalidateVendor } from "@/lib/actions/revalidate";
+import { deriveMediaMutations } from "@/lib/images/vendorMediaHelper";
+import { applyVendorMediaMutation } from "@/lib/images/applyVendorMediaMutation";
+import { deleteImageServer } from "./deleteImageServer";
 
 interface VendorLookup {
   id?: string;
@@ -23,9 +27,11 @@ export const updateVendor = async (
   firstname: string | null,
   lastname: string | null,
   newTags: VendorTag[] | null,
+  newImages: VendorMediaForm[]
 ): Promise<UpdateVendorResult> => {
   const operationId = `update-${Date.now()}`;
-  console.log(`[${operationId}] Starting vendor update`, { lookup, updateFields: Object.keys(vendor) });
+  console.debug(`[${operationId}] Starting vendor update`, { lookup });
+  console.debug(`[${operationId}] Vendor data input:`, vendor);
 
   // Validate that we have data to update
   if (Object.keys(vendor).length === 0) {
@@ -73,7 +79,7 @@ export const updateVendor = async (
   }
 
   // Fetch existing vendor data
-  console.log(`[${operationId}] Fetching existing vendor data...`);
+  console.debug(`[${operationId}] Fetching existing vendor data...`);
   const { data: existingVendorData, error: fetchError } = await supabase
     .from("vendors")
     .select(`
@@ -83,8 +89,8 @@ export const updateVendor = async (
       longitude,
       business_name,
       email,
-      cover_image,
-      tags (id, display_name, name, type, is_visible, style)
+      tags (id, display_name, name, type, is_visible, style),
+      vendor_media (id, media_url, is_featured, consent_given, credits)
     `)
     .eq(lookupField, lookupValue)
     .single();
@@ -171,7 +177,8 @@ export const updateVendor = async (
     const toAdd = newTagIds.filter((id: string) => !oldTagIds.includes(id));
     const toRemove = oldTagIds.filter(id => !newTagIds.includes(id));
 
-    console.debug(`[${operationId}] Tag changes:`, { toAdd: toAdd.length, toRemove: toRemove.length });
+    console.debug(`[${operationId}] Tags to add:`, toAdd);
+    console.debug(`[${operationId}] Tags to remove:`, toRemove);
 
     // Add new tags
     if (toAdd.length > 0) {
@@ -209,21 +216,20 @@ export const updateVendor = async (
     }
   }
 
-  // Update cover image to vendor_media if updated
-  if (vendorData.cover_image && vendorData.cover_image !== '' && existingVendorData.cover_image !== vendorData.cover_image) {
-    console.log(`[${operationId}] Adding cover image to vendor_media...`);
-    const { error: mediaError } = await supabase
-      .from('vendor_media')
-      .insert({
-        media_url: vendorData.cover_image,
-        vendor_id: updatedVendor.id,
-      });
-
-    if (mediaError) {
-      console.warn(`[${operationId}] Failed to add cover image to vendor_media (may be duplicate):`, mediaError.message);
-      // Non-critical error - continue
-    } else {
-      console.debug(`[${operationId}] ✅ Cover image added to vendor_media`);
+  // Handle vendor_media table updates if cover image changed
+  console.debug(`[${operationId}] Checking for vendor_media updates...`);
+  if (newImages?.length > 0 || existingVendorData.vendor_media.length > 0) {
+    const existingImages = existingVendorData.vendor_media ?? [];
+    const mutations = deriveMediaMutations(newImages, existingImages);
+    console.debug(`[${operationId}] Derived media mutations:`, mutations);
+    for (const mutation of mutations) {
+      console.debug(`[${operationId}] Applying media mutation:`, mutation);
+      const { error } = await applyVendorMediaMutation(supabase, mutation);
+      if (error) {
+        console.warn(`[${operationId}] vendor_media mutation failed (non-critical):`, error.message);
+      } else if (mutation.operation === 'delete') {
+        deleteImageServer(mutation.media_url, updatedVendor.id);
+      }
     }
   }
 

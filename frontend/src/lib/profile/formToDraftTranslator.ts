@@ -12,7 +12,7 @@ export function formDataToDraft(
   vendorId: string,
   userId: string,
   existingDraftId: string | null
-): Omit<BackendVendorDraft, 'images' | 'created_at' | 'updated_at' | 'last_saved_at'> {
+): Omit<BackendVendorDraft, 'created_at' | 'updated_at' | 'last_saved_at'> {
   return {
     id: existingDraftId ?? crypto.randomUUID(),
     vendor_id: vendorId,
@@ -41,7 +41,8 @@ export function formDataToDraft(
     "bridesmaid_hair_&_makeup_price": formData["bridesmaid_hair_&_makeup_price"],
 
     // Images
-    cover_image: formData.cover_image,
+    cover_image: formData.cover_image?.media_url || null,
+    images: formData.cover_image ? [formData.cover_image] : [],
     profile_image: null,
     logo: null,
 

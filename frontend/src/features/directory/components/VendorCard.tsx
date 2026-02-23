@@ -83,7 +83,7 @@ export const VendorCard = ({
         region: filterContext?.selectedLocationName || "",
       });
     }
-  }, [inView, vendor.cover_image, vendor.slug, positionIndex, variant, vendor.is_premium, resolvedImageCount, filterContext?.searchQuery, filterContext?.selectedSkills, filterContext?.travelsWorldwide, filterContext?.selectedLocationName]);
+  }, [inView, vendor.images, vendor.cover_image, vendor.slug, positionIndex, variant, vendor.is_premium, resolvedImageCount, filterContext?.searchQuery, filterContext?.selectedSkills, filterContext?.travelsWorldwide, filterContext?.selectedLocationName]);
 
   const theme = useTheme();
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;

@@ -1,6 +1,6 @@
 import Image, { StaticImageData } from 'next/image';
 import { Box } from '@mui/material';
-import { isAllowedPrefix } from '@/lib/images/prefixes';
+import { VendorMedia } from '@/types/vendorMedia';
 
 export default function VendorCardImage({
   vendorImage,
@@ -9,7 +9,7 @@ export default function VendorCardImage({
   placeholderImage,
   variant
 }: {
-  vendorImage: string | null | undefined;
+  vendorImage: Partial<VendorMedia> | null | undefined;
   cardPosition?: number;
   vendorBusinessName: string | null;
   placeholderImage: StaticImageData;
@@ -26,10 +26,8 @@ export default function VendorCardImage({
       }}
     >
       <Image
-        src={ vendorImage && isAllowedPrefix(vendorImage)
-          ? vendorImage
-          : placeholderImage.src}
-        alt={`${vendorBusinessName} preview`}
+        src={vendorImage?.media_url ?? placeholderImage}
+        alt={`${vendorBusinessName ?? ''} preview`}
         fill
         sizes="(max-width: 600px) 100vw, 400px"
         style={{

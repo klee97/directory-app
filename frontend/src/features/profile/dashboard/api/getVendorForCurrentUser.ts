@@ -16,7 +16,7 @@ export async function getVendorForCurrentUser(userId: string) {
       vendors!inner (
         *,
         tags (id, display_name, name, type, is_visible, style),
-        vendor_media (id, media_url)
+        vendor_media (id, media_url, is_featured, consent_given, credits)
       )
     `)
     .eq('id', userId);

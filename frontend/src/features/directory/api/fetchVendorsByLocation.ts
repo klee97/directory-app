@@ -8,7 +8,7 @@ import { unstable_cache } from "next/cache";
 const SEARCH_QUERY = `
       *,
       tags (id, display_name, name, type, is_visible, style),
-      vendor_media (id, media_url)
+      vendor_media (id, media_url, is_featured, consent_given, credits)
       `;
 
 export async function getVendorsByLocation(location: LocationResult): Promise<VendorByDistance[]> {

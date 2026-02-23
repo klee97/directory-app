@@ -50,7 +50,7 @@ export default function MenuView({
             You have unpublished changes.
           </Alert>
         )}
-        <Button variant="contained" fullWidth onClick={onPublish} sx={{ borderRadius: 2 }}>
+        <Button variant="contained" fullWidth onClick={onPublish} sx={{ borderRadius: 2 }} disabled={!hasUnpublishedChanges}>
           Publish
         </Button>
       </Box>

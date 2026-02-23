@@ -88,15 +88,19 @@ export const AdminAddVendorManagement = () => {
     setIsSubmitting(true);
 
     try {
-      const newVendorData = JSON.parse(JSON.stringify(newVendor));
+      let id: string | undefined;
 
       // ✅ Add test vendor ID if creating a test vendor
       if (isTestVendor && testVendorId.trim()) {
-        const id = testVendorId.trim().startsWith('TEST-')
+        id = testVendorId.trim().startsWith("TEST-")
           ? testVendorId.trim()
           : `TEST-${testVendorId.trim()}`;
-        newVendorData.id = id;
       }
+
+      const newVendorData = {
+        ...newVendor,
+        ...(id && { id }),
+      };
 
       const data = await createVendor(newVendorData, firstName, lastName, selectedTags);
 

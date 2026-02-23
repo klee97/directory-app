@@ -50,6 +50,7 @@ export const colorSchemes = {
       },
       secondary: {
         main: '#85a07a',
+        contrastText: '#fff'
       },
       success: {
         main: '#30c74d',
@@ -77,6 +78,7 @@ export const colorSchemes = {
       },
       secondary: {
         main: '#85a07a',
+        contrastText: '#fff'
       },
       success: {
         main: '#30c74d',

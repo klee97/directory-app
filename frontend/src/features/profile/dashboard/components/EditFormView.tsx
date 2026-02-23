@@ -27,6 +27,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
+import { VendorMediaDraft, VendorMediaForm } from '@/types/vendorMedia';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
 export const MIN_SERVICE_PRICE = 0;
@@ -38,8 +39,9 @@ interface EditFormViewProps {
   formData: VendorFormData;
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
-  handleSave: (uploadedImageUrl?: string) => void;
-  vendorIdentifier?: string;
+  handleSave: (dataToSave: VendorFormData) => void;
+  vendorSlug: string;
+  vendorId: string;
   tags: VendorTag[];
 }
 
@@ -50,13 +52,16 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
-  vendorIdentifier,
+  vendorSlug,
+  vendorId,
   tags
 }: EditFormViewProps) {
 
   const [showValidation, setShowValidation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [priceErrors, setPriceErrors] = useState<Partial<Record<string, string | null>>>({});
+  const [imageError, setImageError] = useState<string | null>(null);
+
   const previousBlobUrlRef = useRef<string | null>(null);
 
   const image = useImageUploadField();
@@ -106,12 +111,35 @@ export default function EditFormView({
     }
     try {
       setIsSaving(true);
-      const uploadedImageUrl = await image.uploadIfPresent(vendorIdentifier ?? '');
+      // Upload image if changed and get the real URL
+      const uploadedUrl = await image.uploadIfChanged(vendorSlug, formData.cover_image);
 
-      // Call handleSave but tell it NOT to manage isSaving
-      await handleSave(uploadedImageUrl || undefined);
+      let coverImage: VendorMediaForm | null;
 
+      // Ensure the constructed object includes required VendorMediaBase fields
+      if (uploadedUrl === undefined) {
+        // Image unchanged — keep as-is
+        coverImage = formData.cover_image ?? null;
+      } else if (uploadedUrl === null) {
+        // Image was cleared
+        coverImage = null;
+      } else if (formData.cover_image) {
+        // New upload replacing existing media — preserve id and metadata
+        coverImage = { ...formData.cover_image, media_url: uploadedUrl, vendor_id: vendorId };
+      } else {
+        // New upload with no prior media object
+        coverImage = {
+          media_url: uploadedUrl,
+          vendor_id: vendorId,
+          is_featured: true,
+          consent_given: true,
+          credits: null,
+        } satisfies VendorMediaDraft;
+      }
+
+      handleSave({ ...formData, cover_image: coverImage });
       setShowValidation(false);
+
     } catch (error) {
       console.error('Save failed:', error);
     } finally {
@@ -170,7 +198,7 @@ export default function EditFormView({
   };
 
   const hasPriceErrors = Object.values(priceErrors).some(error => error !== null && error !== undefined);
-  const isSaveDisabled = loading || hasPriceErrors;
+  const isSaveDisabled = loading || hasPriceErrors || !!imageError;
 
   return (
     <Box sx={{
@@ -216,10 +244,10 @@ export default function EditFormView({
       </Box>
 
       {/* Show validation alert at top if there are errors */}
-      {showValidation && !validationResult.isValid && (
+      {(showValidation && !validationResult.isValid || !!imageError || hasPriceErrors) && (
         <Box sx={{ p: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
           <Typography variant="body2">
-            {Object.keys(validationResult.errors).length > 0
+            {Object.keys(validationResult.errors).length > 0 || imageError || hasPriceErrors
               ? 'Please fix the errors below before saving'
               : 'Please fill out all required fields before saving'}
           </Typography>
@@ -520,36 +548,45 @@ export default function EditFormView({
             </Typography>
             <ImageUpload
               ref={image.imageUploadRef}
-              currentImageUrl={formData.cover_image ?? undefined}
-              onImageSelect={(file) => {
-                // Clean up previous blob URL to prevent memory leak
-                if (previousBlobUrlRef.current?.startsWith('blob:')) {
-                  URL.revokeObjectURL(previousBlobUrlRef.current);
-                }
-
-                image.onSelect(file);
-                // Immediately update preview with local file URL
-                if (file) {
-                  const previewUrl = URL.createObjectURL(file);
-                  previousBlobUrlRef.current = previewUrl;
-                  setFormData(prev => ({
-                    ...prev,
-                    cover_image: previewUrl, // Temporary local URL
-                  }));
-                } else {
-                  // File was cleared - remove preview
-                  previousBlobUrlRef.current = null;
-                  setFormData(prev => ({
-                    ...prev,
-                    cover_image: null,
-                  }));
-                }
-              }}
+              currentImageUrl={image.previewUrl ?? formData.cover_image?.media_url ?? undefined}
+              onError={setImageError}
+              onImageSelect={(file) =>
+                // handleSelect does three things:
+                // 1. Revokes the previous blob URL to prevent memory leaks
+                // 2. Creates a new blob URL from `file` for immediate preview (or clears it if file is null)
+                // 3. Calls the third argument to sync the new preview URL into form state
+                image.handleSelect(
+                  file,
+                  previousBlobUrlRef,
+                  (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, vendorId, false, options))
+                )
+              }
               disabled={image.loading}
             />
+            {imageError && (
+              <Typography variant="body2" color="error" sx={{ mb: 1 }}>
+                {imageError}
+              </Typography>
+            )}
+            {(image.file || formData.cover_image?.media_url) && (
+              <Box sx={{ mt: 2 }}>
+                <TextField
+                  label="Photographer Credit (optional)"
+                  fullWidth
+                  value={formData.cover_image?.credits ?? ''}
+                  onChange={(e) =>
+                    setFormData(prev => image.updateMediaMetadata(prev, {
+                      credits: e.target.value || null
+                    }))
+                  }
+                  error={!!getFieldError('cover_image')}
+                  helperText={getFieldError('cover_image')}
+                />
+              </Box>
+
+            )}
           </Box>
         )}
-
         {activeSection === 'services' && (
           <Box>
             <Grid container spacing={3}>

@@ -1,5 +1,6 @@
 import { LocationResult } from "./location";
 import { VendorTag } from "./vendor";
+import { VendorMediaForm } from "./vendorMedia";
 
 export interface VendorFormData {
   business_name: string;
@@ -15,8 +16,12 @@ export interface VendorFormData {
   bridesmaid_hair_price: number | null;
   bridesmaid_makeup_price: number | null;
   "bridesmaid_hair_&_makeup_price": number | null;
-  cover_image: string | null;
+  cover_image: VendorMediaForm | null;
   tags: VendorTag[];
+}
+
+export type VendorFormDataAdmin = VendorFormData & {
+  email: string | null;
 }
 
 export type VendorFormField =

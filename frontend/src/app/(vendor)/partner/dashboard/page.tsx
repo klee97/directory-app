@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getCurrentUserAction } from "@/lib/auth/actions/getUser";
-import DashboardContent from "@/features/vendorDashboard/DashboardContent";
+import DashboardContent from "@/features/vendorDashboard/components/DashboardContent";
 import { getVendorForCurrentUser } from "@/features/profile/dashboard/api/getVendorForCurrentUser";
 
 

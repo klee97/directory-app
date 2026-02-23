@@ -10,6 +10,7 @@ export function draftToFormData(draft: BackendVendorDraft): VendorFormData {
   const locationResult = draft.location_data
     ? JSON.parse(JSON.stringify(draft.location_data))
     : null;
+  const images = draft.images ? JSON.parse(JSON.stringify(draft.images)) : [];
   return {
     // Convert null to empty string for UI
     business_name: draft.business_name ?? '',
@@ -31,7 +32,7 @@ export function draftToFormData(draft: BackendVendorDraft): VendorFormData {
     "bridesmaid_hair_&_makeup_price": draft["bridesmaid_hair_&_makeup_price"],
 
     // Images
-    cover_image: draft.cover_image,
+    cover_image: images.length > 0 ? images[0] : null,
     tags
   };
 }

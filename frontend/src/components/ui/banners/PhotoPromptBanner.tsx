@@ -3,16 +3,10 @@ import { Info } from '@mui/icons-material';
 import CTABanner from './CTABanner';
 
 interface PhotoPromptProps {
-  hasProfilePhoto: boolean;
   onClose?: () => void;
 }
 
-export default function PhotoPromptBanner({ hasProfilePhoto, onClose }: PhotoPromptProps) {
-  // Don't show if they already have photos
-  if (hasProfilePhoto) {
-    return null;
-  }
-
+export default function PhotoPromptBanner({ onClose }: PhotoPromptProps) {
   return (
     <CTABanner
       bannerKey="photo-prompt-banner-dismissed"

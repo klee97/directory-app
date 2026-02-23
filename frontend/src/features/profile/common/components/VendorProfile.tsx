@@ -36,6 +36,8 @@ import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 import { getDefaultBio } from '../utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { Email } from '@mui/icons-material';
+import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
+import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
@@ -152,6 +154,8 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const theme = useTheme();
   const supabase = createClient();
 
+  const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
+
   const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
   const prices = [
@@ -193,7 +197,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
         });
       }
     };
-  }, [resolvedImageCount, vendor.cover_image, vendor.is_premium, vendor.slug, vendor.testimonials.length]);
+  }, [resolvedImageCount, vendor.images, vendor.cover_image, vendor.is_premium, vendor.slug, vendor.testimonials.length]);
 
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
@@ -226,6 +230,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
           {showImageCarousel && (<PhotoCarousel
             photos={randomizedImageList}
             vendorSlug={vendor.slug}
+            placeholderImage={placeholderImage}
           />
           )}
           {/* Main Content */}
@@ -512,11 +517,14 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                       position: 'relative',
                       width: '100%',
                       height: 400,
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      '&:hover .photo-credit': {
+                        opacity: 1,
+                      },
                     }}
                   >
                     <Image
-                      src={vendor.cover_image}
+                      src={vendor.cover_image?.media_url ?? placeholderImage}
                       alt={vendor.business_name ?? ''}
                       fill
                       sizes="(max-width: 768px) 100vw, 600px"
@@ -526,6 +534,26 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                       quality={80}
                       priority={true}
                     />
+                    {vendor.cover_image?.credits && (
+                      <Box
+                        className="photo-credit"
+                        sx={{
+                          position: 'absolute',
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          px: 1.5,
+                          py: 1,
+                          background: 'linear-gradient(transparent, rgba(0,0,0,0.55))',
+                          opacity: 0,
+                          transition: 'opacity 0.25s ease',
+                          color: 'white',
+                          fontSize: '0.75rem',
+                        }}
+                      >
+                        {vendor.cover_image.credits}
+                      </Box>
+                    )}
                   </Box>
                 </Card>
               )}

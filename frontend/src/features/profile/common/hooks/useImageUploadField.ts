@@ -1,23 +1,144 @@
 import { useRef, useState } from 'react';
 import { useImageUploader } from '@/features/profile/common/hooks/useImageUploader';
 import type { ImageUploadRef } from '@/features/profile/common/components/ImageUpload';
+import { VendorMediaBase, VendorMediaForm } from "@/types/vendorMedia";
 
 export const useImageUploadField = () => {
   const imageUploadRef = useRef<ImageUploadRef>(null);
   const [file, setFile] = useState<File | null>(null);
-  const { upload, loading } = useImageUploader();
+  const [imageChanged, setImageChanged] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleSelect = (file: File | null) => {
+  const { upload, deleteExisting, loading } = useImageUploader();
+
+  const handleSelect = (
+    file: File | null,
+    previousBlobUrlRef: React.RefObject<string | null>,
+    updateFormData: (url: string | null, options?: { preserveMetadata?: boolean }) => void
+  ) => {
+    // Clean up previous blob URL to prevent memory leak
+    if (previousBlobUrlRef.current?.startsWith('blob:')) {
+      URL.revokeObjectURL(previousBlobUrlRef.current);
+    }
+
     setFile(file);
+    setImageChanged(true); // Track that the image has changed
+
+    if (file) {
+      const blobUrl = URL.createObjectURL(file);
+      previousBlobUrlRef.current = blobUrl;
+      setPreviewUrl(blobUrl);
+    } else {
+      // File cleared
+      setPreviewUrl(null);
+      previousBlobUrlRef.current = null;
+      updateFormData(null);
+    }
   };
 
-  const uploadIfPresent = async (identifier: string) => {
-    if (!file || !identifier) return null;
-    return upload(file, identifier);
+  /**
+   * Returns:
+   *   undefined  — image unchanged, caller should keep existing cover_image as-is
+   *   null       — image was cleared, caller should set cover_image to null
+   *   string     — new R2 URL, caller should update cover_image.media_url
+   */
+  const uploadIfChanged = async (
+    vendorSlug: string,
+    currentMedia: VendorMediaForm | null,
+  ): Promise<string | null | undefined> => {
+    if (!imageChanged) return undefined;
+
+    const existingUrl = currentMedia?.media_url ?? null;
+
+    // New file selected — upload it, clean up old one
+    if (file) {
+      let uploadedUrl: string;
+      try {
+        uploadedUrl = await upload(file, vendorSlug);
+      } catch (err) {
+        throw new Error('Failed to upload image. Please try again.');
+      }
+      if (existingUrl) {
+        try {
+          await deleteExisting(existingUrl, vendorSlug);
+        } catch (err) {
+          console.error('Failed to delete old image after upload:', err);
+          // Non-fatal
+        }
+      }
+
+      return uploadedUrl;
+    }
+
+    // Cleared — delete from R2 if there was a stored image
+    if (existingUrl) {
+      try {
+        await deleteExisting(existingUrl, vendorSlug);
+      } catch (err) {
+        console.error('Failed to delete image from storage:', err);
+        // Non-fatal
+      }
+    }
+
+    return null;
   };
+
+  // Helper for updating VendorMedia URL
+  const updateMediaUrl = <T extends { cover_image?: VendorMediaForm | null }>(
+    prev: T,
+    url: string | null,
+    vendorId: string,
+    admin: boolean,
+    options?: { preserveMetadata?: boolean }
+  ): T => {
+    if (url === null) {
+      console.debug("Clearing cover image");
+      return { ...prev, cover_image: null };
+    }
+
+    if (options?.preserveMetadata && prev.cover_image) {
+      console.debug("Preserving cover image metadata");
+      // Preserve id and other metadata — important for the update path
+      return {
+        ...prev,
+        cover_image: {
+          ...prev.cover_image,
+          media_url: url,
+        } satisfies VendorMediaForm,
+      };
+    }
+
+    console.debug("creating fresh cover image with new URL");
+    // Fresh cover image
+    return {
+      ...prev,
+      cover_image: {
+        media_url: url,
+        is_featured: true,
+        credits: null,
+        consent_given: admin ? false : true, // user uploads default to consent given, admin uploads require explicit consent
+        vendor_id: vendorId,
+      } satisfies VendorMediaForm,
+    };
+  };
+
+
+  // Helper for updating VendorMedia metadata
+  const updateMediaMetadata = <T extends { cover_image?: VendorMediaForm | null }>(
+    prev: T,
+    updates: Partial<VendorMediaBase>
+  ): T => ({
+    ...prev,
+    cover_image: {
+      ...prev.cover_image,
+      ...updates,
+    } as VendorMediaForm,
+  });
 
   const reset = () => {
     setFile(null);
+    setPreviewUrl(null);
+    setImageChanged(false);
     imageUploadRef.current?.reset();
   };
 
@@ -25,8 +146,11 @@ export const useImageUploadField = () => {
     imageUploadRef,
     file,
     loading,
-    onSelect: handleSelect,
-    uploadIfPresent,
+    handleSelect,
+    uploadIfChanged,
     reset,
+    updateMediaUrl,
+    updateMediaMetadata,
+    previewUrl
   };
 };
