@@ -10,9 +10,12 @@ import {
 import { VendorByDistance } from "@/types/vendor";
 import BaseCard from "./BaseCard";
 import { RECOMMENDED_BIO_WORD_COUNT } from "@/features/profile/dashboard/components/EditFormView";
+import Alert from "@mui/material/Alert";
 
 interface ProfileChecklistCardProps {
   vendor: VendorByDistance;
+  userId: string;
+  hasUnpublishedDraft: boolean;
 }
 
 interface ChecklistItem {
@@ -22,7 +25,7 @@ interface ChecklistItem {
   completed: boolean;
 }
 
-export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardProps) {
+export default function ProfileChecklistCard({ vendor, userId, hasUnpublishedDraft }: ProfileChecklistCardProps) {
   const checklistItems: ChecklistItem[] = [
     {
       id: 'basic_info',
@@ -44,9 +47,13 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
     },
   ];
 
-
   return (
-    <BaseCard title="Edit Profile Page" titleHref="/partner/dashboard/profile" icon={<Edit sx={{ color: 'text.primary' }}/>}>
+    <BaseCard title="Edit Profile Page" titleHref="/partner/dashboard/profile" icon={<Edit sx={{ color: 'text.primary' }} />}>
+      {hasUnpublishedDraft && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          You have unpublished changes.
+        </Alert>
+      )}
       {/* Checklist Items */}
       <Box sx={{ mb: 3 }}>
         {checklistItems.map((item, index) => (

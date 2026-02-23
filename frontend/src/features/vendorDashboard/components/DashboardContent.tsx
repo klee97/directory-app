@@ -7,9 +7,6 @@ import Grid from "@mui/material/Grid2";
 import RecentInquiriesCard from "@/features/vendorDashboard/components/cards/RecentInquiriesCard";
 import PerformanceStatsCard from "@/features/vendorDashboard/components/cards/PerformanceStatsCard";
 import { VendorByDistance } from "@/types/vendor";
-import Button from "@mui/material/Button";
-import Alert from "@mui/material/Alert";
-import Refresh from "@mui/icons-material/Refresh";
 import ProfileEditCard from "./cards/ProfileEditCard";
 import Link from "@mui/material/Link";
 import PhotoPromptBanner from "@/components/ui/banners/PhotoPromptBanner";
@@ -20,44 +17,13 @@ import { updateMediaConsent } from "../actions/mediaActions";
 import { useNotification } from "@/contexts/NotificationContext";
 
 interface DashboardContentProps {
-  vendor: VendorByDistance | null;
+  vendor: VendorByDistance;
+  userId: string;
+  hasUnpublishedDraft: boolean; 
 }
 
-export default function DashboardContent({ vendor }: DashboardContentProps) {
-
-  if (!vendor) {
-    console.error("DashboardContent: vendor is null - this should not happen");
-
-    return (
-      <Container maxWidth="lg">
-        <Box sx={{ mt: 4, mb: 6 }}>
-          <Alert
-            severity="error"
-            action={
-              <Button
-                color="inherit"
-                size="small"
-                startIcon={<Refresh />}
-                onClick={() => window.location.reload()}
-              >
-                Reload
-              </Button>
-            }
-          >
-            <Typography variant="body1" fontWeight={500}>
-              Unable to load your vendor profile
-            </Typography>
-            <Typography variant="body2">
-              Please try refreshing the page. If the problem persists, contact support.
-            </Typography>
-          </Alert>
-        </Box>
-      </Container>
-    );
-  }
-
+export default function DashboardContent({ vendor, userId, hasUnpublishedDraft }: DashboardContentProps) {
   const { addNotification } = useNotification();
-
 
   const handlePhotoSubmit = async (mediaId: string, credits: string) => {
     const result = await updateMediaConsent({ mediaId, credits, consentGiven: true });
@@ -114,7 +80,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
         <Grid container spacing={3}>
 
           <Grid size={{ xs: 12 }}>
-            <ProfileEditCard vendor={vendor} />
+            <ProfileEditCard vendor={vendor} userId={userId} hasUnpublishedDraft={hasUnpublishedDraft} />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

@@ -308,7 +308,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                     About
                   </Typography>
                   {/* Description */}
-                  <Typography variant="body1" component="p" sx={{ mb: 2 }}>
+                  <Typography variant="body1" component="p" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
                     {description}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
