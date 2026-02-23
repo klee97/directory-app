@@ -62,7 +62,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 backgroundColor: 'secondary.main',
                 color: 'secondary.contrastText',
                 px: 2,
-                py: 1,
+                py: 1.5,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -70,6 +70,9 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 flexWrap: 'wrap',
               }}
             >
+              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                Hair or Makeup Artist?
+              </Typography>
               <Link
                 component={NextLink}
                 href="/partner/login"
