@@ -589,6 +589,7 @@ export type Database = {
       vendors: {
         Row: {
           access_token: string | null
+          approved_inquiries_at: string | null
           "bridal_hair_&_makeup_price": number | null
           bridal_hair_price: number | null
           bridal_makeup_price: number | null
@@ -628,6 +629,7 @@ export type Database = {
         }
         Insert: {
           access_token?: string | null
+          approved_inquiries_at?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null
@@ -667,6 +669,7 @@ export type Database = {
         }
         Update: {
           access_token?: string | null
+          approved_inquiries_at?: string | null
           "bridal_hair_&_makeup_price"?: number | null
           bridal_hair_price?: number | null
           bridal_makeup_price?: number | null

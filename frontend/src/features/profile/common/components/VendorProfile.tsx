@@ -46,7 +46,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite, isPaused }: { vendor: Vendor, isFavorite: boolean, isPaused: boolean }) => {
+const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
@@ -150,6 +150,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const allowlistIds = process.env.NEXT_PUBLIC_ALLOWLIST_VENDOR_SLUGS?.split(',') || [];
   const isAllowlisted = vendor.slug ? allowlistIds.includes(vendor.slug) : false;
   const isPaused = process.env.NEXT_PUBLIC_TRANSITION_ENABLED === 'true' && !isAllowlisted;
+  const isInquiryEnabled = vendor.approved_inquiries_at !== null;
 
   const theme = useTheme();
   const supabase = createClient();
@@ -564,7 +565,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                   display: { xs: 'block', md: 'none' }, // show only when stacked
                 }}
               />
-              <ContactCard vendor={vendor} isFavorite={isFavorite} isPaused={isPaused} />
+              <ContactCard vendor={vendor} isFavorite={isFavorite} isInquiryEnabled={isInquiryEnabled} />
             </Grid>
           </Grid>
           {nearbyVendors && nearbyVendors.length > 0 && (

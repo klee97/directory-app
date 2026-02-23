@@ -60,7 +60,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   return vendor;
 }
 
-export async function signUpAndClaimVendor(email: string, accessToken: string, password: string) {
+export async function signUpAndClaimVendor(email: string, accessToken: string, password: string, enableInquiries: boolean) {
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdmin
     .from('vendors')
@@ -142,10 +142,16 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     };
   }
 
-  // Clear the access token so it can't be reused and update verified_at timestamp
+  const now = new Date().toISOString();
+
+  // Clear the access token so it can't be reused, update verified_at, and set inquiry consent
   await supabaseAdmin
     .from('vendors')
-    .update({ access_token: null, verified_at: new Date().toISOString() })
+    .update({
+      access_token: null,
+      verified_at: now,
+      approved_inquiries_at: enableInquiries ? now : null,
+    })
     .eq('id', vendor.id);
 
   return {
