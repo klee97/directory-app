@@ -13,9 +13,10 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid2';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 import { updateVendor } from '@/features/profile/common/api/updateVendor';
 import { useNotification } from '@/contexts/NotificationContext';
-import RegionSelector, { RegionOption } from '@/features/profile/common/components/RegionSelector';
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
@@ -28,49 +29,59 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { useImageUploadField } from '../../common/hooks/useImageUploadField';
 import { VendorFormDataAdmin } from '@/types/vendorFormData';
 import { VendorMediaDraft, VendorMediaForm } from "@/types/vendorMedia";
-
 import { formDataToVendor } from '@/lib/profile/formToVendorTranslator';
+import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
 import Checkbox from '@mui/material/Checkbox';
-
-export const UPDATE_VENDOR_INPUT_DEFAULT: VendorFormDataAdmin = {
-  "bridal_hair_&_makeup_price": null,
-  bridal_hair_price: null,
-  bridal_makeup_price: null,
-  "bridesmaid_hair_&_makeup_price": null,
-  bridesmaid_hair_price: null,
-  bridesmaid_makeup_price: null,
-  business_name: null,
-  cover_image: null,
-  description: null,
-  email: null,
-  google_maps_place: null,
-  instagram: null,
-  latitude: null,
-  lists_prices: null,
-  longitude: null,
-  region: null,
-  tags: null,
-  travels_world_wide: null,
-  website: null,
-} as const;
+import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
+import { useLocationForm } from '../../dashboard/hooks/useLocationForm';
+import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
+import { getVendorByIdOrSlug } from '@/lib/vendor/fetchVendors';
 
 export const AdminUpdateVendorManagement = () => {
   const { addNotification } = useNotification();
-  const [newFormData, setFormData] = useState<VendorFormDataAdmin>(UPDATE_VENDOR_INPUT_DEFAULT);
+  const [newFormData, setFormData] = useState<VendorFormDataAdmin | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
-  const [selectedRegion, setSelectedRegion] = useState<RegionOption | null>(null);
   const [selectedTags, setSelectedTags] = useState<VendorTag[] | null>(null);
   const { tags } = useTags();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingVendor, setIsLoadingVendor] = useState(false);
+  const [vendorLoaded, setVendorLoaded] = useState(false);
   const previousBlobUrlRef = useRef<string | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null)
+  const [imageError, setImageError] = useState<string | null>(null);
 
   // Separate state for lookup fields (immutable identifiers)
   const [lookupId, setLookupId] = useState<string>('');
   const [lookupSlug, setLookupSlug] = useState<string>('');
 
   const image = useImageUploadField();
+
+  const locationForm = useLocationForm({
+    initialLocation: newFormData?.locationResult,
+    citiesOnly: true,
+    onLocationChange: (location) => {
+      if (location) {
+        setFormData(prev => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            locationResult: {
+              ...location,
+              lat: location.lat ?? null,
+              lon: location.lon ?? null,
+              display_name: getDisplayNameWithoutType(
+                location.address?.city,
+                location.address?.state,
+                location.address?.country
+              ),
+            },
+          };
+        });
+      } else {
+        setFormData(prev => prev ? { ...prev, locationResult: null } : prev);
+      }
+    },
+  });
 
   // cleanup on unmount
   useEffect(() => {
@@ -81,26 +92,80 @@ export const AdminUpdateVendorManagement = () => {
     };
   }, []);
 
+  // Reset vendor loaded state when lookup fields change after a successful load
+  const handleLookupIdChange = (value: string) => {
+    setLookupId(value);
+    if (vendorLoaded) setVendorLoaded(false);
+  };
+
+  const handleLookupSlugChange = (value: string) => {
+    setLookupSlug(value);
+    if (vendorLoaded) setVendorLoaded(false);
+  };
+
+  /**
+   * Fetch existing vendor data by ID or slug and pre-populate the form.
+   * Mirrors how the user-facing dashboard calls vendorToFormData on the
+   * server-fetched vendor object.
+   */
+  const handleLoadVendor = async () => {
+    const id = lookupId.trim();
+    const slug = lookupSlug.trim();
+
+    if (!id && !slug) {
+      addNotification('Enter a Vendor ID or Slug to load vendor data.', 'error');
+      return;
+    }
+
+    setIsLoadingVendor(true);
+    setVendorLoaded(false);
+
+    try {
+      const vendor = await getVendorByIdOrSlug({ id: id || undefined, slug: slug || undefined });
+
+      if (!vendor) {
+        addNotification('No vendor found with those identifiers. Double-check the ID and Slug.', 'error');
+        return;
+      }
+
+      // Translate the Vendor object into form-compatible data — same
+      // approach used by vendorToFormData in VendorEditProfile.
+      const loaded = vendorToFormData(vendor) as VendorFormDataAdmin;
+
+      setFormData(loaded);
+
+      // Populate lookup fields from the fetched vendor in case only one was provided
+      if (!id && vendor.id) setLookupId(vendor.id);
+      if (!slug && vendor.slug) setLookupSlug(vendor.slug);
+
+      // Sync tag selector
+      setSelectedTags(loaded.tags ?? null);
+
+      // Reset the image field — the existing cover_image URL is already
+      // part of the loaded form data so ImageUpload will render the preview.
+      image.reset();
+
+      setVendorLoaded(true);
+      addNotification(`Loaded vendor: ${vendor.business_name ?? vendor.id}`, 'success');
+    } catch (error) {
+      addNotification(
+        error instanceof Error ? `Error: ${error.message}` : 'Failed to load vendor.',
+        'error'
+      );
+      console.error('Error loading vendor:', error);
+    } finally {
+      setIsLoadingVendor(false);
+    }
+  };
+
   // Helper function to handle text field changes - prevents empty strings
   const handleTextFieldChange = (value: string, field: keyof VendorDataInput) => {
     const trimmedValue = value.trim();
-    setFormData({
-      ...newFormData,
-      [field]: trimmedValue === '' ? null : value // Store new value if not empty after trim
-    });
-  };
-
-  // Helper function to handle number field changes
-  const handleNumberFieldChange = (value: string, field: keyof VendorDataInput) => {
-    const trimmedValue = value.trim();
-    const numberValue = trimmedValue === '' ? null : Number(trimmedValue);
-    setFormData({
-      ...newFormData,
-      [field]: numberValue
-    });
+    setFormData(prev => prev ? { ...prev, [field]: trimmedValue === '' ? null : value } : prev);
   };
 
   const updateExistingVendor = async () => {
+    if (!newFormData) return;
     setIsSubmitting(true);
 
     try {
@@ -116,33 +181,21 @@ export const AdminUpdateVendorManagement = () => {
         setIsSubmitting(false);
         return;
       }
+
       console.debug("Updating vendor with ID:", vendorId, "Slug:", slug);
-      // Check if there are any changes to update
-      const hasVendorChanges = Object.values(newFormData).some(value => value !== null);
 
-      if (!hasVendorChanges && !image.file) {
-        addNotification("No changes to update.", "warning");
-        return;
-      }
-
-      console.debug("Vendor changes detected:", hasVendorChanges);
-      // Upload image first if selected and delete old one if needed
       const uploadedUrl = await image.uploadIfChanged(slug, newFormData.cover_image ?? null);
       console.debug("Image upload result:", uploadedUrl);
 
       let coverImage: VendorMediaForm | null;
 
       if (uploadedUrl === undefined) {
-        // Image unchanged — keep as-is
         coverImage = newFormData.cover_image ?? null;
       } else if (uploadedUrl === null) {
-        // Image cleared
         coverImage = null;
       } else if (newFormData.cover_image) {
-        // New upload, existing draft media — preserve id and metadata
         coverImage = { ...newFormData.cover_image, media_url: uploadedUrl, vendor_id: vendorId };
       } else {
-        // New upload, no prior media object — build a fresh draft
         coverImage = {
           media_url: uploadedUrl,
           vendor_id: vendorId,
@@ -151,36 +204,31 @@ export const AdminUpdateVendorManagement = () => {
           credits: null,
         } satisfies VendorMediaDraft;
       }
-      // Prepare vendor data with uploaded image
 
       const newVendorData = formDataToVendor(newFormData, coverImage?.media_url ?? null);
       const images: VendorMediaForm[] = coverImage ? [coverImage] : [];
 
-      // Update vendor if there are any changes
-      if (hasVendorChanges || coverImage) {
-        const data = await updateVendor(
-          { id: vendorId },
-          newVendorData,
-          firstName,
-          lastName,
-          selectedTags,
-          images
-        );
+      const data = await updateVendor(
+        { id: vendorId },
+        newVendorData,
+        firstName,
+        lastName,
+        selectedTags,
+        images
+      );
 
-        if (data) {
-          addNotification("Vendor updated successfully!");
-          // Reset all form fields
-          setFormData(UPDATE_VENDOR_INPUT_DEFAULT);
-          setFirstName(null);
-          setLastName(null);
-          setSelectedRegion(null);
-          setSelectedTags(null);
-          setLookupId('');
-          setLookupSlug('');
-          image.reset();
-        } else {
-          addNotification("Failed to update vendor. Please try again.", "error");
-        }
+      if (data) {
+        addNotification("Vendor updated successfully!");
+        setFormData(null);
+        setFirstName(null);
+        setLastName(null);
+        setSelectedTags(null);
+        setLookupId('');
+        setLookupSlug('');
+        setVendorLoaded(false);
+        image.reset();
+      } else {
+        addNotification("Failed to update vendor. Please try again.", "error");
       }
     } catch (error) {
       addNotification(
@@ -198,18 +246,13 @@ export const AdminUpdateVendorManagement = () => {
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof VendorDataInput) => {
     const value = e.target.value.trim();
     const numberValue = value === '' ? null : Number(value);
-    setFormData({ ...newFormData, [field]: numberValue, lists_prices: numberValue !== null });
-  };
-
-  const handleRegionChange = (value: RegionOption | null) => {
-    setSelectedRegion(value);
-    setFormData({ ...newFormData, region: value?.unique_region ?? value?.inputValue ?? null });
+    setFormData(prev => prev ? { ...prev, [field]: numberValue, lists_prices: numberValue !== null } : prev);
   };
 
   const handleTagChange = (value: VendorTag[] | null) => {
     setSelectedTags(value);
-    setFormData({ ...newFormData, tags: value });
-  }
+    setFormData(prev => prev ? { ...prev, tags: value ?? [] } : prev);
+  };
 
   const parseBooleanString = (value: string): boolean | null => {
     if (value === "true") return true;
@@ -225,304 +268,327 @@ export const AdminUpdateVendorManagement = () => {
           Only update fields that you want to change.
         </Typography>
         <br />
+
+        {/* ── Step 1: Lookup ── */}
         <Typography variant="body1" gutterBottom>
-          Enter a Vendor ID or Slug to update an existing vendor:
+          Enter a Vendor ID or Slug, then click <strong>Load Vendor</strong> to
+          pre-populate the form with existing data.
         </Typography>
-        <Grid container spacing={3}>
-          <Grid size={6}>
+        <Grid container spacing={2} alignItems="flex-start">
+          <Grid size={5}>
             <TextField
               label="Vendor ID"
-              helperText="HMUA-123"
+              helperText="e.g. HMUA-123"
               variant="outlined"
-              value={lookupId ?? ''}
-              onChange={(e) => setLookupId(e.target.value)}
+              fullWidth
+              value={lookupId}
+              onChange={(e) => handleLookupIdChange(e.target.value)}
               required
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={5}>
             <TextField
               label="Vendor Slug"
-              helperText="e.g., beauty-by-jane (unique URL identifier)"
+              helperText="e.g. beauty-by-jane"
               variant="outlined"
-              value={lookupSlug ?? ''}
-              onChange={(e) => setLookupSlug(e.target.value)}
+              fullWidth
+              value={lookupSlug}
+              onChange={(e) => handleLookupSlugChange(e.target.value)}
               required
             />
           </Grid>
-          <Grid size={12}>
-            <TextField
+          <Grid size={2} sx={{ display: 'flex', alignItems: 'center', pt: '6px' }}>
+            <Button
+              variant="outlined"
+              onClick={handleLoadVendor}
+              disabled={isLoadingVendor || (!lookupId.trim() && !lookupSlug.trim())}
               fullWidth
-              label="Vendor Business Name"
-              variant="outlined"
-              value={newFormData.business_name ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'business_name')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Website"
-              variant="outlined"
-              value={newFormData.website ?? ''}
-              onChange={(e) => handleTextFieldChange(normalizeUrl(e.target.value), 'website')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Email"
-              variant="outlined"
-              value={newFormData.email ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              required
-              label="Instagram Handle"
-              variant="outlined"
-              value={newFormData.instagram ?? ""}
-              onChange={(e) => setFormData({ ...newFormData, instagram: e.target.value })}
-              onBlur={(e) => {
-                const normalized = normalizeInstagramHandle(e.target.value);
-                if (normalized !== e.target.value) {
-                  setFormData({ ...newFormData, instagram: normalized });
-                }
-              }}
-              slotProps={{
-                input: {
-                  startAdornment: <InputAdornment position="start">@</InputAdornment>
-                }
-              }}
-            />
+              startIcon={isLoadingVendor ? <CircularProgress size={16} /> : null}
+            >
+              {isLoadingVendor ? 'Loading…' : 'Load'}
+            </Button>
           </Grid>
         </Grid>
 
-        <Grid container spacing={3}>
-          <Grid size={6}>
-            <TextField
-              fullWidth
-              label="First Name"
-              variant="outlined"
-              value={firstName ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                const trimmedValue = value.trim();
-                setFirstName(trimmedValue === '' ? null : value);
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              fullWidth
-              label="Last Name"
-              variant="outlined"
-              value={lastName ?? ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                const trimmedValue = value.trim();
-                setLastName(trimmedValue === '' ? null : value);
-              }}
-            />
-          </Grid>
-          <Grid size={6}>
-            <RegionSelector
-              value={selectedRegion}
-              onChange={(newRegion: RegionOption | null) => handleRegionChange(newRegion)}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TagSelector
-              value={selectedTags}
-              onChange={(selectedTags: VendorTag[] | null) => handleTagChange(selectedTags)}
-              options={tags}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              fullWidth
-              label="Latitude"
-              helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
-              variant="outlined"
-              type="number"
-              slotProps={{ htmlInput: { step: "any" } }}
-              value={newFormData.latitude ?? ''}
-              onChange={(e) => handleNumberFieldChange(e.target.value, 'latitude')}
-            />
-          </Grid>
-          <Grid size={6}>
-            <TextField
-              fullWidth
-              label="Longitude"
-              helperText="Use numerical format (i.e. use negatives instead of cardinal directions)"
-              variant="outlined"
-              type="number"
-              slotProps={{ htmlInput: { step: "any" } }}
-              value={newFormData.longitude ?? ''}
-              onChange={(e) => handleNumberFieldChange(e.target.value, 'longitude')}
-            />
-          </Grid>
-        </Grid>
+        {vendorLoaded && (
+          <Alert severity="info" sx={{ mt: 2, mb: 1 }}>
+            Vendor data loaded. Edit any fields below, then click <strong>Update Vendor</strong> to save.
+          </Alert>
+        )}
 
-        <Grid container spacing={3} my={2}>
-          <Grid size={12}>
-            <FormControl>
-              <FormLabel id="demo-controlled-radio-buttons-group">Travels Worldwide</FormLabel>
-              <RadioGroup
-                aria-labelledby="demo-controlled-radio-buttons-group"
-                name="controlled-radio-buttons-group"
-                value={newFormData.travels_world_wide === null ? 'null' : String(newFormData.travels_world_wide)}
-                onChange={(e) => setFormData({ ...newFormData, travels_world_wide: parseBooleanString(e.target.value) })}
-              >
-                <FormControlLabel value="true" control={<Radio />} label="True" />
-                <FormControlLabel value="false" control={<Radio />} label="False" />
-                <FormControlLabel value="null" control={<Radio />} label="No Change" />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
-          <Grid size={12}>
-            <TextField
-              fullWidth
-              label="Google Maps Place link"
-              variant="outlined"
-              value={newFormData.google_maps_place ?? ''}
-              onChange={(e) => handleTextFieldChange(e.target.value, 'google_maps_place')}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid size={4}>
-            <TextField
-              label="Bridal Hair Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData.bridal_hair_price ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Bridal Makeup Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData.bridal_makeup_price ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Bridal Hair & Makeup Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData["bridal_hair_&_makeup_price"] ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
-            />
-          </Grid>
-        </Grid>
+        <Divider sx={{ my: 3 }} />
 
-        <Grid container spacing={2} sx={{ my: 2 }}>
-          <Grid size={4}>
-            <TextField
-              label="Bridesmaid Hair Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData.bridesmaid_hair_price ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Bridesmaid Makeup Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData.bridesmaid_makeup_price ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
-            />
-          </Grid>
-          <Grid size={4}>
-            <TextField
-              label="Bridesmaid Hair & Makeup Price"
-              variant="outlined"
-              fullWidth
-              value={newFormData["bridesmaid_hair_&_makeup_price"] ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
-            />
-          </Grid>
-        </Grid>
-
-        {/* Cover Image Upload Section */}
-        {/* Cover Image Upload Section */}
-        <Box sx={{ my: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Cover Image
-          </Typography>
-          {imageError && (
-            <Typography variant="body1" color="error" sx={{ mb: 1 }}>
-              {imageError}
+        {/* ── Step 2: Edit fields (only shown after a vendor is loaded) ── */}
+        {!vendorLoaded ? (
+          <Box sx={{ py: 6, textAlign: 'center', color: 'text.secondary' }}>
+            <Typography variant="body1">
+              Enter a Vendor ID and/or Slug above, then click <strong>Load</strong> to populate the form.
             </Typography>
-          )}
+          </Box>
+        ) : (
+          <>
+            <Grid container spacing={3}>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Vendor Business Name"
+                  variant="outlined"
+                  value={newFormData!.business_name ?? ''}
+                  onChange={(e) => handleTextFieldChange(e.target.value, 'business_name')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Website"
+                  variant="outlined"
+                  value={newFormData!.website ?? ''}
+                  onChange={(e) => handleTextFieldChange(normalizeUrl(e.target.value), 'website')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  value={newFormData!.email ?? ''}
+                  onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Instagram Handle"
+                  variant="outlined"
+                  value={newFormData!.instagram ?? ""}
+                  onChange={(e) => setFormData(prev => prev ? { ...prev, instagram: e.target.value } : prev)}
+                  onBlur={(e) => {
+                    const normalized = normalizeInstagramHandle(e.target.value);
+                    if (normalized !== e.target.value) {
+                      setFormData(prev => prev ? { ...prev, instagram: normalized } : prev);
+                    }
+                  }}
+                  slotProps={{
+                    input: {
+                      startAdornment: <InputAdornment position="start">@</InputAdornment>
+                    }
+                  }}
+                />
+              </Grid>
+            </Grid>
 
+            <Grid container spacing={3}>
+              <Grid size={6}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  variant="outlined"
+                  value={firstName ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFirstName(value.trim() === '' ? null : value);
+                  }}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  variant="outlined"
+                  value={lastName ?? ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setLastName(value.trim() === '' ? null : value);
+                  }}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TagSelector
+                  value={selectedTags}
+                  onChange={(selectedTags: VendorTag[] | null) => handleTagChange(selectedTags)}
+                  options={tags}
+                />
+              </Grid>
+              <Grid size={12}>
+                <LocationAutocomplete
+                  inputValue={locationForm.locationInputValue}
+                  onInputChange={locationForm.handleLocationInputChange}
+                  onDebouncedChange={locationForm.handleLocationDebouncedChange}
+                  selectedLocation={locationForm.selectedLocation}
+                  onSelect={locationForm.handleSelectLocation}
+                  results={locationForm.combinedLocationResults}
+                  loading={locationForm.isLoading}
+                  placeholder="Select your primary city location"
+                />
+              </Grid>
+            </Grid>
 
-          <ImageUpload
-            ref={image.imageUploadRef}
-            currentImageUrl={image.previewUrl ?? newFormData.cover_image?.media_url ?? undefined}
-            onError={setImageError}
-            onImageSelect={(file) => {
-              setImageError(null);
-              image.handleSelect(
-                file,
-                previousBlobUrlRef,
-                (url, options) => setFormData(prev => image.updateMediaUrl(prev, url, lookupId, true, options))
-              );
-            }}
-            disabled={!lookupSlug || image.loading}
-            admin={true}
-          />
-
-          {newFormData.cover_image?.media_url && (
-            <Box sx={{ mt: 2 }}>
-              <TextField
-                fullWidth
-                label="Photo Credits"
-                variant="outlined"
-                value={newFormData.cover_image?.credits ?? ''}
-                onChange={(e) =>
-                  setFormData(prev => image.updateMediaMetadata(prev, {
-                    credits: e.target.value || null
-                  }))
-                }
-                helperText="Give credit to the photographer if applicable"
-              />
-              <FormControlLabel
-                sx={{ mt: 1 }}
-                control={
-                  <Checkbox
-                    checked={newFormData.cover_image?.consent_given ?? false}
+            <Grid container spacing={3} my={2}>
+              <Grid size={12}>
+                <FormControl>
+                  <FormLabel>Travels Worldwide</FormLabel>
+                  <RadioGroup
+                    value={newFormData!.travels_world_wide === null ? 'null' : String(newFormData!.travels_world_wide)}
                     onChange={(e) =>
-                      setFormData(prev => image.updateMediaMetadata(prev, {
-                        consent_given: e.target.checked
-                      }))
+                      setFormData(prev => {
+                        if (!prev) return prev;
+                        const parsed = parseBooleanString(e.target.value);
+                        // If parsed is null, treat it as "No Change" and leave form data unchanged.
+                        if (parsed === null) return prev;
+                        return { ...prev, travels_world_wide: parsed };
+                      })
+                    }
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label="True" />
+                    <FormControlLabel value="false" control={<Radio />} label="False" />
+                    <FormControlLabel value="null" control={<Radio />} label="No Change" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+              <Grid size={12}>
+                <TextField
+                  fullWidth
+                  label="Google Maps Place link"
+                  variant="outlined"
+                  value={newFormData!.google_maps_place ?? ''}
+                  onChange={(e) => handleTextFieldChange(e.target.value, 'google_maps_place')}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2}>
+              <Grid size={4}>
+                <TextField
+                  label="Bridal Hair Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!.bridal_hair_price ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_price')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Bridal Makeup Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!.bridal_makeup_price ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_makeup_price')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Bridal Hair & Makeup Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!["bridal_hair_&_makeup_price"] ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridal_hair_&_makeup_price')}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={2} sx={{ my: 2 }}>
+              <Grid size={4}>
+                <TextField
+                  label="Bridesmaid Hair Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!.bridesmaid_hair_price ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_price')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Bridesmaid Makeup Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!.bridesmaid_makeup_price ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_makeup_price')}
+                />
+              </Grid>
+              <Grid size={4}>
+                <TextField
+                  label="Bridesmaid Hair & Makeup Price"
+                  variant="outlined"
+                  fullWidth
+                  value={newFormData!["bridesmaid_hair_&_makeup_price"] ?? ''}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => handlePriceChange(e, 'bridesmaid_hair_&_makeup_price')}
+                />
+              </Grid>
+            </Grid>
+
+            {/* Cover Image Upload Section */}
+            <Box sx={{ my: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Cover Image
+              </Typography>
+              {imageError && (
+                <Typography variant="body1" color="error" sx={{ mb: 1 }}>
+                  {imageError}
+                </Typography>
+              )}
+              <ImageUpload
+                ref={image.imageUploadRef}
+                currentImageUrl={image.previewUrl ?? newFormData!.cover_image?.media_url ?? undefined}
+                onError={setImageError}
+                onImageSelect={(file) => {
+                  setImageError(null);
+                  image.handleSelect(
+                    file,
+                    previousBlobUrlRef,
+                    (url, options) => setFormData(prev => prev ? image.updateMediaUrl(prev, url, lookupId, true, options) : prev)
+                  );
+                }}
+                disabled={!lookupSlug || image.loading}
+                admin={true}
+              />
+
+              {newFormData!.cover_image?.media_url && (
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Photo Credits"
+                    variant="outlined"
+                    value={newFormData!.cover_image?.credits ?? ''}
+                    onChange={(e) =>
+                      setFormData(prev => prev ? image.updateMediaMetadata(prev, {
+                        credits: e.target.value || null
+                      }) : prev)
+                    }
+                    helperText="Give credit to the photographer if applicable"
+                  />
+                  <FormControlLabel
+                    sx={{ mt: 1 }}
+                    control={
+                      <Checkbox
+                        checked={newFormData!.cover_image?.consent_given ?? false}
+                        onChange={(e) =>
+                          setFormData(prev => prev ? image.updateMediaMetadata(prev, {
+                            consent_given: e.target.checked
+                          }) : prev)
+                        }
+                      />
+                    }
+                    label={
+                      <Typography variant="body2">
+                        Vendor has permission to use this photo
+                      </Typography>
                     }
                   />
-                }
-                label={
-                  <Typography variant="body2">
-                    Vendor has permission to use this photo
-                  </Typography>
-                }
-              />
+                </Box>
+              )}
             </Box>
-          )}
-        </Box>
-        <Divider />
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={updateExistingVendor}
-          fullWidth
-          disabled={isSubmitting}
-        >
-          Update Vendor
-        </Button>
+
+            <Divider />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={updateExistingVendor}
+              fullWidth
+              disabled={isSubmitting}
+              sx={{ mt: 2 }}
+            >
+              {isSubmitting ? 'Updating…' : 'Update Vendor'}
+            </Button>
+          </>
+        )}
       </Box>
-    </Container >
+    </Container>
   );
 };

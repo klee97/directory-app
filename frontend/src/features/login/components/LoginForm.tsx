@@ -56,9 +56,34 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          <Typography variant="h4" component="h1" align="center" gutterBottom>
-            Login
-          </Typography>
+          {!isVendorLogin && isVendorLoginEnabled && (
+            <Box
+              sx={{
+                backgroundColor: 'secondary.main',
+                color: 'secondary.contrastText',
+                px: 2,
+                py: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 1,
+                flexWrap: 'wrap',
+              }}
+            >
+              <Link
+                component={NextLink}
+                href="/partner/login"
+                color="secondary.contrastText"
+                sx={{
+                  fontWeight: 700,
+                  textDecorationColor: 'inherit',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Vendor Login here →
+              </Link>
+            </Box>
+          )}
 
           {verificationNeeded && (
             <Alert severity="warning" sx={{ mb: 2 }}>
@@ -155,14 +180,6 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                     Contact us</Link> to access your vendor profile.
 
                 </Typography>
-              )}
-
-              {!isVendorLogin && isVendorLoginEnabled && (<Typography variant="body1" align="center" sx={{ mt: 2 }}>
-                Logging in as a vendor?{' '}
-                <Link component={NextLink} href="/partner/login" color={"inherit"} >
-                  Login here
-                </Link>
-              </Typography>
               )}
             </Stack>
           </Box>
