@@ -26,6 +26,7 @@ import Link from "next/link";
 import MuiLink from "@mui/material/Link";
 import Switch from "@mui/material/Switch";
 import { updateInquiryAvailability } from "../api/updateInquiryAvailability";
+import { revalidateVendor } from "@/lib/actions/revalidate";
 import { useRouter } from "next/navigation";
 import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { deleteAccount } from "../api/deleteAccount";
@@ -47,6 +48,7 @@ type SettingsProps = {
   userEmail: string | undefined;
   hasPassword: boolean;
   vendorId?: string;
+  vendorSlug?: string;
   approvedInquiriesAt?: string | null;
 };
 
@@ -55,6 +57,7 @@ export const Settings = ({
   userEmail,
   hasPassword,
   vendorId,
+  vendorSlug,
   approvedInquiriesAt,
 }: SettingsProps) => {
   const { addNotification } = useNotification();
@@ -183,6 +186,9 @@ export const Settings = ({
     setIsUpdatingInquiry(true);
     try {
       await updateInquiryAvailability(vendorId, newValue);
+      if (vendorSlug) {
+        await revalidateVendor(vendorSlug);
+      }
       addNotification(newValue ? 'Bridal inquiries enabled' : 'Bridal inquiries disabled');
     } catch (error: unknown) {
       setInquiryEnabled(!newValue);
