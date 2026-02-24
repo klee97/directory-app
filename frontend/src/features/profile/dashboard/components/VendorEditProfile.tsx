@@ -26,6 +26,9 @@ import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import UnsavedChangesModal from './UnsavedChangesModal';
 import { VendorMedia } from '@/types/vendorMedia';
+import VendorFeedbackPopup from '@/features/contact/components/VendorFeedbackPopup';
+import DesktopPromptBanner from '@/components/ui/overlays/DesktopPromptOverlay';
+import DesktopPromptOverlay from '@/components/ui/overlays/DesktopPromptOverlay';
 
 const DRAWER_WIDTH = 400;
 
@@ -37,11 +40,12 @@ interface VendorEditProfileProps {
 
 export default function VendorEditProfile({ vendor, tags, userId }: VendorEditProfileProps) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const [smallScreenMenuOpen, setSmallScreenMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+  const [feedbackTriggered, setFeedbackTriggered] = useState(false);
 
   const { addNotification } = useNotification();
 
@@ -110,7 +114,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   };
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setSmallScreenMenuOpen(!smallScreenMenuOpen);
   };
 
   const handleSectionClick = (sectionId: string) => {
@@ -163,20 +167,23 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       result = await publishDraft(draftId);
     }
     if (result.error) {
+      console.error(result.error);
       addNotification(`Failed to publish: ${result.error}`, 'error');
       return;
     } else {
       setHasUnpublishedChanges(false);
       setLastSavedData(formData);
       addNotification('Changes published successfully!', 'success');
+      setFeedbackTriggered(true);
     }
   };
 
   return (
     <>
+      <DesktopPromptOverlay />
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         {/* Mobile App Bar */}
-        {isMobile && (
+        {isSmallScreen && (
           <AppBar position="fixed" sx={{
             bgcolor: 'background.vendorNavbar',
             color: 'white',
@@ -194,7 +201,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                 {activeSection ? SECTIONS.find(s => s.id === activeSection)?.label : 'Edit Profile'}
               </Typography>
-              {isMobile && mobileOpen && (
+              {isSmallScreen && smallScreenMenuOpen && (
                 <IconButton color="inherit" onClick={handleDrawerToggle}>
                   <CloseIcon />
                 </IconButton>
@@ -205,8 +212,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
         {/* Sidebar Drawer */}
         <Drawer
-          variant={isMobile ? 'temporary' : 'permanent'}
-          open={isMobile ? mobileOpen : true}
+          variant={isSmallScreen ? 'temporary' : 'permanent'}
+          open={isSmallScreen ? smallScreenMenuOpen : true}
           onClose={handleDrawerToggle}
           sx={{
             position: 'relative',
@@ -335,6 +342,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
         onClose={() => setShowUnsavedModal(false)}
         onKeepEditing={() => setShowUnsavedModal(false)}
         onDiscardChanges={handleDiscardChanges}
+      />
+      <VendorFeedbackPopup
+        vendorId={vendor.id}
+        businessName={vendor.business_name || ''}
+        triggerText={"Your changes are now published."}
+        trigger={feedbackTriggered}
+        onDismiss={() => setFeedbackTriggered(false)}
       />
     </>
   );
