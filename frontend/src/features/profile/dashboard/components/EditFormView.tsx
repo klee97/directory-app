@@ -39,7 +39,7 @@ interface EditFormViewProps {
   formData: VendorFormData;
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
-  handleSave: (dataToSave: VendorFormData) => void;
+  handleSave: (dataToSave: VendorFormData) => Promise<void>;
   vendorSlug: string;
   vendorId: string;
   tags: VendorTag[];
@@ -137,7 +137,7 @@ export default function EditFormView({
         } satisfies VendorMediaDraft;
       }
 
-      handleSave({ ...formData, cover_image: coverImage });
+      await handleSave({ ...formData, cover_image: coverImage });
       setShowValidation(false);
 
     } catch (error) {
