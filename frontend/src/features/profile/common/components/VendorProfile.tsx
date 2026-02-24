@@ -39,6 +39,8 @@ import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
+const DEFAULT_PRICE = "Contact for Pricing";
+
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     position: 'sticky',
@@ -126,8 +128,6 @@ interface VendorDetailsProps {
   vendor: Vendor;
   nearbyVendors?: Vendor[];
 }
-
-const DEFAULT_PRICE = "Contact for Pricing";
 
 export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
