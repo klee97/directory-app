@@ -27,7 +27,6 @@ import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import UnsavedChangesModal from './UnsavedChangesModal';
 import { VendorMedia } from '@/types/vendorMedia';
 import VendorFeedbackPopup from '@/features/contact/components/VendorFeedbackPopup';
-import DesktopPromptBanner from '@/components/ui/overlays/DesktopPromptOverlay';
 import DesktopPromptOverlay from '@/components/ui/overlays/DesktopPromptOverlay';
 
 const DRAWER_WIDTH = 400;

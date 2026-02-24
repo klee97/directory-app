@@ -46,7 +46,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
+const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
@@ -63,17 +63,7 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendo
         Love their work?
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-        {isPaused ? (
-          <Button
-            variant="contained"
-            startIcon={<Email />}
-            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
-            target="_blank"
-            rel={vendor.email ? undefined : 'noopener noreferrer'}
-          >
-            Contact Artist
-          </Button>
-        ) : (
+        {isInquiryEnabled ? (
           <>
             <Button
               variant="contained"
@@ -108,6 +98,16 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendo
               </DialogContent>
             </Dialog>
           </>
+        ) : (
+          <Button
+            variant="contained"
+            startIcon={<Email />}
+            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
+            target="_blank"
+            rel={vendor.email ? undefined : 'noopener noreferrer'}
+          >
+            Contact Artist
+          </Button>
         )}
 
         {/* Favorite Button */}

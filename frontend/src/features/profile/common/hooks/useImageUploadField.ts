@@ -57,6 +57,7 @@ export const useImageUploadField = () => {
       try {
         uploadedUrl = await upload(file, vendorSlug);
       } catch (err) {
+        console.error('Image upload failed:', err);
         throw new Error('Failed to upload image. Please try again.');
       }
       if (existingUrl) {
