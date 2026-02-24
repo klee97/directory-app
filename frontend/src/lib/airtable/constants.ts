@@ -1,15 +1,21 @@
 import Airtable from "airtable";
 
-export const base = new Airtable({ apiKey: process.env.AIRTABLE_API_TOKEN! }).base(process.env.AIRTABLE_APP_ID!);
+export const leadsBase = new Airtable({ apiKey: process.env.AIRTABLE_API_TOKEN! }).base(process.env.AIRTABLE_APP_ID!);
+export const feedbackBase = new Airtable({ apiKey: process.env.AIRTABLE_FEEDBACK_API_TOKEN! }).base(process.env.AIRTABLE_FEEDBACK_APP_ID!);
 
 export function getLeadsTable() {
-  return base('Leads');
+  return leadsBase('Leads');
 }
 
 export function getPartialLeadsTable() {
-  return base('Partial Leads');
+  return leadsBase('Partial Leads');
 }
 
 export function getVendorsTable() {
-  return base('Hubspot Vendors');
+  return leadsBase('Hubspot Vendors');
+}
+
+export function getVendorFeedbackTable() {
+  console.debug("feedbackBase", feedbackBase);
+  return feedbackBase('Feedback');
 }

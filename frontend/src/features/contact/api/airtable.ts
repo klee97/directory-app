@@ -1,5 +1,5 @@
 "use server";
-import { getLeadsTable, getPartialLeadsTable, getVendorsTable } from '@/lib/airtable/constants';
+import { getLeadsTable, getPartialLeadsTable, getVendorFeedbackTable, getVendorsTable } from '@/lib/airtable/constants';
 import { FormData, PartialLead } from '../components/LeadCaptureForm';
 
 interface VendorInfo {
@@ -31,7 +31,7 @@ export const submitToAirtable = async (
       // Continue without vendor link
     }
 
-    const fields:  Record<string, string | number | boolean | string[]> = {
+    const fields: Record<string, string | number | boolean | string[]> = {
       'Email': data.email,
       'First Name': data.firstName,
       'Last Name': data.lastName,
@@ -99,5 +99,27 @@ export const savePartialLeadToAirtable = async (partialLead: PartialLead) => {
   } catch (error) {
     console.error('Error saving partial lead to Airtable:', error);
     throw error;
+  }
+};
+
+export const submitVendorFeedback = async (
+  vendorId: string,
+  businessName: string,
+  comment: string
+): Promise<boolean> => {
+  try {
+    const record = await getVendorFeedbackTable().create([
+      {
+        fields: {
+          "Vendor Id": vendorId,
+          "Business Name": businessName,
+          "Comment": comment.trim()
+        },
+      },
+    ]);
+    return record.length > 0;
+  } catch (error) {
+    console.error("Vendor feedback submission error:", error);
+    return false;
   }
 };
