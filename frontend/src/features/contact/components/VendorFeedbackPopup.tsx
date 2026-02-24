@@ -24,7 +24,7 @@ interface VendorFeedbackPopupProps {
 }
 
 const STORAGE_KEY = "vendorFeedbackShown";
-const NO_FEEDBACK_TEXT = "Nothing went wrong";
+const NO_FEEDBACK_TEXT = "No issues";
 
 export const VendorFeedbackPopup = ({
   vendorId,

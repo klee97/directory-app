@@ -86,7 +86,7 @@ export default function DesktopPromptOverlay({ onContinue }: DesktopPromptOverla
         </Box>
 
         <Typography variant="h6" fontWeight="bold">
-          Best viewed on desktop
+          Use desktop for best experience
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
