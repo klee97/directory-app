@@ -22,5 +22,5 @@ export default async function VendorSettingsPage() {
     redirect('/partner/login?redirect=/partner/settings');
   }
 
-  return <Settings isVendorSettings={true} userEmail={currentUser.email} hasPassword={currentUser.has_password} vendorId={vendor.id} approvedInquiriesAt={vendor.approved_inquiries_at} />;
+  return <Settings isVendorSettings={true} userEmail={currentUser.email} hasPassword={currentUser.has_password} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
 }
