@@ -86,7 +86,7 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
         </Box>
         {/* Copyright */}
         <Typography variant="body2" sx={{ mt: 2, color: "text.secondary" }}>
-          © {new Date().getFullYear()} White Rabbit Brides LLC. All rights reserved.
+          © {new Date().getFullYear()} Asian Wedding Makeup. All rights reserved.
         </Typography>
       </Box>
     </>

@@ -1,13 +1,8 @@
-import React from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import Link from "@mui/material/Link";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Metadata } from "next";
 import defaultImage from '@/assets/photo_website_preview.jpg';
+import FaqList from "@/components/layouts/FaqList";
 
 const faqs = [
   {
@@ -15,16 +10,11 @@ const faqs = [
     items: [
       {
         question: "One of your listings has inaccurate information!",
-        answer: (
-          <>
-            We’re sorry about that! Please <Link href="/contact">reach out to us</Link> so we can update it. Our listings are based on vendor websites and social media. While we strive for accuracy, mistakes happen. Let us know, and we’ll make it right!
-          </>
-        ),
+        answer: "We're sorry about that! Please [reach out to us](/partner/contact) so we can update it. Our listings are based on vendor websites and social media. While we strive for accuracy, mistakes happen. Let us know, and we'll make it right!"
       },
       {
         question: "Why is the directory focused on Asian brides?",
-        answer:
-          "Finding vendors experienced with Asian-specific needs can be challenging. It’s about representation and expertise, such as makeup for different skin tones and hairstyling for various textures. That said, our directory is open to anyone!",
+        answer: "Finding a makeup artist who knows how to work with Asian features is harder than it should be. An artist might be rated five stars online but have no experience with Asian skin tones or eye shapes. We've experienced this firsthand, and built this directory so it's easier to find artists who make you feel your best.",
       },
       {
         question: "Why are most artists listed based in the United States?",
@@ -32,20 +22,12 @@ const faqs = [
       },
       {
         question: "I'm looking for an artist who specializes in X.",
-        answer: (
-          <>
-            We are working on adding more information to our listings. Please <Link href="/contact">reach out to us</Link> if you are looking for something specific, and we can try to help!
-          </>
-        ),
+        answer: "We are working on adding more information to our listings. Please [reach out to us](/contact) if you are looking for something specific, and we can try to help!",
       },
 
       {
         question: "Who runs this site?",
-        answer: (
-          <>
-            Katrina and Ivy! We are two Asian-American women who think it’s too hard to find vendors for Asian-specific needs.
-          </>
-        ),
+        answer: "Katrina and Ivy! We are two Asian-American women who think it's too hard to find vendors for Asian-specific needs."
       },
     ],
   },
@@ -66,7 +48,7 @@ const faqs = [
       },
       {
         question: "Do you tip hair and makeup artists for a wedding?",
-        answer: "If your HMUA owns their business, tipping isn’t required but appreciated. Otherwise, the industry standard is 15-20%. Other ways to show appreciation include writing a positive review, referring friends, and providing a meal if they are staying to do touch-ups.",
+        answer: "If your HMUA owns their business, tipping isn't required but appreciated. Otherwise, the industry standard is 15-20%. Other ways to show appreciation include writing a positive review, referring friends, and providing a meal if they are staying to do touch-ups.",
       },
       {
         question: "Can I do my own wedding makeup?",
@@ -78,11 +60,7 @@ const faqs = [
       },
       {
         question: "What is Thai makeup?",
-        answer: (
-          <>
-            Thai makeup is on the rise around the world, especially for Asian bridal makeup. Influenced by both Hollywood glam and Korean beauty, Thai makeup creates a harmonious look that sculpts the face while highlighting Asian eyes and natural features. In our directory, you can filter artists who are skilled in Thai makeup styles. You can also learn more about Thai makeup on our <Link href="/blog/what-is-thai-makeup">blog</Link>.
-          </>
-        ),
+        answer: "Thai makeup is on the rise around the world, especially for Asian bridal makeup. Influenced by both Hollywood glam and Korean beauty, Thai makeup creates a harmonious look that sculpts the face while highlighting Asian eyes and natural features. In our directory, you can filter artists who are skilled in Thai makeup styles. You can also learn more about Thai makeup on our [blog](/blog/what-is-thai-makeup)."
       },
     ],
   },
@@ -99,11 +77,7 @@ const faqs = [
       },
       {
         question: "Where can I get a hanbok? Where can I get an ao dai?",
-        answer: (
-          <>
-            Check out our <Link href="/blog">blog</Link> for hanbok and ao dai designers based in California.
-          </>
-        ),
+        answer: "Check out our [Blog](/blog) for hanbok and ao dai designers based in California.",
       },
       {
         question: "Any other tips for selecting vendors for an Asian wedding?",
@@ -142,23 +116,7 @@ const FAQPage = () => {
       <Typography variant="h1" gutterBottom>
         Frequently Asked Questions
       </Typography>
-      {faqs.map((section, index) => (
-        <div key={index}>
-          <Typography variant="h5" sx={{ mt: 3, mb: 1 }}>
-            {section.category}
-          </Typography>
-          {section.items.map((faq, i) => (
-            <Accordion key={i}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="h6">{faq.question}</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography>{faq.answer}</Typography>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </div>
-      ))}
+      <FaqList faqs={faqs} />  
     </Container>
   );
 };
