@@ -39,6 +39,8 @@ import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 
+const DEFAULT_PRICE = "Contact for Pricing";
+
 const StickyCard = styled(Card)(({ theme }) => ({
   [theme.breakpoints.up('md')]: {
     position: 'sticky',
@@ -46,7 +48,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
+const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
@@ -63,17 +65,7 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendo
         Love their work?
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-        {isPaused ? (
-          <Button
-            variant="contained"
-            startIcon={<Email />}
-            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
-            target="_blank"
-            rel={vendor.email ? undefined : 'noopener noreferrer'}
-          >
-            Contact Artist
-          </Button>
-        ) : (
+        {isInquiryEnabled ? (
           <>
             <Button
               variant="contained"
@@ -108,6 +100,16 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled: isPaused }: { vendo
               </DialogContent>
             </Dialog>
           </>
+        ) : (
+          <Button
+            variant="contained"
+            startIcon={<Email />}
+            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
+            target="_blank"
+            rel={vendor.email ? undefined : 'noopener noreferrer'}
+          >
+            Contact Artist
+          </Button>
         )}
 
         {/* Favorite Button */}
@@ -126,8 +128,6 @@ interface VendorDetailsProps {
   vendor: Vendor;
   nearbyVendors?: Vendor[];
 }
-
-const DEFAULT_PRICE = "Contact for Pricing";
 
 export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);

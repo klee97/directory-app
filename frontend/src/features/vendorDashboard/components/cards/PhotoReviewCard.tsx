@@ -8,7 +8,6 @@ import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import BaseCard from "./BaseCard";
-import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { CheckCircle } from "@mui/icons-material";
 import Link from "@mui/material/Link";
 
