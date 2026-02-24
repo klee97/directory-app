@@ -6,19 +6,17 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
 import Box from "@mui/material/Box";
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import EmailIcon from '@mui/icons-material/Email';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import Image, { StaticImageData } from "next/image";
+import { useAuth } from '@/contexts/AuthContext';
 import Divider from "@mui/material/Divider";
-import { useAuth } from "@/contexts/AuthContext";
+import MarkdownContent from "@/components/markdown/MarkdownContent";
+import FaqList from "@/components/layouts/FaqList";
 
 interface VendorLandingPageProps {
   makeupImage: StaticImageData;
@@ -28,82 +26,113 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
   const features = [
     {
       icon: <Diversity3Icon sx={{ fontSize: 40 }} />,
-      title: 'Reach Your Ideal Clients',
-      description: 'Get discovered by Asian brides who are actively looking for experts in Asian beauty.',
+      title: "Reach Your Ideal Clients",
+      description: "Get discovered by Asian brides who are actively looking for experts in Asian beauty.",
     },
     {
       icon: <VisibilityIcon sx={{ fontSize: 40 }} />,
-      title: 'Qualified Leads with Free Previews',
-      description: 'See every inquiry preview before you decide to connect, so you only pay for brides who are a true fit.',
+      title: "Qualified Leads with Free Previews",
+      description: "See every inquiry preview before you decide to connect, so you only pay for brides who are a true fit.",
     },
     {
       icon: <MonetizationOnIcon sx={{ fontSize: 40 }} />,
-      title: 'Simple, Transparent Pricing',
-      description: 'A free profile is available to every recommended vendor in our directory. Only pay a small fee when you unlock an inquiry — no hidden costs.',
+      title: "Simple, Transparent Pricing",
+      description: "A free profile is available to every recommended vendor in our directory. Only pay a small fee when you unlock an inquiry — no hidden costs.",
     },
     {
       icon: <CheckCircleIcon sx={{ fontSize: 40 }} />,
-      title: 'No Bots Guarantee',
-      description: 'Every inquiry comes from a real bride. If you unlock a fake inquiry, we\'ll refund your money guaranteed.',
+      title: "Real Response Guarantee",
+      description: "Every inquiry comes from a real prospective client. If an inquiry turns out to be a bot or the client doesn't respond, we'll credit your account.",
     },
   ];
 
   const howItWorks = [
     {
-      step: '1',
-      title: 'Get Recommended',
-      description: 'Get recommended by brides and peers, or simply recommend yourself. We review all submissions for quality and fit.',
+      step: "1",
+      title: "Get Listed",
+      description: "[Get recommended](/recommend) by brides and peers, or simply recommend yourself. We review all submissions for quality and fit. Once you're accepted, we'll create a profile for you using publicly available information.",
     },
     {
-      step: '2',
-      title: 'We Create Your Profile',
-      description: 'If selected, we build a free artist profile to showcase your work in the directory. You are free to update or remove it at any time.',
+      step: "2",
+      title: "Claim Your Profile",
+      description: "Claim your profile to edit your information and receive bridal inquiries. You may also delete your profile at any time by [contacting us](/partner/contact).",
     },
     {
-      step: '3',
-      title: 'Brides Discover You',
-      description: 'Asian couples seeking your specialized expertise find your profile and submit detailed inquiry forms.',
+      step: "3",
+      title: "Brides Discover You",
+      description: "Asian couples seeking your specialized expertise find your profile and submit detailed inquiry forms.",
     },
     {
-      step: '4',
-      title: 'Review Inquiries and Connect',
-      description: 'Each inquiry is complete with details about the bride\'s date, budget, preferences and more. You decide if you want to connect, so you only pay for leads you\'re interested in. We guarantee every inquiry is from a real bride, or we\'ll refund your money.',
+      step: "4",
+      title: "Review Inquiries and Connect",
+      description: "Each inquiry includes details about the couple's date, budget, and preferences. You decide if you want to connect, so you only pay for leads you're interested in. We'll protect you from bots and spammers with our Real Response Guarantee.",
     },
   ];
 
   const faqs = [
     {
-      question: 'How much does it cost to get a profile?',
-      answer: 'If your business is a good fit, your profile is completely free! We build and maintain your listing at no cost, giving you exposure to our engaged couples.',
+      category: "Getting Listed",
+      items: [
+        {
+          question: "How much does it cost to get a profile?",
+          answer: "If your business is a good fit, your profile is completely free! We build you a basic listing at no cost, giving you exposure to our engaged couples.",
+        },
+        {
+          question: "How much does it cost to claim a profile?",
+          answer: "Claiming your profile is free!",
+        },
+        {
+          question: "Can I recommend myself as an artist to join the directory?",
+          answer: "Yes! We encourage [self-recommendations](/recommend) if you believe your services are a great fit for Asian brides. We review all recommendations to ensure quality and relevance.",
+        },
+        {
+          question: "Do I need to have Asian heritage to be in the directory?",
+          answer: "No! We welcome Makeup artists of all backgrounds who are skilled with Asian bridal beauty. What matters most is your abilities. If you are experienced with Asian features, then you are a great fit.",
+        },
+        {
+          question: "Do you support other types of wedding vendors besides Makeup artists?",
+          answer: "For now, we are focused on hair and Makeup artists. We have resources about other wedding vendors and topics in our [Blog](/blog).",
+        },
+      ],
     },
     {
-      question: 'Can I update my profile information or delete it?',
-      answer: 'Absolutely! [Contact us](/contact) anytime to update, edit, or remove your profile. We want your information to stay current and accurate.',
+      category: "Managing Your Profile",
+      items: [
+        {
+          question: "Can I update my profile information?",
+          answer: "Absolutely! Claim your profile to directly edit your business information through our Vendor Portal.",
+        },
+        {
+          question: "How do I remove my profile from the directory?",
+          answer: "If you don't want to be listed, please [contact us](/partner/contact) and we'll remove your profile",
+        },
+        {
+          question: "Do you have paid profiles for more features?",
+          answer: "We are testing Premium profiles with additional features like more photos, boosted SEO, and better visibility. If you're interested, join our [Premium Waitlist](https://forms.gle/XcYcER3E9SRDr18fA).",
+        },
+      ],
     },
     {
-      question: 'Can I recommend myself as an artist to join the directory?',
-      answer: 'Yes! We encourage [self-recommendations](/recommend) if you believe your services are a great fit for Asian brides. We review all recommendations to ensure quality and relevance.',
+      category: "Inquiries",
+      items: [
+        {
+          question: "How do I start receiving inquiries?",
+          answer: "Claim your profile to start receiving inquiries. We'll protect you from bots and spammers with our Real Response Guarantee.",
+        },
+        {
+          question: "How does the pay-per-inquiry system work?",
+          answer: "When a bride fills out an inquiry form for your services, we send you a preview with key details. You can then choose to unlock the full inquiry for a small fee only if it matches your business needs.",
+        },
+        {
+          question: "Why do you charge a fee for unlocking inquiries?",
+          answer: "The fee allows us to keep the directory free to join, while making sure we can maintain the platform, market it to brides, and connect you only with serious, high-intent inquiries.",
+        },
+        {
+          question: "How do I know if an inquiry is worth purchasing?",
+          answer: "Our inquiry previews include key details like budget range, event date, and location so you can make an informed decision.",
+        },
+      ],
     },
-    {
-      question: 'Do I need to have Asian heritage to join?',
-      answer: 'No! We welcome makeup artists of all backgrounds who are skilled with Asian bridal beauty. What matters most is your abilities. If you are experienced with Asian features, then you are a great fit.',
-    },
-    {
-      question: 'Do you have paid profiles for more features?',
-      answer: 'We are testing Premium profiles with additional features like more photos, boosted SEO, and better visibility. If you\'re interested, join our [Premium Waitlist](https://forms.gle/XcYcER3E9SRDr18fA).',
-    },
-    {
-      question: 'How does the pay-per-inquiry system work?',
-      answer: 'When a bride fills out an inquiry form for your services, we send you a preview with key details. You can then choose to unlock the full inquiry for a small fee only if it matches your business needs.',
-    },
-    {
-      question: 'Why do you charge a fee for unlocking inquiries?',
-      answer: 'The fee allows us to keep the directory free to join, while making sure we can maintain the platform, market it to brides, and connect you only with serious, high-intent inquiries.',
-    },
-    {
-      question: 'How do I know if an inquiry is worth purchasing?',
-      answer: 'Our inquiry previews include key details like budget range, event date, and location so you can make an informed decision.',
-    }
   ];
 
   const { isLoggedIn, isVendor } = useAuth();
@@ -233,7 +262,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
           id="how-it-works"
           sx={{ mb: 6, fontSize: { xs: '2rem', md: '2.5rem' } }}
         >
-          What our vendors say
+          What Our Vendors Say
         </Typography>
         <Box sx={{ flex: 1 }}>
           <Typography
@@ -320,9 +349,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
                   >
                     {step.title}
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-                    {step.description}
-                  </Typography>
+                  <MarkdownContent content={step.description} />
                 </Box>
               </Box>
             </Grid>
@@ -342,40 +369,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
         >
           Frequently Asked Questions
         </Typography>
-        {faqs.map((faq, index) => (
-          <Accordion key={index} sx={{ mb: 1 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography variant="h6">{faq.question}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography variant="body1" color="text.secondary">
-                {faq.answer.split(/(\[.*?\]\(.*?\))/g).map((part, partIndex) => {
-                  const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
-                  if (linkMatch) {
-                    const [, linkText, url] = linkMatch;
-                    return (
-                      <Box
-                        key={partIndex}
-                        component="a"
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        sx={{
-                          color: 'primary.main',
-                          textDecoration: 'underline',
-                          '&:hover': { color: 'primary.dark' }
-                        }}
-                      >
-                        {linkText}
-                      </Box>
-                    );
-                  }
-                  return part;
-                })}
-              </Typography>
-            </AccordionDetails>
-          </Accordion>
-        ))}
+        <FaqList faqs={faqs} />
       </Container>
 
       {/* CTA Section */}
@@ -429,5 +423,6 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
     </Box >
   );
 };
+
 
 export default VendorLandingPage;
