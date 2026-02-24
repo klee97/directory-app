@@ -25,11 +25,9 @@ const TagSelector: React.FC<TagSelectorProps> = ({ value, onChange, options }) =
       value={value ?? []}
       onChange={handleChange}
       filterOptions={(opts, params) => {
-        const filtered = filter(opts, params);
         // Exclude already-selected options
-        return filtered.filter(
-          (opt) => !(value ?? []).some((v) => v.id === opt.id)
-        );
+        const selectedIds = new Set((value ?? []).map((v) => v.id));
+        return filter(opts, params).filter((opt) => !selectedIds.has(opt.id));
       }}
       isOptionEqualToValue={(option, val) => option.id === val.id}
       multiple
