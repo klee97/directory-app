@@ -207,6 +207,7 @@ export const AdminUpdateVendorManagement = () => {
 
       const newVendorData = formDataToVendor(newFormData, coverImage?.media_url ?? null);
       const images: VendorMediaForm[] = coverImage ? [coverImage] : [];
+      console.debug("New vendor data:", newVendorData);
 
       const data = await updateVendor(
         { id: vendorId },
@@ -218,15 +219,19 @@ export const AdminUpdateVendorManagement = () => {
       );
 
       if (data) {
-        addNotification("Vendor updated successfully!");
-        setFormData(null);
-        setFirstName(null);
-        setLastName(null);
-        setSelectedTags(null);
-        setLookupId('');
-        setLookupSlug('');
-        setVendorLoaded(false);
-        image.reset();
+        if (data?.success) {
+          addNotification("Vendor updated successfully!");
+          setFormData(null);
+          setFirstName(null);
+          setLastName(null);
+          setSelectedTags(null);
+          setLookupId('');
+          setLookupSlug('');
+          setVendorLoaded(false);
+          image.reset();
+        } else {
+          addNotification(data?.error ?? "Failed to update vendor. Please try again.", "error");
+        }
       } else {
         addNotification("Failed to update vendor. Please try again.", "error");
       }
@@ -438,7 +443,6 @@ export const AdminUpdateVendorManagement = () => {
                   >
                     <FormControlLabel value="true" control={<Radio />} label="True" />
                     <FormControlLabel value="false" control={<Radio />} label="False" />
-                    <FormControlLabel value="null" control={<Radio />} label="No Change" />
                   </RadioGroup>
                 </FormControl>
               </Grid>

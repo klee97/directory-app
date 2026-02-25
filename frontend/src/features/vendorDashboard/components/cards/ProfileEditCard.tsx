@@ -14,7 +14,6 @@ import Alert from "@mui/material/Alert";
 
 interface ProfileChecklistCardProps {
   vendor: VendorByDistance;
-  userId: string;
   hasUnpublishedDraft: boolean;
 }
 
@@ -25,7 +24,7 @@ interface ChecklistItem {
   completed: boolean;
 }
 
-export default function ProfileChecklistCard({ vendor, userId, hasUnpublishedDraft }: ProfileChecklistCardProps) {
+export default function ProfileChecklistCard({ vendor, hasUnpublishedDraft }: ProfileChecklistCardProps) {
   const checklistItems: ChecklistItem[] = [
     {
       id: 'basic_info',
