@@ -11,7 +11,7 @@ import BaseCard from "./BaseCard";
 import { CheckCircle } from "@mui/icons-material";
 import Link from "@mui/material/Link";
 
-const REMOVAL_DATE = "March 31, 2026";
+const REMOVAL_DATE = "April 30, 2026";
 
 type LoadingState = "approve" | "remove" | false;
 
@@ -83,7 +83,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
           {/* Form */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
             <Alert severity="warning" sx={{ py: 0.5 }}>
-              Your photo will be <strong>automatically removed on {REMOVAL_DATE}</strong> unless
+              Your current photo will be <strong>automatically removed on {REMOVAL_DATE},</strong> unless
               you confirm your approval below.
             </Alert>
 
@@ -96,7 +96,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
                 onChange={(e) => setApproved(e.target.checked)}
               />
               <Typography variant="body1">
-                I confirm I have the necessary rights to this photo and authorize Asian Wedding Makeup to
+                I confirm I have the rights to this photo and authorize Asian Wedding Makeup to
                 display it as described in our{" "}
                 <Link href="/vendor-terms" target="_blank" rel="noopener noreferrer">
                   Vendor Terms of Service
@@ -106,7 +106,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
             </Box>
 
             <TextField
-              label="Photographer credit (if required)"
+              label="Add a photo credit (optional)"
               value={credits}
               onChange={(e) => setCredits(e.target.value)}
               size="small"
