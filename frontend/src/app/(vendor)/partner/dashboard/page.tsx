@@ -56,5 +56,5 @@ export default async function VendorDashboardPage() {
   const existingDraft = await loadUnpublishedDraft(vendor.id, currentUser.userId);
   const hasUnpublishedDraft = !!existingDraft;
 
-  return <DashboardContent vendor={vendor} userId={currentUser.userId} hasUnpublishedDraft={hasUnpublishedDraft} />;
+  return <DashboardContent vendor={vendor} hasUnpublishedDraft={hasUnpublishedDraft} />;
 }

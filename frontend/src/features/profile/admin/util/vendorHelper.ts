@@ -88,12 +88,14 @@ export async function prepareVendorData(
         updates.city = city;
         updates.state = state;
         updates.country = country;
-        updates.description = getDefaultBio({
-          businessName: vendor.business_name ?? existingData?.business_name ?? null,
-          tags: vendor.tags ?? existingData?.tags ?? [],
-          location: getDisplayNameWithoutType(city, state, country) ?? null
-        });
-        console.log("Updated description based on coordinates:", updates.description);
+        if (mode === 'create') {
+          updates.description = getDefaultBio({
+            businessName: vendor.business_name ?? existingData?.business_name ?? null,
+            tags: vendor.tags ?? existingData?.tags ?? [],
+            location: getDisplayNameWithoutType(city, state, country) ?? null
+          });
+          console.log("Updated description based on coordinates:", updates.description);
+        }
       }
     } else {
       console.warn(`Invalid coordinates: lat=${vendor.latitude}, lon=${vendor.longitude}`);

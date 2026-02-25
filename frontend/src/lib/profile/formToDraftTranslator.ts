@@ -3,6 +3,7 @@ import { BackendVendorDraft } from "@/types/vendorDraft";
 import { VendorFormData } from "@/types/vendorFormData";
 import { normalizeUrl } from "./normalizeUrl";
 import { normalizeInstagramHandle } from "./normalizeInstagram";
+import { hasAnyPrice } from "./priceHelper";
 
 /**
  * Convert VendorFormData (UI) to VendorDraft (DB)
@@ -12,7 +13,13 @@ export function formDataToDraft(
   vendorId: string,
   userId: string,
   existingDraftId: string | null
-): Omit<BackendVendorDraft, 'created_at' | 'updated_at' | 'last_saved_at'> {
+): Omit<BackendVendorDraft, 'created_at'
+  | 'updated_at'
+  | 'last_saved_at'
+  | 'logo'
+  | 'email'
+  | 'profile_image'
+> {
   return {
     id: existingDraftId ?? crypto.randomUUID(),
     vendor_id: vendorId,
@@ -21,7 +28,6 @@ export function formDataToDraft(
     // Business
     business_name: formData.business_name || null,
     website: normalizeUrl(formData.website) || null,
-    email: null,
     ig_handle: normalizeInstagramHandle(formData.instagram) || null,
     google_maps_place: formData.google_maps_place || null,
     description: formData.description || null,
@@ -43,8 +49,6 @@ export function formDataToDraft(
     // Images
     cover_image: formData.cover_image?.media_url || null,
     images: formData.cover_image ? [formData.cover_image] : [],
-    profile_image: null,
-    logo: null,
 
     // Tags
     tags: formData.tags.length > 0 ? formData.tags : null,
@@ -52,16 +56,5 @@ export function formDataToDraft(
     // Metadata
     is_published: false,
   };
-}
-
-function hasAnyPrice(formData: VendorFormData): boolean | null {
-  return (
-    formData.bridal_hair_price !== null ||
-    formData.bridal_makeup_price !== null ||
-    formData["bridal_hair_&_makeup_price"] !== null ||
-    formData.bridesmaid_hair_price !== null ||
-    formData.bridesmaid_makeup_price !== null ||
-    formData["bridesmaid_hair_&_makeup_price"] !== null
-  );
 }
 

@@ -19,7 +19,7 @@ export default function PremiumWaitlistCard() {
   return (
     <BaseCard title="Join Premium" icon={<TrendingUpIcon sx={{ color: "text.primary" }} />}>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      <Typography variant="body1" sx={{ mb: 2 }}>
         Interested in getting more visibility? We&apos;re working on Premium profiles that wil help you stand out, with features like:
       </Typography>
 
@@ -31,7 +31,7 @@ export default function PremiumWaitlistCard() {
             </ListItemIcon>
             <ListItemText
               primary={feature}
-              slotProps={{ primary: { variant: "body2", color: "text.secondary" } }}
+              slotProps={{ primary: { variant: "body2" } }}
             />
           </ListItem>
         ))}

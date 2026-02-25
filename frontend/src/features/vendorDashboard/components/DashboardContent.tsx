@@ -18,11 +18,10 @@ import { useNotification } from "@/contexts/NotificationContext";
 
 interface DashboardContentProps {
   vendor: VendorByDistance;
-  userId: string;
-  hasUnpublishedDraft: boolean; 
+  hasUnpublishedDraft: boolean;
 }
 
-export default function DashboardContent({ vendor, userId, hasUnpublishedDraft }: DashboardContentProps) {
+export default function DashboardContent({ vendor, hasUnpublishedDraft }: DashboardContentProps) {
   const { addNotification } = useNotification();
 
   const handlePhotoSubmit = async (mediaId: string, credits: string) => {
@@ -80,7 +79,11 @@ export default function DashboardContent({ vendor, userId, hasUnpublishedDraft }
         <Grid container spacing={3}>
 
           <Grid size={{ xs: 12 }}>
-            <ProfileEditCard vendor={vendor} userId={userId} hasUnpublishedDraft={hasUnpublishedDraft} />
+            <ProfileEditCard vendor={vendor} hasUnpublishedDraft={hasUnpublishedDraft} />
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <RecentInquiriesCard isApproved={!!vendor.approved_inquiries_at} />
           </Grid>
 
           <Grid size={{ xs: 12 }}>
@@ -89,10 +92,6 @@ export default function DashboardContent({ vendor, userId, hasUnpublishedDraft }
 
           <Grid size={{ xs: 12 }}>
             <PremiumWaitlistCard />
-          </Grid>
-
-          <Grid size={{ xs: 12 }}>
-            <RecentInquiriesCard />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

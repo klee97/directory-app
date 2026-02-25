@@ -14,7 +14,6 @@ import Alert from "@mui/material/Alert";
 
 interface ProfileChecklistCardProps {
   vendor: VendorByDistance;
-  userId: string;
   hasUnpublishedDraft: boolean;
 }
 

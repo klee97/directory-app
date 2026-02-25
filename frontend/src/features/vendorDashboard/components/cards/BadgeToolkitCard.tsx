@@ -8,7 +8,7 @@ export default function BadgeToolkitCard() {
 
   return (
     <BaseCard title="Badge Toolkit" titleHref="/partner/dashboard/badge-toolkit" icon={<WorkspacePremium sx={{ color: 'text.primary' }} />} hoverable>
-        <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+        <Typography variant="body1" sx={{ mb: 2 }} gutterBottom>
           Display your Asian Wedding Makeup vendor badge on your website to show off your expertise in Asian features.
         </Typography>
 
