@@ -42,7 +42,7 @@ export default function ProfileChecklistCard({ vendor, hasUnpublishedDraft }: Pr
       id: 'photo',
       label: 'Client Photo',
       description: 'Upload a photo of your work.',
-      completed: vendor.images.length > 0,
+      completed: vendor.cover_image !== null,
     },
   ];
 

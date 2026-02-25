@@ -1,11 +1,12 @@
 "use client";
 
+import Box from "@mui/material/Box";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import FormHelperText from "@mui/material/FormHelperText";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
+import Alert from "@mui/material/Alert";
 
 interface TermsCheckboxProps {
   isVendorTerms: boolean;
@@ -21,7 +22,12 @@ export default function TermsCheckbox({
   checked,
 }: TermsCheckboxProps) {
   return (
-    <div>
+    <Box>
+      {error && (
+        <Alert severity="error" sx={{ mt: 1 }}>
+          You must agree to the terms and conditions before continuing
+        </Alert>
+      )}
       <FormControlLabel
         control={
           <Checkbox
@@ -32,22 +38,17 @@ export default function TermsCheckbox({
         }
         label={
           <Typography variant="body2">
-            {"I agree to the"}{isVendorTerms ? " Vendor" : ""}{" "}
-            <Link component={NextLink} href={isVendorTerms ? '/vendor-terms' : '/terms'} target="_blank">
+            I agree to the{isVendorTerms ? " Vendor" : ""}{" "}
+            <Link component={NextLink} href={isVendorTerms ? "/vendor-terms" : "/terms"} target="_blank">
               Terms & Conditions
             </Link>{" "}
             and{" "}
-            <Link component={NextLink} href={'/privacy'} target="_blank">
+            <Link component={NextLink} href="/privacy" target="_blank">
               Privacy Policy
             </Link>
           </Typography>
         }
       />
-      {error && (
-        <FormHelperText error>
-          You must agree to the terms and conditions
-        </FormHelperText>
-      )}
-    </div>
+    </Box>
   );
 }
