@@ -148,6 +148,9 @@ function VendorClaimPageContent() {
       return;
     }
 
+    // Clear any field errors
+    setFormError("");
+
     if (!acceptedTerms) {
       setTermsError(true);
       return;
@@ -378,7 +381,7 @@ function VendorClaimPageContent() {
             ) : (
               <>
                 <Typography variant="body1" sx={{ mb: 2 }}>
-                  You&apos;re almost set! Create a password below to make your account for managing your vendor profile.
+                  Your profile is waiting! Create a password below to make your account for managing your vendor profile.
                   You can change your email later if needed.
                 </Typography>
 
