@@ -74,7 +74,7 @@ export async function prepareVendorData(
         vendor.longitude !== existingData?.longitude;
 
       if (coordinatesChanged) {
-        console.log("Coordinates changed, updating location data...");
+        console.debug("Coordinates changed, updating location data...");
         // Store lat/lon directly
         updates.latitude = vendor.latitude;
         updates.longitude = vendor.longitude;

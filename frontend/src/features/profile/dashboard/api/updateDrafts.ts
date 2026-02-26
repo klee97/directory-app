@@ -1,5 +1,5 @@
 "use server";
-import { BackendVendorDraft } from '@/types/vendorDraft';
+import { VendorDraft } from '@/types/vendorDraft';
 import { createClient } from '@/lib/supabase/server';
 import { VendorFormData } from '@/types/vendorFormData';
 import { formDataToDraft } from '@/lib/profile/formToDraftTranslator';
@@ -10,7 +10,7 @@ import { draftToVendorInput } from '@/lib/profile/draftToVendorInputTranslator';
 export async function loadUnpublishedDraft(
   vendorId: string,
   userId: string
-): Promise<BackendVendorDraft | null> {
+): Promise<VendorDraft | null> {
   const supabase = await createClient();
   // Just check if unpublished draft exists
   const { data: draft } = await supabase
@@ -29,7 +29,7 @@ export async function createOrUpdateDraft(
   vendorId: string,
   userId: string,
   existingDraftId: string | null
-): Promise<BackendVendorDraft> {
+): Promise<VendorDraft> {
   const supabase = await createClient();
 
   // Convert formData to draft

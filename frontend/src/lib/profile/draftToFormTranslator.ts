@@ -1,11 +1,11 @@
-import { BackendVendorDraft } from "@/types/vendorDraft";
+import { VendorDraft } from "@/types/vendorDraft";
 import { VendorFormData } from "@/types/vendorFormData";
 import { parseVendorTags } from "./jsonParser";
 
 /**
  * Convert DB draft to UI form state
  */
-export function draftToFormData(draft: BackendVendorDraft): VendorFormData {
+export function draftToFormData(draft: VendorDraft): VendorFormData {
   const tags = parseVendorTags(Array.isArray(draft.tags) ? draft.tags : []);
   const locationResult = draft.location_data
     ? JSON.parse(JSON.stringify(draft.location_data))
