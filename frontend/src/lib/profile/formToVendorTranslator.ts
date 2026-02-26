@@ -22,7 +22,6 @@ export function formDataToVendor(
     business_name: formData.business_name || null,
     cover_image: coverImageUrl,
     description: formData.description || null,
-    email: formData.email || null,
     google_maps_place: normalizeUrl(formData.google_maps_place) || null,
     ig_handle: formData.instagram ? normalizeInstagramHandle(formData.instagram) : null,
     latitude: formData.locationResult?.lat || null,

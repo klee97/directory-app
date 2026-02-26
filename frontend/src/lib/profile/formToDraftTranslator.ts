@@ -1,5 +1,5 @@
 import { Json } from "@/types/supabase";
-import { BackendVendorDraft } from "@/types/vendorDraft";
+import { VendorDraft } from "@/types/vendorDraft";
 import { VendorFormData } from "@/types/vendorFormData";
 import { normalizeUrl } from "./normalizeUrl";
 import { normalizeInstagramHandle } from "./normalizeInstagram";
@@ -13,13 +13,7 @@ export function formDataToDraft(
   vendorId: string,
   userId: string,
   existingDraftId: string | null
-): Omit<BackendVendorDraft, 'created_at'
-  | 'updated_at'
-  | 'last_saved_at'
-  | 'logo'
-  | 'email'
-  | 'profile_image'
-> {
+): VendorDraft {
   return {
     id: existingDraftId ?? crypto.randomUUID(),
     vendor_id: vendorId,

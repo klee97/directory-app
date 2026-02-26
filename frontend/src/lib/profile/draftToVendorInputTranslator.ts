@@ -1,12 +1,12 @@
 import { VendorDataInput } from "@/features/profile/admin/util/vendorHelper";
 import { LocationResult } from "@/types/location";
-import { BackendVendorDraft } from "@/types/vendorDraft";
+import { VendorDraft } from "@/types/vendorDraft";
 import { parseVendorMediaArray, parseVendorTags } from "./jsonParser";
 
 /**
  * Convert draft data to VendorDataInput format
  */
-export function draftToVendorInput(draft: BackendVendorDraft): VendorDataInput {
+export function draftToVendorInput(draft: VendorDraft): VendorDataInput {
   const locationData = draft.location_data as LocationResult | null;
   const latitude = locationData?.lat ?? null;
   const longitude = locationData?.lon ?? null;
@@ -23,7 +23,6 @@ export function draftToVendorInput(draft: BackendVendorDraft): VendorDataInput {
     business_name: draft.business_name ?? null,
     cover_image: coverImage?.media_url ?? null,
     description: draft.description ?? null,
-    email: draft.email ?? null,
     google_maps_place: draft.google_maps_place ?? null,
     ig_handle: draft.ig_handle ?? null,
     longitude,

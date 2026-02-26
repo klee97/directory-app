@@ -47,10 +47,10 @@ export const createVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  console.log("Vendor insert data:", vendor);
+  console.debug("Vendor insert data:", vendor);
   const vendorData = await prepareVendorData(vendor, { mode: 'create' });
 
-  console.log("Updated vendor insert data:", vendorData);
+  console.debug("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor creation
   const { data, error } = await supabase.from("vendors").insert(vendorData).select("id, slug").single();
