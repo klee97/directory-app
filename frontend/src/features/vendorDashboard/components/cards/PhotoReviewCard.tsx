@@ -11,7 +11,7 @@ import BaseCard from "./BaseCard";
 import { CheckCircle } from "@mui/icons-material";
 import Link from "@mui/material/Link";
 
-const REMOVAL_DATE = "March 31, 2026";
+const REMOVAL_DATE = "April 30, 2026";
 
 type LoadingState = "approve" | "remove" | false;
 
@@ -31,7 +31,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
 
   const handleApprove = async () => {
     if (!approved) {
-      setError("Please confirm you have permission to use this photo before approving.");
+      setError("Please confirm to continue.");
       return;
     }
     setLoading("approve");
@@ -83,11 +83,11 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
           {/* Form */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
             <Alert severity="warning" sx={{ py: 0.5 }}>
-              Your photo will be <strong>automatically removed on {REMOVAL_DATE}</strong> unless
+              Your current photo will be <strong>automatically removed on {REMOVAL_DATE},</strong> unless
               you confirm your approval below.
             </Alert>
 
-
+            {error && <Alert severity="error" sx={{ py: 0.5, width: "fit-content" }}>{error}</Alert>}
 
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Checkbox
@@ -96,21 +96,24 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
                 onChange={(e) => setApproved(e.target.checked)}
               />
               <Typography variant="body1">
-                I confirm I have the right to use this photo and consent to it being displayed on my profile.
+                I confirm I have the rights to this photo and authorize Asian Wedding Makeup to
+                display it as described in our{" "}
+                <Link href="/vendor-terms" target="_blank" rel="noopener noreferrer">
+                  Vendor Terms of Service
+                </Link>
+                .
               </Typography>
             </Box>
 
-            {error && <Alert severity="error" sx={{ py: 0.5 }}>{error}</Alert>}
-
             <TextField
-              label="Photographer credit (optional)"
+              label="Add a photo credit (optional)"
               value={credits}
               onChange={(e) => setCredits(e.target.value)}
               size="small"
               sx={{ maxWidth: 280 }}
             />
 
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap", mt: 3 }}>
               <Button
                 variant="contained"
                 onClick={handleApprove}
@@ -119,7 +122,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
               >
                 {loading === "approve" ? "Saving..." : "Approve Photo"}
               </Button>
-              <Link href={`/partner/dashboard/profile`} variant="h4" color="text.secondary">
+              <Link href={`/partner/dashboard/profile`} variant="h6" color="text.secondary">
                 Remove or replace photo
               </Link>
             </Box>

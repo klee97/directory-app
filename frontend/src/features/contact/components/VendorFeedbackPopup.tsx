@@ -74,7 +74,7 @@ export const VendorFeedbackPopup = ({
   return (
     <Dialog open={open} onClose={handleNothingWrong} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ position: "relative", paddingRight: "40px" }}>
-        {status === "success" ? "Thank you for your feedback!" : "How was your experience?"}
+        {status === "success" ? "Thank you!" : "How was your experience?"}
       </DialogTitle>
 
       <DialogContent>
