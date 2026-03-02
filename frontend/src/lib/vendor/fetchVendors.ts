@@ -68,28 +68,31 @@ export async function getVendorByIdOrSlug({ id, slug }: { id?: string, slug?: st
   return null;
 }
 
+const _getCachedVendor = (slug: string) => unstable_cache(
+  async () => {
+    console.debug('[Cache] Requested vendor slug:', slug);
+    const v = await fetchVendorBySlug(slug);
+    if (!v) throw new Error(`Vendor not found for slug: ${slug}`);
+    return v;
+  },
+  [`vendor-${slug}`],
+  { revalidate: 86400, tags: [`vendor-${slug}`, 'all-vendors'] }
+)();
+
 // Cached version for individual vendor
-export const getCachedVendor = async (slug: string) => {
-  console.debug('[Cache] Requested vendor slug:', slug);
-
+export async function getCachedVendor(slug: string) {
+  const normalizedSlug = slug.trim().toLowerCase();
   try {
-    const vendor = await unstable_cache(
-      () => fetchVendorBySlug(slug),
-      [`vendor-${slug}`],
-      { revalidate: 86400, tags: [`vendor-${slug}`, 'all-vendors'] }
-    )();
-
-    console.debug('[Cache] Vendor returned:', vendor ? vendor.business_name : null);
-    return vendor;
+    return await _getCachedVendor(normalizedSlug);
   } catch (err) {
-    console.error('[Cache] Error fetching vendor:', err);
+    console.error('[Cache] Failed to fetch vendor:', err);
     return null;
   }
-};
+}
 
 export async function fetchAllVendors() {
   try {
-    console.debug("Fetching vendors");
+    console.debug("Fetching all vendors");
 
     let query = supabase.from('vendors')
       .select(`
@@ -99,30 +102,43 @@ export async function fetchAllVendors() {
         tags (id, display_name, name, type, is_visible, style),
         vendor_media (id, media_url, is_featured, consent_given, credits)
       `)
-      .eq('include_in_directory', true)
-      ;
+      .eq('include_in_directory', true);
 
     if (!shouldIncludeTestVendors()) {
       query = query.not('id', 'like', 'TEST-%');
     }
 
-    const { data } = await query;
+    const { data, error } = await query;
 
-    if (data === null) {
-      return [];
+    if (error) {
+      console.error('Database Error:', error);
+      throw new Error('Failed to fetch vendors from DB'); // prevents caching null
     }
+
+    if (!data || data.length === 0) {
+      console.warn('[fetchAllVendors] No vendors returned');
+      return []; // safe to cache empty array if intentional
+    }
+
     return data.map(transformBackendVendorToFrontend);
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
+    throw new Error('Failed to fetch vendors.'); // prevents caching null
   }
 }
 
-export const getCachedVendors = unstable_cache(
+
+const _getCachedVendors = unstable_cache(
   fetchAllVendors,
   ["all-vendors", shouldIncludeTestVendors() ? "with-test" : "production-only"],
-  {
-    revalidate: 86400, // 24 hours
-    tags: ["all-vendors"]
-  }
+  { revalidate: 86400, tags: ['all-vendors'] }
 );
+
+export async function getCachedVendors() {
+  try {
+    return await _getCachedVendors();
+  } catch (err) {
+    console.error('[Cache] Failed to fetch vendors:', err);
+    return [];
+  }
+}
