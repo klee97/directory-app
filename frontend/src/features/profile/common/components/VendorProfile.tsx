@@ -38,6 +38,7 @@ import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -239,10 +240,11 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
             {/* Left Column - Details */}
             <Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 2, md: 1 } }}>
               {/* Vendor Info */}
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h2" component="h1" >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Typography variant="h2" component="h1">
                   {vendor.business_name}
                 </Typography>
+                {vendor.verified_at && <VerifiedBadge size={24} />}
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
