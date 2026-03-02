@@ -69,15 +69,23 @@ export async function getVendorByIdOrSlug({ id, slug }: { id?: string, slug?: st
 }
 
 // Cached version for individual vendor
-export const getCachedVendor = (slug: string) =>
-  unstable_cache(
-    () => fetchVendorBySlug(slug),
-    [`vendor-${slug}`],
-    {
-      revalidate: 86400, // 24 hours
-      tags: [`vendor-${slug}`, 'all-vendors']
-    }
-  )();
+export const getCachedVendor = async (slug: string) => {
+  console.debug('[Cache] Requested vendor slug:', slug);
+
+  try {
+    const vendor = await unstable_cache(
+      () => fetchVendorBySlug(slug),
+      [`vendor-${slug}`],
+      { revalidate: 86400, tags: [`vendor-${slug}`, 'all-vendors'] }
+    )();
+
+    console.debug('[Cache] Vendor returned:', vendor ? vendor.business_name : null);
+    return vendor;
+  } catch (err) {
+    console.error('[Cache] Error fetching vendor:', err);
+    return null;
+  }
+};
 
 export async function fetchAllVendors() {
   try {

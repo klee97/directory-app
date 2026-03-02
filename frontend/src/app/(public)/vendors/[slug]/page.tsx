@@ -66,6 +66,7 @@ export default async function VendorPage({ params }: PageProps) {
   const vendor = await getCachedVendor(slug);
 
   if (!vendor) {
+    console.error(`Vendor with slug ${slug} not found in cache.`);
     notFound(); // Return 404 if vendor is not found
   }
 
