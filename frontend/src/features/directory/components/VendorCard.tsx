@@ -21,6 +21,7 @@ import { FilterContext } from './filters/FilterContext';
 import FilterChip from '@/components/ui/FilterChip';
 import VendorCardImage from './VendorCardImage';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
+import VerifiedBadge from '@/components/ui/VerifiedBadge';
 
 function formatVendorLocation(vendor: VendorByDistance): string {
   const city = vendor.city ? CITY_ABBREVIATIONS[vendor.city] || vendor.city : null;
@@ -220,8 +221,10 @@ export const VendorCard = ({
             <Typography
               variant={variant === 'compact' ? "subtitle1" : "h4"}
               component="div"
+              sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}
             >
               {vendor.business_name}
+              {vendor.verified_at && <VerifiedBadge size={variant === 'compact' ? 16 : 20} />}
             </Typography>
 
             {/* Location */}
