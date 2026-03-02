@@ -20,7 +20,7 @@ export const useSearchManagement = () => {
   // Clear immediate state when URL catches up
   useEffect(() => {
     if (immediateSearchQuery !== null && urlSearchQuery === immediateSearchQuery) {
-      setImmediateSearchQuery(null);
+      requestAnimationFrame(() => setImmediateSearchQuery(null));
     }
   }, [urlSearchQuery, immediateSearchQuery]);
 

@@ -19,19 +19,18 @@ export function ServiceFilter({ tags, filterMinWidth }:
 
   // Get the selected services from URL params
   const selectedServices = useMemo(() => getAllParams(SERVICE_PARAM) || [], [getAllParams]);
-  const [services, setServices] = useState<boolean[]>(tags.map((service) => selectedServices.includes(service)));
+  const services = useMemo(
+    () => tags.map((service) => selectedServices.includes(service)),
+    [tags, selectedServices]
+  );
 
-  useEffect(() => {
-    setServices(tags.map((service) => selectedServices.includes(service)));
-  }, [selectedServices, tags]);
+  const handleChange = (_index: number, service: string, checked: boolean) => {
+    const newSelectedServices = checked
+      ? [...selectedServices, service]
+      : selectedServices.filter((s) => s !== service);
 
-  const handleChange = (index: number, service: string, newState: boolean) => {
-    const newServices = [...services];
-    newServices[index] = newState;
-    setServices(newServices);
-
-    const selectedServices = tags.filter((_, i) => newServices[i]);
-    setArrayParam(SERVICE_PARAM, selectedServices.length > 0 ? selectedServices : null);
+    setArrayParam(SERVICE_PARAM, newSelectedServices.length > 0 ? newSelectedServices : null);
+    trackFilterEvent(SERVICE_FILTER_NAME, service);
 
     trackFilterEvent(SERVICE_FILTER_NAME, service);
   };

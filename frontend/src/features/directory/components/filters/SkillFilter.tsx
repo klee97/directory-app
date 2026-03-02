@@ -22,7 +22,10 @@ export function SkillFilter({ tags, filterMinWidth }:
   const [skills, setSkills] = useState<boolean[]>(tags.map((skill) => selectedSkills.includes(skill)));
 
   useEffect(() => {
-    setSkills(tags.map((skill) => selectedSkills.includes(skill)));
+    // defer to avoid calling setState synchronously in effect
+    requestAnimationFrame(() => {
+      setSkills(tags.map((skill) => selectedSkills.includes(skill)));
+    });
   }, [selectedSkills, tags]);
 
   const handleChange = (index: number, skill: string, newState: boolean) => {

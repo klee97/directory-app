@@ -1,5 +1,5 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export function useURLFilters(preservePathname: boolean = false) {
   const router = useRouter();
@@ -11,8 +11,10 @@ export function useURLFilters(preservePathname: boolean = false) {
   const pathnameRef = useRef(pathname);
 
   // Update refs on every render
-  searchParamsRef.current = searchParams;
-  pathnameRef.current = pathname;
+  useEffect(() => {
+    searchParamsRef.current = searchParams;
+    pathnameRef.current = pathname;
+  });
 
   // Return a stable string version to memoize dependencies
   const paramsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);

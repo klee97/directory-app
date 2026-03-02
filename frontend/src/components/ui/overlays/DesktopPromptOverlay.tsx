@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
@@ -16,19 +16,22 @@ interface DesktopPromptOverlayProps {
 }
 
 export default function DesktopPromptOverlay({ onContinue }: DesktopPromptOverlayProps) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+
+    const isMobileDevice =
+      /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    const isDismissed =
+      sessionStorage.getItem(STORAGE_KEY) === "dismissed";
+
+    return isMobileDevice && !isDismissed;
+  });
+
   const theme = useTheme();
 
-  useEffect(() => {
-    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isDismissed = localStorage.getItem(STORAGE_KEY) === "dismissed";
-    if (isMobileDevice && !isDismissed) {
-      setVisible(true);
-    }
-  }, []);
-
   const handleContinue = () => {
-    localStorage.setItem(STORAGE_KEY, "dismissed");
+    sessionStorage.setItem(STORAGE_KEY, "dismissed");
     setVisible(false);
     onContinue?.();
   };

@@ -50,6 +50,8 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
 
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isLoadingDraft, setIsLoadingDraft] = useState(true);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialFormData = useMemo(() => vendorToFormData(vendor), [vendor.id]);
   const [formData, setFormData] = useState<VendorFormData>(
     initialFormData // Show vendor data immediately. Replace once draft loads
@@ -85,7 +87,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     }
 
     checkForDraft();
-  }, [vendor.id, userId]);
+  }, [vendor.id, userId, addNotification]);
 
   // Create preview vendor object
   const previewVendor: Vendor = {

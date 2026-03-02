@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
@@ -42,16 +42,13 @@ export default function CTABanner({
   fullWidth = false,
   showCloseButton = true
 }: CTABannerProps) {
-  const [open, setOpen] = useState<boolean>(false);
-  const theme = useTheme();
+  const [open, setOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
 
-  useEffect(() => {
-    // Check if the user has previously dismissed this banner
-    const isBannerDismissed = localStorage.getItem(bannerKey) === 'dismissed';
-    if (!isBannerDismissed) {
-      setOpen(true);
-    }
-  }, [bannerKey]);
+    return localStorage.getItem(bannerKey) !== "dismissed";
+  });
+
+  const theme = useTheme();
 
   const handleClose = (): void => {
     setOpen(false);

@@ -25,7 +25,6 @@ export const useVendorFiltering = ({
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
-  const [initialLoad, setInitialLoad] = useState(true);
   const prevLocationRef = useRef<LocationResult | null>(null);
 
   const { getParam } = useURLFiltersContext();
@@ -41,7 +40,7 @@ export const useVendorFiltering = ({
 
 
       // If we have URL params but no resolved location yet, show loading
-      if ((urlLat && urlLon) && !selectedLocation && initialLoad) {
+      if ((urlLat && urlLon) && !selectedLocation) {
         setLoading(true);
         return;
       }
@@ -80,7 +79,6 @@ export const useVendorFiltering = ({
         console.debug('No valid location, showing all vendors');
         setVendorsInRadius(vendors);
         setLoading(false);
-        setInitialLoad(false);
         return;
       }
 
@@ -91,7 +89,6 @@ export const useVendorFiltering = ({
         if (!cancelled) {
           setVendorsInRadius(results);
           setLoading(false);
-          setInitialLoad(false);
         }
       } else {
         try {
@@ -108,7 +105,6 @@ export const useVendorFiltering = ({
         } finally {
           if (!cancelled) {
             setLoading(false);
-            setInitialLoad(false);
           }
         }
       }

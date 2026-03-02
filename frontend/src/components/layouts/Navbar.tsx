@@ -33,6 +33,8 @@ import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 import { useAuth } from '@/contexts/AuthContext';
 import NavigationMenu from '@/components/layouts/NavigationMenu';
+import { useRouter } from 'next/navigation';
+
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
 const vendorPages: string[] = [];
@@ -57,6 +59,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   });
 
   const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -145,7 +148,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const handleMenuLinkClick = (event: React.MouseEvent, href: string) => {
     event.preventDefault();
     handleCloseNavMenu();
-    window.location.href = href;
+    router.push(href);
   };
 
   const handleCloseNotification = () => {

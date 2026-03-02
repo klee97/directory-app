@@ -24,8 +24,11 @@ export function useSectionCompletion(
       }
     }
 
-    setCompletedSections(completed);
-    setInProgressSections(inProgress);
+    // defer updates to avoid synchronous setState in effect
+    requestAnimationFrame(() => {
+      setCompletedSections(completed);
+      setInProgressSections(inProgress);
+    });
   }, [sections, formData]);
 
   return { completedSections, inProgressSections };

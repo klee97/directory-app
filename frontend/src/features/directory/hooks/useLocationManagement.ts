@@ -56,7 +56,7 @@ export const useLocationManagement = ({
     // Only sync if selectedLocation actually changed
     if (prevSelectedLocationRef.current !== selectedLocation) {
       const displayName = selectedLocation?.display_name || '';
-      setLocationInputValue(displayName);
+      requestAnimationFrame(() => setLocationInputValue(displayName));
       prevSelectedLocationRef.current = selectedLocation;
     }
   }, [selectedLocation]);

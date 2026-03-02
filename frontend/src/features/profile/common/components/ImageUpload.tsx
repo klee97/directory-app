@@ -47,7 +47,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   useEffect(() => {
     console.debug("Current image URL changed:", currentImageUrl);
     if (currentImageUrl) {
-      setPreviewUrl(currentImageUrl);
+      requestAnimationFrame(() => setPreviewUrl(currentImageUrl));
     }
   }, [currentImageUrl]);
 
@@ -82,7 +82,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     if (onImageSelect) {
       onImageSelect(file);
     }
-  }, [onImageSelect]);
+  }, [onImageSelect, onError]);
 
   const handleClear = () => {
     setSelectedFile(null);

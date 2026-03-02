@@ -1,6 +1,7 @@
-'use client';
+"use client";
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import MenuItem from '@mui/material/MenuItem';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -73,6 +74,7 @@ export default function NavigationMenu({
 }: NavigationMenuProps) {
   const { addNotification } = useNotification();
   const supabase = createClient();
+  const router = useRouter();
 
   const filteredOptions = navigationOptions.filter(option => {
     if (isVendorNavbar) {
@@ -89,7 +91,10 @@ export default function NavigationMenu({
     if (option.action === 'signout') {
       try {
         await supabase.auth.signOut();
-        window.location.reload();
+        const path = isVendorNavbar
+          ? '/partner'
+          : '/';
+        window.location.assign(path); // use assign to force reload
         addNotification('Successfully logged out');
       } catch (error) {
         console.error('Error signing out:', error);
@@ -99,7 +104,7 @@ export default function NavigationMenu({
       const path = option.id === 'settings' && isVendorNavbar
         ? '/partner/settings'
         : option.path;
-      window.location.href = path;
+      router.push(path);
     }
   };
 
