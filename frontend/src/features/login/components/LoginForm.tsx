@@ -19,6 +19,8 @@ import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
+import ArrowForward from "@mui/icons-material/ArrowForward";
+import Divider from "@mui/material/Divider";
 
 export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
   const { addNotification } = useNotification();
@@ -67,37 +69,6 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
     <Container maxWidth="sm">
       <Box sx={{ mt: 8, mb: 4 }}>
         <Paper elevation={3} sx={{ p: 4 }}>
-          {!isVendorLogin && isVendorLoginEnabled && (
-            <Box
-              sx={{
-                backgroundColor: 'secondary.main',
-                color: 'secondary.contrastText',
-                px: 2,
-                py: 1.5,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 1,
-                flexWrap: 'wrap',
-              }}
-            >
-              <Typography variant="body2" sx={{ opacity: 0.85 }}>
-                Hair or Makeup Artist?
-              </Typography>
-              <Link
-                component={NextLink}
-                href="/partner/login"
-                color="secondary.contrastText"
-                sx={{
-                  fontWeight: 700,
-                  textDecorationColor: 'inherit',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Vendor Login here →
-              </Link>
-            </Box>
-          )}
 
           {verificationNeeded && (
             <Alert severity="warning" sx={{ mb: 2 }}>
@@ -114,7 +85,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
             </Alert>
           )}
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+          <Box component="form" onSubmit={handleSubmit} >
             <TextField
               margin="normal"
               required
@@ -198,6 +169,37 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
             </Stack>
           </Box>
         </Paper>
+
+        {!isVendorLogin && isVendorLoginEnabled && (
+          <Box sx={{ mt: 3 }}>
+            <Divider sx={{ mb: 3 }}>
+              <Typography variant="body2" color="text.secondary">
+                Are you a hair or makeup artist?
+              </Typography>
+            </Divider>
+            <Button
+              component={NextLink}
+              href="/partner/login"
+              fullWidth
+              variant="contained"
+              color="secondary"
+              size="large"
+              endIcon={<ArrowForward />}
+              sx={{
+                borderRadius: 2,
+                py: 1.5,
+                fontWeight: 500,
+                letterSpacing: 0.5,
+                boxShadow: '0 4px 14px rgba(133, 160, 122, 0.45)',
+                '&:hover': {
+                  boxShadow: '0 6px 20px rgba(133, 160, 122, 0.6)',
+                },
+              }}
+            >
+              Vendor Login
+            </Button>
+          </Box>
+        )}
       </Box>
     </Container>
   );
