@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLocationSearch } from "@/features/directory/hooks/useLocationSearch";
 import { LocationResult } from "@/types/location";
 
@@ -16,7 +16,9 @@ export const useLocationForm = ({
   onLocationChange,
   citiesOnly = false,
 }: UseLocationFormProps = {}) => {
-  const [locationInputValue, setLocationInputValue] = useState('');
+  const [locationInputValue, setLocationInputValue] = useState(
+    initialLocation?.display_name || ''
+  );
   const [selectedLocation, setSelectedLocation] = useState<LocationResult | null>(initialLocation);
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
 
@@ -33,20 +35,10 @@ export const useLocationForm = ({
     return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
   }, [instantLocations, detailedLocations]);
 
-  // Sync location input value with selected location
-  const prevSelectedLocationRef = useRef<LocationResult | null>(null);
-  useEffect(() => {
-    if (prevSelectedLocationRef.current !== selectedLocation) {
-      const displayName = selectedLocation?.display_name || '';
-      requestAnimationFrame(() => setLocationInputValue(displayName));
-      prevSelectedLocationRef.current = selectedLocation;
-    }
-  }, [selectedLocation]);
-
   // Handle location selection
   const handleSelectLocation = useCallback((location: LocationResult | null) => {
     setSelectedLocation(location);
-    
+
     if (location) {
       setLocationInputValue(location.display_name);
     } else {

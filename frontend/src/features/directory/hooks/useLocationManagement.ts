@@ -1,5 +1,5 @@
 import useResolvedLocation from "@/features/directory/hooks/useResolvedLocation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useLocationSearch } from "./useLocationSearch";
 import { LocationResult } from "@/types/location";
 import reverseGeocodeCache, { createGeocodeKey } from "../components/reverseGeocodeCache";
@@ -14,7 +14,7 @@ export const useLocationManagement = ({
   preselectedLocation: LocationResult | null
 }) => {
 
-  const [locationInputValue, setLocationInputValue] = useState('');
+  const [inputOverride, setInputOverride] = useState<string | null>(null);
   const [immediateLocation, setImmediateLocation] = useState<LocationResult | null | undefined>(undefined);
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
 
@@ -31,6 +31,8 @@ export const useLocationManagement = ({
     immediateLocation,
     clearImmediateLocation
   });
+
+  const locationInputValue = inputOverride ?? selectedLocation?.display_name ?? '';
 
   // Location search results
   const {
@@ -49,27 +51,13 @@ export const useLocationManagement = ({
     return [...instantLocations, ...detailedLocations.filter((r) => !ids.has(r.display_name))];
   }, [instantLocations, detailedLocations]);
 
-  // Sync location input value with selected location
-  // Only sync when selectedLocation actually changes, not when search query changes
-  const prevSelectedLocationRef = useRef<LocationResult | null>(null);
-  useEffect(() => {
-    // Only sync if selectedLocation actually changed
-    if (prevSelectedLocationRef.current !== selectedLocation) {
-      const displayName = selectedLocation?.display_name || '';
-      requestAnimationFrame(() => setLocationInputValue(displayName));
-      prevSelectedLocationRef.current = selectedLocation;
-    }
-  }, [selectedLocation]);
-
-
   // Handle location selection
   const handleSelectLocation = (location: LocationResult | null) => {
     console.debug('handleSelectLocation called with:', location);
     setImmediateLocation(location);
+    setInputOverride(null); // Drop the override — let selectedLocation drive the value
 
     if (location) {
-      // Update local state immediately for UX, but let the URL change handle the real state
-      setLocationInputValue(location.display_name);
       if (location.lat && location.lon) {
         const cacheKey = createGeocodeKey(location.lat, location.lon);
         console.debug(`Adding location to reverse geocode cache with key:"${cacheKey}" for location:`, location);
@@ -97,7 +85,6 @@ export const useLocationManagement = ({
       }
     } else {
       // Clear everything immediately
-      setLocationInputValue('');
       setLocationSearchQuery('');
       // If on location page, go home; otherwise just clear params
       if (preselectedLocation) {
@@ -122,7 +109,7 @@ export const useLocationManagement = ({
 
   // Handle location input change
   const handleLocationInputChange = (value: string) => {
-    setLocationInputValue(value);
+    setInputOverride(value);
   };
 
   // Handle debounced location search

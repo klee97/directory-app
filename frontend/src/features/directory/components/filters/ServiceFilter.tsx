@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SERVICE_PARAM } from "@/lib/constants";
 import { SERVICE_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 import Accordion from "@mui/material/Accordion";
@@ -24,13 +24,13 @@ export function ServiceFilter({ tags, filterMinWidth }:
     [tags, selectedServices]
   );
 
-  const handleChange = (_index: number, service: string, checked: boolean) => {
+  const handleChange = (service: string, checked: boolean) => {
+    // add or remove skill
     const newSelectedServices = checked
       ? [...selectedServices, service]
       : selectedServices.filter((s) => s !== service);
 
     setArrayParam(SERVICE_PARAM, newSelectedServices.length > 0 ? newSelectedServices : null);
-    trackFilterEvent(SERVICE_FILTER_NAME, service);
 
     trackFilterEvent(SERVICE_FILTER_NAME, service);
   };
@@ -51,7 +51,7 @@ export function ServiceFilter({ tags, filterMinWidth }:
             control={
               <Checkbox
                 checked={services[index]}
-                onChange={(_event, checked) => { handleChange(index, service, checked) }}
+                onChange={(_event, checked) => { handleChange(service, checked) }}
                 color="primary"
               />
             }

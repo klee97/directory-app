@@ -241,7 +241,7 @@ async function main() {
 
 function generateTSFile(successful: PopulatedLocation[], failed: PopulatedLocation[]): string {
   const successfulCode = successful.map(location => {
-    const { search_query, photon_success, error, ...cleanLocation } = location;
+    const { search_query: _search_query, photon_success: _photon_success, error: _error, ...cleanLocation } = location;
     return `  ${JSON.stringify(cleanLocation)}`;
   }).join(',\n');
 

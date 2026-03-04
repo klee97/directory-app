@@ -95,6 +95,7 @@ export function FilterableVendorTableContent({
 
   const handleClearFilters = () => {
     setParams({
+      [SERVICE_PARAM]: null,
       [SKILL_PARAM]: null,
       [TRAVEL_PARAM]: null
     });

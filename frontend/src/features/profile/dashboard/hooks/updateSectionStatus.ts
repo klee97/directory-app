@@ -1,16 +1,13 @@
 "use client";
 import { VendorFormData } from "@/types/vendorFormData";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Section } from "../components/Section";
 
 export function useSectionCompletion(
   sections: Section[],
   formData: VendorFormData
 ) {
-  const [completedSections, setCompletedSections] = useState<string[]>([]);
-  const [inProgressSections, setInProgressSections] = useState<string[]>([]);
-
-  useEffect(() => {
+  const { completedSections, inProgressSections } = useMemo(() => {
     const completed: string[] = [];
     const inProgress: string[] = [];
 
@@ -24,11 +21,7 @@ export function useSectionCompletion(
       }
     }
 
-    // defer updates to avoid synchronous setState in effect
-    requestAnimationFrame(() => {
-      setCompletedSections(completed);
-      setInProgressSections(inProgress);
-    });
+    return { completedSections: completed, inProgressSections: inProgress };
   }, [sections, formData]);
 
   return { completedSections, inProgressSections };

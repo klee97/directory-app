@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@mui/material/Button";
 
 interface BackButtonProps {
@@ -11,6 +11,7 @@ export default function BackButton({
   fallbackHref = "/",
 }: BackButtonProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const canGoBack = (() => {
     if (typeof window === "undefined") return false;
@@ -28,7 +29,9 @@ export default function BackButton({
     if (canGoBack) {
       router.back();
     } else {
-      router.push(fallbackHref);
+      const paramsString = searchParams ? searchParams.toString() : "";
+      const fallback = `${fallbackHref}/${paramsString ? `?${paramsString}` : ""}`;
+      router.push(fallback);
     }
   };
 
