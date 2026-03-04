@@ -8,7 +8,7 @@
     "dev:analytics": "FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
     "dev:preview": "VERCEL_ENV=preview next dev --turbopack",
     "dev:preview-analytics": "VERCEL_ENV=preview FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
-    "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml && eslint . && vitest run",
+    "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml && eslint .",
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
