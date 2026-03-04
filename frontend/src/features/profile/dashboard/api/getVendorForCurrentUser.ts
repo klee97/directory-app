@@ -9,10 +9,11 @@ export async function getVendorForCurrentUser(userId: string) {
 
   const supabase = await createClient();
 
-  let query = supabase
+  const query = supabase
     .from('profiles')
     .select(`
       vendor_id,
+      is_test,
       vendors!inner (
         *,
         tags (id, display_name, name, type, is_visible, style),
@@ -21,20 +22,23 @@ export async function getVendorForCurrentUser(userId: string) {
     `)
     .eq('id', userId);
 
-  if (!shouldIncludeTestVendors()) {
-    query = query.not('vendors.id', 'like', 'TEST-%');
-  }
-
   logEnvironmentInfo();
 
   const { data, error } = await query.maybeSingle();
 
-  if (error || !data?.vendors) {
+  if (error || !data?.vendors || data.vendors.length === 0) {
     console.error('Error fetching vendor:', error);
     return null;
   }
 
-  const vendor = Array.isArray(data?.vendors) ? data.vendors[0] : data?.vendors;
+  const vendor = data.vendors[0];
+
+  if (!shouldIncludeTestVendors() && !data.is_test) {
+    if (vendor.id.startsWith('TEST-')) {
+      console.warn('Skipping test vendor for non-test user');
+      return null;
+    }
+  }
 
   return transformBackendVendorToFrontend(vendor);
 }
