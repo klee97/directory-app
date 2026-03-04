@@ -8,7 +8,7 @@
     "dev:analytics": "FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
     "dev:preview": "VERCEL_ENV=preview next dev --turbopack",
     "dev:preview-analytics": "VERCEL_ENV=preview FORCE_ENABLE_ANALYTICS=true next dev --turbopack",
-    "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml && eslint .",
+    "prebuild": "graphql-codegen --require dotenv/config --config codegen.yml && eslint . && vitest run",
     "build": "next build",
     "postbuild": "next-sitemap",
     "start": "next start",
@@ -21,7 +21,12 @@
     "test-image-processing": "node scripts/test_image_processing.js",
     "migrate-images": "node scripts/migrate_images_to_r2.js",
     "backfill:bios": "tsx scripts/backfill-vendor-bios.ts",
-    "backfill:bios:dry": "DRY_RUN=true tsx scripts/backfill-vendor-bios.ts"
+    "backfill:bios:dry": "DRY_RUN=true tsx scripts/backfill-vendor-bios.ts",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
+    "ci": "eslint . && tsc --noEmit && vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",
@@ -68,16 +73,24 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@graphql-codegen/cli": "^5.0.5",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^20",
     "@types/react": "^19.2.3",
     "@types/react-dom": "^19.2.3",
     "@types/react-google-recaptcha": "^2.1.9",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9",
     "eslint-config-next": "^16.1.6",
+    "jsdom": "^27.0.1",
+    "msw": "^2.12.10",
     "tsx": "^4.20.3",
     "typescript": "^5",
-    "typescript-eslint": "^8.56.1"
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0"
 }

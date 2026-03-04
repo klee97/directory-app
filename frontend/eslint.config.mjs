@@ -13,7 +13,7 @@ const config =  [
     },
   },
   {
-    ignores: ["**/generated/**", ".next/**"],
+    ignores: ["**/generated/**", ".next/**", "coverage/**"],
   },
 ];
 
