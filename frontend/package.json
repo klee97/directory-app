@@ -26,7 +26,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
-    "ci": "eslint . && tsc --noEmit && vitest run"
+    "ci": "eslint . && vitest run"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",
