@@ -112,7 +112,7 @@ export default function InputWithDebounce({
       debounceTimerRef.current = null;
     }
 
-  setIsTyping(false);
+    setIsTyping(false);
     wasManuallyEnteredRef.current = false;
 
     const clearedValue = '';
@@ -199,7 +199,7 @@ export default function InputWithDebounce({
             </InputAdornment>
           }
           endAdornment={
-            inputValue && (
+            (isTyping ? inputValue : value) && (
               <InputAdornment position="end">
                 <IconButton aria-label="clear input" onClick={handleClear} edge="end" size="small">
                   {withDropdown ? <ClearIcon /> : <ClearRoundedIcon fontSize="small" />}
