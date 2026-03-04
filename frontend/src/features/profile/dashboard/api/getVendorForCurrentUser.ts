@@ -27,7 +27,7 @@ export async function getVendorForCurrentUser(userId: string) {
 
   logEnvironmentInfo();
 
-  const { data, error } = await query.single();
+  const { data, error } = await query.maybeSingle();
 
   if (error || !data?.vendors) {
     console.error('Error fetching vendor:', error);
