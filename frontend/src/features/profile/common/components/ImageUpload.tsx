@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useImperativeHandle, forwardRef, useCallback } from 'react';
+import { useState, useRef, useImperativeHandle, forwardRef, useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -26,15 +26,18 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
   disabled = false,
   admin = false,
 }, ref) => {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Local selection takes priority, then fall back to the prop
+  const previewUrl = localPreviewUrl ?? currentImageUrl ?? null;
 
   // Expose reset method to parent
   useImperativeHandle(ref, () => ({
     reset: () => {
       console.debug("ImageUpload: reset() called");
-      setPreviewUrl(null);
+      setLocalPreviewUrl(null);
       setSelectedFile(null);
       onError(null);
       if (fileInputRef.current) {
@@ -42,14 +45,6 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
       }
     }
   }));
-
-
-  useEffect(() => {
-    console.debug("Current image URL changed:", currentImageUrl);
-    if (currentImageUrl) {
-      setPreviewUrl(currentImageUrl);
-    }
-  }, [currentImageUrl]);
 
   const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     console.debug("Image file selected:", event.target.files);
@@ -73,7 +68,7 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     // Create preview URL
     const reader = new FileReader();
     reader.onload = (e) => {
-      setPreviewUrl(e.target?.result as string);
+      setLocalPreviewUrl(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
@@ -82,11 +77,11 @@ export const ImageUpload = forwardRef<ImageUploadRef, ImageUploadProps>(({
     if (onImageSelect) {
       onImageSelect(file);
     }
-  }, [onImageSelect]);
+  }, [onImageSelect, onError]);
 
   const handleClear = () => {
     setSelectedFile(null);
-    setPreviewUrl(null);
+    setLocalPreviewUrl(null);
     onError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';

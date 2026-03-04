@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { SKILL_PARAM } from "@/lib/constants";
 import { SKILL_FILTER_NAME, trackFilterEvent } from "@/utils/analytics/trackFilterEvents";
 import Accordion from "@mui/material/Accordion";
@@ -19,19 +19,17 @@ export function SkillFilter({ tags, filterMinWidth }:
 
   // Get the selected skills from URL params
   const selectedSkills = useMemo(() => getAllParams(SKILL_PARAM) || [], [getAllParams]);
-  const [skills, setSkills] = useState<boolean[]>(tags.map((skill) => selectedSkills.includes(skill)));
+  const skills = useMemo(
+    () => tags.map((skill) => selectedSkills.includes(skill)),
+    [tags, selectedSkills]
+  );
 
-  useEffect(() => {
-    setSkills(tags.map((skill) => selectedSkills.includes(skill)));
-  }, [selectedSkills, tags]);
-
-  const handleChange = (index: number, skill: string, newState: boolean) => {
-    const newSkills = [...skills];
-    newSkills[index] = newState;
-    setSkills(newSkills);
-
-    const selectedSkills = tags.filter((_, i) => newSkills[i]);
-    setArrayParam(SKILL_PARAM, selectedSkills.length > 0 ? selectedSkills : null);
+  const handleChange = (skill: string, checked: boolean) => {
+    // add or remove skill
+    const newSelectedSkills = checked
+      ? [...selectedSkills, skill]
+      : selectedSkills.filter((s) => s !== skill);
+    setArrayParam(SKILL_PARAM, newSelectedSkills.length > 0 ? newSelectedSkills : null);
 
     trackFilterEvent(SKILL_FILTER_NAME, skill);
   };
@@ -52,7 +50,7 @@ export function SkillFilter({ tags, filterMinWidth }:
             control={
               <Checkbox
                 checked={skills[index]}
-                onChange={(_event, checked) => { handleChange(index, skill, checked) }}
+                onChange={(_event, checked) => { handleChange(skill, checked) }}
                 color="primary"
               />
             }

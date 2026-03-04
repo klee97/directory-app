@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -20,6 +22,8 @@ import Visibility from "@mui/icons-material/Visibility";
 
 export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
   const { addNotification } = useNotification();
+  const router = useRouter();
+  const { refreshSession } = useAuth();
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +47,14 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
       }
 
       addNotification('Logged in successfully!');
-      window.location.href = isVendorLogin ? '/partner/dashboard' : '/';
+      // Refresh client-side auth state so the navbar and other client UI update
+      try {
+        await refreshSession();
+      } catch (e) {
+        console.debug('refreshSession failed after login:', e);
+      }
+      // navigate using next/navigation router
+      router.push(isVendorLogin ? '/partner/dashboard' : '/');
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');

@@ -54,20 +54,21 @@ export default function InputWithDebounce({
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const isTypingRef = useRef(false);
+  const [isTyping, setIsTyping] = useState(false);
   const prevValueRef = useRef(value);
   const resultWasClickedRef = useRef(false);
   const clearWasClickedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const wasManuallyEnteredRef = useRef(true);
 
+
   useEffect(() => {
-    // Sync from parent value only when not typing
-    if (!isTypingRef.current && value !== inputValue) {
-      setInputValue(value);
+    if (!isTyping) {
+      prevValueRef.current = value;
+      // If the value was updated externally, mark that it wasn't manually entered
       wasManuallyEnteredRef.current = false;
     }
-  }, [value, inputValue]);
+  }, [value, isTyping]);
 
   useEffect(() => {
     if (debounceTimerRef.current) {
@@ -75,7 +76,7 @@ export default function InputWithDebounce({
     }
 
     debounceTimerRef.current = setTimeout(() => {
-      isTypingRef.current = false;
+      setIsTyping(false);
 
       if (onDebouncedChange && inputValue !== prevValueRef.current) {
         if (wasManuallyEnteredRef.current) {
@@ -95,7 +96,7 @@ export default function InputWithDebounce({
   }, [inputValue, debounceMs, onDebouncedChange]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    isTypingRef.current = true;
+    setIsTyping(true);
 
     // Always show dropdown when typing, regardless of hasSelected
     setDropdownVisible(true);
@@ -111,7 +112,7 @@ export default function InputWithDebounce({
       debounceTimerRef.current = null;
     }
 
-    isTypingRef.current = false;
+    setIsTyping(false);
     wasManuallyEnteredRef.current = false;
 
     const clearedValue = '';
@@ -150,7 +151,8 @@ export default function InputWithDebounce({
       // Show dropdown on focus if:
       // 1. We don't have a selection, OR
       // 2. The input doesn't match the selection (user is editing)
-      const shouldShowDropdown = !hasSelected || inputValue.trim() === '';
+      const displayedValue = isTyping ? inputValue : value;
+      const shouldShowDropdown = !hasSelected || displayedValue.trim() === '';
       setDropdownVisible(shouldShowDropdown);
     }
   };
@@ -167,7 +169,7 @@ export default function InputWithDebounce({
           size="small"
           inputRef={inputRef}
           placeholder={placeholder}
-          value={inputValue}
+          value={isTyping ? inputValue : value}
           onChange={handleChange}
           onBlur={handleBlur}
           onFocus={handleFocus}
@@ -197,7 +199,7 @@ export default function InputWithDebounce({
             </InputAdornment>
           }
           endAdornment={
-            inputValue && (
+            (isTyping ? inputValue : value) && (
               <InputAdornment position="end">
                 <IconButton aria-label="clear input" onClick={handleClear} edge="end" size="small">
                   {withDropdown ? <ClearIcon /> : <ClearRoundedIcon fontSize="small" />}
@@ -229,6 +231,7 @@ export default function InputWithDebounce({
                     onClick={() => {
                       resultWasClickedRef.current = true;
                       setInputValue(result.display_name);
+                      setIsTyping(false);
                       wasManuallyEnteredRef.current = false;
                       setDropdownVisible(false);
                       onSelect?.(result);

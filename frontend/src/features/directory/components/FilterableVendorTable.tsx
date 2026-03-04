@@ -90,8 +90,12 @@ export function FilterableVendorTableContent({
     onLoadingChange: vendorFiltering.setLoading
   });
 
+  // Pull pagination values into locals to avoid accessing refs during render
+  const { visibleItems, isLoading: paginationIsLoading, observerRef } = pagination;
+
   const handleClearFilters = () => {
     setParams({
+      [SERVICE_PARAM]: null,
       [SKILL_PARAM]: null,
       [TRAVEL_PARAM]: null
     });
@@ -207,7 +211,7 @@ export function FilterableVendorTableContent({
             handleFocus={handleFocus}
             handleBlur={handleBlur}
             focusedCardIndex={focusedCardIndex}
-            vendors={pagination.visibleItems}
+            vendors={visibleItems}
             searchParams={searchParamsString}
             favoriteVendorIds={favoriteVendorIds}
             showFavoriteButton={true}
@@ -225,14 +229,14 @@ export function FilterableVendorTableContent({
           />
 
           {/* Loading Spinner */}
-          {pagination.isLoading || vendorFiltering.loading && (
+          {(paginationIsLoading || vendorFiltering.loading) && (
             <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
               <CircularProgress />
             </Box>
           )}
 
           {/* Intersection observer target */}
-          <div ref={pagination.observerRef} style={{ height: 1 }} />
+          <div ref={observerRef} style={{ height: 1 }} />
         </Box>
       </Box>
     </Box >

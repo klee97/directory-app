@@ -21,7 +21,7 @@ async function getLocationSlugs() {
   return locationSlugsCache;
 }
 
-export default {
+const config = {
   siteUrl: 'https://www.asianweddingmakeup.com',
   generateRobotsTxt: true,
   sitemapSize: 500,
@@ -94,3 +94,5 @@ export default {
     return vendorPages;
   },
 };
+
+export default config;

@@ -10,7 +10,7 @@ export async function applyVendorMediaMutation(
   switch (mutation.operation) {
     case 'create': {
       console.debug("Creating new media for vendor ID:", mutation.vendor_id);
-      const { operation, ...insertPayload } = mutation;
+      const { operation: _operation, ...insertPayload } = mutation;
       return supabase
         .from('vendor_media')
         .insert(insertPayload);
@@ -18,7 +18,7 @@ export async function applyVendorMediaMutation(
 
     case 'update': {
       console.debug("Updating media for vendor ID:", mutation.vendor_id);
-      const { operation, id, ...updatePayload } = mutation;
+      const { operation: _operation, id, ...updatePayload } = mutation;
       return supabase
         .from('vendor_media')
         .update(updatePayload)
@@ -33,9 +33,10 @@ export async function applyVendorMediaMutation(
         .eq('id', mutation.id);
     }
 
-    default:
-      // TypeScript will error here if you ever add a new operation and forget to handle it
-      mutation satisfies never;
-      throw new Error(`Unhandled operation: ${(mutation as any).operation}`);
+    default: {
+      // Ensure exhaustiveness for future operation types
+      const _exhaustiveCheck: never = mutation as never;
+      throw new Error(`Unhandled operation: ${JSON.stringify(mutation)}`);
+    }
   }
 }

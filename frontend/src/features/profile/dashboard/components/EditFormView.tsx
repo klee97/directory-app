@@ -148,9 +148,10 @@ export default function EditFormView({
   };
 
   useEffect(() => {
+    const blobUrl = previousBlobUrlRef.current;
     return () => {
-      if (previousBlobUrlRef.current?.startsWith('blob:')) {
-        URL.revokeObjectURL(previousBlobUrlRef.current);
+      if (blobUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(blobUrl);
       }
     };
   }, []);

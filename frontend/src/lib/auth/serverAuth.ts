@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { shouldIncludeTestVendors } from '../env/env';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function requireAuth() {
   const supabase = await createClient();
@@ -13,7 +14,7 @@ export async function requireAuth() {
   return { user, error: null, supabase };
 }
 
-export async function requireVendorAccess(vendorSlug: string, user: any, supabase: any) {
+export async function requireVendorAccess(vendorSlug: string, user: { id: string }, supabase: SupabaseClient) {
   // Get vendor
   let vendorQuery = supabase
     .from('vendors')

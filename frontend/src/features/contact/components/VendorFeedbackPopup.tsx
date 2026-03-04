@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -33,15 +33,13 @@ export const VendorFeedbackPopup = ({
   trigger,
   onDismiss
 }: VendorFeedbackPopupProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+
+    return trigger && localStorage.getItem(STORAGE_KEY) !== "true";
+  })
   const [comment, setComment] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  useEffect(() => {
-    if (trigger && !localStorage.getItem(STORAGE_KEY)) {
-      setOpen(true);
-    }
-  }, [trigger]);
 
   const handleClose = () => {
     localStorage.setItem(STORAGE_KEY, "true");

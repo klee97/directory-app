@@ -14,7 +14,7 @@ export default function RecentInquiriesCard({ isApproved }: { isApproved: boolea
           {isApproved ? (
             <>
               <Typography variant="body1" gutterBottom>
-                New inquiries are sent directly to your email. You'll be able to manage them here soon.
+                New inquiries are sent directly to your email. You&apos;ll be able to manage them here soon.
               </Typography>
             </>
           ) : (

@@ -64,11 +64,13 @@ export function usePagination<T>({
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading && !loading) {
+        const entry = entries[0];
+        if (entry.isIntersecting && hasMore && !isLoading && !loading) {
           loadMore();
         }
       },
-      { threshold: 1.0 }
+      // make the observer more forgiving so small sentinel elements are detected
+      { threshold: 0, rootMargin: '200px' }
     );
 
     const observerCurrent = observerRef.current;
