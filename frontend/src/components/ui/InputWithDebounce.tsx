@@ -61,9 +61,7 @@ export default function InputWithDebounce({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const wasManuallyEnteredRef = useRef(true);
 
-  // Keep prevValueRef aligned with external prop changes when the user is not
-  // actively typing. We only update a ref here to avoid triggering a render
-  // (which would defeat the purpose of removing the effect that set state).
+
   useEffect(() => {
     if (!isTyping) {
       prevValueRef.current = value;
