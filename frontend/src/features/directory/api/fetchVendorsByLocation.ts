@@ -1,6 +1,7 @@
 "use server";
 import { supabase } from "@/lib/api-client";
 import { shouldIncludeTestVendors } from "@/lib/env/env";
+import { filterTestVendors } from "@/lib/vendor/testVendors";
 import {
   LocationResult,
   SEARCH_RADIUS_MILES_DEFAULT,
@@ -18,13 +19,6 @@ const SEARCH_QUERY = `
 `;
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-function filterTestVendors<T extends { id: string }>(data: T[]): T[] {
-  return shouldIncludeTestVendors()
-    ? data
-    : data.filter((v) => !v.id.startsWith("TEST-"));
-}
-
 function buildVendorQuery() {
   const query = supabase.from("vendors").select(SEARCH_QUERY);
   return shouldIncludeTestVendors() ? query : query.not("id", "like", "TEST-%");
