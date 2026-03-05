@@ -31,7 +31,12 @@ export async function getVendorForCurrentUser(userId: string) {
     return null;
   }
 
-  const vendor = data.vendors[0];
+  const vendor = Array.isArray(data.vendors) ? data.vendors[0] : data.vendors;
+
+  if (!vendor) {
+    console.error('No vendor found for user:', userId);
+    return null;
+  }
 
   if (!shouldIncludeTestVendors() && !data.is_test) {
     if (vendor.id.startsWith('TEST-')) {
