@@ -192,6 +192,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             aria-haspopup="true"
             onClick={handleOpenProfileMenu}
             color="inherit"
+            data-testid="profile-button"
           >
             <AccountCircle />
           </IconButton>
