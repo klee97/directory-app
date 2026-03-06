@@ -265,7 +265,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 onClose={handleCloseNavMenu}
                 sx={{ display: { xs: 'block', md: 'none' } }}
               >
-                {!isVendorNavbar ? pages.map((page) => (
+                {isVendorNavbar ? vendorPages.map((page) => (
                   <MenuItem
                     key={page}
                     onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -277,7 +277,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Typography>
                   </MenuItem>
                 ))
-                  : vendorPages.map((page) => (
+                  : pages.map((page) => (
                     <MenuItem
                       key={page}
                       onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -320,7 +320,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Collapse>
                   </Box>
                 )}
-                {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && !isAuthLoading && (
+                {!isAuthLoading && (
                   <Box sx={{ width: '100%' }}>
                     <Divider />
                     {!isLoggedIn ? (
@@ -379,7 +379,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             </Link>
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {!isVendorNavbar ? pages.map((page) => (
+              {isVendorNavbar ? vendorPages.map((page) => (
                 <Button
                   key={page}
                   onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -387,7 +387,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 >
                   {page}
                 </Button>
-              )) : vendorPages.map((page) => (
+              )) : pages.map((page) => (
                 <Button
                   key={page}
                   onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -455,8 +455,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 </RadioGroup>
               </FormControl>
             )}
-            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
-            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
+            {renderAuthButtons()}
+            {renderProfileMenu()}
           </Toolbar>
         </Container>
         <Snackbar
