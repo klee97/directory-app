@@ -25,7 +25,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { deleteAccount } from "../api/deleteAccount";
 import ChangePasswordDialog from "./ChangePasswordDialog";
@@ -49,19 +49,15 @@ export const UserSettings = ({ userEmail, hasPassword }: UserSettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
-  const supabase = createClient();
+  const { isLoggedIn, isLoading } = useAuth();
 
   const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
 
   useEffect(() => {
-    async function checkLogin() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/login');
-      }
+    if (!isLoading && !isLoggedIn) {
+      router.push('/login');
     }
-    checkLogin();
-  }, [router, supabase.auth]);
+  }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
     if (!hasPasswordState && newPassword !== confirmPassword) {

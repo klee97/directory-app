@@ -44,7 +44,7 @@ const getAccountType = async (email: string): Promise<AccountType | null> => {
   return AccountType.CUSTOMER;
 }
 
-export async function login(formData: FormData, isVendorLogin: boolean) {
+export async function login(formData: FormData) {
   const supabase = await createClient();
 
   const email = formData.get('email') as string;
@@ -55,11 +55,6 @@ export async function login(formData: FormData, isVendorLogin: boolean) {
   }
 
   const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
-
-  if (isVendorAccount !== isVendorLogin) {
-    console.debug('Account type does not match login site type for email:', email);
-    return { error: 'Invalid email or password.' };
-  }
 
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -83,7 +78,7 @@ export async function login(formData: FormData, isVendorLogin: boolean) {
   }
 
   revalidatePath('/', 'layout');
-  return { success: true, session: data.session };
+  return { success: true, session: data.session, isVendorAccount };
 }
 
 export async function signup(formData: FormData) {

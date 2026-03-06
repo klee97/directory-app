@@ -37,7 +37,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
     setIsSubmitting(true);
 
     try {
-      const result = await login(formData, isVendorLogin);
+      const result = await login(formData);
       if (result && result.action === 'verify-email') {
         setVerificationNeeded(true);
         return;
@@ -48,15 +48,29 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
         return;
       }
 
-      addNotification('Logged in successfully!');
       // Refresh client-side auth state so the navbar and other client UI update
       try {
         await refreshSession();
       } catch (e) {
         console.debug('refreshSession failed after login:', e);
       }
-      // navigate using next/navigation router
-      router.push(isVendorLogin ? '/partner/dashboard' : '/');
+
+      const isVendorAccount = result?.isVendorAccount ?? isVendorLogin;
+      let redirectPath: string;
+      let notificationMessage = 'Logged in successfully!';
+
+      if (isVendorAccount && !isVendorLogin) {
+        redirectPath = '/partner/dashboard';
+        notificationMessage = 'Logged in successfully! Redirecting to Vendor Dashboard...';
+      } else if (!isVendorAccount && isVendorLogin) {
+        redirectPath = '/';
+        notificationMessage = 'Logged in successfully! Redirecting to Directory...';
+      } else {
+        redirectPath = isVendorLogin ? '/partner/dashboard' : '/';
+      }
+
+      addNotification(notificationMessage);
+      router.push(redirectPath);
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');

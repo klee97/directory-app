@@ -28,7 +28,7 @@ import Link from "next/link";
 import MuiLink from "@mui/material/Link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
 import { updateEmail } from "../api/updateEmail";
 import { updateInquiryAvailability } from "../api/updateInquiryAvailability";
@@ -66,19 +66,15 @@ export const VendorSettings = ({
   const [isUpdatingInquiry, setIsUpdatingInquiry] = useState(false);
 
   const router = useRouter();
-  const supabase = createClient();
+  const { isLoggedIn, isLoading } = useAuth();
 
   const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
 
   useEffect(() => {
-    async function checkLogin() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/partner/login');
-      }
+    if (!isLoading && !isLoggedIn) {
+      router.push('/partner/login');
     }
-    checkLogin();
-  }, [router, supabase.auth]);
+  }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
     if (!hasPasswordState && newPassword !== confirmPassword) {
