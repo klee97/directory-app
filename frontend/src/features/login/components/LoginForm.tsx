@@ -175,6 +175,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 size="large"
                 disabled={isSubmitting}
                 color={isVendorLogin ? "secondary" : "primary"}
+                data-testid="login-submit"
               >
                 {isSubmitting ? 'Logging in...' : 'Log In'}
               </Button>
