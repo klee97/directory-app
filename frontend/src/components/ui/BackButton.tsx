@@ -30,7 +30,7 @@ export default function BackButton({
       router.back();
     } else {
       const paramsString = searchParams ? searchParams.toString() : "";
-      const fallback = `${fallbackHref}/${paramsString ? `?${paramsString}` : ""}`;
+      const fallback = `${fallbackHref}${paramsString ? `?${paramsString}` : ""}`;
       router.push(fallback);
     }
   };
