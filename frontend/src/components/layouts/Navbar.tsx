@@ -58,7 +58,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     severity: 'success',
   });
 
-  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, isVendor } = useAuth();
+  const isAuthOrRoleLoading = isAuthLoading || isRoleLoading
   const router = useRouter();
 
   const theme = useTheme();
@@ -178,7 +179,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   const renderProfileMenu = () => {
-    if (isAuthLoading) {
+    if (isAuthOrRoleLoading) {
       return null; // Don't show anything while loading
     }
     if (isLoggedIn) {
@@ -210,7 +211,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             onClose={handleCloseProfileMenu}
           >
             <NavigationMenu
-              isVendorNavbar={isVendorNavbar}
+              isVendorUser={isVendor}
               variant="menu"
               onItemClick={handleCloseProfileMenu}
             />
@@ -320,7 +321,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Collapse>
                   </Box>
                 )}
-                {!isAuthLoading && (
+                {!isAuthOrRoleLoading && (
                   <Box sx={{ width: '100%' }}>
                     <Divider />
                     {!isLoggedIn ? (
@@ -331,7 +332,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                       </MenuItem>
                     ) : (
                       <NavigationMenu
-                        isVendorNavbar={isVendorNavbar}
+                        isVendorUser={isVendor}
                         variant="menu"
                         onItemClick={handleCloseNavMenu}
                       />

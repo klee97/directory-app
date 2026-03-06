@@ -62,13 +62,13 @@ const navigationOptions: NavigationOption[] = [
 ];
 
 interface NavigationMenuProps {
-  isVendorNavbar: boolean;
+  isVendorUser: boolean;
   variant?: 'menu' | 'list';
   onItemClick?: () => void;
 }
 
 export default function NavigationMenu({
-  isVendorNavbar,
+  isVendorUser,
   variant = 'menu',
   onItemClick,
 }: NavigationMenuProps) {
@@ -77,7 +77,7 @@ export default function NavigationMenu({
   const router = useRouter();
 
   const filteredOptions = navigationOptions.filter(option => {
-    if (isVendorNavbar) {
+    if (isVendorUser) {
       return option.showForVendor;
     }
     return option.showForPublic;
@@ -91,7 +91,7 @@ export default function NavigationMenu({
     if (option.action === 'signout') {
       try {
         await supabase.auth.signOut();
-        const path = isVendorNavbar
+        const path = isVendorUser
           ? '/partner'
           : '/';
         window.location.assign(path); // use assign to force reload
@@ -101,7 +101,7 @@ export default function NavigationMenu({
         addNotification('Failed to log out', 'error');
       }
     } else if (option.path) {
-      const path = option.id === 'settings' && isVendorNavbar
+      const path = option.id === 'settings' && isVendorUser
         ? '/partner/settings'
         : option.path;
       router.push(path);
