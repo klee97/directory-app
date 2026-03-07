@@ -54,8 +54,6 @@ export async function login(formData: FormData) {
     return { error: 'Email and password are required' };
   }
 
-  const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
-
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -76,6 +74,14 @@ export async function login(formData: FormData) {
         return { error: error.message };
     }
   }
+
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('vendor_id, role')
+    .eq('id', data.user.id)
+    .single();
+
+  const isVendorAccount = !!(profile?.vendor_id && profile?.role === 'vendor');
 
   revalidatePath('/', 'layout');
   return { success: true, session: data.session, isVendorAccount };
