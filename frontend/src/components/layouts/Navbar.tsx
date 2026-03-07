@@ -58,7 +58,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     severity: 'success',
   });
 
-  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, isVendor } = useAuth();
+  const isAuthOrRoleLoading = isAuthLoading || isRoleLoading
   const router = useRouter();
 
   const theme = useTheme();
@@ -178,7 +179,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   const renderProfileMenu = () => {
-    if (isAuthLoading) {
+    if (isAuthOrRoleLoading) {
       return null; // Don't show anything while loading
     }
     if (isLoggedIn) {
@@ -210,7 +211,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             onClose={handleCloseProfileMenu}
           >
             <NavigationMenu
-              isVendorNavbar={isVendorNavbar}
+              isVendorUser={isVendor}
               variant="menu"
               onItemClick={handleCloseProfileMenu}
             />
@@ -265,7 +266,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 onClose={handleCloseNavMenu}
                 sx={{ display: { xs: 'block', md: 'none' } }}
               >
-                {!isVendorNavbar ? pages.map((page) => (
+                {isVendorNavbar ? vendorPages.map((page) => (
                   <MenuItem
                     key={page}
                     onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -277,7 +278,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Typography>
                   </MenuItem>
                 ))
-                  : vendorPages.map((page) => (
+                  : pages.map((page) => (
                     <MenuItem
                       key={page}
                       onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -320,7 +321,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Collapse>
                   </Box>
                 )}
-                {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && !isAuthLoading && (
+                {!isAuthOrRoleLoading && (
                   <Box sx={{ width: '100%' }}>
                     <Divider />
                     {!isLoggedIn ? (
@@ -331,7 +332,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                       </MenuItem>
                     ) : (
                       <NavigationMenu
-                        isVendorNavbar={isVendorNavbar}
+                        isVendorUser={isVendor}
                         variant="menu"
                         onItemClick={handleCloseNavMenu}
                       />
@@ -379,7 +380,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             </Link>
 
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {!isVendorNavbar ? pages.map((page) => (
+              {isVendorNavbar ? vendorPages.map((page) => (
                 <Button
                   key={page}
                   onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -387,7 +388,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 >
                   {page}
                 </Button>
-              )) : vendorPages.map((page) => (
+              )) : pages.map((page) => (
                 <Button
                   key={page}
                   onClick={(e) => handleMenuLinkClick(e, `/${page.toLowerCase()}`)}
@@ -455,8 +456,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 </RadioGroup>
               </FormControl>
             )}
-            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderAuthButtons()}
-            {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true' && renderProfileMenu()}
+            {renderAuthButtons()}
+            {renderProfileMenu()}
           </Toolbar>
         </Container>
         <Snackbar

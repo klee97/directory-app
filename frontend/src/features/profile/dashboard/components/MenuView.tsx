@@ -103,7 +103,7 @@ export default function MenuView({
         <>
           <Divider />
           <List sx={{ py: 1 }}>
-            <NavigationMenu isVendorNavbar={true} variant="list" />
+            <NavigationMenu isVendorUser={true} variant="list" />
           </List>
         </>
       )}

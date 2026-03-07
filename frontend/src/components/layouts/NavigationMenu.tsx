@@ -9,12 +9,14 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import Box from '@mui/material/Box';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { createClient } from '@/lib/supabase/client';
 import { useNotification } from '@/contexts/NotificationContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavigationOption {
   id: string;
@@ -38,7 +40,7 @@ const navigationOptions: NavigationOption[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
-    icon: <DashboardIcon fontSize="small" />,
+    icon: <ViewListIcon fontSize="small" />,
     path: '/partner/dashboard',
     showForVendor: true,
     showForPublic: false,
@@ -62,22 +64,23 @@ const navigationOptions: NavigationOption[] = [
 ];
 
 interface NavigationMenuProps {
-  isVendorNavbar: boolean;
+  isVendorUser: boolean;
   variant?: 'menu' | 'list';
   onItemClick?: () => void;
 }
 
 export default function NavigationMenu({
-  isVendorNavbar,
+  isVendorUser,
   variant = 'menu',
   onItemClick,
 }: NavigationMenuProps) {
   const { addNotification } = useNotification();
+  const { user } = useAuth();
   const supabase = createClient();
   const router = useRouter();
 
   const filteredOptions = navigationOptions.filter(option => {
-    if (isVendorNavbar) {
+    if (isVendorUser) {
       return option.showForVendor;
     }
     return option.showForPublic;
@@ -91,7 +94,7 @@ export default function NavigationMenu({
     if (option.action === 'signout') {
       try {
         await supabase.auth.signOut();
-        const path = isVendorNavbar
+        const path = isVendorUser
           ? '/partner'
           : '/';
         window.location.assign(path); // use assign to force reload
@@ -101,7 +104,7 @@ export default function NavigationMenu({
         addNotification('Failed to log out', 'error');
       }
     } else if (option.path) {
-      const path = option.id === 'settings' && isVendorNavbar
+      const path = option.id === 'settings' && isVendorUser
         ? '/partner/settings'
         : option.path;
       router.push(path);
@@ -140,6 +143,21 @@ export default function NavigationMenu({
 
   return (
     <>
+      <Box sx={{ px: 2, py: .5, paddingBottom: 1.5 }}>
+        <Typography
+          variant="body2"
+          color={isVendorUser ? "secondary" : "primary"}
+          sx={{ fontWeight: 700, letterSpacing: '.1rem', lineHeight: 2 }}
+        >
+          {isVendorUser ? 'VENDOR ACCOUNT' : 'MY ACCOUNT'}
+        </Typography>
+        {user?.email && (
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {user.email}
+          </Typography>
+        )}
+      </Box>
+      <Divider />
       {otherOptions.map((option) => (
         <MenuItem key={option.id} onClick={() => handleNavigationClick(option)}>
           <ListItemIcon>
@@ -156,11 +174,13 @@ export default function NavigationMenu({
         <>
           <Divider />
           <MenuItem onClick={() => handleNavigationClick(signOutOption)}>
-            <ListItemIcon>
+            <ListItemIcon color={isVendorUser ? "secondary" : "primary"}>
               {signOutOption.icon}
             </ListItemIcon>
             <ListItemText>
-              <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
+              <Typography
+                color={isVendorUser ? "secondary" : "primary"}
+                sx={{ textDecoration: 'none' }}>
                 {signOutOption.label}
               </Typography>
             </ListItemText>

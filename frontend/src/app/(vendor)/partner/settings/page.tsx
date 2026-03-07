@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
-import { Settings } from '@/features/settings/components/Settings';
+import { VendorSettings } from '@/features/settings/components/VendorSettings';
 
 export default async function VendorSettingsPage() {
   // Check authentication
@@ -22,5 +22,5 @@ export default async function VendorSettingsPage() {
     redirect('/partner/login?redirect=/partner/settings');
   }
 
-  return <Settings isVendorSettings={true} userEmail={currentUser.email} hasPassword={currentUser.has_password} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
+  return <VendorSettings userEmail={currentUser.email} hasPassword={currentUser.has_password} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
 }
