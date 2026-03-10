@@ -5,12 +5,14 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
 enum EmailType {
+  EMAIL = 'email',
   RECOVERY = 'recovery',
   EMAIL_CHANGE = 'email_change',
   UNKNOWN = 'unknown',
 }
 
 const successMessage = {
+  [EmailType.EMAIL]: 'Email verified successfully!',
   [EmailType.RECOVERY]: 'Password recovery code successfully verified!',
   [EmailType.EMAIL_CHANGE]: 'Email change successfully verified!',
   [EmailType.UNKNOWN]: 'Verification successful!',
