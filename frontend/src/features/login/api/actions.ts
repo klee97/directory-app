@@ -110,7 +110,7 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
-      emailRedirectTo: `${getBaseUrl()}/auth/callback`,
+      emailRedirectTo: `${getBaseUrl()}/`,
     },
   });
 
