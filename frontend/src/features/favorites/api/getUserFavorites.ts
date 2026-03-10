@@ -1,19 +1,21 @@
+'use server';
+
 import { getCachedVendors } from '@/lib/vendor/fetchVendors';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/server';
 import { Vendor, VendorId } from "@/types/vendor";
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
-  const supabase = createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
     return [];
   }
 
   const { data: favorites } = await supabase
     .from('user_favorites')
     .select('vendor_id')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .eq('is_favorited', true);
 
   return favorites?.map(f => f.vendor_id) ?? [];
@@ -33,7 +35,7 @@ export async function getFavoriteVendors(): Promise<Vendor[]> {
       // Sort by the order of appearance in the favoriteVendorIds set
       const vendorA = a.business_name ?? "";
       const vendorB = b.business_name ?? "";
-      return vendorA.localeCompare(vendorB) // Fallback to alphabetical order if needed  
+      return vendorA.localeCompare(vendorB) // Fallback to alphabetical order if needed
     })
     .map(vendor => ({
       ...vendor

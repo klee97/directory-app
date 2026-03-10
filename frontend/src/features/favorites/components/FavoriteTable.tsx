@@ -20,7 +20,7 @@ export default function FavoriteTable({ favoriteVendors }: {
     <div>
       <VendorGrid
         vendors={favoriteVendors}
-        searchParams=''
+        searchParams='back=/favorites'
         handleBlur={handleBlur}
         handleFocus={handleFocus}
         focusedCardIndex={focusedCardIndex}

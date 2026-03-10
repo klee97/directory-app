@@ -29,6 +29,11 @@ export default function BackButton({
     if (canGoBack) {
       router.back();
     } else {
+      const backParam = searchParams?.get('back');
+      if (backParam) {
+        router.push(backParam);
+        return;
+      }
       const paramsString = searchParams ? searchParams.toString() : "";
       const fallback = `${fallbackHref}${paramsString ? `?${paramsString}` : ""}`;
       router.push(fallback);
