@@ -16,21 +16,67 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Local Testing with Supabase
 
-To learn more about Next.js, take a look at the following resources:
+E2E and integration tests use a local instance of Supabase. These tests will be triggered as Github Actions for PRs.
+Follow this section to run these tests locally.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running
+- Node.js 20+
 
-## Deploy on Vercel
+### First-time setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Install dependencies (Supabase CLI is included):
+```bash
+   npm install
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. Start the local Supabase stack:
+```bash
+   npm run supabase:start
+```
+   This starts a local Supabase instance at `http://127.0.0.1:54321` and Supabase Studio at `http://localhost:54323`.
+
+3. Copy the environment file and fill in the local credentials:
+```bash
+   cp .env.test.example .env.test
+```
+   The `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are already set to local defaults. You can confirm the anon key by running `npx supabase status`.
+
+4. Seed the database:
+```bash
+   npm run supabase:reset
+```
+   This runs all migrations and seeds the database with a test user.
+
+### Running E2E tests
+
+Make sure Docker Desktop is running and the local Supabase stack is started, then:
+```bash
+npm run test:e2e
+```
+
+### Useful commands
+
+| Command | Description |
+|---|---|
+| `npm run supabase:start` | Start local Supabase stack |
+| `npm run supabase:stop` | Stop local Supabase stack |
+| `npm run supabase:reset` | Reset DB — re-runs migrations + seed |
+| `npx supabase status` | View local URLs and credentials |
+
+### Test credentials
+
+| Field | Value |
+|---|---|
+| Email | `test-user@example.com` |
+| Password | `testpassword123!` |
+
+### Stopping the local stack
+```bash
+npm run supabase:stop
+```
