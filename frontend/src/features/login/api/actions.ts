@@ -75,7 +75,7 @@ export async function login(formData: FormData) {
     }
   }
 
-  const { data: profile } = await supabaseAdmin
+  const { data: profile } = await supabase
     .from('profiles')
     .select('vendor_id, role')
     .eq('id', data.user.id)
