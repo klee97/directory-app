@@ -51,7 +51,16 @@ export default defineConfig({
     navigationTimeout: 30_000,
   },
 
+  globalSetup: './e2e/fixtures/global.setup.ts',
+
   projects: [
+    // -----------------------------------------------------------------
+    // Supabase setup — resets local DB and re-seeds before any tests run
+    // -----------------------------------------------------------------
+    {
+      name: 'supabase-setup',
+      testMatch: '**/e2e/fixtures/supabase.setup.ts',
+    },
     // -----------------------------------------------------------------
     // Auth setup — runs once, logs in via Supabase, saves session cookie
     // so authenticated tests don't repeat the login flow every time.
@@ -59,6 +68,7 @@ export default defineConfig({
     {
       name: 'auth-setup',
       testMatch: '**/e2e/fixtures/auth.setup.ts',
+      dependencies: ['supabase-setup'],
     },
 
     // -----------------------------------------------------------------
@@ -80,6 +90,7 @@ export default defineConfig({
     {
       name: 'chromium:public',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.public.spec.ts',
     },
   ],

@@ -28,7 +28,12 @@ setup('authenticate via Supabase', async ({ page }) => {
   // Fill in credentials — update selectors to match your login form
   await page.getByLabel('Email Address').fill(email);
   await page.getByLabel('Password').fill(password);
-  await page.getByTestId('login-submit').click();
+  const submitButton = page.getByTestId('login-submit');
+  await expect(submitButton).toBeEnabled();
+  await submitButton.click();
+
+  // Wait for redirect away from login page after successful auth
+  await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 10_000 });
 
   // Sanity check — assert something only visible when logged in
   await expect(page.getByTestId('profile-button')).toBeVisible();

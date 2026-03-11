@@ -58,6 +58,13 @@ jobs:
 
       - run: npm ci
 
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: npx supabase start
       # Install Chromium only — matches your playwright.config.ts
       - run: npx playwright install chromium --with-deps
 
@@ -67,14 +74,14 @@ jobs:
           CI: true
           # App env vars — mirror these from your Vercel project into GitHub Actions secrets:
           # Settings → Secrets and variables → Actions → New repository secret
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_LOCAL_ANON_KEY }}
           # Add any other required vars here, e.g:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 
           # Test credentials — dedicated Supabase test account
-          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
-          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+          TEST_USER_EMAIL: test-user@example.com
+          TEST_USER_PASSWORD: testpassword123!
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI
@@ -85,3 +92,8 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 7
+
+      # Stop local Supabase
+      - name: Stop local Supabase
+        if: always()
+        run: npx supabase stop
