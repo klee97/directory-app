@@ -10,6 +10,10 @@ import { test as setup } from '@playwright/test';
 import { execSync } from 'child_process';
 
 setup('reset local supabase db', async () => {
+  if (process.env.CI === 'true') {
+    console.log('CI detected — skipping db reset (handled by workflow)');
+    return;
+  }
   execSync('npx supabase db reset', { stdio: 'inherit' });
 });
 
