@@ -65,6 +65,21 @@ jobs:
 
       - name: Start local Supabase
         run: npx supabase start
+
+      - name: Wait for Supabase to be ready
+        run: |
+          echo "Waiting for Supabase storage to be ready..."
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:54321/rest/v1/ > /dev/null 2>&1; then
+              echo "Supabase ready!"
+              exit 0
+            fi
+            echo "Attempt $i/30 - waiting..."
+            sleep 2
+          done
+          echo "Supabase failed to start in time"
+          exit 1
+
       # Install Chromium only — matches your playwright.config.ts
       - run: npx playwright install chromium --with-deps
 
