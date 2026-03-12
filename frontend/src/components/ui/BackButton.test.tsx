@@ -88,22 +88,6 @@ describe("BackButton", () => {
     });
   });
 
-  describe("when there is no referrer and a 'back' param exists", () => {
-    beforeEach(() => {
-      mockUseSearchParams.mockReturnValue(new URLSearchParams("back=/favorites"));
-    });
-
-    it("navigates to the 'back' param path", async () => {
-      const user = userEvent.setup();
-      render(<BackButton />);
-
-      await user.click(screen.getByRole("button", { name: /back/i }));
-
-      expect(mockPush).toHaveBeenCalledWith("/favorites");
-      expect(mockBack).not.toHaveBeenCalled();
-    });
-  });
-
   describe("when there is no referrer and search params exist", () => {
     beforeEach(() => {
       mockUseSearchParams.mockReturnValue(
