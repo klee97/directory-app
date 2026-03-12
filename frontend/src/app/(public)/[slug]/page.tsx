@@ -15,6 +15,10 @@ interface LocationPageProps {
 
 // Generate static params for locations with artists
 export async function generateStaticParams() {
+
+  // skip static generation in test
+  if (process.env.NODE_ENV === 'test') return [];
+
   const { data: slugs, error } = await supabase
     .from('location_slugs')
     .select(`

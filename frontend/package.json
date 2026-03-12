@@ -25,10 +25,14 @@
     "migrate-images": "node scripts/migrate_images_to_r2.js",
     "backfill:bios": "tsx scripts/backfill-vendor-bios.ts",
     "backfill:bios:dry": "DRY_RUN=true tsx scripts/backfill-vendor-bios.ts",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui",
+    "test:unit": "vitest",
+    "test:unit:run": "vitest run",
+    "test:unit:coverage": "vitest run --coverage",
+    "test:unit:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:report": "playwright show-report",
+    "test:all": "vitest run && playwright test",
     "ci": "eslint . && vitest run"
   },
   "dependencies": {
@@ -76,6 +80,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@graphql-codegen/cli": "^5.0.5",
+    "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

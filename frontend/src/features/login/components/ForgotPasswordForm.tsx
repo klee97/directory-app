@@ -10,7 +10,7 @@ import Container from "@mui/material/Container";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { useNotification } from "@/contexts/NotificationContext";
-import { requestPasswordReset } from "@/features/login/api/actions";
+import { requestPasswordReset } from "@/features/login/api/adminActions";
 
 interface ForgotPasswordFormProps {
   isVendorSite?: boolean;

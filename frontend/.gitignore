@@ -49,3 +49,12 @@ supabase/logs/
 supabase/.branches/
 supabase/.env
 supabase/volumes/
+
+# Tests
+.env.test
+e2e/fixtures/.auth/
+playwright-report/
+test-results/
+
+# But allow example files
+!.env.test.example
