@@ -12,7 +12,7 @@ import Link from "@mui/material/Link";
 import Alert from "@mui/material/Alert";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
-import { signup } from "../api/adminActions";
+import { signup } from "@/features/login/api/adminActions";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
 import InputAdornment from "@mui/material/InputAdornment";

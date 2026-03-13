@@ -2,7 +2,7 @@ import useResolvedLocation from "@/features/directory/hooks/useResolvedLocation"
 import { useCallback, useMemo, useState } from "react";
 import { useLocationSearch } from "./useLocationSearch";
 import { LocationResult } from "@/types/location";
-import reverseGeocodeCache, { createGeocodeKey } from "../components/reverseGeocodeCache";
+import reverseGeocodeCache, { createGeocodeKey } from "@/features/directory/components/reverseGeocodeCache";
 import { serializeLocation } from "@/lib/location/serializer";
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
 import { useRouter } from "next/navigation";

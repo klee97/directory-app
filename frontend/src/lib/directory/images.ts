@@ -1,6 +1,6 @@
 import { BackendVendor } from "@/types/vendor";
 import { VendorMedia } from "@/types/vendorMedia";
-import { isAllowedPrefix } from "../images/prefixes";
+import { isAllowedPrefix } from "@/lib/images/prefixes";
 
 const URL_MIGRATION_MAP = new Map([
   // [

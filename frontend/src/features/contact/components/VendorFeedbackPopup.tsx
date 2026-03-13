@@ -8,7 +8,7 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import { submitVendorFeedback } from "../api/airtable";
+import { submitVendorFeedback } from "@/features/contact/api/airtable";
 
 
 interface VendorFeedbackPopupProps {

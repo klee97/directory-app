@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
-import { submitNewsletterForm } from "../api/submitForm";
+import { submitNewsletterForm } from "@/features/contact/api/submitForm";
 
 export function NewsletterForm() {
   const [formData, setFormData] = useState({

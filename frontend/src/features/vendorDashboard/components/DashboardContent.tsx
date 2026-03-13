@@ -13,7 +13,7 @@ import PhotoPromptBanner from "@/components/ui/banners/PhotoPromptBanner";
 import BadgeToolkitCard from "./cards/BadgeToolkitCard";
 import PremiumWaitlistCard from "./cards/PremiumCard";
 import PhotoReviewCard from "./cards/PhotoReviewCard";
-import { updateMediaConsent } from "../actions/mediaActions";
+import { updateMediaConsent } from "@/features/vendorDashboard/actions/mediaActions";
 import { useNotification } from "@/contexts/NotificationContext";
 
 interface DashboardContentProps {

@@ -1,7 +1,7 @@
 "use server";
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
-import { prepareVendorData } from "../../admin/util/vendorHelper";
+import { prepareVendorData } from "@/features/profile/admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 

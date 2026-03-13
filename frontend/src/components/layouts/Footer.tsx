@@ -4,7 +4,7 @@ import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { CallToAction } from "./CallToAction";
-import KoFiButton from "../ui/KoFiButton";
+import KoFiButton from "@/components/ui/KoFiButton";
 
 export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
   return (

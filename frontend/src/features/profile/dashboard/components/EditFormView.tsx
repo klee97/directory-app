@@ -24,7 +24,7 @@ import { Section, ValidationResult } from './Section';
 import InputAdornment from '@mui/material/InputAdornment/InputAdornment';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import CircularProgress from '@mui/material/CircularProgress';
-import { useImageUploadField } from '../../common/hooks/useImageUploadField';
+import { useImageUploadField } from '@/features/profile/common/hooks/useImageUploadField';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
 import { VendorMediaDraft, VendorMediaForm } from '@/types/vendorMedia';

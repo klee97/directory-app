@@ -29,9 +29,9 @@ import MuiLink from "@mui/material/Link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
-import { updateEmail } from "../api/updateEmail";
-import { updateInquiryAvailability } from "../api/updateInquiryAvailability";
+import { updatePassword, updatePasswordAfterReset } from "@/features/settings/api/updatePassword";
+import { updateEmail } from "@/features/settings/api/updateEmail";
+import { updateInquiryAvailability } from "@/features/settings/api/updateInquiryAvailability";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 

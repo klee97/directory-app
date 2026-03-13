@@ -2,7 +2,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { VendorMediaForm } from "@/types/vendorMedia";
-import { prepareVendorData, VendorDataInput } from "../../admin/util/vendorHelper";
+import { prepareVendorData, VendorDataInput } from "@/features/profile/admin/util/vendorHelper";
 import { updateHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 import { revalidateVendor } from "@/lib/actions/revalidate";

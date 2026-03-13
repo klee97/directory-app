@@ -6,7 +6,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
-import { submitForm } from "../api/submitForm";
+import { submitForm } from "@/features/contact/api/submitForm";
 
 export function EmailForm() {
   const [formData, setFormData] = useState({

@@ -1,4 +1,4 @@
-import { shouldIncludeTestVendors } from "../env/env";
+import { shouldIncludeTestVendors } from "@/lib/env/env";
 
 export function filterTestVendors<T extends { id: string }>(data: T[]): T[] {
   return shouldIncludeTestVendors()

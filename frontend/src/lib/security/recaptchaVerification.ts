@@ -1,4 +1,4 @@
-import { isDevOrPreview } from "../env/env";
+import { isDevOrPreview } from "@/lib/env/env";
 
 // Function to verify reCAPTCHA token with Google
 export async function verifyRecaptchaToken(token: string) {

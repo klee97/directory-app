@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid2';
 import { BackendVendorRecommendationInsert } from '@/types/vendor';
-import { createRecommendation } from '../api/createRecommendation';
+import { createRecommendation } from '@/features/recommendations/api/createRecommendation';
 import { useNotification } from '@/contexts/NotificationContext';
 import ReCaptcha, { ReCaptchaRef } from '@/components/security/ReCaptcha';
 
