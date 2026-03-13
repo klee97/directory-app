@@ -19,7 +19,7 @@ type AuthContextType = {
   isRoleLoading: boolean;
 };
 
-type UserRole = 'user' | 'vendor' | 'admin' | null;
+export type UserRole = 'user' | 'vendor' | 'admin' | null;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
