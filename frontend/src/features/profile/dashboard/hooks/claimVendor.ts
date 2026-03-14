@@ -1,6 +1,7 @@
 "use server";
 
 import { supabaseAdmin } from '@/lib/admin-client';
+import { UserRole } from '@/lib/auth/userRole';
 
 export async function claimVendor(accessToken: string, userId: string) {
 
@@ -49,7 +50,7 @@ export async function claimVendor(accessToken: string, userId: string) {
     .from('profiles')
     .update({
       vendor_id: vendor.id,
-      role: 'vendor'
+      role: UserRole.VENDOR
     })
     .eq('id', user.id);
 

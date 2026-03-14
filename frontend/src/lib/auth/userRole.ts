@@ -11,13 +11,13 @@ type ProfileFields = {
 };
 
 export function getUserRole(profile: ProfileFields | null | undefined): UserRole {
-  if (profile?.vendor_id && profile?.role === 'vendor') {
+  if (profile?.vendor_id && profile?.role === UserRole.VENDOR) {
     return UserRole.VENDOR;
   }
-  if (profile?.role === 'admin') {
+  if (profile?.role === UserRole.ADMIN) {
     return UserRole.ADMIN;
   }
-  if (profile?.role === 'user') {
+  if (profile?.role === UserRole.USER) { // map 'user' to 'customer'
     return UserRole.CUSTOMER;
   }
   return UserRole.USER;
