@@ -3,11 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { createClient } from '@/lib/supabase/server';
-
-export enum AccountType {
-  VENDOR = 'vendor',
-  CUSTOMER = 'customer'
-}
+import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -46,7 +42,7 @@ export async function login(formData: FormData) {
     .eq('id', data.user.id)
     .single();
 
-  const isVendorAccount = !!(profile?.vendor_id && profile?.role === 'vendor');
+  const isVendorAccount = getUserRole(profile) === UserRole.VENDOR;
 
   revalidatePath('/', 'layout');
   return { success: true, session: data.session, isVendorAccount };

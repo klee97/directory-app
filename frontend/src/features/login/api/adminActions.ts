@@ -5,9 +5,9 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/admin-client';
 import { getBaseUrl } from '@/lib/env/env';
-import { AccountType } from './actions';
+import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
-const getAccountType = async (email: string): Promise<AccountType | null> => {
+const getAccountType = async (email: string): Promise<UserRole | null> => {
   const { data: userId, error } = await supabaseAdmin
     .rpc("get_user_id_by_email",
       {
@@ -34,10 +34,7 @@ const getAccountType = async (email: string): Promise<AccountType | null> => {
     return null;
   }
 
-  if (profile?.vendor_id && profile?.role === 'vendor') {
-    return AccountType.VENDOR;
-  }
-  return AccountType.CUSTOMER;
+  return getUserRole(profile)
 }
 
 export async function signup(formData: FormData) {
@@ -94,11 +91,12 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
   }
 
   try {
-    const isVendorAccount = await getAccountType(email) === AccountType.VENDOR;
+    const userRole = await getAccountType(email);
+    const isVendorAccount = userRole === UserRole.VENDOR;
 
     // Only send reset email if account type matches the site type
     if (isVendorAccount === isVendorSite) {
-      console.debug(`Sending password reset email for ${isVendorAccount ? 'vendor' : 'customer'}:`, email);
+      console.debug(`Sending password reset email for ${userRole}`, email);
       const redirectToUrl = isVendorAccount
         ? `${getBaseUrl()}/partner/auth/reset-password`
         : `${getBaseUrl()}/auth/reset-password`;

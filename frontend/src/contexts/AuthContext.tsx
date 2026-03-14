@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
+import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 type AuthContextType = {
   user: User | null;
@@ -19,15 +20,13 @@ type AuthContextType = {
   isRoleLoading: boolean;
 };
 
-export type UserRole = 'user' | 'vendor' | 'admin' | null;
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [role, setRole] = useState<UserRole>(null);
+  const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isRoleLoading, setIsRoleLoading] = useState(true);
   const supabase = createClient();
@@ -36,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkUserRole = async () => {
       if (!user) {
-        setRole(null);
+        setRole(UserRole.USER);
         setVendorId(null);
         setIsRoleLoading(false);
         return;
@@ -54,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setVendorId(profile?.vendor_id || null);
       } catch (error) {
         console.error('Error checking user role:', error);
-        setRole(null);
+        setRole(UserRole.USER);
         setVendorId(null);
       } finally {
         setIsRoleLoading(false);
@@ -91,9 +90,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase,
     refreshSession,
     role,
-    isVendor: role === 'vendor',
-    isUser: role === 'user',
-    isAdmin: role === 'admin',
+    isVendor: getUserRole({ vendor_id: vendorId, role }) === UserRole.VENDOR,
+    isUser: getUserRole({ vendor_id: vendorId, role }) === UserRole.CUSTOMER,
+    isAdmin: getUserRole({ vendor_id: vendorId, role }) === UserRole.ADMIN,
     vendorId,
     isRoleLoading,
   };
