@@ -13,7 +13,7 @@ import Stack from "@mui/material/Stack";
 import Link from "@mui/material/Link";
 import Alert from "@mui/material/Alert";
 import NextLink from "next/link";
-import { login } from "../api/actions";
+import { login } from "@/features/login/api/actions";
 import { useNotification } from "@/contexts/NotificationContext";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";

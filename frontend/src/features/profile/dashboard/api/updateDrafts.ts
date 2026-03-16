@@ -3,7 +3,7 @@ import { VendorDraft } from '@/types/vendorDraft';
 import { createClient } from '@/lib/supabase/server';
 import { VendorFormData } from '@/types/vendorFormData';
 import { formDataToDraft } from '@/lib/profile/formToDraftTranslator';
-import { updateVendor } from '../../common/api/updateVendor';
+import { updateVendor } from '@/features/profile/common/api/updateVendor';
 import { draftToVendorInput } from '@/lib/profile/draftToVendorInputTranslator';
 
 

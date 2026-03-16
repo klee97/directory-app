@@ -6,7 +6,7 @@ import LoginPrompt from '@/features/login/components/LoginPrompt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import IconButton from '@mui/material/IconButton';
-import { upsertUserFavorite } from '../api/upsertUserFavorite';
+import { upsertUserFavorite } from '@/features/favorites/api/upsertUserFavorite';
 
 type FavoriteButtonProps = {
   vendorId: string;

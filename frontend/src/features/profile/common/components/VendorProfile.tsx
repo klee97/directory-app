@@ -33,7 +33,7 @@ import Image from 'next/image';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
-import { getDefaultBio } from '../utils/bio';
+import { getDefaultBio } from '@/features/profile/common/utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';

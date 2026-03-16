@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/api-client";
-import { FeedbackRating } from "../components/FeedbackPopup";
+import { FeedbackRating } from "@/features/contact/components/FeedbackPopup";
 
 export const submitFeedback = async (rating: FeedbackRating | null, comment?: string) => {
   const { data, error } = await supabase.from("feedback").insert([

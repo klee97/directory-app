@@ -10,7 +10,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import CloseIcon from '@mui/icons-material/Close';
-import { submitFeedback } from '../api/submitFeedback';
+import { submitFeedback } from '@/features/contact/api/submitFeedback';
 
 export enum FeedbackRating {
   Sad = 1,

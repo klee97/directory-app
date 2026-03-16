@@ -1,6 +1,6 @@
 import Avatar from '@/components/ui/Avatar'
 import ContentfulImage from '@/components/ui/ContentfulImage'
-import { PageBlogPost } from '../api/getBlogPosts'
+import { PageBlogPost } from '@/features/blog/api/getBlogPosts'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { renderCaption } from '@/components/ui/RichText'

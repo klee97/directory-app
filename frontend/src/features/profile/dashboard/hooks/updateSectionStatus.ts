@@ -1,7 +1,7 @@
 "use client";
 import { VendorFormData } from "@/types/vendorFormData";
 import { useMemo } from "react";
-import { Section } from "../components/Section";
+import { Section } from "@/features/profile/dashboard/components/Section";
 
 export function useSectionCompletion(
   sections: Section[],

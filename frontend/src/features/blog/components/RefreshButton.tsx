@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Button from '@mui/material/Button';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CircularProgress from '@mui/material/CircularProgress';
-import { revalidateBlog } from '../../../lib/actions/revalidate';
+import { revalidateBlog } from '@/lib/actions/revalidate';
 
 export function RefreshButton() {
   const [isRefreshing, setIsRefreshing] = useState(false);

@@ -1,4 +1,4 @@
-import { supabase } from "../api-client";
+import { supabase } from "@/lib/api-client";
 
 let cachedSlugs: Set<string> | null = null;
 

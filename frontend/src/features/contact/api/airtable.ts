@@ -1,6 +1,6 @@
 "use server";
 import { getLeadsTable, getPartialLeadsTable, getVendorFeedbackTable, getVendorsTable } from '@/lib/airtable/constants';
-import { FormData, PartialLead } from '../components/LeadCaptureForm';
+import { FormData, PartialLead } from '@/features/contact/components/LeadCaptureForm';
 
 interface VendorInfo {
   name: string;

@@ -1,5 +1,5 @@
 import ContentfulImage from '@/components/ui/ContentfulImage'
-import { PageBlogPost } from '../api/getBlogPosts'
+import { PageBlogPost } from '@/features/blog/api/getBlogPosts'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 

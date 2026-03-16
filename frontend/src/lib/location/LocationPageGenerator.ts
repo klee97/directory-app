@@ -2,7 +2,7 @@ import { supabase } from '@/lib/api-client';
 import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { transformBackendVendorToFrontend, VendorByDistance } from '@/types/vendor';
 import { getDisplayName } from './locationNames';
-import { shouldIncludeTestVendors } from '../env/env';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 
 
 export class LocationPageGenerator {

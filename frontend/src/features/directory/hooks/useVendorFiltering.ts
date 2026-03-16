@@ -1,11 +1,11 @@
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "../api/searchVendors";
+import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "@/features/directory/api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
 import { SORT_OPTIONS, SortOption } from "@/types/sort";
 import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
-import { getVendorsByLocation } from "../api/fetchVendorsByLocation";
+import { getVendorsByLocation } from "@/features/directory/api/fetchVendorsByLocation";
 
 export const useVendorFiltering = ({
   vendors,

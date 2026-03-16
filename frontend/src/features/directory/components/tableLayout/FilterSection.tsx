@@ -1,8 +1,8 @@
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import { SkillFilter } from "../filters/SkillFilter";
-import TravelFilter from "../filters/TravelFilter";
-import { ServiceFilter } from "../filters/ServiceFilter";
+import { SkillFilter } from "@/features/directory/components/filters/SkillFilter";
+import TravelFilter from "@/features/directory/components/filters/TravelFilter";
+import { ServiceFilter } from "@/features/directory/components/filters/ServiceFilter";
 import { FilterTags } from "@/lib/directory/filterTags";
 
 

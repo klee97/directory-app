@@ -26,8 +26,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updatePassword, updatePasswordAfterReset } from "../api/updatePassword";
-import { deleteAccount } from "../api/deleteAccount";
+import { updatePassword, updatePasswordAfterReset } from "@/features/settings/api/updatePassword";
+import { deleteAccount } from "@/features/settings/api/deleteAccount";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 
 interface ApiError extends Error {

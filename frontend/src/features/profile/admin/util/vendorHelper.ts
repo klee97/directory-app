@@ -1,6 +1,6 @@
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import axios from 'axios';
-import { getDefaultBio } from "../../common/utils/bio";
+import { getDefaultBio } from "@/features/profile/common/utils/bio";
 import { getDisplayNameWithoutType } from "@/lib/location/locationNames";
 
 export type VendorDataPrepareMode = 'create' | 'update';

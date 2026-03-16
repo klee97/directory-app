@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { shouldIncludeTestVendors } from '../env/env';
+import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function requireAuth() {

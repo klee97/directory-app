@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { uploadImage } from '../api/uploadImage';
-import { deleteImage } from '../api/deleteImage';
+import { uploadImage } from '@/features/profile/common/api/uploadImage';
+import { deleteImage } from '@/features/profile/common/api/deleteImage';
 
 export function useImageUploader() {
   const [loading, setLoading] = useState(false);
