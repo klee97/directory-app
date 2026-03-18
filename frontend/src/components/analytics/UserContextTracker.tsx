@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { resolveUserType, trackUserContext } from '@/utils/analytics/trackUserContext';
 
-export function VendorAnalytics() {
+export function UserContextTracker() {
   const { user, role, isRoleLoading } = useAuth();
 
   useEffect(() => {
