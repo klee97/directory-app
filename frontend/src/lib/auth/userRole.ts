@@ -22,3 +22,7 @@ export function getUserRole(profile: ProfileFields | null | undefined): UserRole
   }
   return UserRole.USER;
 }
+
+export const isVendorRole = (role: UserRole) => role === UserRole.VENDOR;
+export const isAdminRole = (role: UserRole) => role === UserRole.ADMIN;
+export const isCustomerRole = (role: UserRole) => role === UserRole.CUSTOMER;

@@ -13,9 +13,6 @@ type AuthContextType = {
   supabase: SupabaseClient;
   refreshSession: () => Promise<void>;
   role: UserRole;
-  isVendor: boolean;
-  isUser: boolean;
-  isAdmin: boolean;
   vendorId: string | null;
   isRoleLoading: boolean;
 };
@@ -49,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .single();
 
-        setRole(profile?.role || null);
+        setRole(getUserRole({ vendor_id: profile?.vendor_id, role: profile?.role }));
         setVendorId(profile?.vendor_id || null);
       } catch (error) {
         console.error('Error checking user role:', error);
@@ -90,9 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase,
     refreshSession,
     role,
-    isVendor: getUserRole({ vendor_id: vendorId, role }) === UserRole.VENDOR,
-    isUser: getUserRole({ vendor_id: vendorId, role }) === UserRole.CUSTOMER,
-    isAdmin: getUserRole({ vendor_id: vendorId, role }) === UserRole.ADMIN,
     vendorId,
     isRoleLoading,
   };
