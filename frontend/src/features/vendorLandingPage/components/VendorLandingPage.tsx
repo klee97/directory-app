@@ -14,6 +14,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import Diversity3Icon from '@mui/icons-material/Diversity3';
 import Image, { StaticImageData } from "next/image";
 import { useAuth } from '@/contexts/AuthContext';
+import { isVendorRole } from '@/lib/auth/userRole';
 import Divider from "@mui/material/Divider";
 import MarkdownContent from "@/components/markdown/MarkdownContent";
 import FaqList from "@/components/layouts/FaqList";
@@ -135,7 +136,8 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
     },
   ];
 
-  const { isLoggedIn, isVendor } = useAuth();
+  const { isLoggedIn, role } = useAuth();
+  const isVendor = isVendorRole(role);
 
   return (
     <Box>

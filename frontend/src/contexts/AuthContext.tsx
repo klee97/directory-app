@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
+import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 type AuthContextType = {
   user: User | null;
@@ -12,14 +13,9 @@ type AuthContextType = {
   supabase: SupabaseClient;
   refreshSession: () => Promise<void>;
   role: UserRole;
-  isVendor: boolean;
-  isUser: boolean;
-  isAdmin: boolean;
   vendorId: string | null;
   isRoleLoading: boolean;
 };
-
-export type UserRole = 'user' | 'vendor' | 'admin' | null;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -27,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [role, setRole] = useState<UserRole>(null);
+  const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isRoleLoading, setIsRoleLoading] = useState(true);
   const supabase = createClient();
@@ -36,7 +32,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkUserRole = async () => {
       if (!user) {
-        setRole(null);
+        setRole(UserRole.USER);
         setVendorId(null);
         setIsRoleLoading(false);
         return;
@@ -50,11 +46,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .single();
 
-        setRole(profile?.role || null);
+        setRole(getUserRole({ vendor_id: profile?.vendor_id, role: profile?.role }));
         setVendorId(profile?.vendor_id || null);
       } catch (error) {
         console.error('Error checking user role:', error);
-        setRole(null);
+        setRole(UserRole.USER);
         setVendorId(null);
       } finally {
         setIsRoleLoading(false);
@@ -91,9 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase,
     refreshSession,
     role,
-    isVendor: role === 'vendor',
-    isUser: role === 'user',
-    isAdmin: role === 'admin',
     vendorId,
     isRoleLoading,
   };

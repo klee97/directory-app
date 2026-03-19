@@ -32,6 +32,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 import { useAuth } from '@/contexts/AuthContext';
+import { isVendorRole } from '@/lib/auth/userRole';
 import NavigationMenu from '@/components/layouts/NavigationMenu';
 import { useRouter } from 'next/navigation';
 
@@ -58,7 +59,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     severity: 'success',
   });
 
-  const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, isVendor } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, role } = useAuth();
+  const isVendor = isVendorRole(role);
   const isAuthOrRoleLoading = isAuthLoading || isRoleLoading
   const router = useRouter();
 
