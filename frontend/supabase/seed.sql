@@ -68,6 +68,6 @@ VALUES
 -- Link vendors → tags
 INSERT INTO public.vendor_tags (vendor_id, tag_id)
 VALUES
-  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000001'), -- Test Glamour Studio  → Thai Makeup (skill)
-  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000002'), -- Test Glamour Studio  → Hair (service)
-  ('TEST-E2E-002', 'e2e00000-0000-0000-0000-000000000002'); -- Test Bridal Beauty Co → Hair (service)
+  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000001'), -- Test Glamour Studio   → Hair (service)
+  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000002'), -- Test Glamour Studio   → Thai Makeup (skill)
+  ('TEST-E2E-002', 'e2e00000-0000-0000-0000-000000000001'); -- Test Bridal Beauty Co → Hair (service) only

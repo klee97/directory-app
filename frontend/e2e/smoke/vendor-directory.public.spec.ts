@@ -11,6 +11,18 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Vendor directory — guest', () => {
+  test.beforeAll(async ({ browser }) => {
+    // After supabase db reset the Next.js unstable_cache is stale.
+    // Click the DevTools "Refresh Vendors" button (dev-only) to revalidate it
+    // so the test vendors from seed.sql are visible when the tests run.
+    const page = await browser.newPage();
+    await page.goto('/');
+    await expect(page.getByRole('button', { name: 'Refresh Vendors' })).toBeVisible();
+    await page.getByRole('button', { name: 'Refresh Vendors' }).click();
+    await expect(page.getByRole('button', { name: 'Refreshed!' })).toBeVisible({ timeout: 10_000 });
+    await page.close();
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Wait until the result-count line renders, confirming vendors are loaded
@@ -22,7 +34,7 @@ test.describe('Vendor directory — guest', () => {
     await page.getByRole('button', { name: 'Skills' }).click();
 
     // Select the Thai Makeup skill (style=default → appears in Skills filter)
-    await page.getByLabel('Thai Makeup').check();
+    await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
 
     // Only the vendor with this skill should be visible
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
@@ -47,7 +59,8 @@ test.describe('Vendor directory — guest', () => {
     await page.getByRole('button', { name: 'Services' }).click();
 
     // Select the Hair service (style=primary → appears in Services filter)
-    await page.getByLabel('Hair', { exact: true }).check();
+    // Use exact regex to avoid matching "Bridal Hair" in the label text
+    await page.locator('label').filter({ hasText: /^Hair$/ }).click();
 
     // Both test vendors offer this service
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
