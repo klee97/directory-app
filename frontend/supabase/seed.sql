@@ -46,3 +46,28 @@ INSERT INTO public.profiles (
   null,
   true  -- marks this as a test account
 );
+
+-- -----------------------------------------------------------------------
+-- E2E test fixtures
+-- IDs prefixed with TEST- are included in dev/test environments only
+-- (see shouldIncludeTestVendors in src/lib/env/env.ts)
+-- -----------------------------------------------------------------------
+
+-- Test vendors
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country)
+VALUES
+  ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States'),
+  ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States');
+
+-- Test tags  (style='primary' → Service chip; anything else → Skill chip)
+INSERT INTO public.tags (id, name, display_name, is_visible, style)
+VALUES
+  ('e2e00000-0000-0000-0000-000000000001', 'SPECIALTY_HAIR', 'Hair',       true, 'primary'),
+  ('e2e00000-0000-0000-0000-000000000002', 'SKILL_THAI',     'Thai Makeup', true, 'default');
+
+-- Link vendors → tags
+INSERT INTO public.vendor_tags (vendor_id, tag_id)
+VALUES
+  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000001'), -- Test Glamour Studio  → Thai Makeup (skill)
+  ('TEST-E2E-001', 'e2e00000-0000-0000-0000-000000000002'), -- Test Glamour Studio  → Hair (service)
+  ('TEST-E2E-002', 'e2e00000-0000-0000-0000-000000000002'); -- Test Bridal Beauty Co → Hair (service)
