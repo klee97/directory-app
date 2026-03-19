@@ -1,4 +1,3 @@
-import { VendorAnalytics } from "@/components/analytics/VendorAnalytics";
 import { Footer } from "@/components/layouts/Footer";
 import { Navbar } from "@/components/layouts/Navbar";
 import type { Metadata } from "next";
@@ -15,7 +14,6 @@ export default function VendorLayout({
 }) {
 
   return <>
-    <VendorAnalytics />
     <Navbar isVendorNavbar={true} />
     {children}
     <Footer isVendorFooter={true} />
