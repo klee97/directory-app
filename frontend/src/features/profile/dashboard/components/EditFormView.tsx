@@ -139,7 +139,7 @@ export default function EditFormView({
 
       await handleSave({ ...formData, cover_image: coverImage });
       setShowValidation(false);
-
+      handleBackToMenu();
     } catch (error) {
       console.error('Save failed:', error);
     } finally {

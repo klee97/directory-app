@@ -40,7 +40,7 @@ interface VendorEditProfileProps {
 export default function VendorEditProfile({ vendor, tags, userId }: VendorEditProfileProps) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [smallScreenMenuOpen, setSmallScreenMenuOpen] = useState(false);
+  const [smallScreenMenuOpen, setSmallScreenMenuOpen] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
