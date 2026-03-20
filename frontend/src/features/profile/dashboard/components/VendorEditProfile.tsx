@@ -274,7 +274,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
                     animation: 'pulse 2s infinite'
                   }} />
                   <Typography variant="body2" fontWeight="medium">
-                    Preview Mode - Publish to make your changes live
+                    Preview Mode - Save to make your changes live
                   </Typography>
                 </>
               )}

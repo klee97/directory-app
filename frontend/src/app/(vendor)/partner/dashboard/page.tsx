@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getCurrentUserAction } from "@/lib/auth/actions/getUser";
 import DashboardContent from "@/features/vendorDashboard/components/DashboardContent";
 import { getVendorForCurrentUser } from "@/features/profile/dashboard/api/getVendorForCurrentUser";
-import { loadUnpublishedDraft } from "@/features/profile/dashboard/api/updateDrafts";
 import VendorLoadError from "@/features/auth/components/shared/VendorLoadError";
 
 
@@ -23,8 +22,5 @@ export default async function VendorDashboardPage() {
     return <VendorLoadError />;
   }
 
-  const existingDraft = await loadUnpublishedDraft(vendor.id, currentUser.userId);
-  const hasUnpublishedDraft = !!existingDraft;
-
-  return <DashboardContent vendor={vendor} hasUnpublishedDraft={hasUnpublishedDraft} />;
+  return <DashboardContent vendor={vendor} />;
 }

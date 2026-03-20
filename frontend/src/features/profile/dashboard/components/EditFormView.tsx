@@ -28,7 +28,6 @@ import { useImageUploadField } from '@/features/profile/common/hooks/useImageUpl
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import FormHelperText from '@mui/material/FormHelperText';
 import { VendorMediaDraft, VendorMediaForm } from '@/types/vendorMedia';
-import { useNotification } from '@/contexts/NotificationContext';
 
 export const RECOMMENDED_BIO_WORD_COUNT = 50;
 export const MIN_SERVICE_PRICE = 0;
@@ -62,8 +61,6 @@ export default function EditFormView({
   const [isSaving, setIsSaving] = useState(false);
   const [priceErrors, setPriceErrors] = useState<Partial<Record<string, string | null>>>({});
   const [imageError, setImageError] = useState<string | null>(null);
-
-  const { addNotification } = useNotification();
 
   const previousBlobUrlRef = useRef<string | null>(null);
 
@@ -144,7 +141,6 @@ export default function EditFormView({
       setShowValidation(false);
     } catch (error) {
       console.error('Save failed:', error);
-      addNotification('Failed to save changes. Please try again.', 'error');
     } finally {
       setIsSaving(false);
     }

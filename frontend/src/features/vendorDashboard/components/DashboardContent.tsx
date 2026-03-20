@@ -18,10 +18,9 @@ import { useNotification } from "@/contexts/NotificationContext";
 
 interface DashboardContentProps {
   vendor: VendorByDistance;
-  hasUnpublishedDraft: boolean;
 }
 
-export default function DashboardContent({ vendor, hasUnpublishedDraft }: DashboardContentProps) {
+export default function DashboardContent({ vendor }: DashboardContentProps) {
   const { addNotification } = useNotification();
 
   const handlePhotoSubmit = async (mediaId: string, credits: string) => {
@@ -79,7 +78,7 @@ export default function DashboardContent({ vendor, hasUnpublishedDraft }: Dashbo
         <Grid container spacing={3}>
 
           <Grid size={{ xs: 12 }}>
-            <ProfileEditCard vendor={vendor} hasUnpublishedDraft={hasUnpublishedDraft} />
+            <ProfileEditCard vendor={vendor} />
           </Grid>
 
           <Grid size={{ xs: 12 }}>
