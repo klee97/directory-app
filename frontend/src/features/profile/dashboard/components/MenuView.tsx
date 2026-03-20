@@ -36,7 +36,7 @@ export default function MenuView({
           Edit your artist profile
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Add more details below to make your profile shine.
+          Add more details below to make your profile stand out.
         </Typography>
       </Box>
 
