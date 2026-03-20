@@ -146,7 +146,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       setFormData(dataToSave);
       setLastSavedData(dataToSave);
       setHasUnpublishedChanges(true);
-      addNotification('Changes saved!', 'success');
     } catch (error) {
       console.error('Error saving:', error);
       addNotification('Failed to save changes', 'error');
