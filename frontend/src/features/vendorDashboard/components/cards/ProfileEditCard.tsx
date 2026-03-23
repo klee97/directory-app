@@ -45,7 +45,7 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
   ];
 
   return (
-    <BaseCard title="Edit Profile Page" titleHref="/partner/dashboard/profile" icon={<Edit sx={{ color: 'text.primary' }} />}>
+    <BaseCard title="Edit Your Profile" titleHref="/partner/dashboard/profile" icon={<Edit sx={{ color: 'text.primary' }} />}>
       {/* Checklist Items */}
       <Box sx={{ mb: 3 }}>
         {checklistItems.map((item, index) => (

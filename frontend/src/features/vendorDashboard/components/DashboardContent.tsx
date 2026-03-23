@@ -15,6 +15,7 @@ import PremiumWaitlistCard from "./cards/PremiumCard";
 import PhotoReviewCard from "./cards/PhotoReviewCard";
 import { updateMediaConsent } from "@/features/vendorDashboard/actions/mediaActions";
 import { useNotification } from "@/contexts/NotificationContext";
+import Visibility from "@mui/icons-material/Visibility";
 
 interface DashboardContentProps {
   vendor: VendorByDistance;
@@ -44,16 +45,16 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
           <Typography variant="body1" color="text.primary" gutterBottom>
             Use this dashboard to manage your business profile and edit your page.
           </Typography>
-          <Typography variant="body1" color="text.primary">
-            <Link
-              href={`/vendors/${vendor.slug}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              color="info.main"
-            >
-              View current profile page
-            </Link>
-          </Typography>
+          <Link
+            href={`/vendors/${vendor.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            color="info.main"
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}
+          >
+            <Visibility fontSize="small" />
+            See how your profile looks to clients
+          </Link>
         </Box>
 
         {/* Photo Prompt CTA */}
