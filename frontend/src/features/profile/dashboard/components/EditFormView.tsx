@@ -40,6 +40,7 @@ interface EditFormViewProps {
   setFormData: React.Dispatch<React.SetStateAction<VendorFormData>>;
   handleBackToMenu: () => void;
   handleSave: (dataToSave: VendorFormData) => Promise<void>;
+  hasUnsavedChanges: boolean;
   vendorSlug: string;
   vendorId: string;
   tags: VendorTag[];
@@ -52,6 +53,7 @@ export default function EditFormView({
   setFormData,
   handleBackToMenu,
   handleSave,
+  hasUnsavedChanges,
   vendorSlug,
   vendorId,
   tags
@@ -198,7 +200,7 @@ export default function EditFormView({
   };
 
   const hasPriceErrors = Object.values(priceErrors).some(error => error !== null && error !== undefined);
-  const isSaveDisabled = loading || hasPriceErrors || !!imageError;
+  const isSaveDisabled = !hasUnsavedChanges || loading || hasPriceErrors || !!imageError;
 
   return (
     <Box sx={{
@@ -643,6 +645,7 @@ export default function EditFormView({
       <Box sx={{ p: 3, borderTop: 1, borderColor: 'divider' }}>
         <Button
           variant="contained"
+          color="info"
           fullWidth
           onClick={handleSaveClick}
           disabled={isSaveDisabled}

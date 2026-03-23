@@ -20,7 +20,6 @@ import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '@/featu
 import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
 import { VendorFormData } from '@/types/vendorFormData';
 import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useSectionCompletion } from '@/features/profile/dashboard/hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
@@ -120,10 +119,10 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     setActiveSection(sectionId);
   };
 
-  const handleBackToMenu = () => {
-    // Check if current formData differs from savedDraftData
-    const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
+  // Check if current formData differs from savedDraftData
+  const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
 
+  const handleBackToMenu = () => {
     if (hasUnsavedChanges) {
       setShowUnsavedModal(true);
     } else {
@@ -211,6 +210,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
+              hasUnsavedChanges={hasUnsavedChanges}
               vendorSlug={vendor.slug!}
               vendorId={vendor.id}
               tags={tags}
@@ -257,13 +257,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               top: 0,
               zIndex: 10
             }}>
-              {isLoadingDraft ? (
-                <>
-                  <CircularProgress size={16} sx={{ color: 'white' }} />
-                  <Typography variant="body2" fontWeight="medium">
-                    Checking for draft changes...
+              {hasUnsavedChanges ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'warning.light', animation: 'pulse 2s infinite' }} />
+                  <Typography variant="body2" fontWeight="bold">
+                    You have unsaved changes
                   </Typography>
-                </>
+                </Box>
               ) : (
                 <>
                   <Box sx={{
@@ -274,7 +274,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
                     animation: 'pulse 2s infinite'
                   }} />
                   <Typography variant="body2" fontWeight="medium">
-                    Preview Mode - Save to make your changes live
+                    All changes saved
                   </Typography>
                 </>
               )}
