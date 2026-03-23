@@ -2,16 +2,14 @@
 
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import BaseCard from "./BaseCard";
 import { CheckCircle } from "@mui/icons-material";
 import Link from "@mui/material/Link";
+import Typography from "@mui/material/Typography";
 
-const REMOVAL_DATE = "April 30, 2026";
 
 type LoadingState = "approve" | "remove" | false;
 
@@ -47,12 +45,12 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
 
   return (
     <BaseCard
-      title="Action Required: Approve Your Photo"
+      title="Review Your Photo"
       sx={{ border: "3px solid", borderColor: "info.light" }}
     >
       {done ? (
         <Alert severity="info" icon={<CheckCircle />}>
-          Success! Your photo has been approved.
+          Success! Your photo details have been saved.
         </Alert>
       ) : (
         <Box sx={{ display: "flex", gap: 3, flexDirection: { xs: "column", sm: "row" } }}>
