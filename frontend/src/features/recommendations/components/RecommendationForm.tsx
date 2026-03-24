@@ -37,8 +37,8 @@ const RecommendationForm = () => {
       region: !recommendation.region.trim(),
     };
 
+    setErrors(newErrors);
     if (newErrors.business_name || newErrors.region) {
-      setErrors(newErrors);
       return;
     }
 
