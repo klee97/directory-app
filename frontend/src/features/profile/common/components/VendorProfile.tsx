@@ -29,7 +29,6 @@ import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
 import { useSearchParams } from 'next/navigation';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import FilterChip from '@/components/ui/FilterChip';
-import Image from 'next/image';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
@@ -39,6 +38,7 @@ import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
+import { VendorCoverImage } from './VendorCoverImage';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -133,6 +133,7 @@ interface VendorDetailsProps {
 export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(true)
 
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
@@ -225,6 +226,20 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
     };
   }, [vendor.id, supabase.auth]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < theme.breakpoints.values.md) {
+        setIsSmallScreen(true);
+      } else {
+        setIsSmallScreen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [theme.breakpoints.values.md]);
+
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
@@ -234,6 +249,13 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
             vendorSlug={vendor.slug}
             placeholderImage={placeholderImage}
           />
+          )}
+          {isSmallScreen && !showImageCarousel && vendor.cover_image && (
+            <VendorCoverImage
+              coverImage={vendor.cover_image}
+              businessName={vendor.business_name}
+              placeholderImage={placeholderImage}
+            />
           )}
           {/* Main Content */}
           <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
@@ -512,53 +534,12 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
             </Grid>
             {/* Image & Contact Card */}
             <Grid size={{ xs: 12, md: 4 }} sx={{ order: { xs: 1, md: 2 } }}>
-              {!showImageCarousel && vendor.cover_image && (
-                <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
-                  {/* Vendor Image */}
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: '100%',
-                      height: 400,
-                      overflow: 'hidden',
-                      '&:hover .photo-credit': {
-                        opacity: 1,
-                      },
-                    }}
-                  >
-                    <Image
-                      src={vendor.cover_image?.media_url ?? placeholderImage}
-                      alt={vendor.business_name ?? ''}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      style={{
-                        objectFit: 'cover'
-                      }}
-                      quality={80}
-                      priority={true}
-                    />
-                    {vendor.cover_image?.credits && (
-                      <Box
-                        className="photo-credit"
-                        sx={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          px: 1.5,
-                          py: 1,
-                          background: 'linear-gradient(transparent, rgba(0,0,0,0.55))',
-                          opacity: 0,
-                          transition: 'opacity 0.25s ease',
-                          color: 'white',
-                          fontSize: '0.75rem',
-                        }}
-                      >
-                        {vendor.cover_image.credits}
-                      </Box>
-                    )}
-                  </Box>
-                </Card>
+              {!isSmallScreen && !showImageCarousel && vendor.cover_image && (
+                <VendorCoverImage
+                  coverImage={vendor.cover_image}
+                  businessName={vendor.business_name}
+                  placeholderImage={placeholderImage}
+                />
               )}
               <Divider
                 sx={{
