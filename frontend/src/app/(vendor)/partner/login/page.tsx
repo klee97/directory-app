@@ -31,7 +31,7 @@ function VendorLoginPageContent() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        router.push(redirectTo);
+        router.push(redirectTo ?? "/partner/dashboard");
         return;
       }
 

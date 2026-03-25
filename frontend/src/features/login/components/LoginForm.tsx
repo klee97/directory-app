@@ -21,8 +21,9 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
 
-export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined}) => {
+export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined }) => {
   const { addNotification } = useNotification();
   const router = useRouter();
   const { refreshSession } = useAuth();
@@ -60,7 +61,7 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
       let notificationMessage = 'Logged in successfully!';
 
       if (isVendorAccount && !isVendorLogin) {
-        redirectPath = redirectTo ||'/partner/dashboard';
+        redirectPath = redirectTo || '/partner/dashboard';
         notificationMessage = 'Logged in successfully! Redirecting to Vendor Dashboard...';
       } else if (!isVendorAccount && isVendorLogin) {
         redirectPath = redirectTo || '/';
@@ -159,6 +160,7 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
                 variant="contained"
                 size="large"
                 disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}
                 color={isVendorLogin ? "secondary" : "primary"}
                 data-testid="login-submit"
               >
