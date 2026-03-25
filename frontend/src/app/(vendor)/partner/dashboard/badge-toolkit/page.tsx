@@ -11,7 +11,7 @@ export default async function VendorBadgeToolkit() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/dashboard/badge-toolkit');
+    redirect('/partner/login?redirectTo=/partner/dashboard/badge-toolkit');
   }
 
   const { userId } = currentUser;

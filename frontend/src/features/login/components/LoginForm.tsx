@@ -21,8 +21,9 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
+import CircularProgress from "@mui/material/CircularProgress";
 
-export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
+export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined }) => {
   const { addNotification } = useNotification();
   const router = useRouter();
   const { refreshSession } = useAuth();
@@ -48,29 +49,28 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
         return;
       }
 
-      // Refresh client-side auth state so the navbar and other client UI update
-      try {
-        await refreshSession();
-      } catch (e) {
-        console.debug('refreshSession failed after login:', e);
-      }
-
       const isVendorAccount = result?.isVendorAccount ?? isVendorLogin;
       let redirectPath: string;
       let notificationMessage = 'Logged in successfully!';
 
       if (isVendorAccount && !isVendorLogin) {
-        redirectPath = '/partner/dashboard';
+        redirectPath = redirectTo || '/partner/dashboard';
         notificationMessage = 'Logged in successfully! Redirecting to Vendor Dashboard...';
       } else if (!isVendorAccount && isVendorLogin) {
-        redirectPath = '/';
+        redirectPath = redirectTo || '/';
         notificationMessage = 'Logged in successfully! Redirecting to Directory...';
       } else {
-        redirectPath = isVendorLogin ? '/partner/dashboard' : '/';
+        redirectPath = redirectTo || (isVendorLogin ? '/partner/dashboard' : '/');
       }
+
+      // Refresh client-side auth state so the navbar and other client UI update
+      refreshSession().catch((e) => {
+        console.debug('refreshSession failed after login:', e);
+      });
 
       addNotification(notificationMessage);
       router.push(redirectPath);
+
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
@@ -159,6 +159,7 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
                 variant="contained"
                 size="large"
                 disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={16} color="inherit" /> : null}
                 color={isVendorLogin ? "secondary" : "primary"}
                 data-testid="login-submit"
               >

@@ -5,14 +5,16 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { Suspense, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoginForm } from "@/features/login/components/LoginForm";
 import Alert from "@mui/material/Alert";
 
 function VendorLoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+  const redirectTo = searchParams?.get("redirectTo") ?? undefined;
 
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage] = useState("");
@@ -29,7 +31,7 @@ function VendorLoginPageContent() {
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
-        router.push(`/partner/dashboard`);
+        router.push(redirectTo ?? "/partner/dashboard");
         return;
       }
 
@@ -37,7 +39,7 @@ function VendorLoginPageContent() {
     };
 
     init();
-  }, [router, supabase]);
+  }, [router, supabase, redirectTo]);
 
   if (isLoading) {
     return (
@@ -67,12 +69,12 @@ function VendorLoginPageContent() {
           {errorMessage}
         </Alert>
       )}
-      
+
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Vendor Login
       </Typography>
 
-      <LoginForm isVendorLogin={true} />
+      <LoginForm isVendorLogin={true} redirectTo={redirectTo} />
     </Container>
   );
 }

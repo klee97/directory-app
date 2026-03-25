@@ -12,7 +12,7 @@ export default async function VendorEditPage() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirect=/partner/dashboard/profile');
+    redirect('/partner/login?redirectTo=/partner/dashboard/profile');
   }
 
   const { userId } = currentUser;

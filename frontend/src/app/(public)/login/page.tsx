@@ -5,13 +5,16 @@ import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+export function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
+  const redirectTo = searchParams?.get("redirectTo") ?? undefined;
+
 
   useEffect(() => {
     // Check if user is already logged in
@@ -21,7 +24,7 @@ export default function LoginPage() {
 
       if (session) {
         // User is already logged in, redirect to home page
-        router.push('/');
+        router.push(redirectTo ?? '/');
       } else {
         // User is not logged in, show the login form
         setIsLoading(false);
@@ -29,7 +32,7 @@ export default function LoginPage() {
     };
 
     checkSession();
-  }, [router]);
+  }, [router, redirectTo]);
 
   if (isLoading) {
     return (
@@ -54,7 +57,16 @@ export default function LoginPage() {
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Login
       </Typography>
-      <LoginForm isVendorLogin={false} />
+      <LoginForm isVendorLogin={false} redirectTo={redirectTo} />
     </Container>
+  );
+}
+
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
