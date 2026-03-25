@@ -70,6 +70,11 @@ export default defineConfig({
       testMatch: '**/e2e/fixtures/auth.setup.ts',
       dependencies: ['supabase-setup'],
     },
+    {
+      name: 'vendor-auth-setup',
+      testMatch: '**/e2e/fixtures/auth.vendor.setup.ts',
+      dependencies: ['supabase-setup'],
+    },
 
     // -----------------------------------------------------------------
     // Authenticated tests — depend on auth-setup running first
@@ -82,6 +87,19 @@ export default defineConfig({
       },
       dependencies: ['auth-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
+    },
+
+    // -----------------------------------------------------------------
+    // Vendor authenticated tests — depend on vendor-auth-setup running first
+    // -----------------------------------------------------------------
+    {
+      name: 'chormium:vendor-protected',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/fixtures/.auth/vendor-session.json',
+      },
+      dependencies: ['vendor-auth-setup'],
+      testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
     },
 
     // -----------------------------------------------------------------

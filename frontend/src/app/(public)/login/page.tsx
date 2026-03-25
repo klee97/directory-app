@@ -6,12 +6,15 @@ import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
+  const redirectTo = searchParams?.get("redirectTo") ?? undefined;
+
 
   useEffect(() => {
     // Check if user is already logged in
@@ -54,7 +57,7 @@ export default function LoginPage() {
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Login
       </Typography>
-      <LoginForm isVendorLogin={false} />
+      <LoginForm isVendorLogin={false} redirectTo={redirectTo} />
     </Container>
   );
 }

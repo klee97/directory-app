@@ -22,7 +22,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
 
-export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
+export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined}) => {
   const { addNotification } = useNotification();
   const router = useRouter();
   const { refreshSession } = useAuth();
@@ -60,13 +60,13 @@ export const LoginForm = ({ isVendorLogin }: { isVendorLogin: boolean }) => {
       let notificationMessage = 'Logged in successfully!';
 
       if (isVendorAccount && !isVendorLogin) {
-        redirectPath = '/partner/dashboard';
+        redirectPath = redirectTo ||'/partner/dashboard';
         notificationMessage = 'Logged in successfully! Redirecting to Vendor Dashboard...';
       } else if (!isVendorAccount && isVendorLogin) {
-        redirectPath = '/';
+        redirectPath = redirectTo || '/';
         notificationMessage = 'Logged in successfully! Redirecting to Directory...';
       } else {
-        redirectPath = isVendorLogin ? '/partner/dashboard' : '/';
+        redirectPath = redirectTo || (isVendorLogin ? '/partner/dashboard' : '/');
       }
 
       addNotification(notificationMessage);

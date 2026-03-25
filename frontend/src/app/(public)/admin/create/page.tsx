@@ -18,7 +18,7 @@ export default function AddVendor() {
   const supabase = createClient();
 
   useEffect(() => {
-    checkAdminStatus(supabase, setLoading, setIsAdmin);
+    checkAdminStatus(supabase, setLoading, setIsAdmin, router);
   }, [router, supabase]);
 
   if (loading) {
