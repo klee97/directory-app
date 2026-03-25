@@ -49,13 +49,6 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
         return;
       }
 
-      // Refresh client-side auth state so the navbar and other client UI update
-      try {
-        await refreshSession();
-      } catch (e) {
-        console.debug('refreshSession failed after login:', e);
-      }
-
       const isVendorAccount = result?.isVendorAccount ?? isVendorLogin;
       let redirectPath: string;
       let notificationMessage = 'Logged in successfully!';
@@ -70,8 +63,14 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
         redirectPath = redirectTo || (isVendorLogin ? '/partner/dashboard' : '/');
       }
 
+      // Refresh client-side auth state so the navbar and other client UI update
+      refreshSession().catch((e) => {
+        console.debug('refreshSession failed after login:', e);
+      });
+
       addNotification(notificationMessage);
       router.push(redirectPath);
+
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');

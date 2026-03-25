@@ -35,6 +35,8 @@ jobs:
   #   - NEXT_PUBLIC_SUPABASE_ANON_KEY
   #   - TEST_USER_EMAIL
   #   - TEST_USER_PASSWORD
+  #   - TEST_VENDOR_EMAIL
+  #   - TEST_VENDOR_PASSWORD
   # -------------------------------------------------------------------
   e2e:
     name: E2E Tests
