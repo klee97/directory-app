@@ -2,14 +2,12 @@
 
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
 import { Section, SectionIcon } from './Section';
-import Alert from '@mui/material/Alert';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import NavigationMenu from '@/components/layouts/NavigationMenu';
@@ -19,8 +17,6 @@ interface MenuViewProps {
   completedSections: string[];
   inProgressSections: string[];
   onSectionClick: (id: string) => void;
-  onPublish: () => void;
-  hasUnpublishedChanges: boolean;
 }
 
 export default function MenuView({
@@ -28,8 +24,6 @@ export default function MenuView({
   completedSections,
   inProgressSections,
   onSectionClick,
-  onPublish,
-  hasUnpublishedChanges,
 }: MenuViewProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -42,16 +36,8 @@ export default function MenuView({
           Edit your artist profile
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Add more details below to make it shine, and hit &quot;Publish&quot; when you&apos;re ready.
+          Add more details below to make your profile stand out.
         </Typography>
-        {hasUnpublishedChanges && (
-          <Alert severity="warning" sx={{ mb: 2 }}>
-            You have unpublished changes.
-          </Alert>
-        )}
-        <Button variant="contained" fullWidth onClick={onPublish} sx={{ borderRadius: 2 }} disabled={!hasUnpublishedChanges}>
-          Publish
-        </Button>
       </Box>
 
       {/* Sections list */}

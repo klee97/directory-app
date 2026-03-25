@@ -20,7 +20,6 @@ import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '@/featu
 import { vendorToFormData } from '@/lib/profile/vendorToFormTranslator';
 import { VendorFormData } from '@/types/vendorFormData';
 import { draftToFormData } from '@/lib/profile/draftToFormTranslator';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useSectionCompletion } from '@/features/profile/dashboard/hooks/updateSectionStatus';
 import { SECTIONS } from './Section';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
@@ -40,9 +39,8 @@ interface VendorEditProfileProps {
 export default function VendorEditProfile({ vendor, tags, userId }: VendorEditProfileProps) {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
-  const [smallScreenMenuOpen, setSmallScreenMenuOpen] = useState(false);
+  const [smallScreenMenuOpen, setSmallScreenMenuOpen] = useState(true);
   const [activeSection, setActiveSection] = useState<string | null>(null); // null = menu view
-  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
   const [feedbackTriggered, setFeedbackTriggered] = useState(false);
 
@@ -75,7 +73,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
           const formData = draftToFormData(draft);
           setFormData(formData);
           setLastSavedData(formData);
-          setHasUnpublishedChanges(true);
         }
         // If no draft, formData already has vendor data from initialization
       } catch (error) {
@@ -122,10 +119,10 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
     setActiveSection(sectionId);
   };
 
-  const handleBackToMenu = () => {
-    // Check if current formData differs from savedDraftData
-    const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
+  // Check if current formData differs from savedDraftData
+  const hasUnsavedChanges = JSON.stringify(formData) !== JSON.stringify(lastSavedData);
 
+  const handleBackToMenu = () => {
     if (hasUnsavedChanges) {
       setShowUnsavedModal(true);
     } else {
@@ -140,43 +137,18 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
   };
 
   const handleSave = async (dataToSave: VendorFormData) => {
-    try {
-      const draft = await createOrUpdateDraft(dataToSave, vendor.id, userId, draftId);
-      setDraftId(draft.id);
-      setFormData(dataToSave);
-      setLastSavedData(dataToSave);
-      setHasUnpublishedChanges(true);
-      addNotification('Changes saved!', 'success');
-    } catch (error) {
-      console.error('Error saving:', error);
-      addNotification('Failed to save changes', 'error');
-    }
-  };
-
-
-  const handlePublish = async () => {
-    if (!userId) {
-      addNotification('User not authenticated', 'error');
-      return;
-    }
-    let result;
-    if (!draftId) {
-      // No draft exists, save first then publish
-      const draft = await createOrUpdateDraft(formData, vendor.id, userId, draftId);
-      result = await publishDraft(draft.id);
-    } else {
-      result = await publishDraft(draftId);
-    }
+    const draft = await createOrUpdateDraft(dataToSave, vendor.id, userId, draftId);
+    setDraftId(draft.id);
+    const result = await publishDraft(draft.id);
     if (result.error) {
       console.error(result.error);
-      addNotification(`Failed to publish: ${result.error}`, 'error');
+      addNotification(`Failed to save changes: ${result.error}`, 'error');
       return;
-    } else {
-      setHasUnpublishedChanges(false);
-      setLastSavedData(formData);
-      addNotification('Changes published successfully!', 'success');
-      setFeedbackTriggered(true);
     }
+    setFormData(dataToSave);
+    setLastSavedData(dataToSave);
+    setActiveSection(null);
+    setTimeout(() => setFeedbackTriggered(true), 500);
   };
 
   return (
@@ -238,6 +210,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               setFormData={setFormData}
               handleBackToMenu={handleBackToMenu}
               handleSave={handleSave}
+              hasUnsavedChanges={hasUnsavedChanges}
               vendorSlug={vendor.slug!}
               vendorId={vendor.id}
               tags={tags}
@@ -248,8 +221,6 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               sections={SECTIONS}
               completedSections={completedSections}
               onSectionClick={handleSectionClick}
-              onPublish={handlePublish}
-              hasUnpublishedChanges={hasUnpublishedChanges}
             />
           )}
         </Drawer>
@@ -286,13 +257,13 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               top: 0,
               zIndex: 10
             }}>
-              {isLoadingDraft ? (
-                <>
-                  <CircularProgress size={16} sx={{ color: 'white' }} />
-                  <Typography variant="body2" fontWeight="medium">
-                    Checking for draft changes...
+              {hasUnsavedChanges ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'warning.light', animation: 'pulse 2s infinite' }} />
+                  <Typography variant="body2" fontWeight="bold">
+                    You have unsaved changes
                   </Typography>
-                </>
+                </Box>
               ) : (
                 <>
                   <Box sx={{
@@ -303,7 +274,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
                     animation: 'pulse 2s infinite'
                   }} />
                   <Typography variant="body2" fontWeight="medium">
-                    Preview Mode - Publish to make your changes live
+                    All changes saved
                   </Typography>
                 </>
               )}
@@ -347,7 +318,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
       <VendorFeedbackPopup
         vendorId={vendor.id}
         businessName={vendor.business_name || ''}
-        triggerText={"Your changes are now published."}
+        triggerText={"Your profile has been updated."}
         trigger={feedbackTriggered}
         onDismiss={() => setFeedbackTriggered(false)}
       />
