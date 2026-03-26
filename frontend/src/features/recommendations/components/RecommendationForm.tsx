@@ -10,6 +10,7 @@ import { BackendVendorRecommendationInsert } from '@/types/vendor';
 import { createRecommendation } from '@/features/recommendations/api/createRecommendation';
 import { useNotification } from '@/contexts/NotificationContext';
 import ReCaptcha, { ReCaptchaRef } from '@/components/security/ReCaptcha';
+import { isDevOrPreview } from '@/lib/env/env';
 
 export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationInsert = {
   business_name: "",
@@ -37,16 +38,21 @@ const RecommendationForm = () => {
       region: !recommendation.region.trim(),
     };
 
+    setErrors(newErrors);
     if (newErrors.business_name || newErrors.region) {
-      setErrors(newErrors);
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Execute reCAPTCHA and get token
-      const recaptchaToken = await recaptchaRef.current?.executeAsync();
+      // Execute reCAPTCHA and get token.
+      // When the widget is not mounted (no NEXT_PUBLIC_RECAPTCHA_SITE_KEY) in a
+      // dev/preview environment, fall back to the 'test-bypass' token which
+      // verifyRecaptchaToken() accepts without calling Google's siteverify API.
+      const recaptchaToken =
+        (await recaptchaRef.current?.executeAsync()) ??
+        (isDevOrPreview() ? 'test-bypass' : null);
 
       if (!recaptchaToken) {
         addNotification("CAPTCHA verification failed. Please try again.", "error");
