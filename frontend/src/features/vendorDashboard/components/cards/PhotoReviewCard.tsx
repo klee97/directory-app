@@ -77,7 +77,7 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flexGrow: 1 }}>
             <Typography variant="body1" color="text.primary">
               Review the photo we have on file for your business.
-              You can add a photo credit if needed.
+              You can add a photo credit if required.
             </Typography>
             <TextField
               label="Photo credit (optional)"
