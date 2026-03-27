@@ -1,12 +1,8 @@
 import BaseCard from "./BaseCard";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import Checklist from "@/components/ui/Checklist";
 
 export default function PremiumWaitlistCard() {
 
@@ -23,19 +19,7 @@ export default function PremiumWaitlistCard() {
         Interested in getting more visibility? We&apos;re working on Premium profiles that wil help you stand out, with features like:
       </Typography>
 
-      <List dense disablePadding sx={{ mb: 2 }}>
-        {features.map((feature, index) => (
-          <ListItem key={index} disablePadding sx={{ py: 0.5 }}>
-            <ListItemIcon sx={{ minWidth: 32 }}>
-              <CheckCircleIcon sx={{ fontSize: 20, color: "primary.main" }} />
-            </ListItemIcon>
-            <ListItemText
-              primary={feature}
-              slotProps={{ primary: { variant: "body2" } }}
-            />
-          </ListItem>
-        ))}
-      </List>
+      <Checklist items={features.map(f => ({ label: f }))} />
 
       <Button
         variant="contained"

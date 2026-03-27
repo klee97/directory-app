@@ -54,7 +54,6 @@ export default function DesktopPromptOverlay({ onContinue }: DesktopPromptOverla
       <Box
         sx={{
           bgcolor: "background.paper",
-          borderRadius: 3,
           p: 4,
           maxWidth: 360,
           width: "100%",

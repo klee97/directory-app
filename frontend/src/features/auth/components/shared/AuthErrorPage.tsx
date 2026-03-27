@@ -59,7 +59,7 @@ export function AuthErrorPage({ errorType, routes, labels }: AuthErrorPageProps)
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: 2 }}>
+        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
             <ErrorOutlineIcon color="error" sx={{ fontSize: 40, mr: 2 }} />
             <Typography variant="h4" component="h1" fontWeight="bold">

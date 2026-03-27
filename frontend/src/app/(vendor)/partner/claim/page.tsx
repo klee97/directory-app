@@ -2,42 +2,25 @@
 
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
-import Alert from "@mui/material/Alert";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import InputAdornment from "@mui/material/InputAdornment";
-import IconButton from "@mui/material/IconButton";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { verifyVendorMagicLink } from "@/features/profile/common/api/magicLink";
-import { signUpAndClaimVendor } from "@/features/profile/dashboard/hooks/claimVendor";
-import { useNotification } from "@/contexts/NotificationContext";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { ReCaptchaRef } from "@/components/security/ReCaptcha";
-import { validatePassword } from "@/utils/passwordValidation";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
 import { Session } from "@supabase/supabase-js";
-import TermsCheckbox from "@/components/layouts/TermsCheckbox";
-
-type ErrorType =
-  | "invalid_link"
-  | "expired_link"
-  | "missing_params"
-  | "recaptcha_failed"
-  | null;
+import AlreadyLoggedIn from "@/features/vendorClaim/components/VendorLoggedIn";
+import BusinessStrip from "@/components/ui/BusinessStrip";
+import VendorClaimError, { ErrorType } from "@/features/vendorClaim/components/VendorClaimError";
+import VendorClaimForm from "@/features/vendorClaim/components/VendorClaimForm";
 
 function VendorClaimPageContent() {
-  const { addNotification } = useNotification();
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createClient();
@@ -51,18 +34,8 @@ function VendorClaimPageContent() {
 
   const [existingSession, setExistingSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClaiming, setIsClaiming] = useState(false);
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
   const [errorType, setErrorType] = useState<ErrorType>(null);
-  const [formError, setFormError] = useState("");
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [termsError, setTermsError] = useState(false);
-  const [enableInquiries, setEnableInquiries] = useState(true);
-
-  // Form fields
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   // Initialize page: verify token → load vendor info
   useEffect(() => {
@@ -91,7 +64,7 @@ function VendorClaimPageContent() {
       // Execute reCAPTCHA and get token
       try {
         await recaptchaRef.current?.executeAsync();
-        console.log("reCAPTCHA executed successfully");
+        console.debug("reCAPTCHA executed successfully");
       } catch (error) {
         console.error("Error executing reCAPTCHA: ", error);
         setErrorType("recaptcha_failed");
@@ -123,399 +96,75 @@ function VendorClaimPageContent() {
     window.location.reload(); // reload keeps magic link params
   };
 
-  const handleClaim = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!password || !confirmPassword) {
-      setFormError("Please fill out all fields.");
-      return;
-    }
-
-    // Validate password using existing function
-    const passwordValidation = validatePassword(password);
-    if (!passwordValidation.isValid) {
-      setFormError(passwordValidation.message);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setFormError("Passwords do not match.");
-      return;
-    }
-
-    if (!vendorInfo?.email) {
-      setFormError("Missing vendor email.");
-      return;
-    }
-
-    // Clear any field errors
-    setFormError("");
-
-    if (!acceptedTerms) {
-      setTermsError(true);
-      return;
-    }
-
-    setIsClaiming(true);
-    setFormError("");
-
-    try {
-      const result = await signUpAndClaimVendor(vendorInfo.email, token, password, enableInquiries);
-
-      if (!result.success) {
-        setFormError(result.error || "Failed to claim vendor.");
-        setIsClaiming(false);
-        return;
-      }
-
-      // Login in automatically
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: vendorInfo.email,
-        password,
-      });
-
-      if (signInError) {
-        setFormError("Account created, but sign-in failed. Please log in manually.");
-        setIsClaiming(false);
-        return;
-      }
-
-      addNotification("Welcome! Your vendor account has been created.");
-      router.push("/partner/dashboard");
-    } catch {
-      setFormError("Failed to claim business profile. Please try again.");
-      setIsClaiming(false);
-    }
-  };
-
-  const getErrorContent = (type: ErrorType) => {
-    switch (type) {
-      case "invalid_link":
-        return {
-          title: "Invalid Claim Link",
-          message: "This claim link is invalid or has already been used. Each link can only be used once to claim a vendor profile.",
-          actions: (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => router.push("/partner/login")}
-                fullWidth
-                sx={{ mb: 1 }}
-              >
-                Log In
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => router.push("/partner")}
-                fullWidth
-              >
-                Return Home
-              </Button>
-            </>
-          )
-        };
-      case "expired_link":
-        return {
-          title: "Expired Claim Link",
-          message: "This claim link has expired. Claim links are valid for 24 hours after being sent.",
-          actions: (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => router.push("/partner/login")}
-                fullWidth
-                sx={{ mb: 1 }}
-              >
-                Request New Link
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => router.push("/partner")}
-                fullWidth
-              >
-                Return Home
-              </Button>
-            </>
-          )
-        };
-      case "missing_params":
-        return {
-          title: "Incomplete Claim Link",
-          message: "The claim link appears to be incomplete or incorrectly formatted. Please check that you've copied the entire link from your email.",
-          actions: (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => router.push("/partner/login")}
-                fullWidth
-                sx={{ mb: 1 }}
-              >
-                Log In
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => router.push("/partner")}
-                fullWidth
-              >
-                Return Home
-              </Button>
-            </>
-          )
-        };
-      case "recaptcha_failed":
-        return {
-          title: "Security Verification Failed",
-          message: "We couldn't verify your request. This might be due to a network issue or browser settings blocking security checks.",
-          actions: (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => window.location.reload()}
-                fullWidth
-                sx={{ mb: 1 }}
-              >
-                Try Again
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={() => router.push("/partner/login")}
-                fullWidth
-              >
-                Log In
-              </Button>
-            </>
-          )
-        };
-      default:
-        return null;
-    }
-  };
-
+  // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <Container maxWidth="sm">
         <Box sx={{ minHeight: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <CircularProgress />
+          <CircularProgress size={28} />
         </Box>
       </Container>
     );
   }
 
+  // ── Already logged in ────────────────────────────────────────────────────
   if (existingSession) {
     return (
       <Container maxWidth="sm">
-        <Box sx={{ mt: 8 }}>
-          <Card>
-            <CardContent>
-              <Typography variant="h2" gutterBottom>
-                You&apos;re already logged in
-              </Typography>
-
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                You&apos;re currently logged in as: <strong>{existingSession.user.email}</strong>.
-                Please log out if you want to claim a different vendor profile.
-              </Typography>
-
-
-              {vendorInfo && (
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
-                  <Typography variant="subtitle2">
-                    Vendor to be claimed
-                  </Typography>
-                  <Typography variant="body2">
-                    <strong>{vendorInfo.name}</strong>
-                  </Typography>
-                </Box>
-              )}
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-                <Button
-                  variant="contained"
-                  onClick={() => router.push("/partner/dashboard")}
-                  fullWidth
-                >
-                  My Dashboard
-                </Button>
-
-                <Button
-                  variant="outlined"
-                  onClick={handleSignOutAndReload}
-                  fullWidth
-                >
-                  Log out
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
+        <Box sx={{ mt: 8, mb: 6 }}>
+          <AlreadyLoggedIn session={existingSession} onSignOut={handleSignOutAndReload} />
         </Box>
       </Container>
     );
   }
-
-  const errorContent = getErrorContent(errorType);
 
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 8 }}>
-        <Card>
-          <CardContent>
-            <Typography variant="h2" gutterBottom>
-              Claim Your Vendor Profile
+        <Card variant="outlined" sx={{ overflow: "hidden", bgcolor: "background.default", pt: 2 }}>
+
+          {/* Header */}
+          <Box sx={{ px: 6, pt: 3, pb: 4, borderBottom: "1px solid", borderColor: "divider" }}>
+            <Typography variant="h5" sx={{ fontWeight: 500, mb: 0.75, lineHeight: 1.3 }}>
+              {errorType ? "Something went wrong" : "Your profile is ready to claim!"}
             </Typography>
 
-            {errorContent ? (
-              <>
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                    {errorContent.title}
-                  </Typography>
-                  <Typography variant="body2">
-                    {errorContent.message}
-                  </Typography>
-                </Alert>
+          </Box>
 
-                <Box sx={{ mt: 3 }}>
-                  {errorContent.actions}
-                </Box>
-              </>
-            ) : (
-              <>
-                <Typography variant="body1" sx={{ mb: 2 }}>
-                  Your profile is waiting! Create a password below to make your account for managing your vendor profile.
-                  You can change your email later if needed.
-                </Typography>
+          {/* Business strip — only shown when we have vendor info */}
+          {vendorInfo && <BusinessStrip name={vendorInfo.name} email={vendorInfo.email} />}
 
-                <Box sx={{ mb: 3, p: 2, borderRadius: 2, bgcolor: "background.paper" }}>
-                  <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
-                    Business Found: <strong>
-                      <Link
-                        component={NextLink}
-                        href={`/vendors/${slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        underline="hover"
-                      >
-                        {vendorInfo?.name}
-                      </Link>
-                    </strong>
-                  </Typography>
-                  <Typography variant="subtitle1" sx={{ mb: 0.5 }}>
-                    Email: <strong>{vendorInfo?.email}</strong>
-                  </Typography>
-                </Box>
-
-                {formError && (
-                  <Alert severity="error" sx={{ mb: 2 }}>
-                    {formError}
-                  </Alert>
-                )}
-
-                <Box component="div">
-                  {/* Password */}
-                  <TextField
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    fullWidth
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleClaim(e);
-                      }
-                    }}
-                    sx={{ mb: 1.5 }}
-                    slotProps={{
-                      input: {
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                              {showPassword ? <VisibilityOff /> : <Visibility />}
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }
-                    }}
-                  />
-
-                  {/* Confirm Password */}
-                  <TextField
-                    label="Confirm Password"
-                    type={showPassword ? "text" : "password"}
-                    fullWidth
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        handleClaim(e);
-                      }
-                    }}
-                    sx={{ mb: 3 }}
-                  />
-
-                  <Alert severity="info" sx={{ mb: 2 }}>
-                    Password must contain:
-                    <ul>
-                      <li>At least 8 characters</li>
-                      <li>At least one uppercase letter</li>
-                      <li>At least one lowercase letter</li>
-                      <li>At least one number</li>
-                      <li>At least one special character: {'!@#$%^&*(),.?'}</li>
-                    </ul>
-                  </Alert>
-
-                  <TermsCheckbox
-                    isVendorTerms={true}
-                    checked={acceptedTerms}
-                    onChange={(checked) => {
-                      setAcceptedTerms(checked);
-                      setTermsError(false);
-                    }}
-                    error={termsError}
-                  />
-
-                  <FormControlLabel
-                    sx={{ mt: 1, mb: 2, alignItems: 'flex-start' }}
-                    control={
-                      <Checkbox
-                        checked={enableInquiries}
-                        onChange={(e) => setEnableInquiries(e.target.checked)}
-                        color="primary"
-                        sx={{ pt: 0 }}
-                      />
-                    }
-                    label={
-                      <Typography variant="body2">
-                        I want to receive inquiries from prospective clients through Asian Wedding Makeup.{" "}
-                        <Link component={NextLink} href="/partner" target="_blank" rel="noopener noreferrer">
-                          Learn More
-                        </Link>
-                      </Typography>
-                    }
-                  />
-
-                  {/* Submit */}
-                  <Button
-                    onClick={handleClaim}
-                    variant="contained"
-                    fullWidth
-                    disabled={isClaiming}
-                  >
-                    {isClaiming ? <CircularProgress size={24} /> : "Create Account"}
-                  </Button>
-                </Box>
-
-                {/* Sign-in alternative */}
-                <Box sx={{ mt: 2, textAlign: "center" }}>
-                  <Typography variant="body2">
-                    Already have an account?{" "}
-                    <Button variant="text" onClick={() => router.push("/partner/login")} sx={{ p: 0, textTransform: 'none' }}>
-                      Log in here.
-                    </Button>
-                  </Typography>
-                </Box>
-              </>
-            )}
+          {/* Body */}
+          <CardContent sx={{ px: 8, py: 3 }}>
+            {errorType ? (
+              <VendorClaimError errorType={errorType} />
+            ) : vendorInfo ? (
+              <VendorClaimForm vendorInfo={vendorInfo} token={token} />
+            ) : null}
           </CardContent>
+
+          {/* Footer */}
+          <Box
+            sx={{
+              px: 3,
+              py: 1.5,
+              borderTop: "1px solid",
+              borderColor: "divider",
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              Already have an account?{" "}
+              <Link
+                component={NextLink}
+                href="/partner/login"
+                underline="hover"
+                sx={{ color: "text.primary" }}
+              >
+                Log in
+              </Link>
+            </Typography>
+          </Box>
         </Card>
       </Box>
     </Container >
@@ -525,7 +174,9 @@ function VendorClaimPageContent() {
 export default function VendorClaimPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <VendorClaimPageContent />
+      <Box sx={{ bgcolor: "background.back", minHeight: "100vh", display: "flex" }}>
+        <VendorClaimPageContent />
+      </Box>
     </Suspense>
   );
 }

@@ -208,7 +208,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
             </Box>
           </Grid>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Card sx={{ borderRadius: 2, overflow: "hidden", display: "inline-block", boxShadow: "none" }}>
+            <Card sx={{ overflow: "hidden", display: "inline-block", boxShadow: "none" }}>
               <Image
                 src={makeupImage}
                 alt="Professional makeup palette"

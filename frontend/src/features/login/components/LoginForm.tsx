@@ -200,7 +200,6 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
               size="large"
               endIcon={<ArrowForward />}
               sx={{
-                borderRadius: 2,
                 py: 1.5,
                 fontWeight: 500,
                 letterSpacing: 0.5,

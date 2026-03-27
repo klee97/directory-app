@@ -32,7 +32,6 @@ export default async function Article({ post }: { post: SinglePageBlogPost | nul
             backgroundColor: 'background.paper',
             padding: '20px',
             marginTop: '30px',
-            borderRadius: '8px',
             boxShadow: 3
           }}
         >

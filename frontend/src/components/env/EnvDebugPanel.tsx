@@ -111,7 +111,6 @@ const EnvDebugPanel = () => {
                   Based on hostname: <code style={{
                     backgroundColor: 'rgba(255, 152, 0, 0.1)',
                     padding: '2px 6px',
-                    borderRadius: '4px'
                   }}>
                     {clientEnv.hostname}
                   </code>
@@ -204,7 +203,6 @@ const EnvDebugPanel = () => {
                         marginTop: '8px',
                         backgroundColor: 'rgba(211, 47, 47, 0.1)',
                         padding: '8px',
-                        borderRadius: '4px'
                       }}>
                         /api/env-debug/route.ts
                       </code>

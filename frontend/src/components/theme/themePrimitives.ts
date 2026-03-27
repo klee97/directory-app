@@ -39,6 +39,9 @@ const typography = {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.1rem',
     fontWeight: 400,
+  },
+  button: {
+    textTransform: "none"
   }
 };
 
@@ -109,6 +112,9 @@ export const getDesignTokens = () => {
 
   return {
     colorSchemes: colorSchemes,
+    shape: {
+      borderRadius: 8,
+    },
     components: {
       MuiMenu: {
         styleOverrides: {
@@ -160,6 +166,9 @@ export const getDesignTokens = () => {
           '&:hover': {
             backgroundColor: 'primary.dark',
           }
+        },
+        root: {
+          textTransform: 'none',
         }
       }
     }
