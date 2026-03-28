@@ -122,6 +122,7 @@ export const VendorCard = ({
         onBlur={onBlur}
         tabIndex={tabIndex}
         className={className}
+        data-testid={`vendor-card-${vendor.slug}`}
         sx={{
           display: 'flex',
           flexDirection: 'column',

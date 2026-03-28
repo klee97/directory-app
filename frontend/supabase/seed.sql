@@ -5,7 +5,7 @@ VALUES (
   'authenticated',
   'authenticated',
   'test-user@example.com',
-  extensions.crypt('testpassword123!', extensions.gen_salt('bf')),
+  extensions.crypt('Testpassword123!', extensions.gen_salt('bf')),
   timezone('utc'::text, now()),
   NULL, '', NULL, '', NULL, '', '', NULL, NULL,
   '{"provider": "email", "providers": ["email"]}',
