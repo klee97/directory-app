@@ -23,7 +23,7 @@ test.describe('Favorites — guest', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText(/Wedding Beauty Artist/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
   test('clicking heart on vendor card shows login prompt', async ({ page }) => {
