@@ -33,7 +33,6 @@ test.describe('Favorites — guest', () => {
     await expect(page.getByText('Log in to favorite this vendor.')).toBeVisible();
   });
 
-  // Regression: closing login prompt must NOT navigate to the vendor page (was a bug)
   test('closing login prompt stays on homepage', async ({ page }) => {
     await page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -57,7 +56,6 @@ test.describe('Favorites — guest', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
   });
 
-  // Regression: settings page should require auth (was accessible without login)
   test('/settings redirects to login when not authenticated', async ({ page }) => {
     await page.goto('/settings');
     await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });

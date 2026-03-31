@@ -48,7 +48,7 @@ test.describe('Login — guest', () => {
     await expect(page.getByRole('menuitem', { name: 'My Favorites' })).toBeVisible();
   });
 
-  // Regression: mobile menu should close after navigating to login (not stay open)
+
   test('mobile menu closes after navigating to login page', async ({ page }) => {
     await page.setViewportSize(MOBILE_VIEWPORT);
     await page.goto('/');
