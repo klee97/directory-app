@@ -1,6 +1,5 @@
 "use client";
 
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -19,18 +18,11 @@ import { signUpAndClaimVendor } from "@/features/profile/dashboard/hooks/claimVe
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
 import TermsCheckbox from "@/components/layouts/TermsCheckbox";
-import Checklist from "@/components/ui/Checklist";
 
 interface VendorClaimFormProps {
   vendorInfo: { name: string; email: string };
   token: string;
 }
-
-const PERKS = [
-  { label: "Update your prices and photos at any time" },
-  { label: "Verified checkmark helps you stand out with clients" },
-  { label: "Receive bridal inquiries from our 2k users" },
-];
 
 export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormProps) {
   const { addNotification } = useNotification();
@@ -110,13 +102,9 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
 
   return (
     <>
-      <Typography variant="body1" color="text.primary">
-        Create a password to take control of your listing for free:
+      <Typography variant="h4" color="text.primary" sx={{ mb: 2 }}>
+        Set a password below to claim your profile
       </Typography>
-
-      <Box sx={{ bgcolor: "grey.100", py: 1, px: 2, mt: 2, mb: 4 }} >
-        <Checklist items={PERKS} sx={{ mb: 2.5 }} />
-      </Box>
 
       {formError && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -155,7 +143,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
         }}
       />
       <Typography variant="caption" color="text.disabled" sx={{ display: "block", mb: 2 }}>
-        8+ chars · one uppercase · one number · one symbol (!@#$%^&amp;*)
+        8+ characters · one uppercase · one number · one symbol (!@#$%^&amp;*)
       </Typography>
 
       {/* Confirm password */}
@@ -178,6 +166,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
             checked={enableInquiries}
             onChange={(e) => setEnableInquiries(e.target.checked)}
             sx={{ pt: 0 }}
+            color="secondary"
           />
         }
         label={
@@ -205,9 +194,10 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
         fullWidth
         disabled={isClaiming}
         size="large"
-        sx={{ mt: 2, textTransform: "none" }}
+        color="secondary"
+        sx={{ mt: 2 }}
       >
-        {isClaiming ? <CircularProgress size={20} color="inherit" /> : "Claim my profile"}
+        {isClaiming ? <CircularProgress size={20} color="inherit" /> : "Claim profile"}
       </Button>
     </>
   );

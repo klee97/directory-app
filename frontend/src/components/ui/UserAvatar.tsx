@@ -1,7 +1,12 @@
 import { AccountCircle } from "@mui/icons-material";
+import { SxProps, Theme } from "@mui/material/styles";
 
-export default function PersonAvatar() {
+interface PersonAvatarProps {
+  sx?: SxProps<Theme>;
+}
+
+export default function PersonAvatar({ sx }: PersonAvatarProps) {
   return (
-    <AccountCircle sx={{ fontSize: 32, color: "inherit" }} />
+    <AccountCircle sx={{ fontSize: 32, color: "inherit", ...sx }} />
   );
 }

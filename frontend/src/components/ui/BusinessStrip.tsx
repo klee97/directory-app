@@ -21,12 +21,12 @@ export default function BusinessStrip({ name, email }: BusinessStripProps) {
         borderColor: "divider",
       }}
     >
-      <PersonAvatar />
+      <PersonAvatar sx={{ color: "text.secondary" }} />
       <Box>
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+        <Typography variant="subtitle2">
           {name}
         </Typography>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="body2">
           {email}
         </Typography>
       </Box>

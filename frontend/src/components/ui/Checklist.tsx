@@ -1,4 +1,3 @@
-import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -10,6 +9,7 @@ import { SxProps, Theme } from "@mui/material/styles";
 export interface ChecklistItem {
   label: string;
   detail?: string;
+  icon?: React.ReactNode;
 }
 
 interface ChecklistProps {
@@ -22,20 +22,20 @@ export default function Checklist({ items, sx }: ChecklistProps) {
     <List dense disablePadding sx={sx}>
       {items.map((item) => (
         <ListItem key={item.label} disablePadding sx={{ py: 0.5 }}>
-          <ListItemIcon sx={{ minWidth: 32 }}>
-            <CheckCircleIcon sx={{ fontSize: 18, color: "grey.500" }} />
+          <ListItemIcon sx={{ minWidth: 32, mt: "2px", alignSelf: "flex-start" }}>
+            {item.icon ?? <CheckCircleIcon sx={{ fontSize: 18, color: "grey.500" }} />}
           </ListItemIcon>
           <ListItemText
             primary={
               item.detail ? (
-                <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.5 }}>
-                  <Box component="span" sx={{ fontWeight: 500, color: "text.primary" }}>
+                <Typography variant="body2" color="text.primary" sx={{ lineHeight: 1.5 }}>
+                  <Typography component="span" variant="subtitle2" color="text.primary">
                     {item.label}
-                  </Box>
+                  </Typography>
                   {" "} {item.detail}
                 </Typography>
               ) : (
-                <Typography variant="body2">{item.label}</Typography>
+                <Typography variant="subtitle2" color="text.primary">{item.label}</Typography>
               )
             }
           />

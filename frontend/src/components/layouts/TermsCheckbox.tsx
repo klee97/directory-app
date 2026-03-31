@@ -33,7 +33,6 @@ export default function TermsCheckbox({
           <Checkbox
             checked={checked}
             onChange={(e) => onChange(e.target.checked)}
-            sx={{ pt: 0 }}
             color="primary"
           />
         }

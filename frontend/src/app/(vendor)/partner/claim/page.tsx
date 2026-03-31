@@ -19,6 +19,8 @@ import AlreadyLoggedIn from "@/features/vendorClaim/components/VendorLoggedIn";
 import BusinessStrip from "@/components/ui/BusinessStrip";
 import VendorClaimError, { ErrorType } from "@/features/vendorClaim/components/VendorClaimError";
 import VendorClaimForm from "@/features/vendorClaim/components/VendorClaimForm";
+import VendorClaimPerks from "@/features/vendorClaim/components/VendorClaimPerks";
+import { Divider } from "@mui/material";
 
 function VendorClaimPageContent() {
   const searchParams = useSearchParams();
@@ -120,13 +122,13 @@ function VendorClaimPageContent() {
 
   return (
     <Container maxWidth="sm">
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ my: 8 }}>
         <Card variant="outlined" sx={{ overflow: "hidden", bgcolor: "background.default", pt: 2 }}>
 
           {/* Header */}
-          <Box sx={{ px: 6, pt: 3, pb: 4, borderBottom: "1px solid", borderColor: "divider" }}>
-            <Typography variant="h5" sx={{ fontWeight: 500, mb: 0.75, lineHeight: 1.3 }}>
-              {errorType ? "Something went wrong" : "Your profile is ready to claim!"}
+          <Box sx={{ px: 6, pt: 3, pb: 3, borderBottom: "1px solid", borderColor: "divider" }}>
+            <Typography variant="h2" sx={{ fontWeight: 500, mb: 0.75, lineHeight: 1.3 }}>
+              {errorType ? "Something went wrong" : "Your profile is ready to claim"}
             </Typography>
 
           </Box>
@@ -135,13 +137,21 @@ function VendorClaimPageContent() {
           {vendorInfo && <BusinessStrip name={vendorInfo.name} email={vendorInfo.email} />}
 
           {/* Body */}
-          <CardContent sx={{ px: 8, py: 3 }}>
-            {errorType ? (
+          {errorType ? (
+            <CardContent sx={{ px: 8, py: 3 }}>
               <VendorClaimError errorType={errorType} />
-            ) : vendorInfo ? (
-              <VendorClaimForm vendorInfo={vendorInfo} token={token} />
-            ) : null}
-          </CardContent>
+            </CardContent>
+          ) : vendorInfo ? (
+            <>
+              <CardContent sx={{ px: 8, py: 3 }}>
+                <VendorClaimPerks />
+              </CardContent>
+              <Divider />
+              <CardContent sx={{ px: 8, py: 3 }}>
+                <VendorClaimForm vendorInfo={vendorInfo} token={token} />
+              </CardContent>
+            </>
+          ) : null}
 
           {/* Footer */}
           <Box
@@ -153,7 +163,7 @@ function VendorClaimPageContent() {
               textAlign: "center",
             }}
           >
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="body2">
               Already have an account?{" "}
               <Link
                 component={NextLink}
