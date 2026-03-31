@@ -218,6 +218,12 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
           </Link>
         );
       }
+    },
+    renderText: (text: string) => {
+      return text.split('\n').reduce<React.ReactNode[]>((acc, segment, i) => {
+        if (i === 0) return [segment];
+        return [...acc, <br key={i} />, segment];
+      }, []);
     }
   };
 
