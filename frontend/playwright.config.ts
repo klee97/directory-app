@@ -99,7 +99,7 @@ export default defineConfig({
         storageState: 'e2e/fixtures/.auth/vendor-session.json',
       },
       dependencies: ['vendor-auth-setup'],
-      testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
+      testMatch: '**/e2e/**/*.vendor.protected.spec.ts',
     },
 
     // -----------------------------------------------------------------
