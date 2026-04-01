@@ -17,7 +17,7 @@ export default function VendorClaimForm() {
 
   return (
     <>
-      <Typography variant="h4" color="text.primary">
+      <Typography variant="body1" color="text.primary">
         What you&apos;ll get:
       </Typography>
 

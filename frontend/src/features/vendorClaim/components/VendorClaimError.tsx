@@ -5,6 +5,7 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
+import AlertTitle from "@mui/material/AlertTitle";
 
 export type ErrorType =
   | "invalid_link"
@@ -57,10 +58,8 @@ export default function VendorClaimError({ errorType }: VendorClaimErrorProps) {
   return (
     <>
       <Alert severity="error" sx={{ mb: 3 }}>
-        <Typography variant="body2" sx={{ fontWeight: 500, mb: 0.25 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2">{message}</Typography>
+        <AlertTitle>{title}</AlertTitle>
+        {message}
       </Alert>
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>

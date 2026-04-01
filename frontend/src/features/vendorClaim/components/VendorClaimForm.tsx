@@ -102,7 +102,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
 
   return (
     <>
-      <Typography variant="h4" color="text.primary" sx={{ mb: 2 }}>
+      <Typography variant="body1" sx={{ mb: 2 }}>
         Set a password below to claim your profile
       </Typography>
 
