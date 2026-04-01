@@ -26,7 +26,6 @@ export default function BaseCard({
   return (
     <Card
       sx={{
-        borderRadius: 2,
         height: '100%',
         transition: 'box-shadow 0.2s, transform 0.2s',
         ...(hoverable && {

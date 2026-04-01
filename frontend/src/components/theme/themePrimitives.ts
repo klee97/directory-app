@@ -19,13 +19,13 @@ const typography = {
   h4: {
 
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: '1.2rem',
+    fontSize: '1.4rem',
     fontWeight: 500,
     mb: 1,
   },
   h5: {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: '1.4rem',
+    fontSize: '1.2rem',
     fontWeight: 500,
     mb: 2,
   },
@@ -39,7 +39,22 @@ const typography = {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.1rem',
     fontWeight: 400,
-  }
+  },
+  body2: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1rem',
+    fontWeight: 400,
+  },
+  subtitle1: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1.2rem',
+    fontWeight: 500,
+  },
+  subtitle2: {
+    fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontSize: '1rem',
+    fontWeight: 600,
+  },
 };
 
 export const colorSchemes = {
@@ -109,6 +124,9 @@ export const getDesignTokens = () => {
 
   return {
     colorSchemes: colorSchemes,
+    shape: {
+      borderRadius: 8,
+    },
     components: {
       MuiMenu: {
         styleOverrides: {
@@ -160,7 +178,7 @@ export const getDesignTokens = () => {
           '&:hover': {
             backgroundColor: 'primary.dark',
           }
-        }
+        },
       }
     }
   }

@@ -16,7 +16,7 @@ export function VendorCoverImage({
   placeholderImage: StaticImageData;
 }) {
   return (
-    <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
+    <Card elevation={0} sx={{ overflow: 'hidden', mb: 4, maxWidth: 600, marginX: 'auto' }}>
       <Box
         sx={{
           position: 'relative',

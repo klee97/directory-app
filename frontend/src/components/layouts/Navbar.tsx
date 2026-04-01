@@ -28,13 +28,13 @@ import Alert from '@mui/material/Alert';
 import { AlertColor } from '@mui/material/Alert';
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import AccountCircle from "@mui/icons-material/AccountCircle";
 import { isDevelopment, isDevOrPreview } from '@/lib/env/env';
 import DevTools from './DevTools';
 import { useAuth } from '@/contexts/AuthContext';
 import { isVendorRole } from '@/lib/auth/userRole';
 import NavigationMenu from '@/components/layouts/NavigationMenu';
 import { useRouter } from 'next/navigation';
+import UserAvatar from '@/components/ui/UserAvatar';
 
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
@@ -173,7 +173,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             display: { xs: 'none', md: 'block' }
           }}
         >
-          Login
+          Log in
         </Button>
       );
     }
@@ -196,7 +196,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             color="inherit"
             data-testid="profile-button"
           >
-            <AccountCircle />
+            <UserAvatar />
           </IconButton>
           <Menu
             id="menu-profile"

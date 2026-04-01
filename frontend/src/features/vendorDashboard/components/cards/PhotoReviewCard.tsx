@@ -65,7 +65,6 @@ export default function PhotoReviewCard({ photoUrl, mediaId, initialCredits, onA
                 width: { xs: 120, sm: 160 },
                 height: "auto",
                 flexShrink: 0,
-                borderRadius: 2,
                 border: "1px solid",
                 borderColor: "divider",
                 objectFit: "cover",
