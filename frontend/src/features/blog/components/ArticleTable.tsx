@@ -27,10 +27,10 @@ export async function ArticleTable() {
           <RefreshButton />
         </Box>
       )}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justifyContent="center">
         {validPosts.map((post) => (
-          <Grid key={post.slug} size={{ xs: 12, md: 4 }} sx={{ display: 'flex' }}>
-            <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block' }}>
+          <Grid key={post.slug} size={{ xs: 8, md: 4 }} sx={{ display: 'flex' }}>
+            <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 {post.featuredImage && post.featuredImage.url && (
                   <Box sx={{ position: 'relative', height: '300px', width: '100%' }}>
