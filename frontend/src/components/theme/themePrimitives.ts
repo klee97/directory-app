@@ -47,8 +47,8 @@ const typography = {
   },
   subtitle1: {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
-    fontSize: '1.1rem',
-    fontWeight: 600,
+    fontSize: '1.2rem',
+    fontWeight: 500,
   },
   subtitle2: {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',

@@ -21,8 +21,8 @@ export default function Checklist({ items, sx }: ChecklistProps) {
   return (
     <List dense disablePadding sx={sx}>
       {items.map((item) => (
-        <ListItem key={item.label} disablePadding sx={{ py: 0.5 }}>
-          <ListItemIcon sx={{ minWidth: 32, mt: "2px", alignSelf: "flex-start" }}>
+        <ListItem key={item.label} disablePadding sx={{ py: 0.5, alignItems: 'center' }}>
+          <ListItemIcon sx={{ minWidth: 32 }}>
             {item.icon ?? <CheckCircleIcon sx={{ fontSize: 18, color: "grey.500" }} />}
           </ListItemIcon>
           <ListItemText

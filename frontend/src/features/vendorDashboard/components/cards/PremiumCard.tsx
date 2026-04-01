@@ -19,7 +19,7 @@ export default function PremiumWaitlistCard() {
         Interested in getting more visibility? We&apos;re working on Premium profiles that wil help you stand out, with features like:
       </Typography>
 
-      <Checklist items={features.map(f => ({ label: f }))} />
+      <Checklist items={features.map(f => ({ label: f }))} sx={{ mb: 3 }} />
 
       <Button
         variant="contained"
