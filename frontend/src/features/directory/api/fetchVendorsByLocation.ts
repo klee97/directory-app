@@ -8,7 +8,7 @@ import {
   SEARCH_RESULTS_MINIMUM,
   SEARCH_VENDORS_LIMIT_DEFAULT,
 } from "@/types/location";
-import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance} from "@/types/vendor";
+import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
 
 const CACHE_TTL = 3600 * 24; // 24 hours
@@ -30,7 +30,7 @@ function buildVendorQuery() {
 const _getVendorsByDistance = unstable_cache(
   async (lat: number, lon: number, radiusMi: number, limit: number, _includeTestVendors: boolean): Promise<VendorByDistance[]> => {
     const { data, error } = await supabase.rpc(
-      "get_vendors_by_location_with_distinct_tags_and_media",
+      "get_vendors_by_location_with_distinct_tags_and_media_v2",
       { lat, lon, radius_miles: radiusMi, limit_results: limit }
     );
 
