@@ -2,7 +2,7 @@ import { supabase } from './src/lib/api-client.ts';
 
 
 export async function fetchVendorSlugs() {
-  const { data } = await supabase.from('vendors').select('slug');
+  const { data } = await supabase.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 
