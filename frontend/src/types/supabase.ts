@@ -1228,6 +1228,39 @@ export type Database = {
           vendor_type: string
         }[]
       }
+      get_vendors_by_location_with_distinct_tags_and_media_v2: {
+        Args: {
+          lat: number
+          limit_results: number
+          lon: number
+          radius_miles: number
+        }
+        Returns: {
+          bridal_hair_price: number
+          bridal_makeup_price: number
+          business_name: string
+          city: string
+          country: string
+          cover_image: string
+          distance_miles: number
+          gis: unknown
+          id: string
+          lists_prices: boolean
+          location_coordinates: string
+          metro_id: number
+          metro_region_id: number
+          region: string
+          slug: string
+          specialization: string
+          state: string
+          state_id: number
+          tags: Json
+          travels_world_wide: boolean
+          vendor_media: Json
+          vendor_type: string
+          verified_at: string
+        }[]
+      }
       get_vendors_by_location_with_tags: {
         Args: {
           lat: number
