@@ -104,8 +104,7 @@ const _getVendorsByState = unstable_cache(
 
     if (error) throw new Error(`Error fetching vendors by state: ${error.message}`);
     if (!data) throw new Error("No data returned from vendors-by-state query");
-
-    return data;
+    return filterTestVendors(data as BackendVendor[]).map(transformBackendVendorToFrontend);
   },
   ["vendors-by-state"],
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
@@ -132,8 +131,7 @@ const _getVendorsByCountry = unstable_cache(
 
     if (error) throw new Error(`Error fetching vendors by country: ${error.message}`);
     if (!data) throw new Error("No data returned from vendors-by-country query");
-
-    return data;
+    return filterTestVendors(data as BackendVendor[]).map(transformBackendVendorToFrontend);
   },
   ["vendors-by-country"],
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
