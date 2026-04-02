@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { MOBILE_VIEWPORT } from '../constants';
 
 /**
  * Favorites e2e tests — runs as unauthenticated guest.
@@ -8,7 +9,6 @@ import { test, expect } from '@playwright/test';
  *   - TEST-E2E-002 "Test Bridal Beauty Co" slug: test-bridal-beauty-co
  */
 
-const MOBILE_VIEWPORT = { width: 390, height: 844 };
 const GLAMOUR_SLUG = 'test-glamour-studio';
 
 test.describe('Favorites — guest', () => {

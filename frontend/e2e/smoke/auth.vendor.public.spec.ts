@@ -31,6 +31,7 @@ test('vendor login with redirectTo respects the param', async ({ page }) => {
   await page.getByLabel('Password').fill(process.env.TEST_VENDOR_PASSWORD!);
   await page.getByTestId('login-submit').click();
 
+  // await page.waitForURL('/partner/settings', { timeout: 15_000 });
   await expect(page).toHaveURL('/partner/settings');
 });
 
