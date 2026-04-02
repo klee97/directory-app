@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
   title: "Our Story | Asian Wedding Makeup in NYC, LA & more",
   description: "Learn why we created this directory of wedding makeup artists skilled in Asian beauty, and discover vetted recommendations from real Asian brides.",
   openGraph: {
-    title: 'Our | Asian Wedding Makeup in NYC, LA & more',
+    title: 'Our Story | Asian Wedding Makeup in NYC, LA & more',
     description: 'Learn why we created this directory of wedding makeup artists skilled in Asian beauty, and discover vetted recommendations from real Asian brides.',
     url: 'https://www.asianweddingmakeup.com/about',
     type: 'website',

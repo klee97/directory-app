@@ -15,7 +15,6 @@ export default function UserLogin() {
   const [isLoading, setIsLoading] = useState(true);
   const redirectTo = searchParams?.get("redirectTo") ?? undefined;
 
-
   useEffect(() => {
     // Check if user is already logged in
     const checkSession = async () => {

@@ -6,12 +6,13 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Recommend an Artist | Asian Wedding Makeup',
-  description: 'Know a great HMUA for Asian features? Submit a recommendation and help grow our network.',
+  description: 'Know a great HMUA for Asian features? Submit a recommendation and help grow our directory.',
   alternates: {
     canonical: '/recommend',
   },
   openGraph: {
     title: 'Recommend an Artist | Asian Wedding Makeup',
+    description: 'Know a great HMUA for Asian features? Submit a recommendation and help grow our directory.',
     url: '/recommend',
     type: 'website',
   },
