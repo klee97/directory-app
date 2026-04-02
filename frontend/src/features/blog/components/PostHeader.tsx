@@ -11,8 +11,8 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
     <>
 
       {post.featuredImage?.url && (
-        <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%', mb: 4 }}>
-          <Box sx={{ position: 'relative', height: '500px', width: '100%', mb: 1 }}>
+        <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%' }}>
+          <Box sx={{ position: 'relative', aspectRatio: '4 / 3', width: '100%', maxHeight: { xs: '250px', md: '430px' }, mb: 1 }}>
             <ContentfulImage
               alt={`Cover Image: ${post.featuredImage.title}`}
               src={post.featuredImage.url}
@@ -33,8 +33,7 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
         </Box>
       )}
 
-
-      <Typography paddingTop={3} variant="h3" component="h1">
+      <Typography paddingTop={3} variant="h2" component="h1" >
         {post.title}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -45,9 +44,7 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
           {post.author?.name} • {new Date(post.publishedDate).toLocaleDateString()}
         </Typography>
       </Box>
-      <Typography variant="h6" color={'secondary'} gutterBottom>{post.shortDescription}</Typography>
-
-
+      <Typography variant="h6" color={'secondary'} fontWeight={600} gutterBottom>{post.shortDescription}</Typography>
     </>
   )
 }

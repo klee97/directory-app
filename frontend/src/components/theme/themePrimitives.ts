@@ -17,7 +17,6 @@ const typography = {
     fontWeight: 500,
   },
   h4: {
-
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.4rem',
     fontWeight: 500,
@@ -27,7 +26,7 @@ const typography = {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '1.2rem',
     fontWeight: 500,
-    mb: 2,
+    mb: 1,
   },
   h6: {
     fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',

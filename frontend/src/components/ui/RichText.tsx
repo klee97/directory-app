@@ -110,22 +110,18 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
       if (entry.__typename === 'ComponentRichImage') {
         const imageEntry = entry as ComponentRichImage;
         return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', mb: 4 }}>
-            <Box
-              sx={{
-                position: 'relative',
-                width: '100%',
-                height: '400px',
-                my: 2
-              }}
-            >
+          <Box sx={{ display: 'flex', flexDirection: 'column', mb: 1 }}>
+            <Box sx={{ width: '100%', my: 2, textAlign: 'center' }}>
               <ContentfulImage
                 src={imageEntry.image.url}
                 alt={imageEntry.caption || 'Embedded image'}
-                fill
+                width={imageEntry.image.width}
+                height={imageEntry.image.height}
                 style={{
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: '80vh',      // prevents a tall portrait from dominating the page
                   objectFit: 'contain',
-                  objectPosition: 'center bottom'
                 }}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
