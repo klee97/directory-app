@@ -38,6 +38,7 @@ jobs:
   #   - TEST_VENDOR_EMAIL
   #   - TEST_VENDOR_PASSWORD
   #   - NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED
+  #   - NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED
   # -------------------------------------------------------------------
   e2e:
     name: E2E Tests
@@ -92,6 +93,7 @@ jobs:
           TEST_VENDOR_EMAIL: test-vendor@example.com
           TEST_VENDOR_PASSWORD: Testvendorpassword123!
           NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED: "true"
+          NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI
