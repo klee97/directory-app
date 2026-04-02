@@ -206,6 +206,8 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
               overflowX: 'auto',
               gap: 2,
               scrollPaddingX: '1rem',
+              pt: 1,
+              pb: 5,
               '&::-webkit-scrollbar': { display: 'none' },
             }}
           >

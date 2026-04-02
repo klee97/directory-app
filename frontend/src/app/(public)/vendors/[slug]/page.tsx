@@ -84,7 +84,7 @@ export default async function VendorPage({ params }: PageProps) {
     // Filter out the current vendor and sort by premium status
     nearbyVendors = allNearbyVendors
       .filter(v => v.id !== vendor.id)
-      .sort((a, b) => Number(b.is_premium) - Number(a.is_premium))
+      .sort((a, b) => Number(b.is_premium || b.verified_at) - Number(a.is_premium || a.verified_at))
   }
 
   const address = {

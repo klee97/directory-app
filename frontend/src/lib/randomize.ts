@@ -23,17 +23,19 @@ function shuffleArray(array: any[], seed: string) {
 // Deterministic shuffle function
 export function shuffleVendorsWithSeed(array: Vendor[], seed: string) {
   // Separate vendors into different buckets
-  const premiumVendorsWithPictures = array.filter(vendor => vendor.is_premium && vendor.images.length > 0);
-  const withPictures = array.filter(vendor => !vendor.is_premium && vendor.images.length > 0);
-  const withoutPictures = array.filter(vendor => vendor.images.length === 0);
+  const priorityVendorsWithPictures = array.filter(vendor => (vendor.is_premium || vendor.verified_at) && vendor.images.length > 0);
+  const priorityVendorsWithoutPictures = array.filter(vendor => (vendor.is_premium || vendor.verified_at) && vendor.images.length === 0);
+  const withPictures = array.filter(vendor => !(vendor.is_premium || vendor.verified_at) && vendor.images.length > 0);
+  const withoutPictures = array.filter(vendor => !(vendor.is_premium || vendor.verified_at) && vendor.images.length === 0);
 
   // Shuffle all groups
-  const shuffledPremiumWithPictures = shuffleArray(premiumVendorsWithPictures, seed);
+  const shuffledPriorityWithPictures = shuffleArray(priorityVendorsWithPictures, seed);
+  const shuffledPriorityWithoutPictures = shuffleArray(priorityVendorsWithoutPictures, seed);
   const shuffledWithPictures = shuffleArray(withPictures, seed);
   const shuffledWithoutPictures = shuffleArray(withoutPictures, seed);
 
   // Combine with pictures first
-  return [...shuffledPremiumWithPictures, ...shuffledWithPictures, ...shuffledWithoutPictures];
+  return [...shuffledPriorityWithPictures, ...shuffledWithPictures, ...shuffledPriorityWithoutPictures, ...shuffledWithoutPictures];
 }
 
 export function shuffleMediaWithSeed(array: Partial<VendorMedia>[], seed: string) {

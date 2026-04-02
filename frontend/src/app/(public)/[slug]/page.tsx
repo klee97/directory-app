@@ -8,6 +8,7 @@ import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 import { supabase } from '@/lib/api-client';
 import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/fetchVendorsByLocation';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
+import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -68,6 +69,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
     redirect(`/`);
   }
 
+  const seed = getTodaySeed();
+  const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
+
   const uniqueTags = getUniqueVisibleTagNames(vendors);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -110,7 +114,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
         />
       </section>
       <Directory
-        vendors={vendors}
+        vendors={shuffledVendors}
         tags={uniqueTags}
         selectedLocation={location}
       />
