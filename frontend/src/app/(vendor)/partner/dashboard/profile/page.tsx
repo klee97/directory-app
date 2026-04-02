@@ -6,6 +6,15 @@ import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVen
 import { Suspense } from 'react';
 import VendorEditSkeleton from '@/features/profile/dashboard/components/VendorEditSkeleton';
 import NoVendorLinked from '@/features/profile/dashboard/components/NoVendorLinked';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Edit Your Profile | Asian Wedding Makeup',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default async function VendorEditPage() {
   // Check authentication

@@ -6,10 +6,10 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 export const metadata: Metadata = {
-  title: "Favorite Artists - Asian Wedding Hair & Makeup in NYC, LA & more",
+  title: "Favorite Artists | Asian Wedding Makeup",
   description: "Browse your favorite wedding vendors from our directory of hair and makeup artists experienced with Asian features.",
   openGraph: {
-    title: 'Favorite Artists — Asian Wedding Hair & Makeup in NYC, LA & more',
+    title: 'Favorite Artists | Asian Wedding Makeup',
     description: 'Browse your favorite wedding vendors from our directory of hair and makeup artists experienced with Asian features.',
     url: 'https://www.asianweddingmakeup.com/favorites',
     type: 'website',

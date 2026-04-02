@@ -8,10 +8,10 @@ import BeholdWidget from "@behold/react"
 import { BEHOLD_IG_FEED_ID } from '@/lib/constants';
 
 export const metadata: Metadata = {
-  title: "Our Story - Asian Wedding Makeup in NYC, LA & more",
+  title: "Our Story | Asian Wedding Makeup in NYC, LA & more",
   description: "Learn why we created this directory of wedding makeup artists skilled in Asian beauty, and discover vetted recommendations from real Asian brides.",
   openGraph: {
-    title: 'About — Asian Wedding Makeup in NYC, LA & more',
+    title: 'Our | Asian Wedding Makeup in NYC, LA & more',
     description: 'Learn why we created this directory of wedding makeup artists skilled in Asian beauty, and discover vetted recommendations from real Asian brides.',
     url: 'https://www.asianweddingmakeup.com/about',
     type: 'website',

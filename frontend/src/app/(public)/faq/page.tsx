@@ -88,11 +88,11 @@ const faqs = [
 ];
 
 export const metadata: Metadata = {
-  title: "FAQ - Asian Wedding Makeup in NYC, LA & more",
-  description: "Learn more about our asian wedding makeup directory, and find answers to common questions about booking Asian bridal hair and makeup artists.",
+  title: "FAQ | Asian Wedding Makeup",
+  description: "Learn more about our Asian wedding makeup directory, and find answers to common questions about booking Asian bridal hair and makeup artists.",
   openGraph: {
-    title: 'FAQ - Asian Wedding Makeup in NYC, LA & more',
-    description: 'Learn more about our asian wedding makeup directory, and find answers to common questions about booking Asian bridal hair and makeup artists.',
+    title: 'FAQ | Asian Wedding Makeup',
+    description: 'Learn more about our Asian wedding makeup directory, and find answers to common questions about booking Asian bridal hair and makeup artists.',
     url: 'https://www.asianweddingmakeup.com/faq',
     type: 'website',
     images: [

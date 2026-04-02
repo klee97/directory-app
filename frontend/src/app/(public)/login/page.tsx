@@ -1,72 +1,20 @@
-"use client";
-
-import { LoginForm } from "@/features/login/components/LoginForm";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-
-export function LoginPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const redirectTo = searchParams?.get("redirectTo") ?? undefined;
+import UserLogin from "@/features/login/components/UserLogin";
+import { Metadata } from "next";
+import { Suspense } from "react";
 
 
-  useEffect(() => {
-    // Check if user is already logged in
-    const checkSession = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        // User is already logged in, redirect to home page
-        router.push(redirectTo ?? '/');
-      } else {
-        // User is not logged in, show the login form
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [router, redirectTo]);
-
-  if (isLoading) {
-    return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '80vh'
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      </Container>
-    );
-  }
-
-  return (
-    <Container maxWidth="sm">
-      <br />
-      <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
-        Login
-      </Typography>
-      <LoginForm isVendorLogin={false} redirectTo={redirectTo} />
-    </Container>
-  );
+export const metadata: Metadata = {
+  title: 'Login | Asian Wedding Makeup',
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
-
 
 export default function LoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <LoginPageContent />
+      <UserLogin />
     </Suspense>
   );
 }
