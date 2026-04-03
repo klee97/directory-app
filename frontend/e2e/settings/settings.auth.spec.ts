@@ -88,6 +88,12 @@ test.describe.serial('Settings — change password', () => {
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });
 
     // Step 2: log out
+    // Navigate away from /settings first — updatePassword calls
+    // signInWithPassword() which re-creates the session; while the auth state
+    // is settling (isRoleLoading flickers) UserSettings may briefly see
+    // isLoggedIn=false and redirect to /login, hiding the profile button.
+    await page.goto('/');
+    await expect(page.getByTestId('profile-button')).toBeVisible({ timeout: 10_000 });
     await page.getByTestId('profile-button').click();
     await page.getByRole('menuitem', { name: 'Log Out' }).click();
     await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({ timeout: 10_000 });
