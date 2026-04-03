@@ -111,6 +111,12 @@ export default defineConfig({
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.public.spec.ts',
     },
+    {
+      name: 'mobile-safari:public',
+      use: { ...devices['iPhone 16'] },
+      dependencies: ['supabase-setup'],
+      testMatch: '**/e2e/**/*.public.spec.ts',
+    },
   ],
 
   // Starts the Next.js dev server before tests run

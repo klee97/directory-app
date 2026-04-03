@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { MOBILE_VIEWPORT } from '../constants';
 
 /**
  * Favorites e2e tests — runs as unauthenticated guest.
@@ -61,16 +60,16 @@ test.describe('Favorites — guest', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
   });
 
-  test('mobile: clicking heart on vendor card shows login prompt', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile: clicking heart on vendor card shows login prompt', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Mobile-only layout');
     await page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText('Log in to favorite this vendor.')).toBeVisible();
   });
 
-  test('mobile: clicking heart on vendor profile page shows login prompt', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile: clicking heart on vendor profile page shows login prompt', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Mobile-only layout');
     await page.goto(`/vendors/${GLAMOUR_SLUG}`);
     await page.getByRole('button', { name: 'Add to favorites' }).click();
 

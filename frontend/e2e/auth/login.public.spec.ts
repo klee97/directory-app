@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { MOBILE_VIEWPORT } from '../constants';
 
 
 test.describe('Login — guest', () => {
@@ -10,13 +9,14 @@ test.describe('Login — guest', () => {
     await expect(page.getByTestId('login-submit')).toBeVisible();
   });
 
-  test('desktop navbar shows Login button when not logged in', async ({ page }) => {
+  test('desktop navbar shows Login button when not logged in', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Desktop-only layout');
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
-  test('mobile menu shows Login option when not logged in', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile menu shows Login option when not logged in', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Mobile-only layout');
     await page.goto('/');
     await page.getByRole('button', { name: 'account of current user' }).click();
     await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();
@@ -34,14 +34,14 @@ test.describe('Login — guest', () => {
     await expect(page.getByRole('button', { name: 'Log in' })).not.toBeVisible();
   });
 
-  test('after login, mobile menu shows profile options including Log Out', async ({ page }) => {
+  test('after login, mobile menu shows profile options including Log Out', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Mobile-only layout');
     await page.goto('/login');
     await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
     await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
     await page.getByTestId('login-submit').click();
     await page.waitForURL('/', { timeout: 15_000 });
 
-    await page.setViewportSize(MOBILE_VIEWPORT);
     await page.getByRole('button', { name: 'account of current user' }).click();
     await expect(page.getByRole('menuitem', { name: 'Log Out' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: 'Settings' })).toBeVisible();
@@ -49,8 +49,8 @@ test.describe('Login — guest', () => {
   });
 
 
-  test('mobile menu closes after navigating to login page', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile menu closes after navigating to login page', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'Mobile-only layout');
     await page.goto('/');
     await page.getByRole('button', { name: 'account of current user' }).click();
     await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();
