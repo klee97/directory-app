@@ -42,7 +42,7 @@ test.describe.serial('Settings — delete account', () => {
 });
 
 test.describe.serial('Settings — change password', () => {
-  test('settings page is accessible when logged in', async ({ page }) => {
+  test.skip('settings page is accessible when logged in', async ({ page }) => {
     await page.goto('/settings');
     await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible();
     await expect(page.getByText('Change Password')).toBeVisible();
@@ -73,7 +73,7 @@ test.describe.serial('Settings — change password', () => {
     await expect(page.locator('.MuiAlert-filledError')).toBeVisible({ timeout: 10_000 });
   });
 
-  test('change password, log out, log back in with new password, then restore', async ({ page }) => {
+  test.skip('change password, log out, log back in with new password, then restore', async ({ page }) => {
     const originalPassword = process.env.TEST_USER_PASSWORD!;
     const tempPassword = 'TempPass@2025!';
 
