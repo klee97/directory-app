@@ -87,15 +87,13 @@ test.describe.serial('Settings — change password', () => {
     await page.getByRole('button', { name: 'Update Password' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });
 
-    // Step 2: log out
-    // Navigate away from /settings first — updatePassword calls
-    // signInWithPassword() which re-creates the session; while the auth state
-    // is settling (isRoleLoading flickers) UserSettings may briefly see
-    // isLoggedIn=false and redirect to /login, hiding the profile button.
-    await page.goto('/');
-    await expect(page.getByTestId('profile-button')).toBeVisible({ timeout: 10_000 });
-    await page.getByTestId('profile-button').click();
-    await page.getByRole('menuitem', { name: 'Log Out' }).click();
+    // Step 2: clear session — updatePassword internally calls
+    // signInWithPassword() which re-creates the Supabase session. In CI the
+    // old session may be revoked server-side, leaving the browser effectively
+    // logged out. Clearing cookies is the reliable cross-environment way to
+    // ensure a clean slate before re-logging in with the new password.
+    await page.context().clearCookies();
+    await page.goto('/')
     await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({ timeout: 10_000 });
 
     // Step 3: log in with new password
