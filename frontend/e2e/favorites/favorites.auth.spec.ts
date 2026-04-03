@@ -83,9 +83,16 @@ test.describe.serial('Favorites — authenticated', () => {
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
 
+    // Set up listener BEFORE navigation so it catches VendorProfile's
+    // getFavoriteVendorIds server action that fires on mount.
+    const vendorFavoritesLoaded = page.waitForResponse(
+      r => r.request().method() === 'POST' && !!r.request().headers()['next-action'],
+      { timeout: 15_000 }
+    );
     await page.goto(`/vendors/${GLAMOUR_SLUG}`);
-    // VendorProfile's fetchFavoriteStatus is async (getSession + getFavoriteVendorIds),
-    // so the button may initially render as "Add to favorites" before updating.
+    // Wait for VendorProfile's fetchFavoriteStatus to complete before asserting.
+    await vendorFavoritesLoaded.catch(() => { });
+
     await expect(page.getByRole('button', { name: 'Remove from favorites' })).toBeVisible({ timeout: 10_000 });
 
     // Cleanup
@@ -151,8 +158,15 @@ test.describe.serial('Favorites — authenticated', () => {
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
 
+    // Drain VendorProfile's getFavoriteVendorIds server action before asserting.
+    const vendorFavoritesLoaded = page.waitForResponse(
+      r => r.request().method() === 'POST' && !!r.request().headers()['next-action'],
+      { timeout: 15_000 }
+    );
     await page.goto(`/vendors/${GLAMOUR_SLUG}`);
-    await expect(page.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
+    await vendorFavoritesLoaded.catch(() => { });
+
+    await expect(page.getByRole('button', { name: 'Remove from favorites' })).toBeVisible({ timeout: 10_000 });
     await clickFavoriteAndPersist(page, page.getByRole('button', { name: 'Remove from favorites' }));
     await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeVisible();
 
