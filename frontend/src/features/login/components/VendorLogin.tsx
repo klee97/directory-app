@@ -21,12 +21,6 @@ export default function VendorLogin() {
 
   useEffect(() => {
     const init = async () => {
-      // Feature flag
-      if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== "true") {
-        router.push(`/`);
-        return;
-      }
-
       // Already logged in? → Redirect to vendor dashboard
       const { data: { session } } = await supabase.auth.getSession();
 

@@ -30,7 +30,6 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const isVendorLoginEnabled = process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED === 'true';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -184,7 +183,7 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
           </Box>
         </Paper>
 
-        {!isVendorLogin && isVendorLoginEnabled && (
+        {!isVendorLogin && (
           <Box sx={{ mt: 3 }}>
             <Divider sx={{ mb: 3 }}>
               <Typography variant="body2" color="text.secondary">

@@ -37,7 +37,7 @@ jobs:
   #   - TEST_USER_PASSWORD
   #   - TEST_VENDOR_EMAIL
   #   - TEST_VENDOR_PASSWORD
-  #   - NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED
+  #   - NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED
   # -------------------------------------------------------------------
   e2e:
     name: E2E Tests
@@ -88,10 +88,10 @@ jobs:
 
           # Test credentials — dedicated Supabase test account
           TEST_USER_EMAIL: test-user@example.com
-          TEST_USER_PASSWORD: testpassword123!
+          TEST_USER_PASSWORD: Testpassword123!
           TEST_VENDOR_EMAIL: test-vendor@example.com
-          TEST_VENDOR_PASSWORD: testvendorpassword123!
-          NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED: "true"
+          TEST_VENDOR_PASSWORD: Testvendorpassword123!
+          NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI

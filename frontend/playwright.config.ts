@@ -93,7 +93,7 @@ export default defineConfig({
     // Vendor authenticated tests — depend on vendor-auth-setup running first
     // -----------------------------------------------------------------
     {
-      name: 'chormium:vendor-protected',
+      name: 'chromium:vendor-protected',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'e2e/fixtures/.auth/vendor-session.json',
