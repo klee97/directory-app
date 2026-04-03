@@ -221,7 +221,7 @@ test.describe.serial('Favorites — authenticated', () => {
     // Log out via desktop profile menu
     await page.getByTestId('profile-button').click();
     await page.getByRole('menuitem', { name: 'Log Out' }).click();
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
 
     // Heart should now show as outline since user is logged out
