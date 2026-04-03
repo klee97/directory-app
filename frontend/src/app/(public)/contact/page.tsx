@@ -6,10 +6,10 @@ import defaultImage from '@/assets/photo_website_preview.jpg';
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Contact Us - Asian Wedding Makeup in NYC, LA & more",
+  title: "Contact Us | Asian Wedding Makeup",
   description: "Need help finding a wedding artist? Want to recommend a makeup artist, or update a listing? Get in touch with us.",
   openGraph: {
-    title: 'Contact Us - Asian Wedding Makeup in NYC, LA & more',
+    title: 'Contact Us | Asian Wedding Makeup',
     description: 'Need help finding a wedding artist? Want to recommend a makeup artist, or update a listing? Get in touch with us.',
     url: 'https://www.asianweddingmakeup.com/contact',
     type: 'website',

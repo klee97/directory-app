@@ -45,9 +45,6 @@ export const metadata: Metadata = {
     description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
     images: [previewImage.src],
   },
-  alternates: {
-    canonical: 'https://asianweddingmakeup.com/',
-  },
 };
 
 export default function RootLayout({

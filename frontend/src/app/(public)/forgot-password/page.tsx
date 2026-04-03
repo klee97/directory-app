@@ -1,6 +1,15 @@
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import { ForgotPasswordForm } from "@/features/login/components/ForgotPasswordForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Forgot Password | Asian Wedding Makeup',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default function ForgotPasswordPage() {
   return (

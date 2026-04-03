@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       canonical: fullUrl,
     },
     openGraph: {
-      title: post.title || "Asian Wedding Makeup Blog Post",
+      title: `${post.title} | Asian Wedding Makeup`,
       description: post.shortDescription ?? "",
       url: fullUrl,
       type: "article",
@@ -74,12 +74,12 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   let jsonLd = {};
-  
+
   // Check if post is scheduled for the future and we're in production
-  const isFuturePost = post?.publishedDate && 
-    new Date(post.publishedDate) > new Date() && 
+  const isFuturePost = post?.publishedDate &&
+    new Date(post.publishedDate) > new Date() &&
     isProduction();
-  
+
   if (post && !isFuturePost) {
     jsonLd = {
       "@context": "https://schema.org",

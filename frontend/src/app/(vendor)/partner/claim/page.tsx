@@ -6,6 +6,10 @@ import VendorClaimContent from "@/features/vendorClaim/components/VendorClaimCon
 
 export const metadata: Metadata = {
   title: "Claim your profile | Asian Wedding Makeup",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function VendorClaimPage() {

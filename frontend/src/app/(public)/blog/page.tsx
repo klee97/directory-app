@@ -2,7 +2,25 @@ import { ArticleTable } from '@/features/blog/components/ArticleTable';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
+import { Metadata } from 'next';
 
+export const metadata: Metadata = {
+  title: 'Wedding Planning Resources for Asian Couples | Asian Wedding Makeup',
+  description: 'Tips, guides, and inspiration for Asian couples planning their wedding. From bridal beauty to cultural traditions.',
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    title: 'Wedding Planning Resources for Asian Couples | Asian Wedding Makeup',
+    description: 'Tips, guides, and inspiration for Asian couples planning their wedding. From bridal beauty to cultural traditions.',
+    url: '/blog',
+    type: 'website',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+}
 
 export default async function BlogIndex() {
 

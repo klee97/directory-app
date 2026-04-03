@@ -6,6 +6,15 @@ import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { redirect } from 'next/dist/client/components/navigation';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Vendor Badge Toolkit | Asian Wedding Makeup',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 export default async function VendorBadgeToolkit() {
   // Check authentication
   const currentUser = await getCurrentUserAction();

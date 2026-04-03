@@ -3,6 +3,16 @@ import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 import { VendorSettings } from '@/features/settings/components/VendorSettings';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Vendor Settings | Asian Wedding Makeup',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
+
 export default async function VendorSettingsPage() {
   // Check authentication
   const currentUser = await getCurrentUserAction();
