@@ -173,7 +173,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             display: { xs: 'none', md: 'block' }
           }}
         >
-          Login
+          Log in
         </Button>
       );
     }
