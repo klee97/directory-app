@@ -12,7 +12,7 @@ test.describe('Login — guest', () => {
 
   test('desktop navbar shows Login button when not logged in', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
   test('mobile menu shows Login option when not logged in', async ({ page }) => {
@@ -31,7 +31,7 @@ test.describe('Login — guest', () => {
     await page.waitForURL('/', { timeout: 15_000 });
     await expect(page.getByTestId('profile-button')).toBeVisible();
     // Desktop Login button is hidden when logged in
-    await expect(page.getByRole('button', { name: 'Login' })).not.toBeVisible();
+    await expect(page.getByRole('button', { name: 'Log in' })).not.toBeVisible();
   });
 
   test('after login, mobile menu shows profile options including Log Out', async ({ page }) => {

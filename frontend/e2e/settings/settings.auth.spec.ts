@@ -94,7 +94,7 @@ test.describe.serial('Settings — change password', () => {
     // ensure a clean slate before re-logging in with the new password.
     await page.context().clearCookies();
     await page.goto('/')
-    await expect(page.getByRole('button', { name: 'Login' })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible({ timeout: 10_000 });
 
     // Step 3: log in with new password
     await page.goto('/login');
