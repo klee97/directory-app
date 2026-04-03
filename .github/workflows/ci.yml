@@ -37,7 +37,6 @@ jobs:
   #   - TEST_USER_PASSWORD
   #   - TEST_VENDOR_EMAIL
   #   - TEST_VENDOR_PASSWORD
-  #   - NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED
   #   - NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED
   # -------------------------------------------------------------------
   e2e:
@@ -92,7 +91,6 @@ jobs:
           TEST_USER_PASSWORD: Testpassword123!
           TEST_VENDOR_EMAIL: test-vendor@example.com
           TEST_VENDOR_PASSWORD: Testvendorpassword123!
-          NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED: "true"
           NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
 
       # Upload Playwright report as an artifact so you can download

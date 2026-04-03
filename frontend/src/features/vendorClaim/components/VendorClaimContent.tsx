@@ -42,11 +42,6 @@ export default function VendorClaimContent() {
   // Initialize page: verify token → load vendor info
   useEffect(() => {
     const init = async () => {
-      if (process.env.NEXT_PUBLIC_FEATURE_VENDOR_LOGIN_ENABLED !== 'true') {
-        router.push(`/`);
-        return;
-      }
-
       const { data: { session } } = await supabase.auth.getSession();
 
       if (session) {
