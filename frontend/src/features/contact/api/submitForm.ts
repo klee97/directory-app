@@ -1,29 +1,36 @@
-import { NextResponse } from "next/server";
+"use server";
+
+import { verifyRecaptchaToken } from '@/lib/security/recaptchaVerification';
 
 export async function submitForm({
   firstname,
   lastname,
   email,
   reason,
-  message
+  message,
+  recaptchaToken,
 }: {
   firstname: string,
   lastname: string,
   email: string,
   reason: string,
-  message: string
+  message: string,
+  recaptchaToken: string
 }) {
+  const isHuman = await verifyRecaptchaToken(recaptchaToken);
+  if (!isHuman) {
+    return { ok: false, error: 'CAPTCHA verification failed.' };
+  }
+
   try {
-    const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID;
-    const HUBSPOT_FORM_GUID = process.env.NEXT_PUBLIC_HUBSPOT_FORM_GUID;
+    const HUBSPOT_PORTAL_ID = process.env.HUBSPOT_PORTAL_ID;
+    const HUBSPOT_FORM_GUID = process.env.HUBSPOT_FORM_GUID;
 
     const hubspotUrl = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_GUID}`;
 
     const response = await fetch(hubspotUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fields: [
           { name: "firstname", value: firstname },
@@ -36,29 +43,33 @@ export async function submitForm({
     });
 
     if (!response.ok) {
-      throw new Error("Failed to submit to HubSpot");
+      console.error("Failed to submit to HubSpot:", response.statusText);
+      return { ok: false, error: "Failed to submit to HubSpot" };
     }
 
-    return NextResponse.json({ success: true, message: "Form submitted successfully!" });
+    return { ok: true };
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    } else {
-      return NextResponse.json({ success: false, error: 'An unknown error occurred' }, { status: 500 });
-    }
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
+    };
   }
 }
 
 export async function submitNewsletterForm({
   email,
-  reasons
+  recaptchaToken,
 }: {
   email: string,
-  reasons: string[],
+  recaptchaToken: string
 }) {
+  const isHuman = await verifyRecaptchaToken(recaptchaToken);
+  if (!isHuman) {
+    return { ok: false, error: 'CAPTCHA verification failed.' };
+  }
   try {
-    const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID;
-    const HUBSPOT_FORM_NEWSLETTER_GUID = process.env.NEXT_PUBLIC_HUBSPOT_FORM_NEWSLETTER_GUID;
+    const HUBSPOT_PORTAL_ID = process.env.HUBSPOT_PORTAL_ID;
+    const HUBSPOT_FORM_NEWSLETTER_GUID = process.env.HUBSPOT_FORM_NEWSLETTER_GUID;
 
     const hubspotUrl = `https://api.hsforms.com/submissions/v3/integration/submit/${HUBSPOT_PORTAL_ID}/${HUBSPOT_FORM_NEWSLETTER_GUID}`;
 
@@ -69,23 +80,20 @@ export async function submitNewsletterForm({
       },
       body: JSON.stringify({
         fields: [
-          { name: "email", value: email },
-          { name: "reason", value: reasons.toString() },
+          { name: "email", value: email }
         ],
       }),
     });
 
     if (!response.ok) {
-      console.log(response)
-      throw new Error("Failed to submit to HubSpot");
+      console.error("Failed to submit to HubSpot:", response.statusText);
+      return { ok: false, error: "Failed to submit to HubSpot" };
     }
-
-    return NextResponse.json({ success: true, message: "Form submitted successfully!" });
+    return { ok: true };
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    } else {
-      return NextResponse.json({ success: false, error: 'An unknown error occurred' }, { status: 500 });
-    }
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : 'An unknown error occurred',
+    };
   }
 }
