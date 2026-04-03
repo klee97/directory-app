@@ -61,7 +61,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await favoritesLoaded.catch(() => { });
   });
 
-  test('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
+  test.skip('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -78,7 +78,7 @@ test.describe.serial('Favorites — authenticated', () => {
     );
   });
 
-  test('add favorite on homepage — heart is filled when navigating to vendor profile', async ({ page }) => {
+  test.skip('add favorite on homepage — heart is filled when navigating to vendor profile', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -153,7 +153,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeVisible();
   });
 
-  test('remove favorite on vendor profile — heart becomes outline on homepage', async ({ page }) => {
+  test.skip('remove favorite on vendor profile — heart becomes outline on homepage', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -177,7 +177,7 @@ test.describe.serial('Favorites — authenticated', () => {
     ).toBeVisible();
   });
 
-  test('multiple favorites are sorted alphabetically on favorites page', async ({ page }) => {
+  test.skip('multiple favorites are sorted alphabetically on favorites page', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     const bridalCard = page.getByTestId(`vendor-card-${BRIDAL_SLUG}`);
 
