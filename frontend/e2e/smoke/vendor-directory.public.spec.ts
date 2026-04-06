@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { refreshVendors } from '../fixtures/devToolHelpers';
 
 /**
  * Vendor directory e2e tests — runs as unauthenticated guest.
@@ -17,9 +18,7 @@ test.describe('Vendor directory — guest', () => {
     // so the test vendors from seed.sql are visible when the tests run.
     const page = await browser.newPage();
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Refresh Vendors' })).toBeVisible();
-    await page.getByRole('button', { name: 'Refresh Vendors' }).click();
-    await expect(page.getByRole('button', { name: 'Refreshed!' })).toBeVisible({ timeout: 10_000 });
+    await refreshVendors(page);
     await page.close();
   });
 

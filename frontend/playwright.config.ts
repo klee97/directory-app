@@ -91,7 +91,7 @@ export default defineConfig({
     {
       name: 'mobile-safari:authenticated',
       use: {
-        ...devices['iPhone 16'],
+        ...devices['iPhone 15'],
         storageState: 'e2e/fixtures/.auth/session.json',
       },
       dependencies: ['auth-setup'],
@@ -114,7 +114,7 @@ export default defineConfig({
     {
       name: 'mobile-safari:vendor-protected',
       use: {
-        ...devices['iPhone 16'],
+        ...devices['iPhone 15'],
         storageState: 'e2e/fixtures/.auth/vendor-session.json',
 
       },
@@ -133,7 +133,7 @@ export default defineConfig({
     },
     {
       name: 'mobile-safari:public',
-      use: { ...devices['iPhone 16'] },
+      use: { ...devices['iPhone 15'] },
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.public.spec.ts',
     },

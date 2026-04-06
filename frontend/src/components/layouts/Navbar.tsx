@@ -1,5 +1,4 @@
 "use client"
-import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -10,12 +9,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import MenuItem from '@mui/material/MenuItem';
-import RadioGroup from '@mui/material/RadioGroup';
-import Radio from '@mui/material/Radio';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-import { useColorScheme, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/assets/logo.jpeg';
@@ -35,6 +29,8 @@ import { isVendorRole } from '@/lib/auth/userRole';
 import NavigationMenu from '@/components/layouts/NavigationMenu';
 import { useRouter } from 'next/navigation';
 import UserAvatar from '@/components/ui/UserAvatar';
+import ThemeSelector from './ThemeSelector';
+import { useEffect, useState } from 'react';
 
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
@@ -44,12 +40,12 @@ const Title = 'ASIAN WEDDING MAKEUP';
 const VendorsSubtitle = 'For Vendors';
 
 export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
-  const [mounted, setMounted] = React.useState(false);
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElResources, setAnchorElResources] = React.useState<null | HTMLElement>(null);
-  const [resourcesExpanded, setResourcesExpanded] = React.useState(false);
-  const [anchorElProfile, setAnchorElProfile] = React.useState<null | HTMLElement>(null);
-  const [notification, setNotification] = React.useState<{
+  const [mounted, setMounted] = useState(false);
+  const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+  const [anchorElResources, setAnchorElResources] = useState<null | HTMLElement>(null);
+  const [resourcesExpanded, setResourcesExpanded] = useState(false);
+  const [anchorElProfile, setAnchorElProfile] = useState<null | HTMLElement>(null);
+  const [notification, setNotification] = useState<{
     open: boolean;
     message: string;
     severity: AlertColor;
@@ -70,12 +66,12 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
 
   // Handle hydration and initial loading
-  React.useEffect(() => {
+  useEffect(() => {
     setMounted(true);
   }, []);
 
   // Close menus when screen size changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (mounted && isMobile) {
       setAnchorElNav(null);
       setAnchorElResources(null);
@@ -85,7 +81,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   }, [isMobile, mounted]);
 
   // Cleanup menu states on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       setAnchorElNav(null);
       setAnchorElResources(null);
@@ -94,8 +90,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     };
   }, []);
 
-  const { mode, setMode } = useColorScheme();
-  if (!mounted || !mode || isAuthLoading) {
+  if (!mounted || isAuthLoading) {
     return (
       <>
         <AppBar
@@ -244,7 +239,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
               <IconButton
                 size="large"
-                aria-label="account of current user"
+                aria-label="open navigation menu"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
@@ -330,7 +325,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     {!isLoggedIn ? (
                       <MenuItem onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}>
                         <Typography sx={{ textDecoration: 'none', color: 'inherit' }}>
-                          Login
+                          Log in
                         </Typography>
                       </MenuItem>
                     ) : (
@@ -340,6 +335,23 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                         onItemClick={handleCloseNavMenu}
                       />
                     )}
+                  </Box>
+                )}
+                {/* Dev tools — mobile only, hidden on desktop where they render inline */}
+                {isDevelopment() && (
+                  <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+                    <Divider />
+                    <MenuItem disableRipple>
+                      <DevTools />
+                    </MenuItem>
+                  </Box>
+                )}
+                {isDevOrPreview() && (
+                  <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+                    <Divider />
+                    <MenuItem disableRipple>
+                      <ThemeSelector />
+                    </MenuItem>
                   </Box>
                 )}
               </Menu>
@@ -439,25 +451,15 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
 
             {isDevelopment() && (
-              <DevTools />
+              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+
+                <DevTools />
+              </Box>
             )}
             {isDevOrPreview() && (
-              <FormControl>
-                <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-theme-toggle"
-                  name="theme-toggle"
-                  row
-                  value={mode}
-                  onChange={(event) =>
-                    setMode(event.target.value as 'system' | 'light' | 'dark')
-                  }
-                >
-                  <FormControlLabel value="system" control={<Radio />} label="System" />
-                  <FormControlLabel value="light" control={<Radio />} label="Light" />
-                  <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-                </RadioGroup>
-              </FormControl>
+              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                <ThemeSelector />
+              </Box>
             )}
             {renderAuthButtons()}
             {renderProfileMenu()}

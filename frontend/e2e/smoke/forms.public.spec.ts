@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mockRecaptcha } from '../fixtures/mockRecaptcha';
+import { fillField } from '../fixtures/formHelpers';
 
 test.beforeEach(async ({ page }) => {
   await mockRecaptcha(page);
@@ -34,8 +35,8 @@ test.describe('/recommend page', () => {
     await page.getByRole('button', { name: 'Submit Recommendation' }).click();
     await expect(page.getByText('Business name is required')).toBeVisible();
 
-    await page.getByLabel('Artist or Business Name').fill('Test Artist');
-    await page.getByLabel('Location').fill('New York, NY');
+    await fillField(page.getByLabel('Artist or Business Name'), 'Test Artist');
+    await fillField(page.getByLabel('Location'), 'New York, NY');
     await page.getByRole('button', { name: 'Submit Recommendation' }).click();
 
     await expect(page.getByText('Business name is required')).not.toBeVisible();
@@ -43,15 +44,15 @@ test.describe('/recommend page', () => {
   });
 
   test('submits form and shows success notification', async ({ page }) => {
-
     await page.goto('/recommend');
 
-    await page.getByLabel('Artist or Business Name').fill('E2E Test Artist');
-    await page.getByLabel('Location').fill('New York, NY');
+    await fillField(page.getByLabel('Artist or Business Name'), 'E2E Test Artist');
+    await fillField(page.getByLabel('Location'), 'New York, NY');
 
-    await page.getByRole('button', { name: 'Submit Recommendation' }).click();
+    const submitButton = page.getByRole('button', { name: 'Submit Recommendation' });
+    await submitButton.scrollIntoViewIfNeeded();
+    await submitButton.click();
 
-    // reCAPTCHA executes invisibly; wait for the server action to complete
     await expect(page.getByText('Thank you! Your recommendation has been submitted.')).toBeVisible({
       timeout: 15_000,
     });
@@ -59,19 +60,10 @@ test.describe('/recommend page', () => {
 });
 
 test.describe('/contact page', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock the HubSpot submission API so no real requests are sent
-    await page.route('**/api.hsforms.com/**', (route) =>
-      route.fulfill({ status: 200, json: { inlineMessage: 'Form submitted' } })
-    );
-  });
-
   test('renders page and form fields', async ({ page }) => {
     await page.goto('/contact');
     await expect(page.getByRole('heading', { name: 'Contact Us' })).toBeVisible();
-    // Filter to the contact form specifically — the newsletter form on the same
-    // page also has a "Your Email" field, so we scope by unique text.
-    const form = page.locator('form').filter({ hasText: 'First Name' });
+    const form = page.getByTestId('email-form');
     await expect(form.getByLabel('First Name')).toBeVisible();
     await expect(form.getByLabel('Last Name')).toBeVisible();
     await expect(form.getByLabel('Your Email')).toBeVisible();
@@ -82,36 +74,32 @@ test.describe('/contact page', () => {
 
   test('submits form and shows success message', async ({ page }) => {
     await page.goto('/contact');
-    const form = page.locator('form').filter({ hasText: 'First Name' });
+    const form = page.getByTestId('email-form');
 
-    await form.getByLabel('First Name').fill('Jane');
-    await form.getByLabel('Last Name').fill('Smith');
-    await form.getByLabel('Your Email').fill('jane@example.com');
+    await fillField(form.getByLabel('First Name'), 'Jane');
+    await fillField(form.getByLabel('Last Name'), 'Smith');
+    await fillField(form.getByLabel('Your Email'), 'jane@example.com');
 
-    // Open MUI select dropdown and pick a reason
     await form.getByLabel('Reason for Contacting').click();
     await page.getByRole('option', { name: 'General Inquiry' }).click();
 
-    await form.getByLabel('Message').fill('This is a smoke test message.');
+    await fillField(form.getByLabel('Message'), 'This is a smoke test message.');
 
-    await form.getByRole('button', { name: 'Submit' }).click();
+    const submitButton = form.getByRole('button', { name: 'Submit' });
+    await submitButton.scrollIntoViewIfNeeded();
+    await submitButton.click();
 
-    await expect(page.getByText("Thank you! We'll get back to you soon.")).toBeVisible();
+    await expect(page.getByText("Thank you! We'll get back to you soon.")).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });
 
 test.describe('/partner/contact page', () => {
-  test.beforeEach(async ({ page }) => {
-    // Mock the HubSpot submission API so no real requests are sent
-    await page.route('**/api.hsforms.com/**', (route) =>
-      route.fulfill({ status: 200, json: { inlineMessage: 'Form submitted' } })
-    );
-  });
-
   test('renders page and form fields', async ({ page }) => {
     await page.goto('/partner/contact');
     await expect(page.getByRole('heading', { name: 'Contact Us' })).toBeVisible();
-    const form = page.locator('form').filter({ hasText: 'First Name' });
+    const form = page.getByTestId('email-form');
     await expect(form.getByLabel('First Name')).toBeVisible();
     await expect(form.getByLabel('Last Name')).toBeVisible();
     await expect(form.getByLabel('Your Email')).toBeVisible();
@@ -122,19 +110,23 @@ test.describe('/partner/contact page', () => {
 
   test('submits form and shows success message', async ({ page }) => {
     await page.goto('/partner/contact');
-    const form = page.locator('form').filter({ hasText: 'First Name' });
+    const form = page.getByTestId('email-form');
 
-    await form.getByLabel('First Name').fill('Jane');
-    await form.getByLabel('Last Name').fill('Smith');
-    await form.getByLabel('Your Email').fill('jane@example.com');
+    await fillField(form.getByLabel('First Name'), 'Jane');
+    await fillField(form.getByLabel('Last Name'), 'Smith');
+    await fillField(form.getByLabel('Your Email'), 'jane@example.com');
 
     await form.getByLabel('Reason for Contacting').click();
     await page.getByRole('option', { name: 'General Inquiry' }).click();
 
-    await form.getByLabel('Message').fill('This is a smoke test message.');
+    await fillField(form.getByLabel('Message'), 'This is a smoke test message.');
 
-    await form.getByRole('button', { name: 'Submit' }).click();
+    const submitButton = form.getByRole('button', { name: 'Submit' });
+    await submitButton.scrollIntoViewIfNeeded();
+    await submitButton.click();
 
-    await expect(page.getByText("Thank you! We'll get back to you soon.")).toBeVisible();
+    await expect(page.getByText("Thank you! We'll get back to you soon.")).toBeVisible({
+      timeout: 15_000,
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { MOBILE_ONLY_DESCRIPTION } from '../constants';
+import { refreshVendors } from '../fixtures/devToolHelpers';
 
 /**
  * Favorites e2e tests — runs as unauthenticated guest.
@@ -15,9 +16,7 @@ test.describe('Favorites — guest', () => {
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Refresh Vendors' })).toBeVisible();
-    await page.getByRole('button', { name: 'Refresh Vendors' }).click();
-    await expect(page.getByRole('button', { name: 'Refreshed!' })).toBeVisible({ timeout: 10_000 });
+    await refreshVendors(page);
     await page.close();
   });
 

@@ -88,7 +88,7 @@ const RecommendationForm = () => {
       <br />
 
       <Grid container spacing={3}>
-        <Grid size={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
 
           <TextField
             required
@@ -101,7 +101,7 @@ const RecommendationForm = () => {
             helperText={errors.business_name ? "Business name is required" : ""}
           />
         </Grid>
-        <Grid size={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <TextField
             required
             fullWidth
@@ -113,7 +113,7 @@ const RecommendationForm = () => {
             helperText={errors.region ? "Location is required" : ""}
           />
         </Grid>
-        <Grid size={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
 
           <TextField
             fullWidth
@@ -123,7 +123,7 @@ const RecommendationForm = () => {
             onChange={(e) => setRecommendation({ ...recommendation, website: e.target.value })}
           />
         </Grid>
-        <Grid size={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
 
           <TextField
             fullWidth
@@ -134,7 +134,7 @@ const RecommendationForm = () => {
           />
         </Grid>
 
-        <Grid size={8}>
+        <Grid size={{ xs: 12, md: 8 }}>
 
           <TextField
             fullWidth
@@ -144,7 +144,7 @@ const RecommendationForm = () => {
             onChange={(e) => setRecommendation({ ...recommendation, notes: e.target.value })}
           />
         </Grid>
-        <Grid size={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <TextField
             fullWidth
             label="Your email (optional)"
