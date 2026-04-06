@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { DESKTOP_ONLY_DESCRIPTION, MOBILE_ONLY_DESCRIPTION } from '../constants';
 
 
 test.describe('Login — guest', () => {
@@ -10,13 +11,13 @@ test.describe('Login — guest', () => {
   });
 
   test('desktop navbar shows Login button when not logged in', async ({ page, isMobile }) => {
-    test.skip(isMobile, 'Desktop-only layout');
+    test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
   test('mobile menu shows Login option when not logged in', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Mobile-only layout');
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
     await page.getByRole('button', { name: 'account of current user' }).click();
     await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();
@@ -35,7 +36,7 @@ test.describe('Login — guest', () => {
   });
 
   test('after login, mobile menu shows profile options including Log Out', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Mobile-only layout');
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/login');
     await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
     await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
@@ -50,7 +51,7 @@ test.describe('Login — guest', () => {
 
 
   test('mobile menu closes after navigating to login page', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Mobile-only layout');
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
     await page.getByRole('button', { name: 'account of current user' }).click();
     await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();

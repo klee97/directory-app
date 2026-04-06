@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { MOBILE_ONLY_DESCRIPTION } from '../constants';
 
 /**
  * Favorites e2e tests — runs as unauthenticated guest.
@@ -61,7 +62,7 @@ test.describe('Favorites — guest', () => {
   });
 
   test('mobile: clicking heart on vendor card shows login prompt', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Mobile-only layout');
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
@@ -69,7 +70,7 @@ test.describe('Favorites — guest', () => {
   });
 
   test('mobile: clicking heart on vendor profile page shows login prompt', async ({ page, isMobile }) => {
-    test.skip(!isMobile, 'Mobile-only layout');
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto(`/vendors/${GLAMOUR_SLUG}`);
     await page.getByRole('button', { name: 'Add to favorites' }).click();
 

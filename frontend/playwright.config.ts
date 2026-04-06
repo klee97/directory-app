@@ -88,6 +88,15 @@ export default defineConfig({
       dependencies: ['auth-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
     },
+    {
+      name: 'mobile-safari:authenticated',
+      use: {
+        ...devices['iPhone 16'],
+        storageState: 'e2e/fixtures/.auth/session.json',
+      },
+      dependencies: ['auth-setup'],
+      testMatch: '**/e2e/**/*.auth.spec.ts',
+    },
 
     // -----------------------------------------------------------------
     // Vendor authenticated tests — depend on vendor-auth-setup running first
@@ -97,6 +106,17 @@ export default defineConfig({
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'e2e/fixtures/.auth/vendor-session.json',
+      },
+      dependencies: ['vendor-auth-setup'],
+      testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
+    },
+
+    {
+      name: 'mobile-safari:vendor-protected',
+      use: {
+        ...devices['iPhone 16'],
+        storageState: 'e2e/fixtures/.auth/vendor-session.json',
+
       },
       dependencies: ['vendor-auth-setup'],
       testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
