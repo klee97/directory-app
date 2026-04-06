@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyRecaptchaToken } from '@/lib/security/recaptchaVerification';
+import { HUBSPOT_FORM_PREFIX } from '@/lib/hubspot/constants';
 
 export async function POST(req: NextRequest) {
   const { firstname, lastname, email, reason, message, recaptchaToken } = await req.json();
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'CAPTCHA verification failed.' }, { status: 400 });
   }
 
-  const hubspotUrl = `https://api.hsforms.com/submissions/v3/integration/submit/${process.env.HUBSPOT_PORTAL_ID}/${process.env.HUBSPOT_FORM_GUID}`;
+  const hubspotUrl = `${HUBSPOT_FORM_PREFIX}/${process.env.HUBSPOT_FORM_GUID}`;
 
   const response = await fetch(hubspotUrl, {
     method: 'POST',
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
 
   if (!response.ok) {
     console.error('Failed to submit to HubSpot:', response.statusText);
-    return NextResponse.json({ error: 'Failed to submit to HubSpot.' }, { status: 502 });
+    return NextResponse.json({ error: 'Failed to send contact message.' }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true });
