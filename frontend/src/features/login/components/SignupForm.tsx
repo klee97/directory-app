@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -20,6 +20,8 @@ import IconButton from "@mui/material/IconButton";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Visibility from "@mui/icons-material/Visibility";
 import TermsCheckbox from "@/components/layouts/TermsCheckbox";
+import ReCaptcha, { ReCaptchaRef } from "@/components/security/ReCaptcha";
+import { isDevOrPreview } from "@/lib/env/env";
 
 export function SignupForm() {
   const router = useRouter();
@@ -30,6 +32,7 @@ export function SignupForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState(false);
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,11 +60,22 @@ export function SignupForm() {
       setIsSubmitting(false);
       return;
     }
-
     try {
+      const recaptchaToken =
+        (await recaptchaRef.current?.executeAsync()) ??
+        (isDevOrPreview() ? 'test-bypass' : null);
+
+      if (!recaptchaToken) {
+        addNotification('CAPTCHA verification failed. Please try again.', 'error');
+        return;
+      }
+
+      formData.append('recaptchaToken', recaptchaToken);
+
       const result = await signup(formData);
       if (result && result.error) {
         addNotification(result.error, 'error');
+        recaptchaRef.current?.reset();
         if (result.action === 'login') {
           router.push('/login');
         } else if (result.action === 'verify-email') {
@@ -74,6 +88,7 @@ export function SignupForm() {
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
+      recaptchaRef.current?.reset();
     } finally {
       setIsSubmitting(false);
     }
@@ -173,6 +188,12 @@ export function SignupForm() {
               error={termsError}
             />
 
+            <ReCaptcha
+              ref={recaptchaRef}
+              size="invisible"
+              onExpired={() => console.warn('reCAPTCHA expired')}
+              onErrored={() => console.warn('reCAPTCHA errored')}
+            />
             <Stack spacing={2} direction="column" sx={{ mt: 3 }}>
               <Button
                 type="submit"

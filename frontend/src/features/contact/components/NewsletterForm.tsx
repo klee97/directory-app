@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
@@ -8,42 +8,51 @@ import Alert from "@mui/material/Alert";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { submitNewsletterForm } from "@/features/contact/api/submitForm";
+import ReCaptcha, { ReCaptchaRef } from "@/components/security/ReCaptcha";
+import { isDevOrPreview } from "@/lib/env/env";
 
 export function NewsletterForm() {
   const [formData, setFormData] = useState({
     email: "",
-    reasons: [] as string[],
   });
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-
-  // const reasons = [
-  //   { value: "updates", label: "Updates to the directory project" },
-  //   { value: "featured", label: "New and featured vendors" },
-  //   { value: "help", label: "Opportunities to get involved" },
-  // ];
-  //
-  // const handleCheckboxChange = (value: string) => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     reasons: prev.reasons.includes(value)
-  //       ? prev.reasons.filter((reason) => reason !== value)
-  //       : [...prev.reasons, value],
-  //   }));
-  // };
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError("");
     setSubmitted(false);
+    setIsSubmitting(true);
 
-    const response = await submitNewsletterForm(formData);
+    try {
+      const recaptchaToken =
+        (await recaptchaRef.current?.executeAsync()) ??
+        (isDevOrPreview() ? "test-bypass" : null);
 
-    if (response.ok) {
-      setSubmitted(true);
-    } else {
+      if (!recaptchaToken) {
+        setError("CAPTCHA verification failed. Please try again.");
+        return;
+      }
+
+      const response = await submitNewsletterForm({ ...formData, recaptchaToken });
+
+      if (response.ok) {
+        setSubmitted(true);
+        recaptchaRef.current?.reset();
+
+      } else {
+        setError("Something went wrong. Please try again.");
+        recaptchaRef.current?.reset();
+
+      }
+    } catch {
       setError("Something went wrong. Please try again.");
+      recaptchaRef.current?.reset();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,8 +92,19 @@ export function NewsletterForm() {
                 required
                 fullWidth
               />
-
-              <Button type="submit" variant="contained" color="primary" sx={{ flexShrink: 0 }}>
+              <ReCaptcha
+                ref={recaptchaRef}
+                size="invisible"
+                onExpired={() => console.warn("reCAPTCHA expired")}
+                onErrored={() => console.warn("reCAPTCHA errored")}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                sx={{ flexShrink: 0 }}
+                disabled={isSubmitting}
+              >
                 Sign up
               </Button>
             </Box>

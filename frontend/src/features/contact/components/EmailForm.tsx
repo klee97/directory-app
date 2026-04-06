@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import TextField from "@mui/material/TextField";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Alert from "@mui/material/Alert";
 import { submitForm } from "@/features/contact/api/submitForm";
+import ReCaptcha, { ReCaptchaRef } from "@/components/security/ReCaptcha";
+import { isDevOrPreview } from "@/lib/env/env";
 
 export function EmailForm() {
   const [formData, setFormData] = useState({
@@ -19,6 +21,8 @@ export function EmailForm() {
 
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const reasons = [
     { value: "general", label: "General Inquiry" },
@@ -34,13 +38,32 @@ export function EmailForm() {
     e.preventDefault();
     setError("");
     setSubmitted(false);
+    setIsSubmitting(true);
 
-    const response = await submitForm(formData);
+    try {
+      const recaptchaToken =
+        (await recaptchaRef.current?.executeAsync()) ??
+        (isDevOrPreview() ? "test-bypass" : null);
 
-    if (response.ok) {
-      setSubmitted(true);
-    } else {
+      if (!recaptchaToken) {
+        setError("CAPTCHA verification failed. Please try again.");
+        return;
+      }
+
+      const response = await submitForm({ ...formData, recaptchaToken });
+
+      if (response.ok) {
+        setSubmitted(true);
+        recaptchaRef.current?.reset();
+      } else {
+        setError("Something went wrong. Please try again.");
+        recaptchaRef.current?.reset();
+      }
+    } catch {
       setError("Something went wrong. Please try again.");
+      recaptchaRef.current?.reset();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -108,8 +131,20 @@ export function EmailForm() {
             sx={{ mb: 2 }}
           />
           {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-          <Button type="submit" variant="contained" color="primary" fullWidth>
-            Submit
+          <ReCaptcha
+            ref={recaptchaRef}
+            size="invisible"
+            onExpired={() => console.warn("reCAPTCHA expired")}
+            onErrored={() => console.warn("reCAPTCHA errored")}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            fullWidth
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </Box>
       )}
