@@ -30,7 +30,8 @@ import NavigationMenu from '@/components/layouts/NavigationMenu';
 import { useRouter } from 'next/navigation';
 import UserAvatar from '@/components/ui/UserAvatar';
 import ThemeSelector from './ThemeSelector';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useHasMounted } from '@/hooks/useHasMounted';
 
 
 const pages = ["About", "Contact", "FAQ", "Recommend"];
@@ -40,7 +41,6 @@ const Title = 'ASIAN WEDDING MAKEUP';
 const VendorsSubtitle = 'For Vendors';
 
 export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
-  const [mounted, setMounted] = useState(false);
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [anchorElResources, setAnchorElResources] = useState<null | HTMLElement>(null);
   const [resourcesExpanded, setResourcesExpanded] = useState(false);
@@ -55,6 +55,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     severity: 'success',
   });
 
+  const hasMounted = useHasMounted();
   const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, role } = useAuth();
   const isVendor = isVendorRole(role);
   const isAuthOrRoleLoading = isAuthLoading || isRoleLoading
@@ -65,32 +66,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
   const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
 
-  // Handle hydration and initial loading
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Close menus when screen size changes
-  useEffect(() => {
-    if (mounted && isMobile) {
-      setAnchorElNav(null);
-      setAnchorElResources(null);
-      setResourcesExpanded(false);
-      setAnchorElProfile(null);
-    }
-  }, [isMobile, mounted]);
-
-  // Cleanup menu states on unmount
-  useEffect(() => {
-    return () => {
-      setAnchorElNav(null);
-      setAnchorElResources(null);
-      setResourcesExpanded(false);
-      setAnchorElProfile(null);
-    };
-  }, []);
-
-  if (!mounted || isAuthLoading) {
+  if (!hasMounted || isAuthLoading) {
     return (
       <>
         <AppBar
@@ -195,6 +171,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
           </IconButton>
           <Menu
             id="menu-profile"
+            key={isMobile ? 'mobile' : 'desktop'}
             anchorEl={anchorElProfile}
             anchorOrigin={{
               vertical: 'bottom',
@@ -249,6 +226,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </IconButton>
               <Menu
                 id="menu-appbar"
+                key={isMobile ? 'mobile' : 'desktop'}
                 color="inherit"
                 anchorEl={anchorElNav}
                 anchorOrigin={{
