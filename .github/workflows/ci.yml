@@ -72,8 +72,20 @@ jobs:
       - name: Reset database and seed
         run: npx supabase db reset
 
-      # Install Chromium and Webkit browseres, matching playwright.config.ts
-      - run: npx playwright install chromium webkit --with-deps
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium webkit --with-deps
+
+      - name: Install Playwright OS deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium webkit
 
       - name: Run E2E tests
         run: npm run test:e2e
