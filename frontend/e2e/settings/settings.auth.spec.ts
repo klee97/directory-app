@@ -17,7 +17,9 @@ import { test, expect } from '@playwright/test';
 test.describe.serial('Settings — delete account', () => {
   test('delete account dialog opens and closes without deleting', async ({ page }) => {
     await page.goto('/settings');
-    await page.getByRole('button').filter({ hasText: 'Delete Account' }).click();
+    const deleteButton = page.getByRole('button').filter({ hasText: 'Delete Account' });
+    await deleteButton.scrollIntoViewIfNeeded();
+    await deleteButton.click();
 
     const deleteDialog = page.getByRole('dialog', { name: 'Confirm Account Deletion' });
     await expect(deleteDialog).toBeVisible();
@@ -29,7 +31,9 @@ test.describe.serial('Settings — delete account', () => {
 
   test('delete account with wrong password shows error and keeps dialog open', async ({ page }) => {
     await page.goto('/settings');
-    await page.getByRole('button').filter({ hasText: 'Delete Account' }).click();
+    const deleteButton = page.getByRole('button').filter({ hasText: 'Delete Account' });
+    await deleteButton.scrollIntoViewIfNeeded();
+    await deleteButton.click();
     await expect(page.getByRole('dialog', { name: 'Confirm Account Deletion' })).toBeVisible();
 
     await page.getByLabel('Current Password').fill('WrongPassword999!');
@@ -60,7 +64,9 @@ test.describe.serial('Settings — change password', () => {
 
   test('changing password with wrong current password keeps dialog open', async ({ page }) => {
     await page.goto('/settings');
-    await page.getByRole('button').filter({ hasText: 'Change Password' }).click();
+    const changeButton = page.getByRole('button').filter({ hasText: 'Change Password' });
+    await changeButton.scrollIntoViewIfNeeded();
+    await changeButton.click();
     await expect(page.getByRole('dialog', { name: 'Change Password' })).toBeVisible();
 
     await page.getByLabel('Current Password').fill('WrongPassword999!');
@@ -79,7 +85,9 @@ test.describe.serial('Settings — change password', () => {
 
     // Step 1: change to temp password
     await page.goto('/settings');
-    await page.getByRole('button').filter({ hasText: 'Change Password' }).click();
+    const changeButton = page.getByRole('button').filter({ hasText: 'Change Password' });
+    await changeButton.scrollIntoViewIfNeeded();
+    await changeButton.click();
     await expect(page.getByRole('dialog', { name: 'Change Password' })).toBeVisible();
     await page.getByLabel('Current Password').fill(originalPassword);
     await page.getByRole('textbox', { name: 'New Password', exact: true }).fill(tempPassword);
