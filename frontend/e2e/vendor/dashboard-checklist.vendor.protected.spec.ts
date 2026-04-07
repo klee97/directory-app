@@ -10,7 +10,7 @@ test.describe('Vendor Dashboard Checklist', () => {
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/partner/dashboard');
-    await expect(page.getByRole('heading', { name: /dashboard|checklist/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /welcome/i })).toBeVisible();
   });
 
   test('dashboard items are checked as items are completed', async ({ page }) => {

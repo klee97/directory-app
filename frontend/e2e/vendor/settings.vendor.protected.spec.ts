@@ -6,9 +6,9 @@ import { test, expect } from '@playwright/test';
  */
 
 const TEST_EMAILS = {
-  vendorMain: process.env.TEST_VENDOR_EMAIL || 'test-vendor@vendors.local',
-  vendorNew: process.env.TEST_VENDOR_NEW_EMAIL || 'test-new@vendors.local',
-  userMain: process.env.TEST_USER_EMAIL || 'test-customer@users.local',
+  vendorMain: process.env.TEST_VENDOR_EMAIL || 'test-vendor@example.com',
+  vendorNew: process.env.TEST_VENDOR_NEW_EMAIL || 'test-vendor2@example.com',
+  userMain: process.env.TEST_USER_EMAIL || 'test-user@example.com',
 };
 
 const TEST_PASSWORD = process.env.TEST_VENDOR_PASSWORD || 'TestPassword123!';
