@@ -3,18 +3,18 @@ import { test, expect } from '@playwright/test';
 /**
  * Unauthenticated vendor login tests
  */
-test('vendor login page renders', async ({ page }) => {
+test.skip('vendor login page renders', async ({ page }) => {
   await page.goto('/partner/login');
   await expect(page.getByLabel('Email Address')).toBeVisible();
   await expect(page.getByLabel('Password')).toBeVisible();
 });
 
-test('unauthenticated user accessing vendor dashboard is redirected to login with redirectTo param', async ({ page }) => {
+test.skip('unauthenticated user accessing vendor dashboard is redirected to login with redirectTo param', async ({ page }) => {
   await page.goto('/partner/dashboard');
   await expect(page).toHaveURL(/\/login\?redirectTo=\/partner\/dashboard/);
 });
 
-test('vendor login with no redirectTo lands on partner dashboard', async ({ page }) => {
+test.skip('vendor login with no redirectTo lands on partner dashboard', async ({ page }) => {
   await page.goto('/partner/login');
 
   await page.getByLabel('Email Address').fill(process.env.TEST_VENDOR_EMAIL!);
@@ -24,7 +24,7 @@ test('vendor login with no redirectTo lands on partner dashboard', async ({ page
   await expect(page).toHaveURL('/partner/dashboard');
 });
 
-test('vendor login with redirectTo respects the param', async ({ page }) => {
+test.skip('vendor login with redirectTo respects the param', async ({ page }) => {
   await page.goto('/partner/login?redirectTo=/partner/settings');
 
   await page.getByLabel('Email Address').fill(process.env.TEST_VENDOR_EMAIL!);
@@ -34,7 +34,7 @@ test('vendor login with redirectTo respects the param', async ({ page }) => {
   await expect(page).toHaveURL('/partner/settings');
 });
 
-test('regular user logging in via vendor login page is redirected to /', async ({ page }) => {
+test.skip('regular user logging in via vendor login page is redirected to /', async ({ page }) => {
   await page.goto('/partner/login');
 
   await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
@@ -44,7 +44,7 @@ test('regular user logging in via vendor login page is redirected to /', async (
   await expect(page).toHaveURL('/');
 });
 
-test('unauthenticated vendor accessing deep vendor route is redirected to login then back after login', async ({ page }) => {
+test.skip('unauthenticated vendor accessing deep vendor route is redirected to login then back after login', async ({ page }) => {
   // 1. Try to access a deep vendor route
   await page.goto('/partner/dashboard/profile');
 

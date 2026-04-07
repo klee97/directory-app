@@ -65,6 +65,15 @@ VALUES
   ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()) ),
   ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null);
 
+-- Magic-link claiming test vendors (unclaimed profiles with known access tokens)
+INSERT INTO public.vendors (id, business_name, slug, email, access_token, include_in_directory)
+VALUES
+  ('TEST-MAGIC-001', 'Test Unclaimed Vendor',  'test-unclaimed-vendor',  'test-unclaimed@vendors.local',  'a0000000-0000-0000-0000-000000000001', false),
+  ('TEST-MAGIC-002', 'Test New Vendor',        'test-new-vendor',        'test-new@vendors.local',        'a0000000-0000-0000-0000-000000000002', false),
+  ('TEST-MAGIC-003', 'Test Existing Vendor',   'test-existing-vendor',   'test-existing@vendors.local',   'a0000000-0000-0000-0000-000000000003', false),
+  ('TEST-MAGIC-004', 'Test Main Vendor',       'test-main-vendor',       'test-vendor@vendors.local',     'a0000000-0000-0000-0000-000000000004', false),
+  ('TEST-MAGIC-005', 'Test Another Vendor',    'test-another-vendor',    'test-another@vendors.local',    'a0000000-0000-0000-0000-000000000005', false);
+
 -- Test tags  (style='primary' → Service chip; anything else → Skill chip)
 INSERT INTO public.tags (id, name, display_name, is_visible, style)
 VALUES

@@ -1,8 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { VENDOR_SESSION_FILE } from '../fixtures/auth.vendor.setup';
 
 // Use vendor session for all tests in this file
-test.use({ storageState: VENDOR_SESSION_FILE });
+test.use({ storageState: 'e2e/fixtures/.auth/vendor-session.json' });
 
 test('authenticated vendor user visiting /partner/login is redirected to dashboard', async ({ page }) => {
   await page.goto('/partner/login');
