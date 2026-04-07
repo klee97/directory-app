@@ -71,8 +71,20 @@ export default defineConfig({
       dependencies: ['supabase-setup'],
     },
     {
+      name: 'auth-mobile-setup',
+      testMatch: '**/e2e/fixtures/auth.mobile.setup.ts',
+      use: { ...devices['iPhone 15'] },
+      dependencies: ['supabase-setup'],
+    },
+    {
       name: 'vendor-auth-setup',
       testMatch: '**/e2e/fixtures/auth.vendor.setup.ts',
+      dependencies: ['supabase-setup'],
+    },
+    {
+      name: 'vendor-auth-mobile-setup',
+      testMatch: '**/e2e/fixtures/auth.vendor.mobile.setup.ts',
+      use: { ...devices['iPhone 15'] },
       dependencies: ['supabase-setup'],
     },
 
@@ -92,9 +104,9 @@ export default defineConfig({
       name: 'mobile-safari:authenticated',
       use: {
         ...devices['iPhone 15'],
-        storageState: 'e2e/fixtures/.auth/session.json',
+        storageState: 'e2e/fixtures/.auth/mobile-session.json',
       },
-      dependencies: ['auth-setup'],
+      dependencies: ['auth-mobile-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
     },
 
@@ -115,10 +127,10 @@ export default defineConfig({
       name: 'mobile-safari:vendor-protected',
       use: {
         ...devices['iPhone 15'],
-        storageState: 'e2e/fixtures/.auth/vendor-session.json',
+        storageState: 'e2e/fixtures/.auth/vendor-mobile-session.json',
 
       },
-      dependencies: ['vendor-auth-setup'],
+      dependencies: ['vendor-auth-mobile-setup'],
       testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
     },
 

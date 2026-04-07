@@ -33,6 +33,7 @@ const BRIDAL_NAME = 'Test Bridal Beauty Co';
 async function clickFavoriteAndPersist(page: Page, button: Locator): Promise<void> {
   await Promise.all([
     page.waitForResponse(r => r.request().method() === 'POST' && !!r.request().headers()['next-action']),
+    button.scrollIntoViewIfNeeded(),
     button.click(),
   ]);
 }

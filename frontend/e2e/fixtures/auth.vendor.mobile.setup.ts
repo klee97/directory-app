@@ -1,12 +1,12 @@
 /**
- * Runs once before any vendor-authenticated test suite.
+ * Runs once before any mobile vendor-authenticated test suite.
  */
 
-import { test as setup} from '@playwright/test';
+import { test as setup } from '@playwright/test';
 import path from 'path';
 import { loginAndSaveSession } from './auth.helpers';
 
-export const VENDOR_SESSION_FILE = path.join(import.meta.dirname, '.auth/vendor-session.json');
+export const VENDOR_SESSION_FILE = path.join(import.meta.dirname, '.auth/vendor-mobile-session.json');
 
 setup('authenticate as vendor via Supabase', async ({ page }) => {
   const email = process.env.TEST_VENDOR_EMAIL;

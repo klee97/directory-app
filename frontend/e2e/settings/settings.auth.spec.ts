@@ -114,6 +114,8 @@ test.describe.serial('Settings — change password', () => {
 
     // Step 4: restore original password
     await page.goto('/settings');
+    await changeButton.scrollIntoViewIfNeeded();
+    await changeButton.click();
     await page.getByRole('button').filter({ hasText: 'Change Password' }).click();
     await expect(page.getByRole('dialog', { name: 'Change Password' })).toBeVisible();
     await page.getByLabel('Current Password').fill(tempPassword);
