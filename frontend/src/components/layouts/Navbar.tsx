@@ -30,7 +30,7 @@ import NavigationMenu from '@/components/layouts/NavigationMenu';
 import { useRouter } from 'next/navigation';
 import UserAvatar from '@/components/ui/UserAvatar';
 import ThemeSelector from './ThemeSelector';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
 
 
@@ -66,6 +66,18 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
 
   const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
 
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    if (isMobile) {
+      setAnchorElResources(null);
+      setResourcesExpanded(false);
+    } else {
+      setAnchorElNav(null);
+    }
+  }, [isMobile]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+
   if (!hasMounted || isAuthLoading) {
     return (
       <>
@@ -92,6 +104,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     event.preventDefault();
     setAnchorElNav(event.currentTarget);
     setResourcesExpanded(false);
+    setAnchorElResources(null);
   };
 
   const handleCloseNavMenu = () => {
