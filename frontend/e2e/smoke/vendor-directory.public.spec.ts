@@ -25,7 +25,7 @@ test.describe('Vendor directory — guest', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Wait until the result-count line renders, confirming vendors are loaded
-    await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/4 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
   test('filter by skill and click vendor card', async ({ page }) => {
@@ -36,6 +36,7 @@ test.describe('Vendor directory — guest', () => {
     await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
 
     // Only the vendor with this skill should be visible
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
     await expect(page.getByText('Test Bridal Beauty Co')).not.toBeVisible();
 
@@ -62,6 +63,7 @@ test.describe('Vendor directory — guest', () => {
     await page.locator('label').filter({ hasText: /^Hair$/ }).click();
 
     // Both test vendors offer this service
+    await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
     await expect(page.getByText('Test Bridal Beauty Co')).toBeVisible();
 
@@ -82,6 +84,7 @@ test.describe('Vendor directory — guest', () => {
     await page.getByPlaceholder('Artist Name').fill('Test Glamour');
 
     // Wait for the debounced filter to apply and the matching card to appear
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Test Glamour Studio')).toBeVisible({ timeout: 3_000 });
     await expect(page.getByText('Test Bridal Beauty Co')).not.toBeVisible();
 

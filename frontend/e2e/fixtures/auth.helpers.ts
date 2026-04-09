@@ -13,25 +13,26 @@ export async function logout(page: Page, isMobile: boolean) {
 /**
  * Logs in via Supabase, saves session cookies to a file so every
  * authenticated test can reuse them without re-logging in.
- *
- * Picked up automatically by the 'auth-setup' project in playwright.config.ts
  */
 export async function loginAndSaveSession(
   page: Page,
   sessionFile: string,
-  email: string | undefined,
-  password: string | undefined,
+  email: string,
+  password: string,
   loginUrl: string,
   successUrl: string
 ) {
+  await login(page, email, password, loginUrl, successUrl);
+  await page.context().storageState({ path: sessionFile });
+}
 
-  if (!email || !password) {
-    throw new Error(
-      'Missing TEST_USER_EMAIL or TEST_USER_PASSWORD env vars.\n' +
-      'Add them to your .env.test file (see .env.test.example).'
-    );
-  }
-
+export async function login(
+  page: Page,
+  email: string,
+  password: string,
+  loginUrl: string,
+  successUrl: string
+) {
   await page.goto(loginUrl);
   await page.getByLabel('Email Address').fill(email);
   await page.getByLabel('Password').fill(password);
@@ -40,5 +41,4 @@ export async function loginAndSaveSession(
   await submitButton.click();
   await page.waitForURL((url) => !url.pathname.includes(loginUrl), { timeout: 15_000 });
   await expect(page).toHaveURL(successUrl);
-  await page.context().storageState({ path: sessionFile });
 }

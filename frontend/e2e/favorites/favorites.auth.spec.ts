@@ -1,4 +1,5 @@
-import { test, expect, type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
+import { test, expect } from '../fixtures/fixtures';
 import { logout } from '../fixtures/auth.helpers';
 import { refreshVendors } from '../fixtures/devToolHelpers';
 
@@ -38,12 +39,19 @@ async function clickFavoriteAndPersist(page: Page, button: Locator): Promise<voi
   ]);
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+test.use({ storageState: ({ userWorkerStorageState }, use) => use(userWorkerStorageState) });
+
 test.describe.serial('Favorites — authenticated', () => {
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
+  test.beforeAll(async ({ browser, userWorkerStorageState }) => {
+    const context = await browser.newContext({
+      storageState: userWorkerStorageState,
+      baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+    });
+    const page = await context.newPage();
     await page.goto('/');
     await refreshVendors(page);
-    await page.close();
+    await context.close(); // closes the page too
   });
 
   test.beforeEach(async ({ page }) => {

@@ -28,7 +28,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
 
   // Limit parallel workers on CI to avoid resource contention
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 2 : 4,
 
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
@@ -61,52 +61,24 @@ export default defineConfig({
       name: 'supabase-setup',
       testMatch: '**/e2e/fixtures/supabase.setup.ts',
     },
-    // -----------------------------------------------------------------
-    // Auth setup — runs once, logs in via Supabase, saves session cookie
-    // so authenticated tests don't repeat the login flow every time.
-    // -----------------------------------------------------------------
-    {
-      name: 'auth-setup',
-      testMatch: '**/e2e/fixtures/auth.setup.ts',
-      dependencies: ['supabase-setup'],
-    },
-    {
-      name: 'auth-mobile-setup',
-      testMatch: '**/e2e/fixtures/auth.mobile.setup.ts',
-      use: { ...devices['iPhone 15'] },
-      dependencies: ['supabase-setup'],
-    },
-    {
-      name: 'vendor-auth-setup',
-      testMatch: '**/e2e/fixtures/auth.vendor.setup.ts',
-      dependencies: ['supabase-setup'],
-    },
-    {
-      name: 'vendor-auth-mobile-setup',
-      testMatch: '**/e2e/fixtures/auth.vendor.mobile.setup.ts',
-      use: { ...devices['iPhone 15'] },
-      dependencies: ['supabase-setup'],
-    },
 
     // -----------------------------------------------------------------
-    // Authenticated tests — depend on auth-setup running first
+    // Authenticated tests
     // -----------------------------------------------------------------
     {
       name: 'chromium:authenticated',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'e2e/fixtures/.auth/session.json',
       },
-      dependencies: ['auth-setup'],
+      dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
     },
     {
       name: 'mobile-safari:authenticated',
       use: {
         ...devices['iPhone 15'],
-        storageState: 'e2e/fixtures/.auth/mobile-session.json',
       },
-      dependencies: ['auth-mobile-setup'],
+      dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
     },
 
@@ -117,9 +89,8 @@ export default defineConfig({
       name: 'chromium:vendor-protected',
       use: {
         ...devices['Desktop Chrome'],
-        storageState: 'e2e/fixtures/.auth/vendor-session.json',
       },
-      dependencies: ['vendor-auth-setup'],
+      dependencies: ['supabase-setup'],
       testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
     },
 
@@ -127,10 +98,9 @@ export default defineConfig({
       name: 'mobile-safari:vendor-protected',
       use: {
         ...devices['iPhone 15'],
-        storageState: 'e2e/fixtures/.auth/vendor-mobile-session.json',
-
+        // storageState: 'e2e/fixtures/.auth/vendor-mobile-session.json',
       },
-      dependencies: ['vendor-auth-mobile-setup'],
+      dependencies: ['supabase-setup'],
       testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
     },
 

@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { DESKTOP_ONLY_DESCRIPTION, MOBILE_ONLY_DESCRIPTION } from '../constants';
+import { userWorkerAccounts } from '../fixtures/testUsers';
+
+const { email, password } = userWorkerAccounts[0];
 
 test.describe('Login — guest', () => {
   test('login page renders with email, password, and submit button', async ({ page }) => {
@@ -25,8 +28,8 @@ test.describe('Login — guest', () => {
   test('successful login redirects to home and shows profile button', async ({ page, isMobile }) => {
     test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/login');
-    await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
-    await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
+    await page.getByLabel('Email Address').fill(email);
+    await page.getByLabel('Password').fill(password);
     await page.getByTestId('login-submit').click();
 
     await page.waitForURL('/', { timeout: 15_000 });
@@ -37,8 +40,8 @@ test.describe('Login — guest', () => {
   test('after login, mobile menu shows profile options including Log Out', async ({ page, isMobile }) => {
     test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/login');
-    await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
-    await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
+    await page.getByLabel('Email Address').fill(email);
+    await page.getByLabel('Password').fill(password);
     await page.getByTestId('login-submit').click();
     await page.waitForURL('/', { timeout: 15_000 });
 

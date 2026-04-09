@@ -1,4 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { login } from '../fixtures/auth.helpers';
+import { test, expect } from '../fixtures/fixtures';
+import { throwawayAccount } from '../fixtures/testUsers';
 
 /**
  * Settings e2e tests — runs as authenticated user.
@@ -14,7 +16,15 @@ import { test, expect } from '@playwright/test';
  * sessions used by other test groups.
  */
 
+test.use({ storageState: { cookies: [], origins: [] } }); // explicitly start unauthenticated
+
+const { email, password } = throwawayAccount;
+
 test.describe.serial('Settings — delete account', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page, email, password, '/login', '/');
+  });
+
   test('delete account dialog opens and closes without deleting', async ({ page }) => {
     await page.goto('/settings');
     const deleteButton = page.getByRole('button').filter({ hasText: 'Delete Account' });
@@ -46,6 +56,9 @@ test.describe.serial('Settings — delete account', () => {
 });
 
 test.describe.serial('Settings — change password', () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page, email, password, '/login', '/');
+  });
   test.skip('settings page is accessible when logged in', async ({ page }) => {
     await page.goto('/settings');
     await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible();
@@ -55,8 +68,9 @@ test.describe.serial('Settings — change password', () => {
 
   test('change password dialog opens and closes without submitting', async ({ page }) => {
     await page.goto('/settings');
-    await page.getByRole('button').filter({ hasText: 'Change Password' }).click();
-
+    const changeButton = page.getByRole('button').filter({ hasText: 'Change Password' });
+    await changeButton.scrollIntoViewIfNeeded();
+    await changeButton.click();
     await expect(page.getByRole('dialog', { name: 'Change Password' })).toBeVisible();
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible();
@@ -80,7 +94,7 @@ test.describe.serial('Settings — change password', () => {
   });
 
   test.skip('change password, log out, log back in with new password, then restore', async ({ page }) => {
-    const originalPassword = process.env.TEST_USER_PASSWORD!;
+    const originalPassword = password;
     const tempPassword = 'TempPass@2025!';
 
     // Step 1: change to temp password
@@ -106,7 +120,7 @@ test.describe.serial('Settings — change password', () => {
 
     // Step 3: log in with new password
     await page.goto('/login');
-    await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
+    await page.getByLabel('Email Address').fill(email);
     await page.getByLabel('Password').fill(tempPassword);
     await page.getByTestId('login-submit').click();
     await page.waitForURL('/', { timeout: 15_000 });
@@ -116,7 +130,6 @@ test.describe.serial('Settings — change password', () => {
     await page.goto('/settings');
     await changeButton.scrollIntoViewIfNeeded();
     await changeButton.click();
-    await page.getByRole('button').filter({ hasText: 'Change Password' }).click();
     await expect(page.getByRole('dialog', { name: 'Change Password' })).toBeVisible();
     await page.getByLabel('Current Password').fill(tempPassword);
     await page.getByRole('textbox', { name: 'New Password', exact: true }).fill(originalPassword);
