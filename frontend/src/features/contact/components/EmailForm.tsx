@@ -74,7 +74,7 @@ export function EmailForm() {
           Thank you! We&apos;ll get back to you soon.
         </Alert>
       ) : (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+        <Box component="form" data-testid="email-form"onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <TextField
             fullWidth
             label="First Name"

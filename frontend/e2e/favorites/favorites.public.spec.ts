@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { MOBILE_VIEWPORT } from '../constants';
+import { MOBILE_ONLY_DESCRIPTION } from '../constants';
+import { refreshVendors } from '../fixtures/devToolHelpers';
 
 /**
  * Favorites e2e tests — runs as unauthenticated guest.
@@ -15,15 +16,13 @@ test.describe('Favorites — guest', () => {
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Refresh Vendors' })).toBeVisible();
-    await page.getByRole('button', { name: 'Refresh Vendors' }).click();
-    await expect(page.getByRole('button', { name: 'Refreshed!' })).toBeVisible({ timeout: 10_000 });
+    await refreshVendors(page);
     await page.close();
   });
 
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/4 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
   test('clicking heart on vendor card shows login prompt', async ({ page }) => {
@@ -61,16 +60,16 @@ test.describe('Favorites — guest', () => {
     await expect(page).toHaveURL(/\/login/, { timeout: 10_000 });
   });
 
-  test('mobile: clicking heart on vendor card shows login prompt', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile: clicking heart on vendor card shows login prompt', async ({ page, isMobile }) => {
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' }).click();
 
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText('Log in to favorite this vendor.')).toBeVisible();
   });
 
-  test('mobile: clicking heart on vendor profile page shows login prompt', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile: clicking heart on vendor profile page shows login prompt', async ({ page, isMobile }) => {
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto(`/vendors/${GLAMOUR_SLUG}`);
     await page.getByRole('button', { name: 'Add to favorites' }).click();
 

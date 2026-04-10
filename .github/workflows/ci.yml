@@ -33,10 +33,6 @@ jobs:
   # Requires these GitHub secrets to be set:
   #   - NEXT_PUBLIC_SUPABASE_URL
   #   - NEXT_PUBLIC_SUPABASE_ANON_KEY
-  #   - TEST_USER_EMAIL
-  #   - TEST_USER_PASSWORD
-  #   - TEST_VENDOR_EMAIL
-  #   - TEST_VENDOR_PASSWORD
   #   - NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED
   # -------------------------------------------------------------------
   e2e:
@@ -72,8 +68,20 @@ jobs:
       - name: Reset database and seed
         run: npx supabase db reset
 
-      # Install Chromium only — matches your playwright.config.ts
-      - run: npx playwright install chromium --with-deps
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium webkit --with-deps
+
+      - name: Install Playwright OS deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium webkit
 
       - name: Run E2E tests
         run: npm run test:e2e
@@ -87,10 +95,6 @@ jobs:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 
           # Test credentials — dedicated Supabase test account
-          TEST_USER_EMAIL: test-user@example.com
-          TEST_USER_PASSWORD: Testpassword123!
-          TEST_VENDOR_EMAIL: test-vendor@example.com
-          TEST_VENDOR_PASSWORD: Testvendorpassword123!
           NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
 
       # Upload Playwright report as an artifact so you can download

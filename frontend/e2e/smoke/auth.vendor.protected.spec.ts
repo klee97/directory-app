@@ -1,8 +1,7 @@
-import { test, expect } from '@playwright/test';
-import { VENDOR_SESSION_FILE } from '../fixtures/auth.vendor.setup';
+import { test, expect } from '../fixtures/fixtures';
 
-// Use vendor session for all tests in this file
-test.use({ storageState: VENDOR_SESSION_FILE });
+// eslint-disable-next-line react-hooks/rules-of-hooks
+test.use({ storageState: ({ vendorWorkerStorageState }, use) => use(vendorWorkerStorageState) });
 
 test('authenticated vendor user visiting /partner/login is redirected to dashboard', async ({ page }) => {
   await page.goto('/partner/login');

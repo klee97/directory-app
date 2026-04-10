@@ -1,4 +1,7 @@
-import { test, expect, type Page, type Locator } from '@playwright/test';
+import { type Page, type Locator } from '@playwright/test';
+import { test, expect } from '../fixtures/fixtures';
+import { logout } from '../fixtures/auth.helpers';
+import { refreshVendors } from '../fixtures/devToolHelpers';
 
 /**
  * Favorites e2e tests — runs as authenticated user.
@@ -31,18 +34,24 @@ const BRIDAL_NAME = 'Test Bridal Beauty Co';
 async function clickFavoriteAndPersist(page: Page, button: Locator): Promise<void> {
   await Promise.all([
     page.waitForResponse(r => r.request().method() === 'POST' && !!r.request().headers()['next-action']),
+    button.scrollIntoViewIfNeeded(),
     button.click(),
   ]);
 }
 
+// eslint-disable-next-line react-hooks/rules-of-hooks
+test.use({ storageState: ({ userWorkerStorageState }, use) => use(userWorkerStorageState) });
+
 test.describe.serial('Favorites — authenticated', () => {
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
+  test.beforeAll(async ({ browser, userWorkerStorageState }) => {
+    const context = await browser.newContext({
+      storageState: userWorkerStorageState,
+      baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+    });
+    const page = await context.newPage();
     await page.goto('/');
-    await expect(page.getByRole('button', { name: 'Refresh Vendors' })).toBeVisible();
-    await page.getByRole('button', { name: 'Refresh Vendors' }).click();
-    await expect(page.getByRole('button', { name: 'Refreshed!' })).toBeVisible({ timeout: 10_000 });
-    await page.close();
+    await refreshVendors(page);
+    await context.close(); // closes the page too
   });
 
   test.beforeEach(async ({ page }) => {
@@ -212,16 +221,24 @@ test.describe.serial('Favorites — authenticated', () => {
     );
   });
 
-  test('logging out resets filled hearts to outline', async ({ page }) => {
+  test('logging out resets filled hearts to outline', async ({ page, isMobile }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
 
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
 
-    // Log out via desktop profile menu
-    await page.getByTestId('profile-button').click();
-    await page.getByRole('menuitem', { name: 'Log Out' }).click();
-    await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible({ timeout: 10_000 });
+    // Log out via desktop or mobile profile menu
+    await logout(page, isMobile);
+
+    // Make sure log in is visible
+    if (isMobile) {
+      await page.getByRole('button', { name: 'open navigation menu' }).click();
+      await expect(page.getByRole('menuitem', { name: 'Log in' })).toBeVisible({ timeout: 15_000 });
+      await page.keyboard.press('Escape');
+    } else {
+      await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible({ timeout: 15_000 });
+    }
+
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
 
     // Heart should now show as outline since user is logged out

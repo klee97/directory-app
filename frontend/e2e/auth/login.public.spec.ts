@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { MOBILE_VIEWPORT } from '../constants';
+import { DESKTOP_ONLY_DESCRIPTION, MOBILE_ONLY_DESCRIPTION } from '../constants';
+import { userWorkerAccounts } from '../fixtures/testUsers';
 
+const { email, password } = userWorkerAccounts[0];
 
 test.describe('Login — guest', () => {
   test('login page renders with email, password, and submit button', async ({ page }) => {
@@ -10,53 +12,53 @@ test.describe('Login — guest', () => {
     await expect(page.getByTestId('login-submit')).toBeVisible();
   });
 
-  test('desktop navbar shows Login button when not logged in', async ({ page }) => {
+  test('desktop navbar shows Login button when not logged in', async ({ page, isMobile }) => {
+    test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
-  test('mobile menu shows Login option when not logged in', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile menu shows Login option when not logged in', async ({ page, isMobile }) => {
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
-    await page.getByRole('button', { name: 'account of current user' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();
+    await page.getByRole('button', { name: 'open navigation menu' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Log in' })).toBeVisible();
   });
 
-  test('successful login redirects to home and shows profile button', async ({ page }) => {
+  test('successful login redirects to home and shows profile button', async ({ page, isMobile }) => {
+    test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/login');
-    await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
-    await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
+    await page.getByLabel('Email Address').fill(email);
+    await page.getByLabel('Password').fill(password);
     await page.getByTestId('login-submit').click();
 
     await page.waitForURL('/', { timeout: 15_000 });
     await expect(page.getByTestId('profile-button')).toBeVisible();
-    // Desktop Login button is hidden when logged in
     await expect(page.getByRole('button', { name: 'Log in' })).not.toBeVisible();
   });
 
-  test('after login, mobile menu shows profile options including Log Out', async ({ page }) => {
+  test('after login, mobile menu shows profile options including Log Out', async ({ page, isMobile }) => {
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/login');
-    await page.getByLabel('Email Address').fill(process.env.TEST_USER_EMAIL!);
-    await page.getByLabel('Password').fill(process.env.TEST_USER_PASSWORD!);
+    await page.getByLabel('Email Address').fill(email);
+    await page.getByLabel('Password').fill(password);
     await page.getByTestId('login-submit').click();
     await page.waitForURL('/', { timeout: 15_000 });
 
-    await page.setViewportSize(MOBILE_VIEWPORT);
-    await page.getByRole('button', { name: 'account of current user' }).click();
+    await page.getByRole('button', { name: 'open navigation menu' }).click();
     await expect(page.getByRole('menuitem', { name: 'Log Out' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: 'Settings' })).toBeVisible();
     await expect(page.getByRole('menuitem', { name: 'My Favorites' })).toBeVisible();
   });
 
-
-  test('mobile menu closes after navigating to login page', async ({ page }) => {
-    await page.setViewportSize(MOBILE_VIEWPORT);
+  test('mobile menu closes after navigating to login page', async ({ page, isMobile }) => {
+    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
-    await page.getByRole('button', { name: 'account of current user' }).click();
-    await expect(page.getByRole('menuitem', { name: 'Login' })).toBeVisible();
+    await page.getByRole('button', { name: 'open navigation menu' }).click();
+    await expect(page.getByRole('menuitem', { name: 'Log in' })).toBeVisible();
 
-    await page.getByRole('menuitem', { name: 'Login' }).click();
+    await page.getByRole('menuitem', { name: 'Log in' }).click();
     await expect(page).toHaveURL('/login');
-    await expect(page.getByRole('menuitem', { name: 'Login' })).not.toBeVisible();
+    await expect(page.getByRole('menuitem', { name: 'Log in' })).not.toBeVisible();
   });
 });
