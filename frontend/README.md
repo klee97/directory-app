@@ -53,12 +53,121 @@ Follow this section to run these tests locally.
 ```
    This runs all migrations and seeds the database with a test user.
 
-### Running E2E tests
+### E2E tests
+
+#### Running the tests
 
 Make sure Docker Desktop is running and the local Supabase stack is started, then:
 ```bash
 npm run test:e2e
 ```
+
+### Authentication in Playwright
+Authentication is handled via Playwright's worker-scoped fixtures. Each parallel
+worker authenticates once at the start of the run and reuses that session for all
+tests it runs. This avoids repeating the login flow on every test while ensuring
+parallel workers don't share server-side state.
+
+Accounts are defined in `testUsers.ts` as constants (not env vars) since they are
+seeded fixture data, not real secrets:
+
+```ts
+import { userWorkerAccounts, vendorWorkerAccounts, throwawayAccount } from './testUsers';
+```
+
+| Pool                  | Count | Role   | Used for                        |
+|-----------------------|-------|--------|---------------------------------|
+| `userWorkerAccounts`  | 4     | user   | Authenticated user tests        |
+| `vendorWorkerAccounts`| 4     | vendor | Authenticated vendor tests      |
+| `throwawayAccount`    | 1     | user   | Destructive tests (e.g. delete) |
+
+Worker accounts are seeded in `supabase/seed.sql` and reset on every test run via
+the `supabase-setup` project.
+
+#### Using auth in a spec file
+
+**Authenticated user tests** — import `test` from fixtures and declare `storageState`:
+
+```ts
+import { test, expect } from '../fixtures/fixtures';
+
+test.use({ storageState: ({ userWorkerStorageState }, use) => use(userWorkerStorageState) });
+
+test('can access settings', async ({ page }) => {
+  await page.goto('/settings');
+  // already logged in
+});
+```
+
+**Authenticated vendor tests** — same but with `vendorWorkerStorageState`:
+
+```ts
+import { test, expect } from '../fixtures/fixtures';
+
+test.use({ storageState: ({ vendorWorkerStorageState }, use) => use(vendorWorkerStorageState) });
+
+test('can access vendor dashboard', async ({ page }) => {
+  await page.goto('/partner/dashboard');
+});
+```
+
+**Public tests that need to log in** — use `userWorkerAccounts[0]` directly for
+tests that verify the login flow itself:
+
+```ts
+import { userWorkerAccounts } from '../fixtures/testUsers';
+
+const { email, password } = userWorkerAccounts[0];
+
+test('successful login redirects to home', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByLabel('Email Address').fill(email);
+  await page.getByLabel('Password').fill(password);
+  await page.getByTestId('login-submit').click();
+  await page.waitForURL('/');
+});
+```
+
+**Destructive tests** — use `throwawayAccount` for tests that permanently modify
+or delete the account. The account is reseeded on every run by `supabase-setup`:
+
+```ts
+import { throwawayAccount } from '../fixtures/testUsers';
+
+test('deleting account redirects to home', async ({ page }) => {
+  // Log in fresh with the throwaway account
+  await loginAndSaveSession(page, ...throwawayAccount, '/login', '/');
+  // ... deletion flow
+});
+```
+
+**Tests that log out** — use `browser.newContext` with the worker session file to
+avoid corrupting the shared session used by other tests in the same worker:
+
+```ts
+test('logging out resets favorites', async ({ browser, isMobile }, workerInfo) => {
+  const sessionFile = path.join(SESSION_DIR, `worker-${workerInfo.parallelIndex}.json`);
+  const context = await browser.newContext({ 
+    storageState: sessionFile,
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+  });
+  const page = await context.newPage();
+  
+  // ... test that logs out
+  
+  await context.close();
+});
+```
+
+#### When to use each approach
+
+| Situation                                  | Approach                        |
+|--------------------------------------------|---------------------------------|
+| User authenticated test                    | `userWorkerStorageState`        |
+| Vendor authenticated test                  | `vendorWorkerStorageState`      |
+| Testing the login flow itself              | `userWorkerAccounts[0]`         |
+| Test that logs out                         | `browser.newContext` with session file |
+| Test that deletes or permanently mutates   | `throwawayAccount`              |
 
 ### Useful commands
 
@@ -68,13 +177,6 @@ npm run test:e2e
 | `npm run supabase:stop` | Stop local Supabase stack |
 | `npm run supabase:reset` | Reset DB — re-runs migrations + seed |
 | `npx supabase status` | View local URLs and credentials |
-
-### Test credentials
-
-| Field | Value |
-|---|---|
-| Email | `test-user@example.com` |
-| Password | `testpassword123!` |
 
 ### Stopping the local stack
 ```bash
