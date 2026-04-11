@@ -91,7 +91,7 @@ export default defineConfig({
         ...devices['Desktop Chrome'],
       },
       dependencies: ['supabase-setup'],
-      testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
+      testMatch: '**/e2e/**/*.vendor.protected.spec.ts',
     },
 
     {
@@ -101,7 +101,7 @@ export default defineConfig({
         // storageState: 'e2e/fixtures/.auth/vendor-mobile-session.json',
       },
       dependencies: ['supabase-setup'],
-      testMatch: '**/e2e/vendor/auth.vendor.protected.spec.ts',
+      testMatch: '**/e2e/**/*.vendor.protected.spec.ts',
     },
 
     // -----------------------------------------------------------------
