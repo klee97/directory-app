@@ -16,3 +16,8 @@ export const throwawayAccount = {
   email: 'delete-test@example.com',
   password: 'Testpassword123!',
 };
+
+export const vendorThrowawayAccount = {
+  email: 'delete-vendor-test@example.com',
+  password: 'Testvendorpassword123!',
+};

@@ -88,6 +88,19 @@ VALUES (
   timezone('utc'::text, now()),
   timezone('utc'::text, now()),
   NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000a',
+  'authenticated', 'authenticated', 'delete-vendor-test@example.com',
+  extensions.crypt('Testvendorpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()),
+  NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}',
+  '{}',
+  NULL,
+  timezone('utc'::text, now()),
+  timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
 );
 
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
@@ -145,6 +158,12 @@ VALUES (
   '{"sub": "00000000-0000-0000-0000-000000000009"}',
   'email', '00000000-0000-0000-0000-000000000009',
   timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+), (
+  '00000000-0000-0000-0000-00000000000a',
+  '00000000-0000-0000-0000-00000000000a',
+  '{"sub": "00000000-0000-0000-0000-00000000000a"}',
+  'email', '00000000-0000-0000-0000-00000000000a',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
 );
 
 
@@ -160,7 +179,13 @@ VALUES
   ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()) ),
   ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null),
   ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null),
-  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null);
+  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null),
+  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', true, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()));
+
+-- Unclaimed vendor for magic-link claim tests (no auth user yet)
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, verified_at, approved_inquiries_at)
+VALUES
+  ('TEST-E2E-CLAIM', 'Test Claim Vendor', 'test-claim-vendor', false, 'Seattle', 'Washington', 'United States', 'claim-vendor@example.com', '11111111-1111-1111-1111-111111111111', null, null);
 
 -- Test tags  (style='primary' → Service chip; anything else → Skill chip)
 INSERT INTO public.tags (id, name, display_name, is_visible, style)
@@ -206,4 +231,6 @@ INSERT INTO public.profiles (
   '00000000-0000-0000-0000-000000000008', 'vendor', now(), now(), false, 'TEST-E2E-004', true
 ), (
   '00000000-0000-0000-0000-000000000009', 'user', now(), now(), false, null, true
+), (
+  '00000000-0000-0000-0000-00000000000a', 'vendor', now(), now(), false, 'TEST-E2E-005', true
 );
