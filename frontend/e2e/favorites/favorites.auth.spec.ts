@@ -70,7 +70,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await favoritesLoaded.catch(() => { });
   });
 
-  test.skip('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
+  test.fixme('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -87,7 +87,7 @@ test.describe.serial('Favorites — authenticated', () => {
     );
   });
 
-  test.skip('add favorite on homepage — heart is filled when navigating to vendor profile', async ({ page }) => {
+  test.fixme('add favorite on homepage — heart is filled when navigating to vendor profile', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -108,7 +108,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await clickFavoriteAndPersist(page, page.getByRole('button', { name: 'Remove from favorites' }));
   });
 
-  test.skip('add favorite on vendor profile — heart is filled on homepage', async ({ page }) => {
+  test.fixme('add favorite on vendor profile — heart is filled on homepage', async ({ page }) => {
     // Set up listener BEFORE navigation to drain VendorProfile's
     // getFavoriteVendorIds server action that fires on mount, so
     // clickFavoriteAndPersist's waitForResponse only catches the upsert.
@@ -162,7 +162,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeVisible();
   });
 
-  test.skip('remove favorite on vendor profile — heart becomes outline on homepage', async ({ page }) => {
+  test.fixme('remove favorite on vendor profile — heart becomes outline on homepage', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
@@ -186,7 +186,7 @@ test.describe.serial('Favorites — authenticated', () => {
     ).toBeVisible();
   });
 
-  test.skip('multiple favorites are sorted alphabetically on favorites page', async ({ page }) => {
+  test.fixme('multiple favorites are sorted alphabetically on favorites page', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     const bridalCard = page.getByTestId(`vendor-card-${BRIDAL_SLUG}`);
 

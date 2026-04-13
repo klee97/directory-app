@@ -13,20 +13,20 @@ test.describe('Login — guest', () => {
   });
 
   test('desktop navbar shows Login button when not logged in', async ({ page, isMobile }) => {
-    test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
+    test.fixme(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   });
 
   test('mobile menu shows Login option when not logged in', async ({ page, isMobile }) => {
-    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
+    test.fixme(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
     await page.getByRole('button', { name: 'open navigation menu' }).click();
     await expect(page.getByRole('menuitem', { name: 'Log in' })).toBeVisible();
   });
 
   test('successful login redirects to home and shows profile button', async ({ page, isMobile }) => {
-    test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
+    test.fixme(isMobile, DESKTOP_ONLY_DESCRIPTION);
     await page.goto('/login');
     await page.getByLabel('Email Address').fill(email);
     await page.getByLabel('Password').fill(password);
@@ -38,7 +38,7 @@ test.describe('Login — guest', () => {
   });
 
   test('after login, mobile menu shows profile options including Log Out', async ({ page, isMobile }) => {
-    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
+    test.fixme(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/login');
     await page.getByLabel('Email Address').fill(email);
     await page.getByLabel('Password').fill(password);
@@ -52,7 +52,7 @@ test.describe('Login — guest', () => {
   });
 
   test('mobile menu closes after navigating to login page', async ({ page, isMobile }) => {
-    test.skip(!isMobile, MOBILE_ONLY_DESCRIPTION);
+    test.fixme(!isMobile, MOBILE_ONLY_DESCRIPTION);
     await page.goto('/');
     await page.getByRole('button', { name: 'open navigation menu' }).click();
     await expect(page.getByRole('menuitem', { name: 'Log in' })).toBeVisible();

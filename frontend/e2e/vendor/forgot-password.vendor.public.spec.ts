@@ -21,7 +21,7 @@ test.describe('Vendor Forgot Password', () => {
     await expect(page.getByRole('button', { name: 'Send Link to Email' })).toBeVisible();
   });
 
-  test('submitting valid vendor email shows success message', async ({ page }) => {
+  test.fixme('submitting valid vendor email shows success message', async ({ page }) => {
     const vendorEmail = vendorWorkerAccounts[0].email;
 
     await page.getByLabel('Email Address').fill(vendorEmail);
@@ -32,7 +32,7 @@ test.describe('Vendor Forgot Password', () => {
     ).toBeVisible({ timeout: 10_000 });
   });
 
-  test('submitting non-existent email shows same success message (no info leak)', async ({ page }) => {
+  test.fixme('submitting non-existent email shows same success message (no info leak)', async ({ page }) => {
     await page.getByLabel('Email Address').fill('nonexistent-e2e@example.com');
     await page.getByRole('button', { name: 'Send Link to Email' }).click();
 

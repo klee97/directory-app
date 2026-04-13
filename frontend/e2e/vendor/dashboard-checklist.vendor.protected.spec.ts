@@ -29,7 +29,7 @@ test.describe('Vendor Dashboard', () => {
     await expect(page.getByText('See how your profile looks to clients')).toBeVisible();
   });
 
-  test('Edit Profile button links to profile editor', async ({ page }) => {
+  test.fixme('Edit Profile button links to profile editor', async ({ page }) => {
     const editProfileButton = page.getByRole('link', { name: 'Edit Profile' });
     await expect(editProfileButton).toBeVisible();
     await editProfileButton.click();

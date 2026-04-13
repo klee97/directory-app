@@ -110,7 +110,7 @@ test.describe.serial('Vendor Settings — change password (throwaway)', () => {
     await expect(page.locator('.MuiAlert-filledError')).toBeVisible({ timeout: 10_000 });
   });
 
-  test.skip('change password, log out, log in with new, restore', async ({ page }) => {
+  test.fixme('change password, log out, log in with new, restore', async ({ page }) => {
     // TODO: Full round-trip password change test.
     // Pattern: change to temp password → clear cookies → log in with new → restore original.
     // See settings.auth.spec.ts for reference implementation.

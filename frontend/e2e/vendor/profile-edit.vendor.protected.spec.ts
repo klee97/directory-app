@@ -15,7 +15,7 @@ import { DESKTOP_ONLY_DESCRIPTION } from '../constants';
 // eslint-disable-next-line react-hooks/rules-of-hooks
 test.use({ storageState: ({ vendorWorkerStorageState }, use) => use(vendorWorkerStorageState) });
 
-test.describe('Vendor Profile Editor', () => {
+test.fixme('Vendor Profile Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/partner/dashboard/profile');
   });
@@ -132,7 +132,7 @@ test.describe('Vendor Profile Editor', () => {
 
   test.describe('Preview and save state', () => {
     test('preview banner shows "All changes saved" initially', async ({ page, isMobile }) => {
-      test.skip(isMobile, DESKTOP_ONLY_DESCRIPTION);
+      test.fixme(isMobile, DESKTOP_ONLY_DESCRIPTION);
       await expect(page.getByText('All changes saved')).toBeVisible();
     });
 

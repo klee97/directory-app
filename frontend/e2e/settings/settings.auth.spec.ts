@@ -59,7 +59,7 @@ test.describe.serial('Settings — change password', () => {
   test.beforeEach(async ({ page }) => {
     await login(page, email, password, '/login', '/');
   });
-  test.skip('settings page is accessible when logged in', async ({ page }) => {
+  test.fixme('settings page is accessible when logged in', async ({ page }) => {
     await page.goto('/settings');
     await expect(page.getByRole('heading', { name: 'Account Settings' })).toBeVisible();
     await expect(page.getByText('Change Password')).toBeVisible();
@@ -93,7 +93,7 @@ test.describe.serial('Settings — change password', () => {
     await expect(page.locator('.MuiAlert-filledError')).toBeVisible({ timeout: 10_000 });
   });
 
-  test.skip('change password, log out, log back in with new password, then restore', async ({ page }) => {
+  test.fixme('change password, log out, log back in with new password, then restore', async ({ page }) => {
     const originalPassword = password;
     const tempPassword = 'TempPass@2025!';
 
