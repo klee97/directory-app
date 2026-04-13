@@ -20,10 +20,6 @@ export async function requireVendorAccess(vendorSlug: string, user: { id: string
     .from('vendors')
     .select('id, slug');
 
-  if (!shouldIncludeTestVendors()) {
-    vendorQuery = vendorQuery.not('id', 'like', 'TEST-%');
-  }
-
   const { data: vendor, error: vendorError } = await vendorQuery
     .eq('slug', vendorSlug)
     .single();
@@ -32,7 +28,6 @@ export async function requireVendorAccess(vendorSlug: string, user: { id: string
     console.error("Vendor not found for slug:", vendorSlug, vendorError);
     return { vendor: null, error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
   }
-
 
   // Check if admin
   const { data: profile } = await supabase
