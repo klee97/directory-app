@@ -1,14 +1,6 @@
 import type { VendorMediaForm } from '@/types/vendorMedia';
 import type { VendorMediaMutation } from '@/types/vendorMedia';
 
-// Deletes should always execute first. A vendor can only have one photo, so
-// this order prevents the vendor from temporarily having 2 photos
-const MUTATION_ORDER: Record<VendorMediaMutation['operation'], number> = {
-  delete: 0,
-  update: 1,
-  create: 2,
-};
-
 export function deriveMediaMutations(
   draftImages: VendorMediaForm[],
   existingRows: { id: string, media_url: string }[],
@@ -18,6 +10,16 @@ export function deriveMediaMutations(
   console.debug("Deriving media mutations...");
   console.debug("Draft images:", draftImages);
   console.debug("Existing DB rows:", existingRows);
+
+  // Rows in the DB that are no longer in the draft → delete first to avoid violating unique constraints
+  const draftIds = new Set(draftImages.map(i => i.id).filter(Boolean));
+  const draftUrls = new Set(draftImages.map(i => i.media_url));
+  for (const existing of existingRows) {
+    if (!draftIds.has(existing.id) && !draftUrls.has(existing.media_url)) {
+      mutations.push({ operation: 'delete', id: existing.id, media_url: existing.media_url });
+    }
+  }
+
   // Rows in the draft with an id → update if changed, skip if same
   for (const draftImage of draftImages) {
     if (draftImage.id) {
@@ -38,16 +40,5 @@ export function deriveMediaMutations(
     }
   }
 
-  // Rows in the DB that are no longer in the draft → delete
-  const draftIds = new Set(draftImages.map(i => i.id).filter(Boolean));
-  const draftUrls = new Set(draftImages.map(i => i.media_url));
-  for (const existing of existingRows) {
-    if (!draftIds.has(existing.id) && !draftUrls.has(existing.media_url)) {
-      mutations.push({ operation: 'delete', id: existing.id, media_url: existing.media_url });
-    }
-  }
-
-  return mutations.sort(
-    (a, b) => MUTATION_ORDER[a.operation] - MUTATION_ORDER[b.operation]
-  );
+  return mutations;
 }
