@@ -32,18 +32,21 @@ test.describe('Vendor Settings — read-only', () => {
   });
 
   test('bridal inquiries switch toggles', async ({ page }) => {
-    const inquirySwitch = page.getByRole('switch');
-    await expect(inquirySwitch).toBeVisible();
+    // MUI Switch: input has opacity:0 so use the visible root for clicking/visibility,
+    // and the input element for isChecked() state reads.
+    const switchRoot = page.locator('.MuiSwitch-root');
+    const inquiryInput = page.locator('.MuiSwitch-input');
+    await expect(switchRoot).toBeVisible();
 
-    const wasChecked = await inquirySwitch.isChecked();
+    const wasChecked = await inquiryInput.isChecked();
 
     // Toggle
-    await inquirySwitch.click();
+    await switchRoot.click();
     const expectedNotification = wasChecked ? 'Bridal inquiries disabled' : 'Bridal inquiries enabled';
     await expect(page.getByText(expectedNotification)).toBeVisible({ timeout: 5_000 });
 
     // Restore original state
-    await inquirySwitch.click();
+    await switchRoot.click();
     const restoreNotification = wasChecked ? 'Bridal inquiries enabled' : 'Bridal inquiries disabled';
     await expect(page.getByText(restoreNotification)).toBeVisible({ timeout: 5_000 });
   });
@@ -55,7 +58,7 @@ test.describe('Vendor Settings — read-only', () => {
     await expect(dialog).toBeVisible();
     await expect(dialog.getByText('Change Password')).toBeVisible();
     await expect(page.getByLabel('Current Password')).toBeVisible();
-    await expect(page.getByLabel('New Password')).toBeVisible();
+    await expect(page.getByLabel('New Password').first()).toBeVisible();
     await expect(page.getByLabel('Confirm New Password')).toBeVisible();
 
     await page.getByRole('button', { name: 'Cancel' }).click();
@@ -98,7 +101,7 @@ test.describe.serial('Vendor Settings — change password (throwaway)', () => {
     await expect(dialog).toBeVisible();
 
     await page.getByLabel('Current Password').fill('WrongPassword999!');
-    await page.getByLabel('New Password').fill('NewVendorPassword123!');
+    await page.getByLabel('New Password').first().fill('NewVendorPassword123!');
     await page.getByLabel('Confirm New Password').fill('NewVendorPassword123!');
     await page.getByRole('button', { name: 'Update Password' }).click();
 
@@ -118,7 +121,7 @@ test.describe.serial('Vendor Settings — change password (throwaway)', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
 
     await page.getByLabel('Current Password').fill(password);
-    await page.getByLabel('New Password').fill(tempPassword);
+    await page.getByLabel('New Password').first().fill(tempPassword);
     await page.getByLabel('Confirm New Password').fill(tempPassword);
     await page.getByRole('button', { name: 'Update Password' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });
@@ -134,7 +137,7 @@ test.describe.serial('Vendor Settings — change password (throwaway)', () => {
     await expect(page.getByRole('dialog')).toBeVisible();
 
     await page.getByLabel('Current Password').fill(tempPassword);
-    await page.getByLabel('New Password').fill(password);
+    await page.getByLabel('New Password').first().fill(password);
     await page.getByLabel('Confirm New Password').fill(password);
     await page.getByRole('button', { name: 'Update Password' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });

@@ -180,7 +180,7 @@ VALUES
   ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null),
   ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null),
   ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null),
-  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', true, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()));
+  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()));
 
 -- Unclaimed vendor for magic-link claim tests (no auth user yet)
 INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, verified_at, approved_inquiries_at)

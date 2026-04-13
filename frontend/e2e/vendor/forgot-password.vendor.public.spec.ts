@@ -15,7 +15,8 @@ test.describe('Vendor Forgot Password', () => {
   });
 
   test('forgot password page renders with form elements', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Forgot Password' })).toBeVisible();
+    // Page and ForgotPasswordForm both render an h1 "Forgot Password" — take the first
+    await expect(page.getByRole('heading', { name: 'Forgot Password' }).first()).toBeVisible();
     await expect(page.getByLabel('Email Address')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Send Link to Email' })).toBeVisible();
   });
