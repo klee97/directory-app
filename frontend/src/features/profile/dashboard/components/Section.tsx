@@ -223,7 +223,7 @@ export const SECTIONS: Section[] = [
 
       return {
         isValid: true,
-        isComplete: hasCoverImage && formData.cover_image?.credits !== null,
+        isComplete: hasCoverImage,
         isEmpty: !hasCoverImage,
         errors: {
           cover_image: creditError

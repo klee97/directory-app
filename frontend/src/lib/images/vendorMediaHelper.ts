@@ -1,6 +1,14 @@
 import type { VendorMediaForm } from '@/types/vendorMedia';
 import type { VendorMediaMutation } from '@/types/vendorMedia';
 
+// Deletes should always execute first. A vendor can only have one photo, so
+// this order prevents the vendor from temporarily having 2 photos
+const MUTATION_ORDER: Record<VendorMediaMutation['operation'], number> = {
+  delete: 0,
+  update: 1,
+  create: 2,
+};
+
 export function deriveMediaMutations(
   draftImages: VendorMediaForm[],
   existingRows: { id: string, media_url: string }[],
@@ -39,5 +47,7 @@ export function deriveMediaMutations(
     }
   }
 
-  return mutations;
+  return mutations.sort(
+    (a, b) => MUTATION_ORDER[a.operation] - MUTATION_ORDER[b.operation]
+  );
 }
