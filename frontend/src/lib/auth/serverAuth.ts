@@ -15,7 +15,7 @@ export async function requireAuth() {
 
 export async function requireVendorAccess(vendorSlug: string, user: { id: string }, supabase: SupabaseClient) {
   // Get vendor
-  let vendorQuery = supabase
+  const vendorQuery = supabase
     .from('vendors')
     .select('id, slug');
 
