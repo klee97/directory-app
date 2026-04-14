@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function requireAuth() {
@@ -16,13 +15,9 @@ export async function requireAuth() {
 
 export async function requireVendorAccess(vendorSlug: string, user: { id: string }, supabase: SupabaseClient) {
   // Get vendor
-  let vendorQuery = supabase
+  const vendorQuery = supabase
     .from('vendors')
     .select('id, slug');
-
-  if (!shouldIncludeTestVendors()) {
-    vendorQuery = vendorQuery.not('id', 'like', 'TEST-%');
-  }
 
   const { data: vendor, error: vendorError } = await vendorQuery
     .eq('slug', vendorSlug)
@@ -32,7 +27,6 @@ export async function requireVendorAccess(vendorSlug: string, user: { id: string
     console.error("Vendor not found for slug:", vendorSlug, vendorError);
     return { vendor: null, error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
   }
-
 
   // Check if admin
   const { data: profile } = await supabase

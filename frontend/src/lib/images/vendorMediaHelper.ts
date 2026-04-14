@@ -10,6 +10,16 @@ export function deriveMediaMutations(
   console.debug("Deriving media mutations...");
   console.debug("Draft images:", draftImages);
   console.debug("Existing DB rows:", existingRows);
+
+  // Rows in the DB that are no longer in the draft → delete first to avoid violating unique constraints
+  const draftIds = new Set(draftImages.map(i => i.id).filter(Boolean));
+  const draftUrls = new Set(draftImages.map(i => i.media_url));
+  for (const existing of existingRows) {
+    if (!draftIds.has(existing.id) && !draftUrls.has(existing.media_url)) {
+      mutations.push({ operation: 'delete', id: existing.id, media_url: existing.media_url });
+    }
+  }
+
   // Rows in the draft with an id → update if changed, skip if same
   for (const draftImage of draftImages) {
     if (draftImage.id) {
@@ -27,15 +37,6 @@ export function deriveMediaMutations(
         // Genuinely new image
         mutations.push({ operation: 'create', ...draftImage });
       }
-    }
-  }
-
-  // Rows in the DB that are no longer in the draft → delete
-  const draftIds = new Set(draftImages.map(i => i.id).filter(Boolean));
-  const draftUrls = new Set(draftImages.map(i => i.media_url));
-  for (const existing of existingRows) {
-    if (!draftIds.has(existing.id) && !draftUrls.has(existing.media_url)) {
-      mutations.push({ operation: 'delete', id: existing.id, media_url: existing.media_url });
     }
   }
 
