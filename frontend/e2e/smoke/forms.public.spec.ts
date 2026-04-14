@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { mockRecaptcha } from '../fixtures/mockRecaptcha';
+import { mockAirtable } from '../fixtures/mockAirtable';
 import { fillField } from '../fixtures/formHelpers';
 
 test.beforeEach(async ({ page }) => {
   await mockRecaptcha(page);
+  await mockAirtable(page);
   await page.route('**/api/contact**', (route) =>
     route.fulfill({ status: 200, json: { ok: true } })
   );
