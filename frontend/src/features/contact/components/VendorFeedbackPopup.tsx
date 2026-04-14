@@ -29,20 +29,19 @@ const NO_FEEDBACK_TEXT = "No issues";
 export const VendorFeedbackPopup = ({
   vendorId,
   businessName,
-  triggerText,
   trigger,
   onDismiss
 }: VendorFeedbackPopupProps) => {
   const [open, setOpen] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
 
-    return trigger && localStorage.getItem(STORAGE_KEY) !== "true";
+    return trigger && sessionStorage.getItem(STORAGE_KEY) !== "true";
   })
   const [comment, setComment] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleClose = () => {
-    localStorage.setItem(STORAGE_KEY, "true");
+    sessionStorage.setItem(STORAGE_KEY, "true");
     setOpen(false);
     setStatus("idle");
     setComment("");
@@ -54,7 +53,7 @@ export const VendorFeedbackPopup = ({
     const success: boolean = await submitVendorFeedback(vendorId, businessName, comment);
     if (success) {
       setStatus("success");
-      localStorage.setItem(STORAGE_KEY, "true");
+      sessionStorage.setItem(STORAGE_KEY, "true");
       setTimeout(() => {
         setOpen(false);
         onDismiss?.();
@@ -72,23 +71,18 @@ export const VendorFeedbackPopup = ({
   return (
     <Dialog open={open} onClose={handleNothingWrong} maxWidth="xs" fullWidth>
       <DialogTitle sx={{ position: "relative", paddingRight: "40px" }}>
-        {status === "success" ? "Thank you!" : "How was your experience?"}
+        {status === "success" ? "Thank you!" : "Anything we can improve?"}
       </DialogTitle>
 
       <DialogContent>
         {status === "success" ? (
           <Typography color="text.secondary">
-            Your feedback helps us improve our site. We appreciate it!
+            Your feedback helps us improve our site.
           </Typography>
         ) : (
           <>
-            {triggerText &&
-              <Typography color="text.secondary" sx={{ mb: 2 }}>
-                {triggerText}
-              </Typography>
-            }
             <Typography color="text.secondary" sx={{ mb: 2 }}>
-              Is there anything that was confusing or could be improved?
+              Let us know if something went wrong, or if you have any suggestions.
             </Typography>
             <TextField
               fullWidth
