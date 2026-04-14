@@ -135,6 +135,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const handleMenuLinkClick = (event: React.MouseEvent, href: string) => {
     event.preventDefault();
     handleCloseNavMenu();
+    handleCloseResourcesMenu();
     router.push(href);
   };
 
@@ -348,7 +349,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </Menu>
             </Box>
             <Link href={homeUrl} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-              <Image src={Logo.src} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
+              <Image src={Logo} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
               <Box style={{ alignItems: 'end' }} >
                 <Typography
                   variant="h1"
