@@ -315,13 +315,14 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
         onKeepEditing={() => setShowUnsavedModal(false)}
         onDiscardChanges={handleDiscardChanges}
       />
-      <VendorFeedbackPopup
-        vendorId={vendor.id}
-        businessName={vendor.business_name || ''}
-        triggerText={"Your profile has been updated."}
-        trigger={feedbackTriggered}
-        onDismiss={() => setFeedbackTriggered(false)}
-      />
+      {feedbackTriggered && (
+        <VendorFeedbackPopup
+          vendorId={vendor.id}
+          businessName={vendor.business_name || ''}
+          trigger={feedbackTriggered}
+          onDismiss={() => setFeedbackTriggered(false)}
+        />
+      )}
     </>
   );
 }
