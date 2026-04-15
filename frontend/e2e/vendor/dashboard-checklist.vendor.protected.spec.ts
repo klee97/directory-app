@@ -39,7 +39,7 @@ test.describe('Vendor Dashboard', () => {
   test('profile checklist shows expected items', async ({ page }) => {
     await expect(page.getByText('Basic Business Info')).toBeVisible();
     await expect(page.getByText('Detailed Bio')).toBeVisible();
-    await expect(page.getByText('Client Photo')).toBeVisible();
+    await expect(page.getByText('Client Photo', { exact: true })).toBeVisible();
   });
 
   test('dashboard shows Edit Your Profile card with title link', async ({ page }) => {
@@ -50,5 +50,64 @@ test.describe('Vendor Dashboard', () => {
 
   test('dashboard shows Badge Toolkit card', async ({ page }) => {
     await expect(page.getByText('Badge Toolkit')).toBeVisible();
+  });
+
+  test('dashboard shows Performance Stats card with coming soon', async ({ page }) => {
+    await expect(page.getByText('Performance Stats')).toBeVisible();
+    await expect(page.getByText('Coming Soon...')).toBeVisible();
+  });
+});
+
+/**
+ * Bridal Inquiries card — tests both enrollment states by toggling
+ * approved_inquiries_at via the settings page switch, then verifying
+ * the dashboard card content. Runs serially because the second test
+ * depends on state set by the first.
+ */
+test.describe.serial('Bridal Inquiries card — both enrollment states', () => {
+  let initiallyChecked: boolean;
+
+  test('shows not-enrolled message and Settings link when disabled', async ({ page }) => {
+    // Record initial state, then ensure inquiries are OFF
+    await page.goto('/partner/settings');
+    const switchRoot = page.locator('.MuiSwitch-root');
+    const switchInput = page.locator('.MuiSwitch-input');
+    await expect(switchRoot).toBeVisible();
+
+    initiallyChecked = await switchInput.isChecked();
+
+    if (initiallyChecked) {
+      await switchRoot.click();
+      await expect(page.getByText('Bridal inquiries disabled')).toBeVisible({ timeout: 5_000 });
+    }
+
+    // Verify dashboard shows not-enrolled state
+    await page.goto('/partner/dashboard');
+    await expect(page.getByRole('heading', { name: 'Bridal Inquiries' })).toBeVisible();
+    await expect(page.getByText('You are not yet enrolled in bridal inquiries')).toBeVisible();
+    const settingsLink = page.getByRole('link', { name: 'Settings' });
+    await expect(settingsLink).toBeVisible();
+    await expect(settingsLink).toHaveAttribute('href', '/partner/settings');
+  });
+
+  test('shows approved message when enabled, then restores state', async ({ page }) => {
+    // Enable inquiries (currently OFF from previous test)
+    await page.goto('/partner/settings');
+    const switchRoot = page.locator('.MuiSwitch-root');
+    await expect(switchRoot).toBeVisible();
+    await switchRoot.click();
+    await expect(page.getByText('Bridal inquiries enabled')).toBeVisible({ timeout: 5_000 });
+
+    // Verify dashboard shows approved state
+    await page.goto('/partner/dashboard');
+    await expect(page.getByRole('heading', { name: 'Bridal Inquiries' })).toBeVisible();
+    await expect(page.getByText('New inquiries are sent directly to your email')).toBeVisible();
+
+    // Restore original state
+    if (!initiallyChecked) {
+      await page.goto('/partner/settings');
+      await page.locator('.MuiSwitch-root').click();
+      await expect(page.getByText('Bridal inquiries disabled')).toBeVisible({ timeout: 5_000 });
+    }
   });
 });
