@@ -166,6 +166,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
               <IconButton
                 color="inherit"
                 edge="start"
+                aria-label="open profile menu"
                 onClick={handleDrawerToggle}
                 sx={{ mr: 2 }}
               >
