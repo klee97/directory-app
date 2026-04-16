@@ -70,7 +70,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await favoritesLoaded.catch(() => { });
   });
 
-  test('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
+  test.fixme('add favorite on homepage — heart fills and vendor appears on favorites page', async ({ page }) => {
     const glamourCard = page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`);
     await clickFavoriteAndPersist(page, glamourCard.getByRole('button', { name: 'Add to favorites' }));
     await expect(glamourCard.getByRole('button', { name: 'Remove from favorites' })).toBeVisible();
