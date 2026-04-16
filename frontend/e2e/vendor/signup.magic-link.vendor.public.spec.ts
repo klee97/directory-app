@@ -53,7 +53,7 @@ test.describe.serial('Vendor Sign-Up — Magic Link Claiming', () => {
     await expect(page.getByText('Incomplete claim link')).toBeVisible();
   });
 
-  test.fixme('invalid token shows error page', async ({ page }) => {
+  test('invalid token shows error page', async ({ page }) => {
     await page.goto(buildClaimUrl({
       ...CLAIM_VENDOR,
       token: '00000000-0000-0000-0000-badtoken0000',
@@ -63,7 +63,7 @@ test.describe.serial('Vendor Sign-Up — Magic Link Claiming', () => {
     await expect(page.getByText('Invalid claim link')).toBeVisible();
   });
 
-  test.fixme('valid magic link shows claim form', async ({ page }) => {
+  test('valid magic link shows claim form', async ({ page }) => {
     await page.goto(buildClaimUrl());
 
     await expect(page.getByText('Your profile is ready to claim')).toBeVisible({ timeout: 10_000 });
@@ -73,7 +73,7 @@ test.describe.serial('Vendor Sign-Up — Magic Link Claiming', () => {
     await expect(page.getByRole('button', { name: 'Claim profile' })).toBeVisible();
   });
 
-  test.fixme('password mismatch shows error', async ({ page }) => {
+  test('password mismatch shows error', async ({ page }) => {
     await page.goto(buildClaimUrl());
     await expect(page.getByText('Your profile is ready to claim')).toBeVisible({ timeout: 10_000 });
 
@@ -84,7 +84,7 @@ test.describe.serial('Vendor Sign-Up — Magic Link Claiming', () => {
     await expect(page.getByText('Passwords do not match.')).toBeVisible();
   });
 
-  test.fixme('weak password shows validation error', async ({ page }) => {
+  test('weak password shows validation error', async ({ page }) => {
     await page.goto(buildClaimUrl());
     await expect(page.getByText('Your profile is ready to claim')).toBeVisible({ timeout: 10_000 });
 
@@ -96,7 +96,7 @@ test.describe.serial('Vendor Sign-Up — Magic Link Claiming', () => {
     await expect(page.locator('.MuiAlert-standardError')).toBeVisible();
   });
 
-  test.fixme('terms checkbox required before claim', async ({ page }) => {
+  test('terms checkbox required before claim', async ({ page }) => {
     await page.goto(buildClaimUrl());
     await expect(page.getByText('Your profile is ready to claim')).toBeVisible({ timeout: 10_000 });
 
