@@ -9,10 +9,7 @@ export type VendorMedia = Pick<BackendVendorMedia, 'id'
   | 'media_url'
   | 'is_featured'
   | 'vendor_id'
-> & {
-  source: string,
-  original_url: string,
-}
+>;
 
 export type VendorMediaDraft = VendorMediaBase & {
   id?: never; // Explicitly not persisted yet

@@ -2,11 +2,6 @@ import { shouldIncludeTestVendors } from "@/lib/env/env";
 
 const prefixes: string[] = [];
 
-// add supabase storage url (deprecated)
-if (process.env.NEXT_PUBLIC_SUPABASE_IMAGE_URL) {
-  prefixes.push(process.env.NEXT_PUBLIC_SUPABASE_IMAGE_URL);
-}
-
 // add cloudflare r2 url
 if (process.env.NEXT_PUBLIC_R2_PUBLIC_URL) {
   prefixes.push(process.env.NEXT_PUBLIC_R2_PUBLIC_URL);
