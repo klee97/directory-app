@@ -15,19 +15,31 @@ import { DESKTOP_ONLY_DESCRIPTION } from '../constants';
 // eslint-disable-next-line react-hooks/rules-of-hooks
 test.use({ storageState: ({ vendorWorkerStorageState }, use) => use(vendorWorkerStorageState) });
 
-test.fixme('Vendor Profile Editor', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Vendor Profile Editor', () => {
+  test.beforeEach(async ({ page, isMobile }) => {
+    // Dismiss the "Use desktop for best experience" overlay on mobile
+    // before it can block interactions. The overlay checks sessionStorage,
+    // so setting the key before navigation prevents it from appearing.
+    if (isMobile) {
+      await page.addInitScript(() => {
+        sessionStorage.setItem('desktop-prompt-dismissed', 'dismissed');
+      });
+    }
     await page.goto('/partner/dashboard/profile');
   });
 
   test('profile editor loads with 6 sections in menu', async ({ page }) => {
     await expect(page.getByText('Edit your artist profile')).toBeVisible();
-    await expect(page.getByText('Business info')).toBeVisible();
-    await expect(page.getByText('Bio')).toBeVisible();
-    await expect(page.getByText('Website & Socials')).toBeVisible();
-    await expect(page.getByText('Services & Skills')).toBeVisible();
-    await expect(page.getByText('Pricing')).toBeVisible();
-    await expect(page.getByText('Client photo')).toBeVisible();
+
+    // Each menu item is a ListItemButton with the section name + status text.
+    // Use getByRole('button') to target the sidebar menu items specifically,
+    // avoiding collisions with section headings or form labels.
+    await expect(page.getByRole('button', { name: /Business info/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Bio/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Website & Socials/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Services & Skills/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Pricing/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Client photo/ })).toBeVisible();
   });
 
   test('sections show status indicators', async ({ page }) => {
@@ -41,23 +53,18 @@ test.fixme('Vendor Profile Editor', () => {
   });
 
   test.describe('Business info section', () => {
-    test('clicking Business info shows form with expected fields', async ({ page, isMobile }) => {
-      if (isMobile) {
-        // On mobile, tap the menu icon first to open the drawer
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Business info').click();
+    test('clicking Business info shows form with expected fields', async ({ page }) => {
+      // On mobile the menu drawer is already open on load (smallScreenMenuOpen defaults to true),
+      // so no need to click the hamburger — menu items are directly accessible.
+      await page.getByRole('button', { name: /Business info/ }).click();
 
       await expect(page.getByText('Business Name')).toBeVisible();
       await expect(page.getByText('Location')).toBeVisible();
       await expect(page.getByText('Travels Worldwide')).toBeVisible();
     });
 
-    test('clicking back returns to menu', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Business info').click();
+    test('clicking back returns to menu', async ({ page }) => {
+      await page.getByRole('button', { name: /Business info/ }).click();
       await expect(page.getByText('Business Name')).toBeVisible();
 
       // Click back arrow
@@ -69,11 +76,8 @@ test.fixme('Vendor Profile Editor', () => {
   });
 
   test.describe('Bio section', () => {
-    test('Bio section shows textarea and word count', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Bio').click();
+    test('Bio section shows textarea and word count', async ({ page }) => {
+      await page.getByRole('button', { name: /^Bio/ }).click();
 
       await expect(page.getByText('Artist Bio')).toBeVisible();
       await expect(page.getByText(/Length: \d+ words/)).toBeVisible();
@@ -81,24 +85,18 @@ test.fixme('Vendor Profile Editor', () => {
   });
 
   test.describe('Website & Socials section', () => {
-    test('shows URL and social handle fields', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Website & Socials').click();
+    test('shows URL and social handle fields', async ({ page }) => {
+      await page.getByRole('button', { name: /Website & Socials/ }).click();
 
-      await expect(page.getByText('Website')).toBeVisible();
+      await expect(page.getByText('Website', { exact: true })).toBeVisible();
       await expect(page.getByText('Instagram Handle')).toBeVisible();
       await expect(page.getByText('Google Maps Link')).toBeVisible();
     });
   });
 
   test.describe('Services & Skills section', () => {
-    test('shows service and skill tag selectors', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Services & Skills').click();
+    test('shows service and skill tag selectors', async ({ page }) => {
+      await page.getByRole('button', { name: /Services & Skills/ }).click();
 
       await expect(page.getByText('Services offered')).toBeVisible();
       await expect(page.getByText('Additional skills')).toBeVisible();
@@ -106,11 +104,8 @@ test.fixme('Vendor Profile Editor', () => {
   });
 
   test.describe('Pricing section', () => {
-    test('shows price fields with dollar prefix', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Pricing').click();
+    test('shows price fields with dollar prefix', async ({ page }) => {
+      await page.getByRole('button', { name: /Pricing/ }).click();
 
       // All vendor workers have at least one service tag, so at least one price field should show
       // Price fields have '$' adornment — check for at least one price-related label
@@ -120,11 +115,8 @@ test.fixme('Vendor Profile Editor', () => {
   });
 
   test.describe('Client photo section', () => {
-    test('shows upload area', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
-      await page.getByText('Client photo').click();
+    test('shows upload area', async ({ page }) => {
+      await page.getByRole('button', { name: /Client photo/ }).click();
 
       await expect(page.getByText('Upload a client photo')).toBeVisible();
     });
@@ -136,12 +128,9 @@ test.fixme('Vendor Profile Editor', () => {
       await expect(page.getByText('All changes saved')).toBeVisible();
     });
 
-    test('Save Changes button is disabled when no changes', async ({ page, isMobile }) => {
-      if (isMobile) {
-        await page.getByRole('button', { name: 'open profile menu' }).click();
-      }
+    test('Save Changes button is disabled when no changes', async ({ page }) => {
       // Navigate into a section to see the Save button
-      await page.getByText('Bio').click();
+      await page.getByRole('button', { name: /^Bio/ }).click();
 
       const saveButton = page.getByRole('button', { name: /Save Changes|Saving/ });
       await expect(saveButton).toBeVisible();
