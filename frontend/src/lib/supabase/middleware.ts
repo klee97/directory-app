@@ -2,24 +2,25 @@ import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
+const PROTECTED_PATHS = ['/partner/', '/admin/', '/favorites', '/settings'];
+
 /**
- * Refreshes the Supabase session on every request and enforces route-level auth protection.
+ * Refreshes the Supabase session on every request and enforces route-level auth protection. It handles two things:
  *
- * This function must be called from `src/middleware.ts` on every request. It handles two things:
- *
- * 1. SESSION REFRESH
- *    Supabase JWTs expire periodically. This function calls `supabase.auth.getUser()` on every
- *    request, which triggers a token refresh if needed and writes the updated session cookie
- *    back to the response. Server Components cannot write cookies, so this must happen here.
+ * 1. Session Refresh
+ *    Supabase JWTs expire periodically. This function calls `supabase.auth.getClaims()` on every
+ *    request, which verifies and refreshes the token locally using the project's public asymmetric
+ *    key — no network round-trip to the Supabase auth server required. The updated session cookie
+ *    is written back to the response. Server Components cannot write cookies, so this must happen here.
  *    The `supabaseResponse` object carries those updated cookies — it must be returned as-is.
  *
- * 2. ROUTE PROTECTION
+ * 2. Route Protection
  *    Redirects unauthenticated users to /login if they attempt to access any route under
  *    /partner/* (excluding /partner itself, which is public). The original destination is
  *    preserved in a `redirectTo` query param so the user can be sent there after login.
  *
  * Public routes: everything except /partner/*
- * Protected routes: /partner/* (i.e. any path starting with /partner/)
+ * Protected routes: /partner/*
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -28,7 +29,7 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
@@ -48,20 +49,18 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
 
-  if (!user
-    && request.nextUrl.pathname.startsWith('/partner/')
+  if (!data?.claims
+    && PROTECTED_PATHS.some(path => request.nextUrl.pathname.startsWith(path))
     && !request.nextUrl.pathname.startsWith('/partner/login')
   ) {
     const url = request.nextUrl.clone();
     const redirectTo = request.nextUrl.pathname + request.nextUrl.search;
-    url.pathname = '/partner/login';
+    url.pathname = request.nextUrl.pathname.startsWith('/partner/') ? '/partner/login' : '/login';
     url.searchParams.set('redirectTo', redirectTo);
     return NextResponse.redirect(url);
   }

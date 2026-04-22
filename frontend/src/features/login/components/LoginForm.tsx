@@ -53,9 +53,9 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
       const notificationMessage = 'Logged in successfully!';
 
       if (isVendorAccount && !isVendorLogin) {
-        redirectPath = redirectTo || '/partner/dashboard';
+        redirectPath = '/partner/dashboard'; // ignore redirectTo — user came from the wrong login
       } else if (!isVendorAccount && isVendorLogin) {
-        redirectPath = redirectTo || '/';
+        redirectPath = '/'; // ignore redirectTo — user came from the wrong login
       } else {
         redirectPath = redirectTo || (isVendorLogin ? '/partner/dashboard' : '/');
       }
