@@ -2,6 +2,25 @@ import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
+/**
+ * Refreshes the Supabase session on every request and enforces route-level auth protection.
+ *
+ * This function must be called from `src/middleware.ts` on every request. It handles two things:
+ *
+ * 1. SESSION REFRESH
+ *    Supabase JWTs expire periodically. This function calls `supabase.auth.getUser()` on every
+ *    request, which triggers a token refresh if needed and writes the updated session cookie
+ *    back to the response. Server Components cannot write cookies, so this must happen here.
+ *    The `supabaseResponse` object carries those updated cookies — it must be returned as-is.
+ *
+ * 2. ROUTE PROTECTION
+ *    Redirects unauthenticated users to /login if they attempt to access any route under
+ *    /partner/* (excluding /partner itself, which is public). The original destination is
+ *    preserved in a `redirectTo` query param so the user can be sent there after login.
+ *
+ * Public routes: everything except /partner/*
+ * Protected routes: /partner/* (i.e. any path starting with /partner/)
+ */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -36,15 +55,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+  if (!user
+    && request.nextUrl.pathname.startsWith('/partner/')
+    && !request.nextUrl.pathname.startsWith('/partner/login')
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    const redirectTo = request.nextUrl.pathname + request.nextUrl.search; // preserve full path
-    url.pathname = '/login';
+    const redirectTo = request.nextUrl.pathname + request.nextUrl.search;
+    url.pathname = '/partner/login';
     url.searchParams.set('redirectTo', redirectTo);
     return NextResponse.redirect(url);
   }

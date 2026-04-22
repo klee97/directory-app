@@ -1,8 +1,10 @@
-// middleware.ts
-
 import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 
+
+/**
+ * Next.js middleware entry point — runs on every matched request before any route renders.
+ */
 export async function middleware(request: NextRequest) {
   return await updateSession(request);
 }
@@ -14,7 +16,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * This avoids running auth logic on requests that never need it.
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
