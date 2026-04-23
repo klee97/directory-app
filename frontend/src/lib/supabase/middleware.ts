@@ -83,6 +83,29 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  if (request.nextUrl.pathname.startsWith('/blog/')) {
+    const slug = request.nextUrl.pathname.split('/blog/')[1]
+
+    if (slug) {
+      const isFuture = await isPostInFuture(slug)
+
+      if (isFuture) {
+        const authorized = isBlogPreviewAuthorized(request)
+
+        if (!authorized) {
+          const response = new NextResponse('Unauthorized — this post is not published yet.', {
+            status: 401,
+            headers: { 'WWW-Authenticate': 'Basic realm="Preview"' },
+          })
+          supabaseResponse.cookies.getAll().forEach(cookie => {
+            response.cookies.set(cookie.name, cookie.value)
+          })
+          return response
+        }
+      }
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
