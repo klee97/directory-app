@@ -24,6 +24,7 @@ import { ResultsHeader } from './tableLayout/ResultsHeader';
 import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 import { useURLFilters } from '@/hooks/useURLFilters';
 import { FilterTags } from '@/lib/directory/filterTags';
+import LoadingPage from '@/components/layouts/LoadingPage';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -251,7 +252,7 @@ export default function FilterableVendorTable(props: {
   useLocationPages?: boolean,
 }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage />}>
       <URLFiltersProvider preservePathname={props.useLocationPages ?? false}>
         <FilterableVendorTableContent
           {...props}

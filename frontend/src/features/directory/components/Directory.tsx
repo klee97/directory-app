@@ -3,7 +3,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { Vendor } from '@/types/vendor';
 import FilterableVendorTable from './FilterableVendorTable';
-import { Suspense, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { LocationResult } from '@/types/location';
@@ -51,15 +51,13 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
-      <Suspense fallback={<div>Loading...</div>}>
-        <FilterableVendorTable
-          vendors={vendors}
-          favoriteVendorIds={favoriteVendorIds}
-          tags={tags}
-          preselectedLocation={selectedLocation}
-          useLocationPages={!!selectedLocation}
-        />
-      </Suspense>
+      <FilterableVendorTable
+        vendors={vendors}
+        favoriteVendorIds={favoriteVendorIds}
+        tags={tags}
+        preselectedLocation={selectedLocation}
+        useLocationPages={!!selectedLocation}
+      />
     </Container>
   );
 }
