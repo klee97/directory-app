@@ -2,68 +2,18 @@
 
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useSearchParams } from "next/navigation";
 import { LoginForm } from "@/features/login/components/LoginForm";
-import Alert from "@mui/material/Alert";
 
 export default function VendorLogin() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
-  const redirectTo = searchParams?.get("redirectTo") ?? undefined;
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage] = useState("");
-
-  useEffect(() => {
-    const init = async () => {
-      // Already logged in? → Redirect to vendor dashboard
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        router.push(redirectTo ?? "/partner/dashboard");
-        return;
-      }
-
-      setIsLoading(false);
-    };
-
-    init();
-  }, [router, supabase, redirectTo]);
-
-  if (isLoading) {
-    return (
-      <Container maxWidth="sm">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '80vh',
-            gap: 2
-          }}
-        >
-          <CircularProgress />
-          <Typography>Logging in...</Typography>
-        </Box>
-      </Container>
-    );
-  }
+  const redirectTo = searchParams?.get("redirectTo")
+    ? decodeURIComponent(searchParams.get("redirectTo")!)
+    : undefined;
 
   return (
     <Container maxWidth="sm">
       <br />
-      {errorMessage && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {errorMessage}
-        </Alert>
-      )}
-
       <Typography variant="h1" gutterBottom sx={{ mt: 2 }}>
         Vendor Login
       </Typography>

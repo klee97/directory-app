@@ -5,9 +5,9 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SignupPageProps {
   title: string;
@@ -16,25 +16,13 @@ interface SignupPageProps {
 
 export function SignupPage({ title, redirectUrl }: SignupPageProps) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isLoggedIn, isLoading } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkSession = async () => {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session) {
-        // User is already logged in, redirect to appropriate page
-        router.push(redirectUrl);
-      } else {
-        // User is not logged in, show the signup form
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [router, redirectUrl]);
+    if (!isLoading && !isLoggedIn) {
+      router.push(redirectUrl);
+    }
+  }, [isLoggedIn, isLoading, router, redirectUrl]);
 
   if (isLoading) {
     return (

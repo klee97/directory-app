@@ -20,7 +20,6 @@ import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
 import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
-import { createClient } from '@/lib/supabase/client';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
@@ -39,6 +38,7 @@ import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { VendorCoverImage } from './VendorCoverImage';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -155,7 +155,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const isInquiryEnabled = vendor.approved_inquiries_at !== null;
 
   const theme = useTheme();
-  const supabase = createClient();
+  const { isLoggedIn } = useAuth();
 
   const placeholderImage = (theme.palette.mode === 'light') ? PlaceholderImage : PlaceholderImageGray;
 
@@ -202,29 +202,19 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
     };
   }, [resolvedImageCount, vendor.images, vendor.cover_image, vendor.is_premium, vendor.slug, vendor.testimonials.length]);
 
+
   useEffect(() => {
     const fetchFavoriteStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      if (isLoggedIn) {
         const favoriteVendorIds = await getFavoriteVendorIds();
-        setIsFavorite(favoriteVendorIds.includes(vendor.id));  // Update with the backend status
+        setIsFavorite(favoriteVendorIds.includes(vendor.id));
+      } else {
+        setIsFavorite(false); // handles sign-out
       }
     };
 
     fetchFavoriteStatus();
-
-    // Listen for session changes (e.g., when logging out)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        setIsFavorite(false);
-      }
-    });
-
-    // Cleanup the subscription when the component unmounts
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, [vendor.id, supabase.auth]);
+  }, [vendor.id, isLoggedIn]);
 
   useEffect(() => {
     const handleResize = () => {

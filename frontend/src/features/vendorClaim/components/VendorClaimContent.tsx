@@ -8,24 +8,23 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { verifyVendorMagicLink } from "@/features/profile/common/api/magicLink";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import { ReCaptchaRef } from "@/components/security/ReCaptcha";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
-import { Session } from "@supabase/supabase-js";
 import AlreadyLoggedIn from "@/features/vendorClaim/components/VendorLoggedIn";
 import BusinessStrip from "@/components/ui/BusinessStrip";
 import VendorClaimError, { ErrorType } from "@/features/vendorClaim/components/VendorClaimError";
 import VendorClaimForm from "@/features/vendorClaim/components/VendorClaimForm";
 import VendorClaimPerks from "@/features/vendorClaim/components/VendorClaimPerks";
 import { Divider } from "@mui/material";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function VendorClaimContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const supabase = createClient();
+  const { isLoggedIn, isLoading: isAuthLoading, user, supabase } = useAuth();
 
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
@@ -34,7 +33,7 @@ export default function VendorClaimContent() {
   const email = searchParams?.get(EMAIL_PARAM) || "";
   const token = searchParams?.get(TOKEN_PARAM) || "";
 
-  const [existingSession, setExistingSession] = useState<Session | null>(null);
+  const [existingUserEmail, setExistingUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
   const [errorType, setErrorType] = useState<ErrorType>(null);
@@ -42,10 +41,11 @@ export default function VendorClaimContent() {
   // Initialize page: verify token → load vendor info
   useEffect(() => {
     const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Wait for auth context to resolve first
+      if (isAuthLoading) return;
 
-      if (session) {
-        setExistingSession(session);
+      if (isLoggedIn) {
+        setExistingUserEmail(user?.email ?? null);
         setIsLoading(false);
         return;
       }
@@ -86,7 +86,7 @@ export default function VendorClaimContent() {
     };
 
     init();
-  }, [token, email, slug, router, supabase.auth]);
+  }, [token, email, slug, router, isLoggedIn, isAuthLoading, user]);
 
   const handleSignOutAndReload = async () => {
     await supabase.auth.signOut();
@@ -105,11 +105,11 @@ export default function VendorClaimContent() {
   }
 
   // ── Already logged in ────────────────────────────────────────────────────
-  if (existingSession) {
+  if (existingUserEmail) {
     return (
       <Container maxWidth="sm">
         <Box sx={{ mt: 8, mb: 6 }}>
-          <AlreadyLoggedIn session={existingSession} onSignOut={handleSignOutAndReload} />
+          <AlreadyLoggedIn email={existingUserEmail} onSignOut={handleSignOutAndReload} />
         </Box>
       </Container>
     );

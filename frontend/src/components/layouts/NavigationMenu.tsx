@@ -98,7 +98,6 @@ export default function NavigationMenu({
           ? '/partner'
           : '/';
         window.location.assign(path); // use assign to force reload
-        addNotification('Successfully logged out');
       } catch (error) {
         console.error('Error signing out:', error);
         addNotification('Failed to log out', 'error');

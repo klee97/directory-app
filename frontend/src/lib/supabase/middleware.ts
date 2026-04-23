@@ -2,6 +2,26 @@ import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
+const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin/', '/favorites', '/settings'];
+
+/**
+ * Refreshes the Supabase session on every request and enforces route-level auth protection. It handles two things:
+ *
+ * 1. Session Refresh
+ *    Supabase JWTs expire periodically. This function calls `supabase.auth.getClaims()` on every
+ *    request, which verifies and refreshes the token locally using the project's public asymmetric
+ *    key — no network round-trip to the Supabase auth server required. The updated session cookie
+ *    is written back to the response. Server Components cannot write cookies, so this must happen here.
+ *    The `supabaseResponse` object carries those updated cookies — it must be returned as-is.
+ *
+ * 2. Route Protection
+ *    Redirects unauthenticated users to /login if they attempt to access any route under
+ *    /partner/* (excluding /partner itself, which is public). The original destination is
+ *    preserved in a `redirectTo` query param so the user can be sent there after login.
+ *
+ * Public routes: everything except /partner/*
+ * Protected routes: /partner/*
+ */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -9,7 +29,7 @@ export async function updateSession(request: NextRequest) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
@@ -29,24 +49,38 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const isLoggedIn = !!data?.claims;
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+  // Redirect unauthenticated users away from protected paths
+  if (!isLoggedIn
+    && PROTECTED_PATHS.some(path => request.nextUrl.pathname.startsWith(path))
+    && !request.nextUrl.pathname.startsWith('/partner/login')
   ) {
-    // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
-    const redirectTo = request.nextUrl.pathname + request.nextUrl.search; // preserve full path
-    url.pathname = '/login';
+    const redirectTo = request.nextUrl.pathname + request.nextUrl.search;
+    url.pathname = request.nextUrl.pathname.startsWith('/partner/') ? '/partner/login' : '/login';
     url.searchParams.set('redirectTo', redirectTo);
     return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from login pages
+  if (isLoggedIn) {
+    if (request.nextUrl.pathname === '/partner/login') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/partner/dashboard';
+      url.searchParams.delete('redirectTo');
+      return NextResponse.redirect(url);
+    }
+    if (request.nextUrl.pathname === '/login') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.searchParams.delete('redirectTo');
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

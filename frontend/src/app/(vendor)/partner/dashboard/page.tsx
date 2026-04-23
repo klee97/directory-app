@@ -18,7 +18,7 @@ export default async function VendorDashboardPage() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect("/partner/login?redirectTo=/partner/dashboard");
+    redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/dashboard')}`);
   }
 
   // Fetch vendor data server-side

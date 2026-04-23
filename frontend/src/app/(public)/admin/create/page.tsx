@@ -1,34 +1,20 @@
 "use client";
 
-import { useEffect, useState } from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { useRouter } from 'next/navigation';
 import { AdminAddVendorManagement } from '@/features/profile/admin/components/CreateVendor';
-import { createClient } from '@/lib/supabase/client';
-import { checkAdminStatus } from '@/features/profile/admin/api/checkAdminStatus';
 import AdminLoadingSpinner from '@/features/profile/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
+import { useRequireAdmin } from '@/hooks/useRequireAdmin';
 
 export default function AddVendor() {
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
+  const { isLoading } = useRequireAdmin();
 
-  useEffect(() => {
-    checkAdminStatus(supabase, setLoading, setIsAdmin, router);
-  }, [router, supabase]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <AdminLoadingSpinner />
     );
-  }
-
-  if (!isAdmin) {
-    return null; // This shouldn't render as the router.push above should redirect
   }
 
   return (
