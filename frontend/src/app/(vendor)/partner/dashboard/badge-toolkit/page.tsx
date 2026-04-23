@@ -3,7 +3,7 @@ import { BadgesContent } from '@/features/badge-toolkit/components/BadgesContent
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
-import { redirect } from 'next/dist/client/components/navigation';
+import { redirect } from 'next/navigation';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 
 import { Metadata } from 'next';
@@ -20,7 +20,7 @@ export default async function VendorBadgeToolkit() {
   const currentUser = await getCurrentUserAction();
 
   if (!currentUser || !currentUser.userId) {
-    redirect('/partner/login?redirectTo=/partner/dashboard/badge-toolkit');
+    redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/dashboard/badge-toolkit')}`);
   }
 
   const { userId } = currentUser;

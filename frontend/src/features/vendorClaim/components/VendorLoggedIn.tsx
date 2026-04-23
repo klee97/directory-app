@@ -9,11 +9,11 @@ import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
 interface AlreadyLoggedInProps {
-  session: Session;
+  email: string;
   onSignOut: () => void;
 }
 
-export default function AlreadyLoggedIn({ session, onSignOut }: AlreadyLoggedInProps) {
+export default function AlreadyLoggedIn({ email, onSignOut }: AlreadyLoggedInProps) {
   const router = useRouter();
 
   return (
@@ -25,7 +25,7 @@ export default function AlreadyLoggedIn({ session, onSignOut }: AlreadyLoggedInP
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           Currently signed in as{" "}
           <Box component="span" sx={{ fontWeight: 500, color: "text.primary" }}>
-            {session.user.email}
+            {email}
           </Box>
           . Log out to claim a different profile.
         </Typography>

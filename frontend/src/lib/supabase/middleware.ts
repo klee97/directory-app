@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_PATHS = ['/partner/', '/admin/', '/favorites', '/settings'];
+const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin/', '/favorites', '/settings'];
 
 /**
  * Refreshes the Supabase session on every request and enforces route-level auth protection. It handles two things:
@@ -53,8 +53,10 @@ export async function updateSession(request: NextRequest) {
   // issues with users being randomly logged out.
 
   const { data } = await supabase.auth.getClaims();
+  const isLoggedIn = !!data?.claims;
 
-  if (!data?.claims
+  // Redirect unauthenticated users away from protected paths
+  if (!isLoggedIn
     && PROTECTED_PATHS.some(path => request.nextUrl.pathname.startsWith(path))
     && !request.nextUrl.pathname.startsWith('/partner/login')
   ) {
@@ -63,6 +65,22 @@ export async function updateSession(request: NextRequest) {
     url.pathname = request.nextUrl.pathname.startsWith('/partner/') ? '/partner/login' : '/login';
     url.searchParams.set('redirectTo', redirectTo);
     return NextResponse.redirect(url);
+  }
+
+  // Redirect authenticated users away from login pages
+  if (isLoggedIn) {
+    if (request.nextUrl.pathname === '/partner/login') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/partner/dashboard';
+      url.searchParams.delete('redirectTo');
+      return NextResponse.redirect(url);
+    }
+    if (request.nextUrl.pathname === '/login') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      url.searchParams.delete('redirectTo');
+      return NextResponse.redirect(url);
+    }
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

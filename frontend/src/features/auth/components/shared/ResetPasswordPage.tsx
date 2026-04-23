@@ -19,6 +19,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
 import { createClient } from '@/lib/supabase/client';
 import { updatePasswordAfterReset } from '@/features/settings/api/updatePassword';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ApiError extends Error {
   message: string;
@@ -39,18 +40,13 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { isLoggedIn, isLoading } = useAuth();
 
   useEffect(() => {
-    async function checkLogin() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push(loginUrl);
-        return;
-      }
+    if (!isLoading && !isLoggedIn) {
+      router.push(loginUrl);
     }
-    checkLogin();
-  }, [router, supabase.auth, loginUrl]);
+  }, [isLoggedIn, isLoading, router, loginUrl]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
