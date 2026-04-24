@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import { usePathname } from 'next/navigation';
 import { LocationResult } from '@/types/location';
-import Scroll from './Scroll';
+import Scroll from '@/components/ui/Scroll';
 import { FilterTags } from '@/lib/directory/filterTags';
 import { useAuth } from '@/contexts/AuthContext';
 

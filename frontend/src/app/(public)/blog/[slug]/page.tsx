@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { getAllPosts, getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
+import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
 import Typography from '@mui/material/Typography';
@@ -148,6 +149,7 @@ export default async function BlogPostPage({ params }: Props) {
       ) : (
         <Article post={post} />
       )}
+      <Scroll showBelow={300} />
     </>
   )
 }
