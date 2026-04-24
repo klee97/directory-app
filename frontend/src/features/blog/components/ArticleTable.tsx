@@ -1,13 +1,11 @@
-import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
-import Link from 'next/link';
-import ContentfulImage from '@/components/ui/ContentfulImage';
 import { isDevOrPreview, shouldIncludeFuturePosts } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
+import { BlogContent } from './BlogContent';
+
+const MINIMUM_TAG_COUNT_FOR_FILTER: number = 3;
+const FEATURED_POST_TAG_ID = 'featured';
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
@@ -18,48 +16,46 @@ export async function ArticleTable() {
     }
     return true;
   });
-  const shouldShowRefreshButton = isDevOrPreview();
+
+  const featuredIndex = validPosts.findIndex((p) =>
+    p.contentfulMetadata?.tags?.some((t) => t?.id === FEATURED_POST_TAG_ID)
+  );
+  const featuredPost = featuredIndex !== -1 ? validPosts[featuredIndex] : (validPosts[0] ?? null);
+  const remainingPosts =
+    featuredIndex !== -1
+      ? validPosts.filter((_, i) => i !== featuredIndex)
+      : validPosts.slice(1);
+
+  const tagCounts = new Map<string, { name: string; count: number }>();
+  for (const post of validPosts) {
+    for (const tag of post.contentfulMetadata?.tags ?? []) {
+      if (!tag?.id || tag.id === FEATURED_POST_TAG_ID) {
+        continue;
+      }
+      const existing = tagCounts.get(tag.id);
+      if (existing) {
+        existing.count++;
+      } else {
+        tagCounts.set(tag.id, { name: tag.name ?? tag.id, count: 1 });
+      }
+    }
+  }
+  const filterTags = Array.from(tagCounts.entries())
+    .filter(([, { count }]) => count >= MINIMUM_TAG_COUNT_FOR_FILTER)
+    .map(([id, { name }]) => ({ id, name }));
+
+  const refreshButton = isDevOrPreview() ? (
+    <Box sx={{ mb: 2, display: 'flex' }}>
+      <RefreshButton />
+    </Box>
+  ) : undefined;
 
   return (
-    <>
-      {shouldShowRefreshButton && (
-        <Box sx={{ mb: 2, display: 'flex' }}>
-          <RefreshButton />
-        </Box>
-      )}
-      <Grid container spacing={2} justifyContent="center">
-        {validPosts.map((post) => (
-          <Grid key={post.slug} size={{ xs: 8, md: 4 }} sx={{ display: 'flex' }}>
-            <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {post.featuredImage && post.featuredImage.url && (
-                  <Box sx={{ position: 'relative', height: '300px', width: '100%' }}>
-                    <ContentfulImage
-                      alt={post.featuredImage.description ?? `Cover Image for ${post.featuredImage.title}`}
-                      src={post.featuredImage.url}
-                      fill
-                      priority
-                      sizes="(max-width: 300px) 100vw, 50vw, 33vw"
-                      style={{
-                        objectPosition: 'center',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </Box>
-                )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {post.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {post.shortDescription}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Link>
-          </Grid>
-        ))}
-      </Grid>
-    </>
-  )
+    <BlogContent
+      featuredPost={featuredPost}
+      posts={remainingPosts}
+      filterTags={filterTags}
+      showRefreshButton={refreshButton}
+    />
+  );
 }

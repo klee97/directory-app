@@ -1,13 +1,24 @@
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import { PageBlogPost } from '@/features/blog/api/getBlogPosts'
 import Box from '@mui/material/Box'
+import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 
 const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
+  const tags = (post.contentfulMetadata?.tags ?? []).filter(
+    (t): t is NonNullable<typeof t> => t !== null && !!t.id && t.id !== 'featured'
+  );
 
   return (
     <>
-      <Typography paddingY={3} variant="h1" component="h1" align="center">
+      {tags.length > 0 && (
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'center', pt: 3, mb: 1 }}>
+          {tags.map((tag) => (
+            <Chip key={tag.id} label={tag.name} size="small" color="primary" variant="outlined" />
+          ))}
+        </Box>
+      )}
+      <Typography paddingY={2} variant="h1" component="h1" align="center">
         {post.title}
       </Typography>
       <Typography variant="h6" paddingBottom={2} align="center">{post.shortDescription}</Typography>
