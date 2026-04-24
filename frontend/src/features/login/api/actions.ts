@@ -45,5 +45,9 @@ export async function login(formData: FormData) {
   const isVendorAccount = getUserRole(profile) === UserRole.VENDOR;
 
   revalidatePath('/', 'layout');
-  return { success: true, isVendorAccount };
+  return {
+    success: true, isVendorAccount,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+  };
 }

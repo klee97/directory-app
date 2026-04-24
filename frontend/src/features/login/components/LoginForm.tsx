@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -22,14 +21,15 @@ import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined }) => {
   const { addNotification } = useNotification();
   const router = useRouter();
-  const { refreshSession } = useAuth();
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { supabase } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,9 +59,14 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
         ? redirectTo
         : (isVendorAccount ? '/partner/dashboard' : '/');
 
-      // Refresh client-side auth state so the navbar and other client UI update
-      refreshSession().catch((e) => {
-        console.debug('refreshSession failed after login:', e);
+      if (!result.accessToken || !result.refreshToken) {
+        router.push(redirectPath);
+        return;
+      }
+
+      await supabase.auth.setSession({
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
       });
       router.push(redirectPath);
 
