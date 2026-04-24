@@ -4,10 +4,6 @@ import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import { isProduction } from '@/lib/env/env';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -76,12 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(slug);
   let jsonLd = {};
 
-  // Check if post is scheduled for the future and we're in production
-  const isFuturePost = post?.publishedDate &&
-    new Date(post.publishedDate) > new Date() &&
-    isProduction();
-
-  if (post && !isFuturePost) {
+  if (post) {
     jsonLd = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -114,7 +105,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <section>
-        {post && !isFuturePost && (
+        {post && (
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -124,27 +115,7 @@ export default async function BlogPostPage({ params }: Props) {
       <Button variant="text" href="/blog" color='secondary'>
         ← Back
       </Button>
-      {isFuturePost ? (
-        <Container maxWidth="md">
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '60vh',
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="h2" component="h1" gutterBottom>
-              Coming Soon!
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-              This post will be available on {new Date(post.publishedDate).toLocaleDateString()}
-            </Typography>
-          </Box>
-        </Container>
-      ) : isSpotlight ? (
+      {isSpotlight ? (
         <Spotlight post={post} />
       ) : (
         <Article post={post} />

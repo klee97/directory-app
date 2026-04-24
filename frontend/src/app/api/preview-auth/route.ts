@@ -1,3 +1,4 @@
+import { isProduction } from '@/lib/env/env'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
   const response = NextResponse.json({ ok: true })
   response.cookies.set('preview-auth', process.env.BLOG_PREVIEW_PASSWORD!, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: isProduction(),
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 1 week
     path: '/',
