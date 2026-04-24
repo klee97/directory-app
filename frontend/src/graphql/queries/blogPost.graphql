@@ -119,6 +119,27 @@ query GetBlogPostBySlug($slug: String!) {
         pageTitle
         pageDescription
       }
+      relatedBlogPostsCollection(limit: 6) {
+        items {
+          title
+          slug
+          shortDescription
+          publishedDate
+          featuredImage {
+            url
+            title
+            width
+            height
+            description
+          }
+          contentfulMetadata {
+            tags {
+              id
+              name
+            }
+          }
+        }
+      }
     }
   }
 }

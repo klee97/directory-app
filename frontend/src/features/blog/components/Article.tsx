@@ -2,10 +2,12 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { SinglePageBlogPost } from '@/features/blog/api/getBlogPosts';
+import { RelatedPost, SinglePageBlogPost } from '@/features/blog/api/getBlogPosts';
 import RichText from '@/components/ui/RichText';
 import PostHeader from './PostHeader';
-export default async function Article({ post }: { post: SinglePageBlogPost | null | undefined }) {
+import { RelatedPostsCarousel } from './RelatedPostsCarousel';
+
+export default async function Article({ post, relatedPosts = [] }: { post: SinglePageBlogPost | null | undefined; relatedPosts?: RelatedPost[] }) {
   if (!post) {
     return (
       <Container maxWidth="md">
@@ -24,6 +26,7 @@ export default async function Article({ post }: { post: SinglePageBlogPost | nul
         <Box sx={{ typography: 'body1' }}>
           <RichText content={post.content} />
         </Box>
+        <RelatedPostsCarousel posts={relatedPosts} />
         <Box
           sx={{
             display: 'flex',
@@ -31,7 +34,7 @@ export default async function Article({ post }: { post: SinglePageBlogPost | nul
             alignItems: 'left',
             backgroundColor: 'background.paper',
             padding: '20px',
-            marginTop: '30px',
+            marginTop: '24px',
             boxShadow: 3
           }}
         >

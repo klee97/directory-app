@@ -9,6 +9,12 @@ export type SinglePageBlogPost = NonNullable<GetBlogPostBySlugQuery['pageBlogPos
 
 export type Content = NonNullable<SinglePageBlogPost>['content'];
 
+export type RelatedPost = NonNullable<
+  NonNullable<
+    NonNullable<SinglePageBlogPost>['relatedBlogPostsCollection']
+  >['items'][number]
+>;
+
 
 export async function getAllPosts() {
   const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);

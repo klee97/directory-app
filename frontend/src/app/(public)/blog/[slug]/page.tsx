@@ -73,6 +73,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
+
+  const relatedPosts = (post?.relatedBlogPostsCollection?.items ?? []).filter(
+    (p): p is NonNullable<typeof p> => p !== null
+  );
   let jsonLd = {};
 
   // Check if post is scheduled for the future and we're in production
@@ -144,9 +148,9 @@ export default async function BlogPostPage({ params }: Props) {
           </Box>
         </Container>
       ) : isSpotlight ? (
-        <Spotlight post={post} />
+        <Spotlight post={post} relatedPosts={relatedPosts} />
       ) : (
-        <Article post={post} />
+        <Article post={post} relatedPosts={relatedPosts} />
       )}
     </>
   )
