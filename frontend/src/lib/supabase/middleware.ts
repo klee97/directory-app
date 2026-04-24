@@ -1,3 +1,4 @@
+import { isPostInFuture } from '@/features/blog/api/getBlogPosts';
 import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -90,17 +91,14 @@ export async function updateSession(request: NextRequest) {
       const isFuture = await isPostInFuture(slug)
 
       if (isFuture) {
-        const authorized = isBlogPreviewAuthorized(request)
+        const previewCookie = request.cookies.get('preview-auth')
+        const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD
 
         if (!authorized) {
-          const response = new NextResponse('Unauthorized — this post is not published yet.', {
-            status: 401,
-            headers: { 'WWW-Authenticate': 'Basic realm="Preview"' },
-          })
-          supabaseResponse.cookies.getAll().forEach(cookie => {
-            response.cookies.set(cookie.name, cookie.value)
-          })
-          return response
+          const url = request.nextUrl.clone()
+          url.pathname = '/preview-login'
+          url.searchParams.set('redirectTo', request.nextUrl.pathname)
+          return NextResponse.redirect(url)
         }
       }
     }

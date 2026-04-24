@@ -25,15 +25,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) {
-    return { title: 'Post not found' };
-  }
-  if (!post) {
     return {
       title: "Post not found",
       description: "This blog post could not be found.",
     };
   }
 
+  const isFuture = new Date(post.publishedDate) > new Date();
   const fullUrl = `https://www.asianweddingmakeup.com/blog/${post.slug}`;
   const imageUrl = post.featuredImage?.url || previewImage.src;
 
@@ -66,6 +64,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.shortDescription ?? "",
       images: [imageUrl],
     },
+    ...(isFuture && {
+      robots: { index: false, follow: false },
+    }),
   };
 }
 
