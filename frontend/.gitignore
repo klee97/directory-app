@@ -40,9 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# graphql generated files
-**/src/lib/generated/
-
 # Supabase
 supabase/.temp/
 supabase/logs/
