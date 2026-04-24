@@ -16,6 +16,7 @@ import PhotoReviewCard from "./cards/PhotoReviewCard";
 import { updateMediaConsent } from "@/features/vendorDashboard/actions/mediaActions";
 import { useNotification } from "@/contexts/NotificationContext";
 import Visibility from "@mui/icons-material/Visibility";
+import WebsiteInterestCard from "./cards/WebsiteInterestCard";
 
 interface DashboardContentProps {
   vendor: VendorByDistance;
@@ -84,6 +85,10 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
 
           <Grid size={{ xs: 12 }}>
             <RecentInquiriesCard isApproved={!!vendor.approved_inquiries_at} />
+          </Grid>
+
+          <Grid size={{ xs: 12 }}>
+            <WebsiteInterestCard vendorId={vendor.id} businessName={vendor.business_name!} />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

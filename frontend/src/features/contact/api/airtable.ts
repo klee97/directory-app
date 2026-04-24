@@ -76,3 +76,28 @@ export const submitVendorFeedback = async (
     return false;
   }
 };
+
+export const submitWebsiteInterest = async (
+  vendorId: string,
+  businessName: string,
+  priority: string
+): Promise<boolean> => {
+  try {
+    const response = await fetch('/api/airtable/website-interest', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendorId, businessName, priority }),
+    });
+
+    if (!response.ok) {
+      console.error('Website interest submission error:', response.status);
+      return false;
+    }
+
+    const result = await response.json();
+    return result.ok;
+  } catch (error) {
+    console.error('Website interest submission error:', error);
+    return false;
+  }
+};
