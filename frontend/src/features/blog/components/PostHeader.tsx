@@ -5,11 +5,10 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 import { renderCaption } from '@/components/ui/RichText'
+import { getPostLabels } from './postLabels'
 
 const PostHeader = ({ post }: { post: PageBlogPost }) => {
-  const tags = (post.contentfulMetadata?.tags ?? []).filter(
-    (t): t is NonNullable<typeof t> => t !== null && !!t.id && t.id !== 'featured'
-  );
+  const labels = getPostLabels(post);
 
   return (
     <>
@@ -36,15 +35,15 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
         </Box>
       )}
 
-      {tags.length > 0 && (
+      {labels.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 3, mb: 1 }}>
-          {tags.map((tag) => (
-            <Chip key={tag.id} label={tag.name} size="small" color="primary" variant="outlined" />
+          {labels.map((label) => (
+            <Chip key={label} label={label} size="small" color="primary" variant="outlined" />
           ))}
         </Box>
       )}
 
-      <Typography paddingTop={tags.length > 0 ? 1 : 3} variant="h2" component="h1">
+      <Typography paddingTop={labels.length > 0 ? 1 : 3} variant="h2" component="h1">
         {post.title}
       </Typography>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>

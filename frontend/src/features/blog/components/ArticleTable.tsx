@@ -4,8 +4,13 @@ import { isDevOrPreview, shouldIncludeFuturePosts } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
 import { BlogContent } from './BlogContent';
 
-const MINIMUM_TAG_COUNT_FOR_FILTER: number = 3;
 const FEATURED_POST_TAG_ID = 'featured';
+
+export interface FilterGroup {
+  label: string;
+  key: 'categoryList' | 'cultures' | 'locations';
+  options: string[];
+}
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
@@ -26,23 +31,33 @@ export async function ArticleTable() {
       ? validPosts.filter((_, i) => i !== featuredIndex)
       : validPosts.slice(1);
 
-  const tagCounts = new Map<string, { name: string; count: number }>();
+  const categorySet = new Set<string>();
+  const cultureSet = new Set<string>();
+  const locationSet = new Set<string>();
+
+  const isExcluded = (v: string, extra: string[] = []) => {
+    const lower = v.toLowerCase();
+    return lower === 'uncategorized' || extra.includes(lower);
+  };
+
   for (const post of validPosts) {
-    for (const tag of post.contentfulMetadata?.tags ?? []) {
-      if (!tag?.id || tag.id === FEATURED_POST_TAG_ID) {
-        continue;
-      }
-      const existing = tagCounts.get(tag.id);
-      if (existing) {
-        existing.count++;
-      } else {
-        tagCounts.set(tag.id, { name: tag.name ?? tag.id, count: 1 });
-      }
+    for (const val of post.categoryList ?? []) {
+      if (val && !isExcluded(val)) categorySet.add(val);
+    }
+    for (const val of post.cultures ?? []) {
+      if (val && !isExcluded(val, ['general'])) cultureSet.add(val);
+    }
+    for (const val of post.locations ?? []) {
+      if (val && !isExcluded(val)) locationSet.add(val);
     }
   }
-  const filterTags = Array.from(tagCounts.entries())
-    .filter(([, { count }]) => count >= MINIMUM_TAG_COUNT_FOR_FILTER)
-    .map(([id, { name }]) => ({ id, name }));
+
+  const allGroups: FilterGroup[] = [
+    { label: 'Category', key: 'categoryList', options: Array.from(categorySet).sort() },
+    { label: 'Culture', key: 'cultures', options: Array.from(cultureSet).sort() },
+    { label: 'Location', key: 'locations', options: Array.from(locationSet).sort() },
+  ];
+  const filterGroups = allGroups.filter((g) => g.options.length > 0);
 
   const refreshButton = isDevOrPreview() ? (
     <Box sx={{ mb: 2, display: 'flex' }}>
@@ -54,7 +69,7 @@ export async function ArticleTable() {
     <BlogContent
       featuredPost={featuredPost}
       posts={remainingPosts}
-      filterTags={filterTags}
+      filterGroups={filterGroups}
       showRefreshButton={refreshButton}
     />
   );

@@ -6,15 +6,14 @@ import Button from '@mui/material/Button';
 import Link from 'next/link';
 import ContentfulImage from '@/components/ui/ContentfulImage';
 import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
+import { getPostLabels } from './postLabels';
 
 interface FeaturedPostProps {
   post: PageBlogPost;
 }
 
 export function FeaturedPost({ post }: FeaturedPostProps) {
-  const tags = (post.contentfulMetadata?.tags ?? []).filter(
-    (t): t is NonNullable<typeof t> => t !== null && t.id !== 'featured'
-  );
+  const labels = getPostLabels(post);
 
   const publishedDate = post.publishedDate
     ? new Date(post.publishedDate).toLocaleDateString('en-US', {
@@ -66,8 +65,8 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
         >
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Chip label="Featured" color="primary" size="small" />
-            {tags.map((tag) => (
-              <Chip key={tag.id} label={tag.name} size="small" variant="outlined" />
+            {labels.map((label) => (
+              <Chip key={label} label={label} size="small" variant="outlined" />
             ))}
           </Box>
 
