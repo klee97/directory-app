@@ -1,21 +1,28 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 
-const supabase = createClient();
+const supabaseBrowserClient = createBrowserClient();
 
 export const deleteAccount = async (password: string) => {
+
+  const { data, error: sessionError } = await supabaseBrowserClient.auth.getClaims();
+  const user = data?.claims;
+
+  if (!user || sessionError) {
+    console.error("Authentication error:", sessionError || "No active session");
+    return null;
+  }
+  const userId = user.sub;
+
   // First verify the password
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: (await supabase.auth.getUser()).data.user?.email || '',
+  const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
+    email: user?.email || '',
     password,
   });
 
   if (signInError) throw signInError;
 
-  const userId = (await supabase.auth.getUser()).data.user?.id;
-  if (!userId) throw new Error('User ID not found');
-
   // Delete user's favorites first (due to foreign key constraint)
-  const { error: favoritesError } = await supabase
+  const { error: favoritesError } = await supabaseBrowserClient
     .from('user_favorites')
     .delete()
     .eq('user_id', userId);
@@ -23,7 +30,7 @@ export const deleteAccount = async (password: string) => {
   if (favoritesError) throw favoritesError;
 
   // Delete user's profile
-  const { error: profileError } = await supabase
+  const { error: profileError } = await supabaseBrowserClient
     .from('profiles')
     .delete()
     .eq('id', userId);
@@ -33,10 +40,10 @@ export const deleteAccount = async (password: string) => {
   // Finally delete the auth account
 
 
-  const { error: deleteError } = await supabase.rpc('delete_user'); //await supabase.auth.admin.deleteUser(userId);
+  const { error: deleteError } = await supabaseBrowserClient.rpc('delete_user'); //await supabase.auth.admin.deleteUser(userId);
 
   if (deleteError) throw deleteError;
 
   // Sign out
-  await supabase.auth.signOut();
+  await supabaseBrowserClient.auth.signOut();
 };

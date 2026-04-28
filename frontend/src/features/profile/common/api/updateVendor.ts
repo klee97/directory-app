@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { VendorMediaForm } from "@/types/vendorMedia";
 import { prepareVendorData, VendorDataInput } from "@/features/profile/admin/util/vendorHelper";
@@ -40,17 +40,18 @@ export const updateVendor = async (
   }
 
   // Get current session to verify user is authenticated
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
   console.debug(`[${operationId}] Checking authentication...`);
 
-  const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+  const { data, error: sessionError } = await supabaseServerClient.auth.getClaims();
+  const user = data?.claims;
 
   if (!user || sessionError) {
     console.error(`[${operationId}] Authentication failed:`, sessionError?.message || "No active session");
     return { success: false, error: "You must be logged in to perform this action" };
   }
 
-  console.debug(`[${operationId}] User authenticated:`, user.id);
+  console.debug(`[${operationId}] User authenticated:`, user.sub);
 
   // Determine lookup field
   let lookupField: 'id' | 'slug';
@@ -80,7 +81,7 @@ export const updateVendor = async (
 
   // Fetch existing vendor data
   console.debug(`[${operationId}] Fetching existing vendor data...`);
-  const { data: existingVendorData, error: fetchError } = await supabase
+  const { data: existingVendorData, error: fetchError } = await supabaseServerClient
     .from("vendors")
     .select(`
       id,
@@ -131,7 +132,7 @@ export const updateVendor = async (
   // Update vendor in database
   console.debug(`[${operationId}] Vendor data to update:`, vendorData);
   console.debug(`[${operationId}] Updating vendor in database with lookup field ${lookupField} value ${lookupValue}...`);
-  const { data: updatedVendor, error: updateError } = await supabase
+  const { data: updatedVendor, error: updateError } = await supabaseServerClient
     .from("vendors")
     .update(vendorData)
     .eq(lookupField, lookupValue)
@@ -150,7 +151,7 @@ export const updateVendor = async (
   // Update vendor region if coordinates changed
   if (vendorData.latitude !== undefined && vendorData.longitude !== undefined) {
     console.debug(`[${operationId}] Updating vendor location...`);
-    const { error: locationError } = await supabase.rpc("update_vendor_location", {
+    const { error: locationError } = await supabaseServerClient.rpc("update_vendor_location", {
       vendor_id: updatedVendor.id
     });
 
@@ -187,7 +188,7 @@ export const updateVendor = async (
         tag_id: id
       }));
 
-      const { error: upsertError } = await supabase
+      const { error: upsertError } = await supabaseServerClient
         .from('vendor_tags')
         .upsert(rows);
 
@@ -201,7 +202,7 @@ export const updateVendor = async (
 
     // Remove deleted tags
     if (toRemove.length > 0) {
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = await supabaseServerClient
         .from('vendor_tags')
         .delete()
         .eq('vendor_id', vendorId)
@@ -224,7 +225,7 @@ export const updateVendor = async (
     console.debug(`[${operationId}] Derived media mutations:`, mutations);
     for (const mutation of mutations) {
       console.debug(`[${operationId}] Applying media mutation:`, mutation);
-      const { error } = await applyVendorMediaMutation(supabase, mutation);
+      const { error } = await applyVendorMediaMutation(supabaseServerClient, mutation);
       if (error) {
         console.warn(`[${operationId}] vendor_media mutation failed (non-critical):`, error.message);
       } else if (mutation.operation === 'delete') {

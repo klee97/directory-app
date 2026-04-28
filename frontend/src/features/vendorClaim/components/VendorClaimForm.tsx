@@ -13,7 +13,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { createBrowserClient } from "@/lib/supabase/clients/browserClient";
 import { signUpAndClaimVendor } from "@/features/profile/dashboard/hooks/claimVendor";
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
@@ -24,10 +24,11 @@ interface VendorClaimFormProps {
   token: string;
 }
 
+const supabaseBrowserClient = createBrowserClient();
+
 export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormProps) {
   const { addNotification } = useNotification();
   const router = useRouter();
-  const supabase = createClient();
 
   const [isClaiming, setIsClaiming] = useState(false);
   const [formError, setFormError] = useState("");
@@ -81,7 +82,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
         return;
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
         email: vendorInfo.email,
         password,
       });

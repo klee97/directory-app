@@ -26,7 +26,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updatePassword, updatePasswordAfterReset } from "@/features/settings/api/updatePassword";
+import { updatePassword } from "@/features/settings/api/updatePassword";
 import { deleteAccount } from "@/features/settings/api/deleteAccount";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 
@@ -36,12 +36,10 @@ interface ApiError extends Error {
 
 type UserSettingsProps = {
   userEmail: string | undefined;
-  hasPassword: boolean;
 };
 
-export const UserSettings = ({ userEmail, hasPassword }: UserSettingsProps) => {
+export const UserSettings = ({ userEmail }: UserSettingsProps) => {
   const { addNotification } = useNotification();
-  const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
@@ -60,19 +58,10 @@ export const UserSettings = ({ userEmail, hasPassword }: UserSettingsProps) => {
   }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
-    if (!hasPasswordState && newPassword !== confirmPassword) {
-      addNotification('New passwords do not match', 'error');
-      return;
-    }
     setIsSubmitting(true);
     try {
-      if (hasPasswordState) {
-        await updatePassword(currentPassword, newPassword);
-      } else {
-        await updatePasswordAfterReset(newPassword, false);
-      }
+      await updatePassword(currentPassword, newPassword);
       addNotification('Password updated successfully');
-      setHasPasswordState(true);
       setPasswordDialogOpen(false);
     } catch (error: unknown) {
       const apiError = error as ApiError;
@@ -124,10 +113,7 @@ export const UserSettings = ({ userEmail, hasPassword }: UserSettingsProps) => {
             <ListItemIcon>
               <Lock />
             </ListItemIcon>
-            {hasPasswordState
-              ? <ListItemText primary="Change Password" secondary="Update your password" />
-              : <ListItemText primary="Create A Password" secondary="Create a password to login to your account" />
-            }
+            <ListItemText primary="Change Password" secondary="Update your password" />
           </ListItemButton>
         </ListItem>
         <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
@@ -149,7 +135,7 @@ export const UserSettings = ({ userEmail, hasPassword }: UserSettingsProps) => {
       <ChangePasswordDialog
         open={passwordDialogOpen}
         onClose={() => setPasswordDialogOpen(false)}
-        hasPassword={hasPasswordState}
+        hasPassword={true}
         isUserEmailVerified={isUserEmailVerified}
         isSubmitting={isSubmitting}
         onSubmit={handlePasswordChange}

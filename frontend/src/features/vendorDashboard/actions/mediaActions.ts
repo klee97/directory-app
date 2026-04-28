@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 
 
 export async function updateMediaConsent({
@@ -13,15 +13,16 @@ export async function updateMediaConsent({
   consentGiven: boolean;
 }) {
   // Get current session to verify user is authenticated
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
-  const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+  const { data, error: sessionError } = await supabaseServerClient.auth.getClaims();
+  const user = data?.claims;
 
   if (!user || sessionError) {
     return { success: false, error: "You must be logged in to perform this action" };
   }
 
-  const { error } = await supabase
+  const { error } = await supabaseServerClient
     .from("vendor_media")
     .update({ consent_given: consentGiven, credits })
     .eq("id", mediaId);

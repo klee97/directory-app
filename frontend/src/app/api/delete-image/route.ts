@@ -23,7 +23,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, user, supabase);
+    const userId = user.sub;
+    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, userId, supabase);
 
     if (accessError) return accessError;
 

@@ -29,7 +29,7 @@ import MuiLink from "@mui/material/Link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updatePassword, updatePasswordAfterReset } from "@/features/settings/api/updatePassword";
+import { updatePassword } from "@/features/settings/api/updatePassword";
 import { updateEmail } from "@/features/settings/api/updateEmail";
 import { updateInquiryAvailability } from "@/features/settings/api/updateInquiryAvailability";
 import { revalidateVendor } from "@/lib/actions/revalidate";
@@ -41,7 +41,6 @@ interface ApiError extends Error {
 
 type VendorSettingsProps = {
   userEmail: string | undefined;
-  hasPassword: boolean;
   vendorId: string;
   vendorSlug?: string;
   approvedInquiriesAt?: string | null;
@@ -49,13 +48,11 @@ type VendorSettingsProps = {
 
 export const VendorSettings = ({
   userEmail,
-  hasPassword,
   vendorId,
   vendorSlug,
   approvedInquiriesAt,
 }: VendorSettingsProps) => {
   const { addNotification } = useNotification();
-  const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setNewEmail] = useState('');
@@ -77,19 +74,10 @@ export const VendorSettings = ({
   }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
-    if (!hasPasswordState && newPassword !== confirmPassword) {
-      addNotification('New passwords do not match', 'error');
-      return;
-    }
     setIsSubmitting(true);
     try {
-      if (hasPasswordState) {
-        await updatePassword(currentPassword, newPassword);
-      } else {
-        await updatePasswordAfterReset(newPassword, true);
-      }
+      await updatePassword(currentPassword, newPassword);
       addNotification('Password updated successfully');
-      setHasPasswordState(true);
       setPasswordDialogOpen(false);
     } catch (error: unknown) {
       const apiError = error as ApiError;
@@ -199,10 +187,7 @@ export const VendorSettings = ({
             <ListItemIcon>
               <Lock />
             </ListItemIcon>
-            {hasPasswordState
-              ? <ListItemText primary="Change Password" secondary="Update your password" />
-              : <ListItemText primary="Create A Password" secondary="Create a password to login to your account" />
-            }
+            <ListItemText primary="Change Password" secondary="Update your password" />
           </ListItemButton>
         </ListItem>
         <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
@@ -221,7 +206,7 @@ export const VendorSettings = ({
       <ChangePasswordDialog
         open={passwordDialogOpen}
         onClose={() => setPasswordDialogOpen(false)}
-        hasPassword={hasPasswordState}
+        hasPassword={true}
         isUserEmailVerified={isUserEmailVerified}
         isSubmitting={isSubmitting}
         onSubmit={handlePasswordChange}

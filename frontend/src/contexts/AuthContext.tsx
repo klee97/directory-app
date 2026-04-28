@@ -1,15 +1,14 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
+import type { User } from '@supabase/supabase-js';
 import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   isLoggedIn: boolean;
-  supabase: SupabaseClient;
   role: UserRole;
   vendorId: string | null;
   isRoleLoading: boolean;
@@ -17,13 +16,14 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const supabaseBrowserClient = createBrowserClient();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isRoleLoading, setIsRoleLoading] = useState(true);
-  const supabase = createClient();
 
   // Check role and vendor status whenever user changes
   useEffect(() => {
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setIsRoleLoading(true);
       try {
-        const { data: profile } = await supabase
+        const { data: profile } = await supabaseBrowserClient
           .from('profiles')
           .select('role, vendor_id')
           .eq('id', user.id)
@@ -55,22 +55,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkUserRole();
-  }, [user, supabase]);
+  }, [user]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
       setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, []);
 
   const value = {
     user,
     isLoading,
     isLoggedIn: !!user,
-    supabase,
     role,
     vendorId,
     isRoleLoading,

@@ -1,5 +1,5 @@
 import { logEnvironmentInfo, shouldIncludeTestVendors } from "@/lib/env/env";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { transformBackendVendorToFrontend } from "@/types/vendor";
 
 export async function getVendorForCurrentUser(userId: string) {
@@ -7,9 +7,9 @@ export async function getVendorForCurrentUser(userId: string) {
     return null;
   }
 
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
-  const query = supabase
+  const query = supabaseServerClient
     .from('profiles')
     .select(`
       vendor_id,

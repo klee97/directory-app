@@ -1,6 +1,6 @@
 "use server";
 import { VendorDraft } from '@/types/vendorDraft';
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { VendorFormData } from '@/types/vendorFormData';
 import { formDataToDraft } from '@/lib/profile/formToDraftTranslator';
 import { updateVendor } from '@/features/profile/common/api/updateVendor';
@@ -11,9 +11,9 @@ export async function loadUnpublishedDraft(
   vendorId: string,
   userId: string
 ): Promise<VendorDraft | null> {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
   // Just check if unpublished draft exists
-  const { data: draft } = await supabase
+  const { data: draft } = await supabaseServerClient
     .from('vendor_drafts')
     .select('*')
     .eq('vendor_id', vendorId)
@@ -30,7 +30,7 @@ export async function createOrUpdateDraft(
   userId: string,
   existingDraftId: string | null
 ): Promise<VendorDraft> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   // Convert formData to draft
   const draftData = formDataToDraft(formData, vendorId, userId, existingDraftId);
@@ -53,7 +53,7 @@ export async function createOrUpdateDraft(
 export async function publishDraft(
   draftId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   try {
     // Load draft
@@ -121,7 +121,7 @@ export async function publishDraft(
  * Discard draft changes (revert to published version)
  */
 export async function discardDraft(draftId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   try {
     const { data: draft } = await supabase

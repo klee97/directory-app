@@ -14,7 +14,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { useNotification } from '@/contexts/NotificationContext';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -69,6 +69,8 @@ interface NavigationMenuProps {
   onItemClick?: () => void;
 }
 
+const supabaseBrowserClient = createBrowserClient();
+
 export default function NavigationMenu({
   isVendorUser,
   variant = 'menu',
@@ -76,7 +78,6 @@ export default function NavigationMenu({
 }: NavigationMenuProps) {
   const { addNotification } = useNotification();
   const { user } = useAuth();
-  const supabase = createClient();
   const router = useRouter();
 
   const filteredOptions = navigationOptions.filter(option => {
@@ -93,7 +94,7 @@ export default function NavigationMenu({
 
     if (option.action === 'signout') {
       try {
-        await supabase.auth.signOut();
+        await supabaseBrowserClient.auth.signOut();
         const path = isVendorUser
           ? '/partner'
           : '/';

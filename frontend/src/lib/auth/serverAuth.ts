@@ -1,19 +1,20 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { NextResponse } from 'next/server';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function requireAuth() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabaseServerClient = await createServerClient();
+  const { data } = await supabaseServerClient.auth.getClaims();
+  const user = data?.claims;
 
   if (!user) {
     return { user: null, error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
   }
 
-  return { user, error: null, supabase };
+  return { user, error: null, supabase: supabaseServerClient };
 }
 
-export async function requireVendorAccess(vendorSlug: string, user: { id: string }, supabase: SupabaseClient) {
+export async function requireVendorAccess(vendorSlug: string, userId: string, supabase: SupabaseClient) {
   // Get vendor
   const vendorQuery = supabase
     .from('vendors')
@@ -32,7 +33,7 @@ export async function requireVendorAccess(vendorSlug: string, user: { id: string
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin, vendor_id')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single();
 
   const isAdmin = profile?.is_admin;

@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendUserFavoritesInsert } from "@/types/user";
 
 type FavoriteProps = {
@@ -14,12 +14,13 @@ export const upsertUserFavorite = async ({
     console.debug("Updating vendor favorite status", vendor_id, is_favorite);
 
     // Get current session to verify user is authenticated
-    const supabase = await createClient();
+    const supabaseServerClient = await createServerClient();
 
     console.debug("Authenticating...");
 
     // Check if user is authenticated
-    const { data: { user }, error: sessionError } = await supabase.auth.getUser();
+    const { data, error: sessionError } = await supabaseServerClient.auth.getClaims();
+    const user = data?.claims;
 
     if (!user || sessionError) {
         console.error("Authentication error:", sessionError || "No active session");
@@ -27,13 +28,13 @@ export const upsertUserFavorite = async ({
     }
 
     const vendorData: BackendUserFavoritesInsert = {
-        user_id: user.id,
+        user_id: user.sub,
         vendor_id,
         is_favorited: is_favorite
     }
 
     // Proceed with vendor creation
-    const { error } = await supabase
+    const { error } = await supabaseServerClient
         .from("user_favorites")
         .upsert(vendorData, { onConflict: 'user_id, vendor_id' })
         .select();

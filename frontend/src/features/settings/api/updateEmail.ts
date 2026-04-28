@@ -1,14 +1,19 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
 
-const supabase = createClient();
+const supabaseBrowserClient = createBrowserClient();
 
 export const updateEmail = async (currentPassword: string, newEmail: string, isVendor: boolean) => {
-  // Step 1: Verify current password via log-in
-  const { data: userData } = await supabase.auth.getUser();
-  const currentEmail = userData.user?.email || '';
+  const { data, error: sessionError } = await supabaseBrowserClient.auth.getClaims();
 
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  if (!data?.claims?.email || sessionError) {
+    throw new Error("You must be logged in to perform this action");
+  }
+
+  const { email: currentEmail } = data.claims;
+
+  // Step 1: Verify current password via log-in
+  const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
     email: currentEmail,
     password: currentPassword,
   });
@@ -18,7 +23,7 @@ export const updateEmail = async (currentPassword: string, newEmail: string, isV
   }
 
   // Step 2: Attempt email update
-  const { error: updateError } = await supabase.auth.updateUser({
+  const { error: updateError } = await supabaseBrowserClient.auth.updateUser({
     email: newEmail,
   }, {
     emailRedirectTo: `${getBaseUrl()}${isVendor ? '/partner/dashboard' : '/settings'}`,

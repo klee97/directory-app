@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache';
-import { supabase } from '@/lib/api-client';
+import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { VendorTag } from '@/types/vendor';
 
 
@@ -7,7 +7,7 @@ const _getTags = unstable_cache(
   async (): Promise<VendorTag[]> => {
     console.debug('[Cache] Fetching visible vendor tags');
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseStaticClient
       .from('tags')
       .select('id, name, display_name, is_visible, style, type')
       .eq('is_visible', true)

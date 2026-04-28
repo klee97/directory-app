@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation';
 import VendorEditProfile from '@/features/profile/dashboard/components/VendorEditProfile';
-import { getCurrentUserAction } from '@/lib/auth/actions/getUser';
 import { getTags } from '@/features/profile/common/api/getTags';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 import { Suspense } from 'react';
 import VendorEditSkeleton from '@/features/profile/dashboard/components/VendorEditSkeleton';
 import NoVendorLinked from '@/features/profile/dashboard/components/NoVendorLinked';
 import { Metadata } from 'next';
+import { getCurrentUser } from '@/lib/auth/getUser';
 
 export const metadata: Metadata = {
   title: 'Edit Your Profile | Asian Wedding Makeup',
@@ -18,13 +18,11 @@ export const metadata: Metadata = {
 
 export default async function VendorEditPage() {
   // Check authentication
-  const currentUser = await getCurrentUserAction();
-
-  if (!currentUser || !currentUser.userId) {
+  const claims = await getCurrentUser();
+  if (!claims) {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/dashboard/profile')}`);
   }
-
-  const { userId } = currentUser;
+  const userId = claims.sub;
 
   console.debug('[VendorEditPage] userId from getCurrentUserAction:', userId);
 

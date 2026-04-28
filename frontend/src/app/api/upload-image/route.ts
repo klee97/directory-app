@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     if (!vendorSlug) {
       return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
     }
-
-    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, user, supabase);
+    const userId = user.sub;
+    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, userId, supabase);
 
     if (accessError) return accessError;
 

@@ -20,11 +20,14 @@ import VendorClaimForm from "@/features/vendorClaim/components/VendorClaimForm";
 import VendorClaimPerks from "@/features/vendorClaim/components/VendorClaimPerks";
 import { Divider } from "@mui/material";
 import { useAuth } from "@/contexts/AuthContext";
+import { createBrowserClient } from "@/lib/supabase/clients/browserClient";
+
+const supabaseBrowserClient = createBrowserClient();
 
 export default function VendorClaimContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { isLoggedIn, isLoading: isAuthLoading, user, supabase } = useAuth();
+  const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth();
 
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
@@ -89,7 +92,7 @@ export default function VendorClaimContent() {
   }, [token, email, slug, router, isLoggedIn, isAuthLoading, user]);
 
   const handleSignOutAndReload = async () => {
-    await supabase.auth.signOut();
+    await supabaseBrowserClient.auth.signOut();
     window.location.reload(); // reload keeps magic link params
   };
 

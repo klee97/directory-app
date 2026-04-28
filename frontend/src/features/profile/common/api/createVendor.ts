@@ -1,5 +1,5 @@
 "use server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData } from "@/features/profile/admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
@@ -23,12 +23,13 @@ export const createVendor = async (
   }
 
   // Get current session to verify user is authenticated
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   console.log("Authenticating...");
 
   // Check if user is authenticated
-  const { data: { user }, error: sessionError } = await supabase.auth.getUser()
+  const { data: userData, error: sessionError } = await supabaseServerClient.auth.getClaims();
+  const user = userData?.claims;
 
   if (!user || sessionError) {
     console.error("Authentication error:", sessionError || "No active session");
@@ -36,10 +37,10 @@ export const createVendor = async (
   }
 
   // Check if user is an admin using the profiles table
-  const { data: profileData, error: profileError } = await supabase
+  const { data: profileData, error: profileError } = await supabaseServerClient
     .from('profiles')
     .select('is_admin')
-    .eq('id', user.id)
+    .eq('id', user.sub)
     .single();
 
   if (profileError || !profileData || !profileData.is_admin) {
@@ -53,18 +54,18 @@ export const createVendor = async (
   console.debug("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor creation
-  const { data, error } = await supabase.from("vendors").insert(vendorData).select("id, slug").single();
+  const { data, error } = await supabaseServerClient.from("vendors").insert(vendorData).select("id, slug").single();
 
   if (data && data.id && data.slug) {
     console.log("Vendor created successfully!", data);
 
-    await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+    await supabaseServerClient.rpc("update_vendor_location", { vendor_id: data.id });
     console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
     const tagsToAdd = tags ?? [];
     await Promise.all(tagsToAdd.map(async (tag) => {
-      const { error: skillError } = await supabase
+      const { error: skillError } = await supabaseServerClient
         .from("vendor_tags")
         .insert({ vendor_id: data.id, tag_id: tag.id });
 

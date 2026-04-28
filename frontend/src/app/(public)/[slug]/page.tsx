@@ -5,7 +5,7 @@ import defaultImage from '@/assets/website_preview.jpeg';
 import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT } from '@/types/location';
 import { Metadata } from 'next';
 import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
-import { supabase } from '@/lib/api-client';
+import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/fetchVendorsByLocation';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
@@ -20,7 +20,7 @@ export async function generateStaticParams() {
   // skip static generation in test
   if (process.env.NODE_ENV === 'test') return [];
 
-  const { data: slugs, error } = await supabase
+  const { data: slugs, error } = await supabaseStaticClient
     .from('location_slugs')
     .select(`
       slug

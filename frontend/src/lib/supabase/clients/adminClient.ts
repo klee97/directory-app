@@ -10,4 +10,4 @@ const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY!;
  * in secure server-side contexts (e.g., API routes, server actions, or
  * background jobs). Never expose this key or client to the browser.
  */
-export const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+export const supabaseAdminClient = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);

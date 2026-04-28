@@ -1,12 +1,20 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
 
-const supabase = createClient();
+const supabase = createBrowserClient();
 
 export const updatePassword = async (currentPassword: string, newPassword: string) => {
+  const { data, error: sessionError } = await supabase.auth.getClaims();
+
+  if (!data?.claims?.email || sessionError) {
+    throw new Error("You must be logged in to perform this action");
+  }
+
+  const { email } = data.claims;
+
   // First verify the current password
   const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: (await supabase.auth.getUser()).data.user?.email || '',
+    email: email,
     password: currentPassword,
   });
 

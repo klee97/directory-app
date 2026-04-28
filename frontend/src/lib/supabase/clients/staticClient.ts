@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
  * This instance does not include SSR or cookie-based session handling,
  * and should be used only in pure client-side contexts.
  */
-export const supabase = createClient(
+export const supabaseStaticClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 )
