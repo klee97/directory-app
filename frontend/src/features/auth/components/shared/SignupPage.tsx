@@ -19,7 +19,7 @@ export function SignupPage({ title, redirectUrl }: SignupPageProps) {
   const { isLoggedIn, isLoading } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
+    if (!isLoading && isLoggedIn) {
       router.push(redirectUrl);
     }
   }, [isLoggedIn, isLoading, router, redirectUrl]);
