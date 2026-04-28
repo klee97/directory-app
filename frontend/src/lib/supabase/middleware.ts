@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin/', '/favorites', '/settings'];
+const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin', '/favorites', '/settings', '/api'];
 
 /**
  * Refreshes the Supabase session on every request and enforces route-level auth protection. It handles two things:

@@ -3,20 +3,19 @@
 import { getCachedVendors } from '@/lib/vendor/fetchVendors';
 import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { Vendor, VendorId } from "@/types/vendor";
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 export async function getFavoriteVendorIds(): Promise<VendorId[]> {
-  const supabaseServerClient = await createServerClient();
-  const { data } = await supabaseServerClient.auth.getClaims();
-  const user = data?.claims;
-
-  if (!user) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
     return [];
   }
 
+  const supabaseServerClient = await createServerClient();
   const { data: favorites } = await supabaseServerClient
     .from('user_favorites')
     .select('vendor_id')
-    .eq('user_id', user.sub)
+    .eq('user_id', currentUser.userId)
     .eq('is_favorited', true);
 
   return favorites?.map(f => f.vendor_id) ?? [];

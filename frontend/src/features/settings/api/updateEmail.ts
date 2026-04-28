@@ -1,20 +1,18 @@
 import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 const supabaseBrowserClient = createBrowserClient();
 
 export const updateEmail = async (currentPassword: string, newEmail: string, isVendor: boolean) => {
-  const { data, error: sessionError } = await supabaseBrowserClient.auth.getClaims();
-
-  if (!data?.claims?.email || sessionError) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser || !currentUser.email) {
     throw new Error("You must be logged in to perform this action");
   }
 
-  const { email: currentEmail } = data.claims;
-
   // Step 1: Verify current password via log-in
   const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
-    email: currentEmail,
+    email: currentUser.email,
     password: currentPassword,
   });
 
@@ -35,7 +33,7 @@ export const updateEmail = async (currentPassword: string, newEmail: string, isV
       updateError.code === 'email_exists' ||
       updateError.message?.toLowerCase().includes('already registered')
     ) {
-      console.debug(`Duplicate email error detected during email update for user: ${currentEmail}, newEmail: ${newEmail}`);
+      console.debug(`Duplicate email error detected during email update for user: ${currentUser.email}, newEmail: ${newEmail}`);
     } else {
       console.debug(`Email update error: ${updateError.message}`);
     }

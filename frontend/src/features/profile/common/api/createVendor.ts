@@ -4,6 +4,7 @@ import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData } from "@/features/profile/admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
+import { CurrentUser, getCurrentUser } from "@/lib/auth/getUser";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
@@ -11,7 +12,12 @@ export const createVendor = async (
   lastname: string,
   tags: VendorTag[] | null,
 ) => {
-  console.log("Creating vendor:", vendor);
+  const currentUser: CurrentUser | null = await getCurrentUser();
+
+  if (!currentUser) {
+    console.error("Authentication error: No active session");
+    return { error: "You must be logged in to perform this action" };
+  }
 
   // ✅ Validate test vendor creation
   if (vendor.id && isTestVendor(vendor.id)) {
@@ -19,28 +25,16 @@ export const createVendor = async (
       console.error("Cannot create test vendors in production");
       throw new Error("Test vendors can only be created in development environment");
     }
-    console.log("⚠️  Creating TEST vendor (development only)");
+    console.debug("⚠️  Creating TEST vendor (development only)");
   }
 
-  // Get current session to verify user is authenticated
   const supabaseServerClient = await createServerClient();
-
-  console.log("Authenticating...");
-
-  // Check if user is authenticated
-  const { data: userData, error: sessionError } = await supabaseServerClient.auth.getClaims();
-  const user = userData?.claims;
-
-  if (!user || sessionError) {
-    console.error("Authentication error:", sessionError || "No active session");
-    return { error: "You must be logged in to perform this action" };
-  }
 
   // Check if user is an admin using the profiles table
   const { data: profileData, error: profileError } = await supabaseServerClient
     .from('profiles')
     .select('is_admin')
-    .eq('id', user.sub)
+    .eq('id', currentUser.userId)
     .single();
 
   if (profileError || !profileData || !profileData.is_admin) {
@@ -96,7 +90,7 @@ export const createVendor = async (
       console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
   }
-  
+
   if (error) {
     console.error("Error creating vendor:", error);
     throw error;

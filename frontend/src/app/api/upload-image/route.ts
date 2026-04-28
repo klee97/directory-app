@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { isTestVendor } from '@/lib/env/env';
-import { requireAuth, requireVendorAccess } from '@/lib/auth/serverAuth';
+import { requireVendorAccess } from '@/lib/auth/serverAuth';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -20,8 +21,11 @@ const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL!;
 
 export async function POST(request: NextRequest) {
   try {
-    const { user, error: authError, supabase } = await requireAuth();
-    if (authError) return authError;
+    const currentUser: CurrentUser | null = await getCurrentUser();
+    if (!currentUser) {
+      console.error("Authentication error: No active session");
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -34,8 +38,8 @@ export async function POST(request: NextRequest) {
     if (!vendorSlug) {
       return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
     }
-    const userId = user.sub;
-    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, userId, supabase);
+
+    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, currentUser.userId);
 
     if (accessError) return accessError;
 

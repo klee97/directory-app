@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { redirect } from 'next/navigation';
 import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVendorForCurrentUser';
 import { Metadata } from 'next';
-import { getCurrentUser } from '@/lib/auth/getUser';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 export const metadata: Metadata = {
   title: 'Vendor Badge Toolkit | Asian Wedding Makeup',
@@ -16,13 +16,12 @@ export const metadata: Metadata = {
 }
 export default async function VendorBadgeToolkit() {
   // Check authentication
-  const claims = await getCurrentUser();
-  if (!claims) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/dashboard/badge-toolkit')}`);
   }
-  const userId = claims.sub;
 
-  const vendor = await getVendorForCurrentUser(userId);
+  const vendor = await getVendorForCurrentUser(currentUser.userId);
   if (!vendor) {
     return (
       <Box p={4} textAlign="center">

@@ -1,26 +1,21 @@
 
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { transformBackendUserToFrontend } from '@/types/user';
 
 export async function fetchUserById() {
-  // Get current session to verify user is authenticated
-  const supabaseServerClient = await createServerClient();
-
-  console.debug("Authenticating...");
-
-  // Check if user is authenticated
-  const { data, error: sessionError } = await supabaseServerClient.auth.getClaims();
-  const user = data?.claims;
-
-  if (!user || sessionError) {
-    console.error("Authentication error:", sessionError || "No active session");
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
+    console.error("Authentication error: No active session");
     return null;
   }
+  
+  const supabaseServerClient = await createServerClient();
 
   const { data: profile, error: userError } = await supabaseServerClient
     .from('profiles')
     .select('*')
-    .eq('id', user.sub)
+    .eq('id', currentUser.userId)
     .single();
 
   if (userError) {
@@ -31,7 +26,7 @@ export async function fetchUserById() {
   const { data: favorites, error: favoritesError } = await supabaseServerClient
     .from('user_favorites')
     .select('*')
-    .eq('user_id', user.sub);
+    .eq('user_id', currentUser.userId);
 
   if (favoritesError) {
     console.error('Error fetching favorites: %s', favoritesError);

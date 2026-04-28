@@ -206,7 +206,6 @@ export const VendorSettings = ({
       <ChangePasswordDialog
         open={passwordDialogOpen}
         onClose={() => setPasswordDialogOpen(false)}
-        hasPassword={true}
         isUserEmailVerified={isUserEmailVerified}
         isSubmitting={isSubmitting}
         onSubmit={handlePasswordChange}

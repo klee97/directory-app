@@ -1,5 +1,6 @@
 "use server";
 
+import { CurrentUser, getCurrentUser } from "@/lib/auth/getUser";
 import { createServerClient } from "@/lib/supabase/clients/serverClient";
 
 
@@ -12,15 +13,13 @@ export async function updateMediaConsent({
   credits: string | null;
   consentGiven: boolean;
 }) {
-  // Get current session to verify user is authenticated
-  const supabaseServerClient = await createServerClient();
-
-  const { data, error: sessionError } = await supabaseServerClient.auth.getClaims();
-  const user = data?.claims;
-
-  if (!user || sessionError) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser || !currentUser.email) {
+    console.error("Authentication error: No active session");
     return { success: false, error: "You must be logged in to perform this action" };
   }
+
+  const supabaseServerClient = await createServerClient();
 
   const { error } = await supabaseServerClient
     .from("vendor_media")

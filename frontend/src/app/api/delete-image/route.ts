@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { isTestVendor } from '@/lib/env/env';
-import { requireAuth, requireVendorAccess } from '@/lib/auth/serverAuth';
+import { requireVendorAccess } from '@/lib/auth/serverAuth';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -14,8 +15,11 @@ const s3 = new S3Client({
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { user, error: authError, supabase } = await requireAuth();
-    if (authError) return authError;
+    const currentUser: CurrentUser | null = await getCurrentUser();
+    if (!currentUser) {
+      console.error("Authentication error: No active session");
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { imageUrl, vendorSlug } = await request.json();
 
@@ -23,8 +27,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const userId = user.sub;
-    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, userId, supabase);
+    const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, currentUser.userId);
 
     if (accessError) return accessError;
 

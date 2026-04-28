@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import VendorEditSkeleton from '@/features/profile/dashboard/components/VendorEditSkeleton';
 import NoVendorLinked from '@/features/profile/dashboard/components/NoVendorLinked';
 import { Metadata } from 'next';
-import { getCurrentUser } from '@/lib/auth/getUser';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 export const metadata: Metadata = {
   title: 'Edit Your Profile | Asian Wedding Makeup',
@@ -18,17 +18,16 @@ export const metadata: Metadata = {
 
 export default async function VendorEditPage() {
   // Check authentication
-  const claims = await getCurrentUser();
-  if (!claims) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/dashboard/profile')}`);
   }
-  const userId = claims.sub;
 
-  console.debug('[VendorEditPage] userId from getCurrentUserAction:', userId);
+  console.debug('[VendorEditPage] userId from getCurrentUserAction:', currentUser.userId);
 
   return (
     <Suspense fallback={<VendorEditSkeleton />}>
-      <VendorEditContent userId={userId} />
+      <VendorEditContent userId={currentUser.userId} />
     </Suspense>
   );
 }

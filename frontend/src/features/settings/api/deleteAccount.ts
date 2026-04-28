@@ -1,21 +1,19 @@
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 
 const supabaseBrowserClient = createBrowserClient();
 
 export const deleteAccount = async (password: string) => {
 
-  const { data, error: sessionError } = await supabaseBrowserClient.auth.getClaims();
-  const user = data?.claims;
-
-  if (!user || sessionError) {
-    console.error("Authentication error:", sessionError || "No active session");
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
+    console.error("Authentication error: No active session");
     return null;
   }
-  const userId = user.sub;
 
   // First verify the password
   const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
-    email: user?.email || '',
+    email: currentUser.email || '',
     password,
   });
 
@@ -25,7 +23,7 @@ export const deleteAccount = async (password: string) => {
   const { error: favoritesError } = await supabaseBrowserClient
     .from('user_favorites')
     .delete()
-    .eq('user_id', userId);
+    .eq('user_id', currentUser.userId);
 
   if (favoritesError) throw favoritesError;
 
@@ -33,7 +31,7 @@ export const deleteAccount = async (password: string) => {
   const { error: profileError } = await supabaseBrowserClient
     .from('profiles')
     .delete()
-    .eq('id', userId);
+    .eq('id', currentUser.userId);
 
   if (profileError) throw profileError;
 

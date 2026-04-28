@@ -443,8 +443,6 @@ export type ComponentAuthorLinkingCollectionsPageBlogPostCursorCollectionArgs = 
 };
 
 export enum ComponentAuthorLinkingCollectionsPageBlogPostCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -464,8 +462,6 @@ export enum ComponentAuthorLinkingCollectionsPageBlogPostCollectionOrder {
 }
 
 export enum ComponentAuthorLinkingCollectionsPageBlogPostCursorCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -844,8 +840,6 @@ export type ComponentSeoLinkingCollectionsPageLandingCursorCollectionArgs = {
 };
 
 export enum ComponentSeoLinkingCollectionsPageBlogPostCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -865,8 +859,6 @@ export enum ComponentSeoLinkingCollectionsPageBlogPostCollectionOrder {
 }
 
 export enum ComponentSeoLinkingCollectionsPageBlogPostCursorCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -1119,7 +1111,7 @@ export type PageBlogPost = Entry & _Node & {
   __typename?: 'PageBlogPost';
   _id: Scalars['ID']['output'];
   author?: Maybe<ComponentAuthor>;
-  category?: Maybe<Scalars['String']['output']>;
+  categoryList?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   content?: Maybe<PageBlogPostContent>;
   contentfulMetadata: ContentfulMetadata;
   cultures?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -1148,7 +1140,7 @@ export type PageBlogPostAuthorArgs = {
 
 
 /** [See type definition](https://app.contentful.com/spaces/vv1ydxazlkj1/content_types/pageBlogPost) */
-export type PageBlogPostCategoryArgs = {
+export type PageBlogPostCategoryListArgs = {
   locale?: InputMaybe<Scalars['String']['input']>;
   useFallbackLocale?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -1325,13 +1317,10 @@ export type PageBlogPostFilter = {
   OR?: InputMaybe<Array<InputMaybe<PageBlogPostFilter>>>;
   author?: InputMaybe<CfComponentAuthorNestedFilter>;
   author_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  category?: InputMaybe<Scalars['String']['input']>;
-  category_contains?: InputMaybe<Scalars['String']['input']>;
-  category_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  category_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  category_not?: InputMaybe<Scalars['String']['input']>;
-  category_not_contains?: InputMaybe<Scalars['String']['input']>;
-  category_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_all?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_none?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_some?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_exists?: InputMaybe<Scalars['Boolean']['input']>;
   content_contains?: InputMaybe<Scalars['String']['input']>;
   content_exists?: InputMaybe<Scalars['Boolean']['input']>;
   content_not_contains?: InputMaybe<Scalars['String']['input']>;
@@ -1461,8 +1450,6 @@ export type PageBlogPostLinkingCollectionsPageLandingCursorCollectionArgs = {
 };
 
 export enum PageBlogPostLinkingCollectionsPageBlogPostCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -1482,8 +1469,6 @@ export enum PageBlogPostLinkingCollectionsPageBlogPostCollectionOrder {
 }
 
 export enum PageBlogPostLinkingCollectionsPageBlogPostCursorCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -1529,8 +1514,6 @@ export enum PageBlogPostLinkingCollectionsPageLandingCursorCollectionOrder {
 }
 
 export enum PageBlogPostOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -1558,8 +1541,6 @@ export type PageBlogPostRelatedBlogPostsCollection = {
 };
 
 export enum PageBlogPostRelatedBlogPostsCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -1586,8 +1567,6 @@ export type PageBlogPostRelatedBlogPostsCursorCollection = {
 };
 
 export enum PageBlogPostRelatedBlogPostsCursorCollectionOrder {
-  CategoryAsc = 'category_ASC',
-  CategoryDesc = 'category_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   PublishedDateAsc = 'publishedDate_ASC',
@@ -2118,13 +2097,10 @@ export type CfPageBlogPostNestedFilter = {
   AND?: InputMaybe<Array<InputMaybe<CfPageBlogPostNestedFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CfPageBlogPostNestedFilter>>>;
   author_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  category?: InputMaybe<Scalars['String']['input']>;
-  category_contains?: InputMaybe<Scalars['String']['input']>;
-  category_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  category_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  category_not?: InputMaybe<Scalars['String']['input']>;
-  category_not_contains?: InputMaybe<Scalars['String']['input']>;
-  category_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_all?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_none?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_contains_some?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  categoryList_exists?: InputMaybe<Scalars['Boolean']['input']>;
   content_contains?: InputMaybe<Scalars['String']['input']>;
   content_exists?: InputMaybe<Scalars['Boolean']['input']>;
   content_not_contains?: InputMaybe<Scalars['String']['input']>;

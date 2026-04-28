@@ -1,5 +1,5 @@
 import { UserSettings } from '@/features/settings/components/UserSettings';
-import { getCurrentUser } from '@/lib/auth/getUser';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -7,16 +7,16 @@ import { redirect } from 'next/navigation';
 
 export default async function SettingsPage() {
   // Check authentication
-  const claims = await getCurrentUser();
+  const currentUser: CurrentUser | null = await getCurrentUser();
 
-  if (!claims) {
+  if (!currentUser) {
     redirect(`/login?redirectTo=${encodeURIComponent('/settings')}`);
   }
 
   return (
     <>
       {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
-        ? <UserSettings userEmail={claims.email} />
+        ? <UserSettings userEmail={currentUser.email} />
         : <Container maxWidth="lg">
           <br />
           <Box

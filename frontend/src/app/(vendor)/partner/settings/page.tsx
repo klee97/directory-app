@@ -3,7 +3,7 @@ import { getVendorForCurrentUser } from '@/features/profile/dashboard/api/getVen
 import { VendorSettings } from '@/features/settings/components/VendorSettings';
 
 import { Metadata } from 'next';
-import { getCurrentUser } from '@/lib/auth/getUser';
+import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 export const metadata: Metadata = {
   title: 'Vendor Settings | Asian Wedding Makeup',
@@ -15,14 +15,13 @@ export const metadata: Metadata = {
 
 export default async function VendorSettingsPage() {
   // Check authentication
-  const claims = await getCurrentUser();
-  if (!claims) {
+  const currentUser: CurrentUser | null = await getCurrentUser();
+  if (!currentUser) {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/settings')}`);
   }
-  const userId = claims.sub;
 
   // Fetch vendor data for current user
-  const vendor = await getVendorForCurrentUser(userId);
+  const vendor = await getVendorForCurrentUser(currentUser.userId);
   console.log("Fetched vendor data:", vendor);
 
 
@@ -30,5 +29,5 @@ export default async function VendorSettingsPage() {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/settings')}`);
   }
 
-  return <VendorSettings userEmail={claims.email} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
+  return <VendorSettings userEmail={currentUser.email} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
 }
