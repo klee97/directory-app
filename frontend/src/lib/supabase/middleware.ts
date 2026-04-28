@@ -76,7 +76,7 @@ export async function updateSession(request: NextRequest) {
       url.searchParams.delete('redirectTo');
       return NextResponse.redirect(url);
     }
-    if (request.nextUrl.pathname === '/login') {
+    if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup') {
       const url = request.nextUrl.clone();
       url.pathname = '/';
       url.searchParams.delete('redirectTo');
