@@ -1,3 +1,4 @@
+import { isPostInFuture } from '@/features/blog/api/getBlogPosts';
 import { createServerClient } from '@supabase/ssr';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -80,6 +81,26 @@ export async function updateSession(request: NextRequest) {
       url.pathname = '/';
       url.searchParams.delete('redirectTo');
       return NextResponse.redirect(url);
+    }
+  }
+
+  if (request.nextUrl.pathname.startsWith('/blog/')) {
+    const slug = request.nextUrl.pathname.split('/blog/')[1]
+
+    if (slug) {
+      const isFuture = await isPostInFuture(slug)
+
+      if (isFuture) {
+        const previewCookie = request.cookies.get('preview-auth')
+        const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD
+
+        if (!authorized) {
+          const url = request.nextUrl.clone()
+          url.pathname = '/preview-login'
+          url.searchParams.set('redirectTo', request.nextUrl.pathname)
+          return NextResponse.redirect(url)
+        }
+      }
     }
   }
 
