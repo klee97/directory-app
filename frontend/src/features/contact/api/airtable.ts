@@ -94,7 +94,7 @@ export const submitWebsiteInterest = async (
       return false;
     }
 
-    const result = await response.json();
+    const result = await response.json();      
     return result.ok;
   } catch (error) {
     console.error('Website interest submission error:', error);

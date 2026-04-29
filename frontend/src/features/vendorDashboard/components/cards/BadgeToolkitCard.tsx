@@ -8,16 +8,22 @@ export default function BadgeToolkitCard() {
 
   return (
     <BaseCard title="Badge Toolkit" titleHref="/partner/dashboard/badge-toolkit" icon={<WorkspacePremium sx={{ color: 'text.primary' }} />} hoverable>
-        <Typography variant="body1" sx={{ mb: 2 }} gutterBottom>
-          Display your Asian Wedding Makeup vendor badge on your website to show off your expertise.
-        </Typography>
+      <Typography variant="body1" sx={{ mb: 2 }} gutterBottom>
+        Display your Asian Wedding Makeup vendor badge on your website to show off your expertise.
+      </Typography>
 
-        <Button
-          variant="contained"
-          onClick={() => router.push(`/partner/dashboard/badge-toolkit`)}
-        >
-          Get Your Badge
-        </Button>
-    </BaseCard>
+      <Button
+        variant="contained"
+        onClick={() => router.push(`/partner/dashboard/badge-toolkit`)}
+        sx={{
+          alignSelf: "flex-start",
+          bgcolor: "primary.main",
+          color: "white",
+          "&:hover": { bgcolor: "primary.dark" },
+        }}
+      >
+        Get Your Badge
+      </Button>
+    </BaseCard >
   );
 }

@@ -21,5 +21,5 @@ export function getVendorFeedbackTable() {
 }
 
 export function getWebsiteInterestTable() {
-  return websiteInterestBase('Website Interest Tracker');
+  return websiteInterestBase('Vendor Submissions');
 }

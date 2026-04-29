@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWebsiteInterestTable } from '@/lib/airtable/constants';
+import { createClient } from '@/lib/supabase/client';
+import { supabase } from '@/lib/api-client';
 
 export async function POST(req: NextRequest) {
   const { vendorId, businessName, priority } = await req.json();
@@ -14,10 +16,16 @@ export async function POST(req: NextRequest) {
         'Vendor ID': vendorId,
         'Business Name': businessName,
         'Priority': priority,
-        'Submission Date': new Date().toISOString().split('T')[0],
         'Status': 'New',
       }
     }]);
+
+    if (record.length > 0) {
+      await supabase
+        .from('vendors')
+        .update({ website_interest_submitted: true })
+        .eq('id', vendorId);
+    }
 
     return NextResponse.json({ ok: record.length > 0 });
   } catch (error) {

@@ -70,7 +70,7 @@ export default function WebsiteBuildServiceCard({ vendorId, businessName }: { ve
 
           {interested && (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.primary">
                 What&apos;s most important to you?
               </Typography>
 
@@ -83,18 +83,17 @@ export default function WebsiteBuildServiceCard({ vendorId, businessName }: { ve
                       px: 2,
                       py: 1.25,
                       border: "1px solid",
-                      borderColor: selected === priority ? "primary.main" : "divider",
-                      borderRadius: 1,
+                      bgcolor: selected === priority ? "background.back" : "background.paper",
+                      borderColor:  "divider",
+                      boxShadow: selected === priority ? "none" : 1, borderRadius: 1,
                       cursor: "pointer",
-                      bgcolor: selected === priority ? "primary.50" : "transparent",
                       transition: "all 0.15s ease",
                       "&:hover": { borderColor: "primary.main" },
                     }}
                   >
                     <Typography
                       variant="body2"
-                      fontWeight={selected === priority ? 600 : 400}
-                      color={selected === priority ? "primary.main" : "text.primary"}
+                      color={selected === priority ? "primary.contrastText" : "text.primary"}
                     >
                       {priority}
                     </Typography>

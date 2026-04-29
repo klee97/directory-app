@@ -96,6 +96,12 @@ export default function ProfileChecklistCard({ vendor }: ProfileChecklistCardPro
         component={Link}
         href="/partner/dashboard/profile"
         variant={"contained"}
+        sx={{
+          alignSelf: "flex-start",
+          bgcolor: "primary.main",
+          color: "white",
+          "&:hover": { bgcolor: "primary.dark" },
+        }}
       >
         Edit Profile
       </Button>
