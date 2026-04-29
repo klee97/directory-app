@@ -40,7 +40,7 @@ interface ApiError extends Error {
 }
 
 type VendorSettingsProps = {
-  userEmail: string | undefined;
+  userEmail: string;
   vendorId: string;
   vendorSlug?: string;
   approvedInquiriesAt?: string | null;
@@ -65,7 +65,7 @@ export const VendorSettings = ({
   const router = useRouter();
   const { isLoggedIn, isLoading } = useAuth();
 
-  const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
+  const isUserEmailVerified = userEmail.trim() !== '';
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -74,6 +74,10 @@ export const VendorSettings = ({
   }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    if (newPassword !== confirmPassword) {
+      addNotification('New passwords do not match', 'error');
+      return;
+    }
     setIsSubmitting(true);
     try {
       await updatePassword(currentPassword, newPassword);
@@ -89,13 +93,13 @@ export const VendorSettings = ({
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim() === '' || email.toLowerCase() === userEmail?.toLowerCase()) {
+    if (email.trim() === '' || email.toLowerCase() === userEmail.toLowerCase()) {
       addNotification('New email address must be different from current email', 'error');
       return;
     }
     setIsSubmitting(true);
     try {
-      await updateEmail(emailChangePassword, email, true);
+      await updateEmail(userEmail, emailChangePassword, email, true);
       addNotification(
         'Check your inbox to verify your new vendor account email address: ' + email,
         'success'
@@ -258,9 +262,9 @@ export const VendorSettings = ({
               margin="normal"
               required
               disabled={isSubmitting}
-              error={email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()}
+              error={email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()}
               helperText={
-                email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()
+                email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()
                   ? "New email address must be different from current email"
                   : ""
               }

@@ -22,8 +22,6 @@ export default async function VendorSettingsPage() {
 
   // Fetch vendor data for current user
   const vendor = await getVendorForCurrentUser(currentUser.userId);
-  console.log("Fetched vendor data:", vendor);
-
 
   if (!vendor) {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/settings')}`);

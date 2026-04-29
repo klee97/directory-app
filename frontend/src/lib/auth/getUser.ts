@@ -10,19 +10,20 @@ export type CurrentUser = {
  * Get current authenticated user
  */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
-  try {
-    const supabaseServerClient = await createServerClient();
-    const { data } = await supabaseServerClient.auth.getClaims();
-    const claims = data?.claims;
-    if (!claims) return null;
+  const supabaseServerClient = await createServerClient();
+  const { data, error } = await supabaseServerClient.auth.getClaims();
 
-    return {
-      email: claims.email,
-      userId: claims.sub,
-    } as CurrentUser;
-  } catch (error) {
+  if (error) {
     console.error('getCurrentUser failed:', error);
     return null;
   }
+
+  const claims = data?.claims;
+  if (!claims) return null;
+
+  return {
+    email: claims.email,
+    userId: claims.sub,
+  } as CurrentUser;
 });
 

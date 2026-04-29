@@ -35,10 +35,11 @@ interface ApiError extends Error {
 }
 
 type UserSettingsProps = {
-  userEmail: string | undefined;
+  userEmail: string;
+  userId: string;
 };
 
-export const UserSettings = ({ userEmail }: UserSettingsProps) => {
+export const UserSettings = ({ userEmail, userId }: UserSettingsProps) => {
   const { addNotification } = useNotification();
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -49,7 +50,7 @@ export const UserSettings = ({ userEmail }: UserSettingsProps) => {
   const router = useRouter();
   const { isLoggedIn, isLoading } = useAuth();
 
-  const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
+  const isUserEmailVerified = userEmail !== '';
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -58,6 +59,10 @@ export const UserSettings = ({ userEmail }: UserSettingsProps) => {
   }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    if (newPassword !== confirmPassword) {
+      addNotification('New passwords do not match', 'error');
+      return;
+    }
     setIsSubmitting(true);
     try {
       await updatePassword(currentPassword, newPassword);
@@ -74,7 +79,7 @@ export const UserSettings = ({ userEmail }: UserSettingsProps) => {
   const handleDeleteAccount = async () => {
     setIsSubmitting(true);
     try {
-      await deleteAccount(deletePassword);
+      await deleteAccount(userEmail, userId, deletePassword);
       addNotification('Account deleted successfully');
       router.push('/');
     } catch (error: unknown) {

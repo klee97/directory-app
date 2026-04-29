@@ -16,7 +16,7 @@ export default async function SettingsPage() {
   return (
     <>
       {process.env.NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED === 'true'
-        ? <UserSettings userEmail={currentUser.email} />
+        ? <UserSettings userEmail={currentUser.email} userId={currentUser.userId} />
         : <Container maxWidth="lg">
           <br />
           <Box
