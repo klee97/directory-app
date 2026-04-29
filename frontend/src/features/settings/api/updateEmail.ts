@@ -11,7 +11,7 @@ export const updateEmail = async (currentEmail: string, currentPassword: string,
   });
 
   if (signInError) {
-    throw new Error('Invalid password. Please check your password and try again.');
+    return { error: 'Invalid password. Please check your password and try again.' };
   }
 
   // Step 2: Attempt email update
@@ -33,6 +33,6 @@ export const updateEmail = async (currentEmail: string, currentPassword: string,
     }
 
     // We don't let user know if the email is already in use to avoid information leakage
-    throw new Error('Failed to update email address.');
+    return { error: 'Failed to update email address.' };
   }
 };

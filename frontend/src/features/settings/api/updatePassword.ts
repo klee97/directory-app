@@ -1,22 +1,19 @@
 import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
-import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
 
 const supabase = createBrowserClient();
 
-export const updatePassword = async (currentPassword: string, newPassword: string) => {
-  const currentUser: CurrentUser | null = await getCurrentUser();
-  if (!currentUser || !currentUser.email) {
-    throw new Error("You must be logged in to perform this action");
-  }
+export const updatePassword = async (currentEmail: string, currentPassword: string, newPassword: string) => {
 
   // First verify the current password
   const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: currentUser.email,
+    email: currentEmail,
     password: currentPassword,
   });
 
-  if (signInError) throw signInError;
+  if (signInError) {
+    return { error: 'Invalid password. Please check your password and try again.' };
+  }
 
   // If current password is correct, update to new password
   const { error } = await supabase.auth.updateUser({
@@ -25,7 +22,9 @@ export const updatePassword = async (currentPassword: string, newPassword: strin
       has_password: 'true'
     }
   });
-  if (error) throw error;
+  if (error) {
+    return { error: error.message };
+  }
 };
 
 export const updatePasswordAfterReset = async (newPassword: string, isVendorSite: boolean) => {
@@ -40,6 +39,8 @@ export const updatePasswordAfterReset = async (newPassword: string, isVendorSite
   }, {
     emailRedirectTo: redirectToUrl,
   });
-  if (error) throw error;
+  if (error) {
+    return { error: error.message };
+  }
 };
 

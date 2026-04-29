@@ -30,10 +30,6 @@ import { updatePassword } from "@/features/settings/api/updatePassword";
 import { deleteAccount } from "@/features/settings/api/deleteAccount";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 
-interface ApiError extends Error {
-  message: string;
-}
-
 type UserSettingsProps = {
   userEmail: string;
   userId: string;
@@ -64,30 +60,26 @@ export const UserSettings = ({ userEmail, userId }: UserSettingsProps) => {
       return;
     }
     setIsSubmitting(true);
-    try {
-      await updatePassword(currentPassword, newPassword);
+    const result = await updatePassword(userEmail, currentPassword, newPassword);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update password', 'error');
+    } else {
       addNotification('Password updated successfully');
       setPasswordDialogOpen(false);
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update password', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleDeleteAccount = async () => {
     setIsSubmitting(true);
-    try {
-      await deleteAccount(userEmail, userId, deletePassword);
+    const result = await deleteAccount(userEmail, userId, deletePassword);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to delete account', 'error');
+    } else {
       addNotification('Account deleted successfully');
       router.push('/');
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to delete account', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

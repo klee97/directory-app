@@ -35,10 +35,6 @@ import { updateInquiryAvailability } from "@/features/settings/api/updateInquiry
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 
-interface ApiError extends Error {
-  message: string;
-}
-
 type VendorSettingsProps = {
   userEmail: string;
   vendorId: string;
@@ -79,16 +75,14 @@ export const VendorSettings = ({
       return;
     }
     setIsSubmitting(true);
-    try {
-      await updatePassword(currentPassword, newPassword);
+    const result = await updatePassword(userEmail, currentPassword, newPassword);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update password', 'error');
+    } else {
       addNotification('Password updated successfully');
       setPasswordDialogOpen(false);
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update password', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleEmailChange = async (e: React.FormEvent) => {
@@ -98,8 +92,10 @@ export const VendorSettings = ({
       return;
     }
     setIsSubmitting(true);
-    try {
-      await updateEmail(userEmail, emailChangePassword, email, true);
+    const result = await updateEmail(userEmail, emailChangePassword, email, true);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update email address', 'error');
+    } else {
       addNotification(
         'Check your inbox to verify your new vendor account email address: ' + email,
         'success'
@@ -107,31 +103,24 @@ export const VendorSettings = ({
       setNewEmail('');
       setEmailChangePassword('');
       setEmailDialogOpen(false);
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update email address', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleInquiryToggle = async () => {
     const newValue = !inquiryEnabled;
     setInquiryEnabled(newValue);
     setIsUpdatingInquiry(true);
-    try {
-      await updateInquiryAvailability(vendorId, newValue);
+    const result = await updateInquiryAvailability(vendorId, newValue);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update inquiry settings', 'error');
+    } else {
       if (vendorSlug) {
         await revalidateVendor(vendorSlug);
       }
       addNotification(newValue ? 'Bridal inquiries enabled' : 'Bridal inquiries disabled');
-    } catch (error: unknown) {
-      setInquiryEnabled(!newValue);
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update inquiry settings', 'error');
-    } finally {
-      setIsUpdatingInquiry(false);
     }
+    setIsUpdatingInquiry(false);
   };
 
   return (

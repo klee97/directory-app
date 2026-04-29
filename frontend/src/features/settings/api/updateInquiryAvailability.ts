@@ -12,6 +12,6 @@ export async function updateInquiryAvailability(vendorId: string, enabled: boole
     .eq("id", vendorId);
 
   if (error) {
-    throw new Error("Failed to update inquiry settings");
+    return { error: 'Failed to update inquiry settings. Please try again later.' };
   }
 }
