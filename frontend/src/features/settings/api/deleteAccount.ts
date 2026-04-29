@@ -44,4 +44,5 @@ export const deleteAccount = async (userEmail: string, userId: string, password:
 
   // Sign out
   await supabaseBrowserClient.auth.signOut();
+  return { error: null };
 };

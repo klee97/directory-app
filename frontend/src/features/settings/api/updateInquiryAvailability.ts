@@ -14,4 +14,6 @@ export async function updateInquiryAvailability(vendorId: string, enabled: boole
   if (error) {
     return { error: 'Failed to update inquiry settings. Please try again later.' };
   }
+
+  return { error: null };
 }

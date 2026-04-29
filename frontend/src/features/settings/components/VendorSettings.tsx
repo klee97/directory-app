@@ -113,6 +113,7 @@ export const VendorSettings = ({
     setIsUpdatingInquiry(true);
     const result = await updateInquiryAvailability(vendorId, newValue);
     if (result?.error) {
+      setInquiryEnabled(!newValue);
       addNotification(result.error || 'Failed to update inquiry settings', 'error');
     } else {
       if (vendorSlug) {

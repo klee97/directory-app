@@ -35,4 +35,5 @@ export const updateEmail = async (currentEmail: string, currentPassword: string,
     // We don't let user know if the email is already in use to avoid information leakage
     return { error: 'Failed to update email address.' };
   }
+  return { error: null };
 };

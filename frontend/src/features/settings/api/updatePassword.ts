@@ -25,6 +25,8 @@ export const updatePassword = async (currentEmail: string, currentPassword: stri
   if (error) {
     return { error: error.message };
   }
+  return { error: null };
+
 };
 
 export const updatePasswordAfterReset = async (newPassword: string, isVendorSite: boolean) => {
@@ -42,5 +44,6 @@ export const updatePasswordAfterReset = async (newPassword: string, isVendorSite
   if (error) {
     return { error: error.message };
   }
+  return { error: null };
 };
 
