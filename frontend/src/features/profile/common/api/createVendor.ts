@@ -1,9 +1,10 @@
 "use server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendVendorInsert, VendorTag } from "@/types/vendor";
 import { prepareVendorData } from "@/features/profile/admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
+import { CurrentUser, getCurrentUser } from "@/lib/auth/getUser";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
@@ -11,7 +12,12 @@ export const createVendor = async (
   lastname: string,
   tags: VendorTag[] | null,
 ) => {
-  console.log("Creating vendor:", vendor);
+  const currentUser: CurrentUser | null = await getCurrentUser();
+
+  if (!currentUser) {
+    console.error("Authentication error: No active session");
+    return { error: "You must be logged in to perform this action" };
+  }
 
   // ✅ Validate test vendor creation
   if (vendor.id && isTestVendor(vendor.id)) {
@@ -19,27 +25,16 @@ export const createVendor = async (
       console.error("Cannot create test vendors in production");
       throw new Error("Test vendors can only be created in development environment");
     }
-    console.log("⚠️  Creating TEST vendor (development only)");
+    console.debug("⚠️  Creating TEST vendor (development only)");
   }
 
-  // Get current session to verify user is authenticated
-  const supabase = await createClient();
-
-  console.log("Authenticating...");
-
-  // Check if user is authenticated
-  const { data: { user }, error: sessionError } = await supabase.auth.getUser()
-
-  if (!user || sessionError) {
-    console.error("Authentication error:", sessionError || "No active session");
-    return { error: "You must be logged in to perform this action" };
-  }
+  const supabaseServerClient = await createServerClient();
 
   // Check if user is an admin using the profiles table
-  const { data: profileData, error: profileError } = await supabase
+  const { data: profileData, error: profileError } = await supabaseServerClient
     .from('profiles')
     .select('is_admin')
-    .eq('id', user.id)
+    .eq('id', currentUser.userId)
     .single();
 
   if (profileError || !profileData || !profileData.is_admin) {
@@ -53,18 +48,18 @@ export const createVendor = async (
   console.debug("Updated vendor insert data:", vendorData);
 
   // Proceed with vendor creation
-  const { data, error } = await supabase.from("vendors").insert(vendorData).select("id, slug").single();
+  const { data, error } = await supabaseServerClient.from("vendors").insert(vendorData).select("id, slug").single();
 
   if (data && data.id && data.slug) {
     console.log("Vendor created successfully!", data);
 
-    await supabase.rpc("update_vendor_location", { vendor_id: data.id });
+    await supabaseServerClient.rpc("update_vendor_location", { vendor_id: data.id });
     console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
     const tagsToAdd = tags ?? [];
     await Promise.all(tagsToAdd.map(async (tag) => {
-      const { error: skillError } = await supabase
+      const { error: skillError } = await supabaseServerClient
         .from("vendor_tags")
         .insert({ vendor_id: data.id, tag_id: tag.id });
 
@@ -95,7 +90,7 @@ export const createVendor = async (
       console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
   }
-  
+
   if (error) {
     console.error("Error creating vendor:", error);
     throw error;

@@ -1,13 +1,13 @@
-import { supabase } from './src/lib/api-client.ts';
+import { supabaseStaticClient } from './src/lib/supabase/clients/staticClient.ts';
 
 
 export async function fetchVendorSlugs() {
-  const { data } = await supabase.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
+  const { data } = await supabaseStaticClient.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 
 export async function fetchLocationSlugs() {
-  const { data } = await supabase.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
+  const { data } = await supabaseStaticClient.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 

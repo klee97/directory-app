@@ -1,42 +1,48 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 
-const supabase = createClient();
+const supabaseBrowserClient = createBrowserClient();
 
-export const deleteAccount = async (password: string) => {
+export const deleteAccount = async (userEmail: string, userId: string, password: string) => {
+
   // First verify the password
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: (await supabase.auth.getUser()).data.user?.email || '',
+  const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
+    email: userEmail,
     password,
   });
 
-  if (signInError) throw signInError;
-
-  const userId = (await supabase.auth.getUser()).data.user?.id;
-  if (!userId) throw new Error('User ID not found');
+  if (signInError) {
+    return { error: 'Invalid password. Please check your password and try again.' };
+  }
 
   // Delete user's favorites first (due to foreign key constraint)
-  const { error: favoritesError } = await supabase
+  const { error: favoritesError } = await supabaseBrowserClient
     .from('user_favorites')
     .delete()
     .eq('user_id', userId);
 
-  if (favoritesError) throw favoritesError;
+  if (favoritesError) {
+    return { error: 'Failed to delete user favorites. Please try again later.' };
+  }
 
   // Delete user's profile
-  const { error: profileError } = await supabase
+  const { error: profileError } = await supabaseBrowserClient
     .from('profiles')
     .delete()
     .eq('id', userId);
 
-  if (profileError) throw profileError;
+  if (profileError) {
+    return { error: 'Failed to delete user profile. Please try again later.' };
+  }
+
 
   // Finally delete the auth account
+  const { error: deleteError } = await supabaseBrowserClient.rpc('delete_user'); //await supabase.auth.admin.deleteUser(userId);
 
-
-  const { error: deleteError } = await supabase.rpc('delete_user'); //await supabase.auth.admin.deleteUser(userId);
-
-  if (deleteError) throw deleteError;
+  if (deleteError) {
+    return { error: 'Failed to delete user account. Please try again later.' };
+  }
 
   // Sign out
-  await supabase.auth.signOut();
+  await supabaseBrowserClient.auth.signOut();
+  return { error: null };
 };

@@ -1,10 +1,10 @@
-import { supabase } from "@/lib/api-client";
+import { supabaseStaticClient } from "@/lib/supabase/clients/staticClient";
 
 let cachedSlugs: Set<string> | null = null;
 
 export async function getValidLocationSlugs(): Promise<Set<string>> {
   if (cachedSlugs) return cachedSlugs;
-  const { data, error } = await supabase
+  const { data, error } = await supabaseStaticClient
     .from('location_slugs')
     .select('slug');
 

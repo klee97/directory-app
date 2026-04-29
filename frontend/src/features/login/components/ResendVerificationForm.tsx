@@ -6,8 +6,10 @@ import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { useNotification } from '@/contexts/NotificationContext';
+
+const supabaseBrowserClient = createBrowserClient();
 
 export function ResendVerificationForm() {
   const { addNotification } = useNotification();
@@ -25,8 +27,7 @@ export function ResendVerificationForm() {
     setIsSubmitting(true);
     
     try {
-      const supabase = createClient();
-      const { error } = await supabase.auth.resend({
+      const { error } = await supabaseBrowserClient.auth.resend({
         type: 'signup',
         email,
         options: {

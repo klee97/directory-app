@@ -17,7 +17,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import Paper from '@mui/material/Paper';
 import { useNotification } from '@/contexts/NotificationContext';
 import { validatePassword } from '@/utils/passwordValidation';
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { updatePasswordAfterReset } from '@/features/settings/api/updatePassword';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -39,7 +39,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  const supabaseBrowserClient = createBrowserClient();
   const { isLoggedIn, isLoading } = useAuth();
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
     try {
       await updatePasswordAfterReset(newPassword, !!isVendorSite);
       addNotification('Password updated successfully. Redirecting to login page...');
-      await supabase.auth.signOut();
+      await supabaseBrowserClient.auth.signOut();
       setTimeout(() => {
         router.push(loginUrl);
       }, 2000);

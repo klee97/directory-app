@@ -1,16 +1,19 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
 
-const supabase = createClient();
+const supabase = createBrowserClient();
 
-export const updatePassword = async (currentPassword: string, newPassword: string) => {
+export const updatePassword = async (currentEmail: string, currentPassword: string, newPassword: string) => {
+
   // First verify the current password
   const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: (await supabase.auth.getUser()).data.user?.email || '',
+    email: currentEmail,
     password: currentPassword,
   });
 
-  if (signInError) throw signInError;
+  if (signInError) {
+    return { error: 'Invalid password. Please check your password and try again.' };
+  }
 
   // If current password is correct, update to new password
   const { error } = await supabase.auth.updateUser({
@@ -19,7 +22,11 @@ export const updatePassword = async (currentPassword: string, newPassword: strin
       has_password: 'true'
     }
   });
-  if (error) throw error;
+  if (error) {
+    return { error: error.message };
+  }
+  return { error: null };
+
 };
 
 export const updatePasswordAfterReset = async (newPassword: string, isVendorSite: boolean) => {
@@ -34,6 +41,9 @@ export const updatePasswordAfterReset = async (newPassword: string, isVendorSite
   }, {
     emailRedirectTo: redirectToUrl,
   });
-  if (error) throw error;
+  if (error) {
+    return { error: error.message };
+  }
+  return { error: null };
 };
 

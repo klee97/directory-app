@@ -29,19 +29,14 @@ import MuiLink from "@mui/material/Link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@/contexts/NotificationContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { updatePassword, updatePasswordAfterReset } from "@/features/settings/api/updatePassword";
+import { updatePassword } from "@/features/settings/api/updatePassword";
 import { updateEmail } from "@/features/settings/api/updateEmail";
 import { updateInquiryAvailability } from "@/features/settings/api/updateInquiryAvailability";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import ChangePasswordDialog from "./ChangePasswordDialog";
 
-interface ApiError extends Error {
-  message: string;
-}
-
 type VendorSettingsProps = {
-  userEmail: string | undefined;
-  hasPassword: boolean;
+  userEmail: string;
   vendorId: string;
   vendorSlug?: string;
   approvedInquiriesAt?: string | null;
@@ -49,13 +44,11 @@ type VendorSettingsProps = {
 
 export const VendorSettings = ({
   userEmail,
-  hasPassword,
   vendorId,
   vendorSlug,
   approvedInquiriesAt,
 }: VendorSettingsProps) => {
   const { addNotification } = useNotification();
-  const [hasPasswordState, setHasPasswordState] = useState(hasPassword);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setNewEmail] = useState('');
@@ -68,7 +61,7 @@ export const VendorSettings = ({
   const router = useRouter();
   const { isLoggedIn, isLoading } = useAuth();
 
-  const isUserEmailVerified = userEmail != undefined && userEmail != null && userEmail.trim() !== '';
+  const isUserEmailVerified = userEmail.trim() !== '';
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -77,37 +70,32 @@ export const VendorSettings = ({
   }, [isLoading, isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
-    if (!hasPasswordState && newPassword !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       addNotification('New passwords do not match', 'error');
       return;
     }
     setIsSubmitting(true);
-    try {
-      if (hasPasswordState) {
-        await updatePassword(currentPassword, newPassword);
-      } else {
-        await updatePasswordAfterReset(newPassword, true);
-      }
+    const result = await updatePassword(userEmail, currentPassword, newPassword);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update password', 'error');
+    } else {
       addNotification('Password updated successfully');
-      setHasPasswordState(true);
       setPasswordDialogOpen(false);
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update password', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim() === '' || email.toLowerCase() === userEmail?.toLowerCase()) {
+    if (email.trim() === '' || email.toLowerCase() === userEmail.toLowerCase()) {
       addNotification('New email address must be different from current email', 'error');
       return;
     }
     setIsSubmitting(true);
-    try {
-      await updateEmail(emailChangePassword, email, true);
+    const result = await updateEmail(userEmail, emailChangePassword, email, true);
+    if (result?.error) {
+      addNotification(result.error || 'Failed to update email address', 'error');
+    } else {
       addNotification(
         'Check your inbox to verify your new vendor account email address: ' + email,
         'success'
@@ -115,31 +103,25 @@ export const VendorSettings = ({
       setNewEmail('');
       setEmailChangePassword('');
       setEmailDialogOpen(false);
-    } catch (error: unknown) {
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update email address', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   };
 
   const handleInquiryToggle = async () => {
     const newValue = !inquiryEnabled;
     setInquiryEnabled(newValue);
     setIsUpdatingInquiry(true);
-    try {
-      await updateInquiryAvailability(vendorId, newValue);
+    const result = await updateInquiryAvailability(vendorId, newValue);
+    if (result?.error) {
+      setInquiryEnabled(!newValue);
+      addNotification(result.error || 'Failed to update inquiry settings', 'error');
+    } else {
       if (vendorSlug) {
         await revalidateVendor(vendorSlug);
       }
       addNotification(newValue ? 'Bridal inquiries enabled' : 'Bridal inquiries disabled');
-    } catch (error: unknown) {
-      setInquiryEnabled(!newValue);
-      const apiError = error as ApiError;
-      addNotification(apiError.message || 'Failed to update inquiry settings', 'error');
-    } finally {
-      setIsUpdatingInquiry(false);
     }
+    setIsUpdatingInquiry(false);
   };
 
   return (
@@ -199,10 +181,7 @@ export const VendorSettings = ({
             <ListItemIcon>
               <Lock />
             </ListItemIcon>
-            {hasPasswordState
-              ? <ListItemText primary="Change Password" secondary="Update your password" />
-              : <ListItemText primary="Create A Password" secondary="Create a password to login to your account" />
-            }
+            <ListItemText primary="Change Password" secondary="Update your password" />
           </ListItemButton>
         </ListItem>
         <Divider sx={{ my: 1, borderColor: 'background.paper' }} />
@@ -221,7 +200,6 @@ export const VendorSettings = ({
       <ChangePasswordDialog
         open={passwordDialogOpen}
         onClose={() => setPasswordDialogOpen(false)}
-        hasPassword={hasPasswordState}
         isUserEmailVerified={isUserEmailVerified}
         isSubmitting={isSubmitting}
         onSubmit={handlePasswordChange}
@@ -274,9 +252,9 @@ export const VendorSettings = ({
               margin="normal"
               required
               disabled={isSubmitting}
-              error={email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()}
+              error={email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()}
               helperText={
-                email.trim() !== '' && email.toLowerCase() === userEmail?.toLowerCase()
+                email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()
                   ? "New email address must be different from current email"
                   : ""
               }

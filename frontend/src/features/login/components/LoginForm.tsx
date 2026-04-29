@@ -21,7 +21,10 @@ import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useAuth } from "@/contexts/AuthContext";
+import { createBrowserClient } from "@/lib/supabase/clients/browserClient";
+
+
+const supabaseBrowserClient = createBrowserClient();
 
 export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined }) => {
   const { addNotification } = useNotification();
@@ -29,7 +32,6 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { supabase } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,7 +66,7 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
         return;
       }
 
-      await supabase.auth.setSession({
+      await supabaseBrowserClient.auth.setSession({
         access_token: result.accessToken,
         refresh_token: result.refreshToken,
       });

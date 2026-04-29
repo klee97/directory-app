@@ -1,6 +1,6 @@
 "use server";
 import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendVendorRecommendationInsert } from "@/types/vendor";
 
 export const createRecommendation = async (rec: BackendVendorRecommendationInsert & { recaptchaToken: string }) => {
@@ -15,8 +15,8 @@ export const createRecommendation = async (rec: BackendVendorRecommendationInser
     }
 
     // Create the recommendation in database
-    const supabase = await createClient();
-    const { data, error } = await supabase
+    const supabaseServerClient = await createServerClient();
+    const { data, error } = await supabaseServerClient
       .from("vendor_recommendations")
       .insert(cleanRec)
       .select("id")
