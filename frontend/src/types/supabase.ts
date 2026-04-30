@@ -629,6 +629,7 @@ export type Database = {
           vendor_type: Database["public"]["Enums"]["vendor_type"]
           verified_at: string | null
           website: string | null
+          website_interest_submitted: boolean | null
         }
         Insert: {
           access_token?: string | null
@@ -669,6 +670,7 @@ export type Database = {
           vendor_type?: Database["public"]["Enums"]["vendor_type"]
           verified_at?: string | null
           website?: string | null
+          website_interest_submitted?: boolean | null
         }
         Update: {
           access_token?: string | null
@@ -709,6 +711,7 @@ export type Database = {
           vendor_type?: Database["public"]["Enums"]["vendor_type"]
           verified_at?: string | null
           website?: string | null
+          website_interest_submitted?: boolean | null
         }
         Relationships: [
           {

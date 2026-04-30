@@ -21,3 +21,8 @@ export const vendorThrowawayAccount = {
   email: 'delete-vendor-test@example.com',
   password: 'Testvendorpassword123!',
 };
+
+export const vendorSubmittedInterestAccount = {
+  email: 'website-interest-vendor-test@example.com',
+  password: 'Testvendorpassword123!',
+};

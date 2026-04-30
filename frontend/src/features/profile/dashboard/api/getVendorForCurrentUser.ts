@@ -1,8 +1,8 @@
 import { logEnvironmentInfo, shouldIncludeTestVendors } from "@/lib/env/env";
 import { createServerClient } from "@/lib/supabase/clients/serverClient";
-import { transformBackendVendorToFrontend } from "@/types/vendor";
+import { PortalVendor, transformBackendVendorToPortalVendor } from "@/types/vendor";
 
-export async function getVendorForCurrentUser(userId: string) {
+export async function getVendorForCurrentUser(userId: string): Promise<PortalVendor | null> {
   if (!userId) {
     return null;
   }
@@ -45,5 +45,5 @@ export async function getVendorForCurrentUser(userId: string) {
     }
   }
 
-  return transformBackendVendorToFrontend(vendor);
+  return transformBackendVendorToPortalVendor(vendor);
 }

@@ -18,11 +18,19 @@ const PRIORITIES = [
   "Looking more professional",
 ];
 
-export default function WebsiteBuildServiceCard({ vendorId, businessName }: { vendorId: string; businessName: string }) {
+export default function WebsiteBuildServiceCard({
+  vendorId,
+  businessName,
+  alreadySubmitted
+}: {
+  vendorId: string;
+  businessName: string;
+  alreadySubmitted: boolean;
+}) {
   const [interested, setInterested] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(alreadySubmitted);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {

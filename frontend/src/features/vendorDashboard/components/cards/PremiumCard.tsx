@@ -15,7 +15,7 @@ export default function PremiumWaitlistCard() {
     <BaseCard title="Join Premium" icon={<TrendingUpIcon sx={{ color: "text.primary" }} />}>
 
       <Typography variant="body1" sx={{ mb: 2 }}>
-        Interested in getting more visibility? We&apos;re working on Premium profiles that wil help you stand out.
+        We&apos;re working on Premium profiles for even more tools and visibility. Join our waitlist for early access and updates!
       </Typography>
 
       <Button

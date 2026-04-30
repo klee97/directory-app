@@ -126,6 +126,17 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
   }
 };
 
+export function transformBackendVendorToPortalVendor(vendor: BackendVendor): PortalVendor {
+  return {
+    ...transformBackendVendorToFrontend(vendor),
+    website_interest_submitted: vendor.website_interest_submitted,
+  };
+}
+
 export type VendorByDistance = Vendor & {
   distance_miles?: number | null
+};
+
+export type PortalVendor = Vendor & {
+  website_interest_submitted: boolean | null;
 };

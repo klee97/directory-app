@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid2";
 import RecentInquiriesCard from "@/features/vendorDashboard/components/cards/RecentInquiriesCard";
-import { VendorByDistance } from "@/types/vendor";
+import { PortalVendor } from "@/types/vendor";
 import ProfileEditCard from "./cards/ProfileEditCard";
 import Link from "@mui/material/Link";
 import PhotoPromptBanner from "@/components/ui/banners/PhotoPromptBanner";
@@ -19,7 +19,7 @@ import WebsiteInterestCard from "./cards/WebsiteInterestCard";
 import { Divider } from "@mui/material";
 
 interface DashboardContentProps {
-  vendor: VendorByDistance;
+  vendor: PortalVendor;
 }
 
 export default function DashboardContent({ vendor }: DashboardContentProps) {
@@ -90,7 +90,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
           <Grid size={{ xs: 12 }}>
             <Divider sx={{ mt: 3 }} />
           </Grid>
-          
+
           {/* Grow your business */}
           <Grid size={{ xs: 12 }}>
             <Typography variant="h3" sx={{ mt: 2 }}>
@@ -99,7 +99,11 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-            <WebsiteInterestCard vendorId={vendor.id} businessName={vendor.business_name!} />
+            <WebsiteInterestCard
+              vendorId={vendor.id}
+              businessName={vendor.business_name!}
+              alreadySubmitted={vendor.website_interest_submitted ?? false}
+            />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
             <BadgeToolkitCard />
