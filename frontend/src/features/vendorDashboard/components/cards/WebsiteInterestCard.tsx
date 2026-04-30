@@ -52,7 +52,7 @@ export default function WebsiteBuildServiceCard({
     <BaseCard title="Get a Business Website" icon={<LanguageIcon sx={{ color: "text.primary" }} />}>
       {done ? (
         <Alert severity="success" icon={<CheckCircleIcon />}>
-          Thanks! We&apos;ll be in touch soon.
+          Thanks for your interest! We&apos;ll be in touch soon.
         </Alert>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
