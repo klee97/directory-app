@@ -91,7 +91,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
             <Divider sx={{ mt: 3 }} />
           </Grid>
 
-          {/* Grow your business */}
+          {/* Section with vendor resources */}
           <Grid size={{ xs: 12 }}>
             <Typography variant="h3" sx={{ mt: 2 }}>
               Grow Your Business
@@ -105,6 +105,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
               alreadySubmitted={vendor.website_interest_submitted ?? false}
             />
           </Grid>
+
           <Grid size={{ xs: 12, md: 4 }}>
             <BadgeToolkitCard />
           </Grid>
@@ -112,11 +113,6 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
             <PremiumWaitlistCard />
           </Grid>
 
-          {/* 
-          <Grid size={{ xs: 12 }}>
-            <PerformanceStatsCard />
-          </Grid>
-          */}
         </Grid>
       </Box>
     </Container>
