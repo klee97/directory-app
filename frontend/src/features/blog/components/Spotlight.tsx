@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import { SinglePageBlogPost } from '@/features/blog/api/getBlogPosts';
 import RichText from '@/components/ui/RichText';
 import SpotlightHeader from './SpotlightHeader';
+
 export default async function Spotlight({ post }: { post: SinglePageBlogPost | null | undefined }) {
   if (!post) {
     return (
@@ -31,7 +32,7 @@ export default async function Spotlight({ post }: { post: SinglePageBlogPost | n
             alignItems: 'center',
             backgroundColor: 'background.paper',
             padding: '20px',
-            marginTop: '60px',
+            marginTop: '24px',
             borderRadius: '8px',
             boxShadow: 3
           }}

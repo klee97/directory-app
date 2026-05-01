@@ -129,6 +129,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       NODE_ENV: 'test',
+      CONTENTFUL_GRAPHQL_ENDPOINT: 'http://localhost:3000/api/test/contentful-mock',
     },
   },
 });
