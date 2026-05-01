@@ -52,9 +52,12 @@ test.describe('Vendor Dashboard', () => {
     await expect(page.getByText('Badge Toolkit')).toBeVisible();
   });
 
-  test('dashboard shows Performance Stats card with coming soon', async ({ page }) => {
-    await expect(page.getByText('Performance Stats')).toBeVisible();
-    await expect(page.getByText('Coming Soon...')).toBeVisible();
+  test('dashboard shows Website Interest card', async ({ page }) => {
+    await expect(page.getByText('Get a Business Website')).toBeVisible();
+  });
+
+    test('dashboard shows Premium card', async ({ page }) => {
+    await expect(page.getByText('Join Premium')).toBeVisible();
   });
 });
 

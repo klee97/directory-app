@@ -101,6 +101,19 @@ VALUES (
   timezone('utc'::text, now()),
   timezone('utc'::text, now()),
   NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000b',
+  'authenticated', 'authenticated', 'website-interest-vendor-test@example.com',
+  extensions.crypt('Testvendorpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()),
+  NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}',
+  '{}',
+  NULL,
+  timezone('utc'::text, now()),
+  timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
 );
 
 INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
@@ -164,6 +177,12 @@ VALUES (
   '{"sub": "00000000-0000-0000-0000-00000000000a"}',
   'email', '00000000-0000-0000-0000-00000000000a',
   timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+), (
+  '00000000-0000-0000-0000-00000000000b',
+  '00000000-0000-0000-0000-00000000000b',
+  '{"sub": "00000000-0000-0000-0000-00000000000b"}',
+  'email', '00000000-0000-0000-0000-00000000000b',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
 );
 
 
@@ -174,13 +193,15 @@ VALUES (
 -- -----------------------------------------------------------------------
 
 -- Test vendors
-INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, verified_at, approved_inquiries_at)
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, verified_at, approved_inquiries_at, website_interest_submitted, premium_interest_submitted)
 VALUES
-  ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()) ),
-  ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null),
-  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null),
-  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null),
-  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()));
+  ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
+  ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null, false, false),
+  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null, false, false),
+  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null, false, false),
+  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
+  ('TEST-E2E-006', 'Test Website Interest Vendor', 'test-website-interest-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), true, true)
+  ;
 
 -- Unclaimed vendor for magic-link claim tests (no auth user yet)
 INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, verified_at, approved_inquiries_at)
@@ -233,4 +254,12 @@ INSERT INTO public.profiles (
   '00000000-0000-0000-0000-000000000009', 'user', now(), now(), false, null, true
 ), (
   '00000000-0000-0000-0000-00000000000a', 'vendor', now(), now(), false, 'TEST-E2E-005', true
-);
+), (
+  '00000000-0000-0000-0000-00000000000b', 'vendor', now(), now(), false, 'TEST-E2E-006', true
+)
+ON CONFLICT (id) DO UPDATE SET
+  role = EXCLUDED.role,
+  vendor_id = EXCLUDED.vendor_id,
+  is_admin = EXCLUDED.is_admin,
+  is_test = EXCLUDED.is_test
+;
