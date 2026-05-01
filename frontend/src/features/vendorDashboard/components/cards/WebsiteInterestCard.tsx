@@ -65,6 +65,7 @@ export default function WebsiteBuildServiceCard({
           </Typography>
 
           <FormControlLabel
+            data-testid="interested-checkbox"
             control={
               <Checkbox
                 checked={interested}

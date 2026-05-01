@@ -29,27 +29,31 @@ test.describe('Website Interest Card', () => {
   });
 
   test('reveals priority dropdown and submit button when checkbox is checked', async ({ page }) => {
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').scrollIntoViewIfNeeded();
+    await page.getByTestId('interested-checkbox').click(); // check
     await expect(page.getByTestId('priority-select')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Submit' })).toBeVisible();
   });
 
   test('hides priority dropdown when checkbox is unchecked', async ({ page }) => {
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').scrollIntoViewIfNeeded();
+    await page.getByTestId('interested-checkbox').click(); // check
     await expect(page.getByTestId('priority-select')).toBeVisible();
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').click(); // uncheck
     await expect(page.getByTestId('priority-select')).not.toBeVisible();
     await expect(page.getByRole('button', { name: 'Submit' })).not.toBeVisible();
   });
 
   test('submits without priority selected', async ({ page }) => {
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').scrollIntoViewIfNeeded();
+    await page.getByTestId('interested-checkbox').click(); // check
     await page.getByRole('button', { name: 'Submit' }).click();
     await expect(page.getByText("Thanks for your interest! We'll be in touch soon.")).toBeVisible({ timeout: 15_000 });
   });
 
   test('submits with priority selected', async ({ page }) => {
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').scrollIntoViewIfNeeded();
+    await page.getByTestId('interested-checkbox').click(); // check
     await page.getByTestId('priority-select').click();
     await page.getByRole('option', { name: 'Getting found on Google or AI search' }).click();
     await page.getByRole('button', { name: 'Submit' }).click();
@@ -60,7 +64,8 @@ test.describe('Website Interest Card', () => {
     await page.route('**/api/airtable/website-interest**', (route) =>
       route.fulfill({ status: 502, json: { error: 'Failed to submit.' } })
     );
-    await page.getByLabel("Yes, I'm interested").check();
+    await page.getByTestId('interested-checkbox').scrollIntoViewIfNeeded();
+    await page.getByTestId('interested-checkbox').click(); // check
     await page.getByRole('button', { name: 'Submit' }).click();
     await expect(page.getByText('Something went wrong. Please try again.')).toBeVisible({ timeout: 15_000 });
   });
