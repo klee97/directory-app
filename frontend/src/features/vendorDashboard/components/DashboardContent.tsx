@@ -110,7 +110,12 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
             <BadgeToolkitCard />
           </Grid>
           <Grid size={{ xs: 12, md: 4 }}>
-            <PremiumWaitlistCard />
+            <PremiumWaitlistCard
+              vendorId={vendor.id}
+              businessName={vendor.business_name!}
+              alreadySubmitted={vendor.premium_interest_submitted ?? false}
+            >
+            </PremiumWaitlistCard>
           </Grid>
 
         </Grid>

@@ -30,7 +30,7 @@ export const submitToAirtable = async (
 };
 
 export const savePartialLeadToAirtable = async (
-    partialLead: PartialLead
+  partialLead: PartialLead
 ): Promise<boolean> => {
   try {
     const response = await fetch('/api/airtable/partial-leads', {
@@ -94,10 +94,27 @@ export const submitWebsiteInterest = async (
       return false;
     }
 
-    const result = await response.json();      
+    const result = await response.json();
     return result.ok;
   } catch (error) {
     console.error('Website interest submission error:', error);
     return false;
   }
 };
+
+
+export async function submitPremiumWaitlist(
+  vendorId: string,
+  businessName: string,
+): Promise<boolean> {
+  try {
+    const res = await fetch("/api/airtable/premium-interest", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vendorId, businessName }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

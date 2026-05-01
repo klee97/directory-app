@@ -193,14 +193,14 @@ VALUES (
 -- -----------------------------------------------------------------------
 
 -- Test vendors
-INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, verified_at, approved_inquiries_at, website_interest_submitted)
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, verified_at, approved_inquiries_at, website_interest_submitted, premium_interest_submitted)
 VALUES
-  ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false),
-  ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null, false),
-  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null, false),
-  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null, false),
-  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false),
-  ('TEST-E2E-006', 'Test Website Interest Vendor', 'test-website-interest-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), true)
+  ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
+  ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null, false, false),
+  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null, false, false),
+  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null, false, false),
+  ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
+  ('TEST-E2E-006', 'Test Website Interest Vendor', 'test-website-interest-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), true, true)
   ;
 
 -- Unclaimed vendor for magic-link claim tests (no auth user yet)

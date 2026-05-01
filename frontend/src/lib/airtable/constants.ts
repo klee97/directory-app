@@ -2,7 +2,7 @@ import Airtable from "airtable";
 
 export const leadsBase = new Airtable({ apiKey: process.env.AIRTABLE_API_TOKEN! }).base(process.env.AIRTABLE_APP_ID!);
 export const feedbackBase = new Airtable({ apiKey: process.env.AIRTABLE_FEEDBACK_API_TOKEN! }).base(process.env.AIRTABLE_FEEDBACK_APP_ID!);
-export const websiteInterestBase = new Airtable({ apiKey: process.env.AIRTABLE_WEBSITE_INTEREST_API_TOKEN! }).base(process.env.AIRTABLE_WEBSITE_INTEREST_APP_ID!);
+export const vendorInterestBase = new Airtable({ apiKey: process.env.AIRTABLE_VENDOR_INTEREST_API_TOKEN! }).base(process.env.AIRTABLE_VENDOR_INTEREST_APP_ID!);
 
 export function getLeadsTable() {
   return leadsBase('Leads');
@@ -21,5 +21,9 @@ export function getVendorFeedbackTable() {
 }
 
 export function getWebsiteInterestTable() {
-  return websiteInterestBase('Vendor Submissions');
+  return vendorInterestBase('Website');
+}
+
+export function getPremiumInterestTable() {
+  return vendorInterestBase('Premium');
 }

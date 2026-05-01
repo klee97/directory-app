@@ -11,6 +11,10 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import LanguageIcon from "@mui/icons-material/Language";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { submitWebsiteInterest } from "@/features/contact/api/airtable";
+import FormControl from "@mui/material/FormControl";
+import InputLabel from "@mui/material/InputLabel";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 const PRIORITIES = [
   "Getting found on Google or AI search",
@@ -77,38 +81,21 @@ export default function WebsiteBuildServiceCard({
             } />
 
           {interested && (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              <Typography variant="body2" color="text.primary">
-                What&apos;s most important to you?
-              </Typography>
-
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <FormControl size="small" sx={{ maxWidth: 320 }}>
+              <InputLabel>What&apos;s most important to you?</InputLabel>
+              <Select
+                value={selected ?? ""}
+                label="What's most important to you?"
+                onChange={(e) => setSelected(e.target.value || null)}
+                data-testid='priority-select'
+              >
                 {PRIORITIES.map((priority) => (
-                  <Box
-                    key={priority}
-                    onClick={() => setSelected(selected === priority ? null : priority)}
-                    sx={{
-                      px: 2,
-                      py: 1.25,
-                      border: "1px solid",
-                      bgcolor: selected === priority ? "background.back" : "background.paper",
-                      borderColor:  "divider",
-                      boxShadow: selected === priority ? "none" : 1, borderRadius: 1,
-                      cursor: "pointer",
-                      transition: "all 0.15s ease",
-                      "&:hover": { borderColor: "primary.main" },
-                    }}
-                  >
-                    <Typography
-                      variant="body2"
-                      color={selected === priority ? "primary.contrastText" : "text.primary"}
-                    >
-                      {priority}
-                    </Typography>
-                  </Box>
+                  <MenuItem key={priority} value={priority}>
+                    {priority}
+                  </MenuItem>
                 ))}
-              </Box>
-            </Box>
+              </Select>
+            </FormControl>
           )}
 
           {error && <Alert severity="error" sx={{ py: 0.5 }}>{error}</Alert>}

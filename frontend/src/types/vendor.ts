@@ -130,6 +130,7 @@ export function transformBackendVendorToPortalVendor(vendor: BackendVendor): Por
   return {
     ...transformBackendVendorToFrontend(vendor),
     website_interest_submitted: vendor.website_interest_submitted,
+    premium_interest_submitted: vendor.premium_interest_submitted
   };
 }
 
@@ -139,4 +140,5 @@ export type VendorByDistance = Vendor & {
 
 export type PortalVendor = Vendor & {
   website_interest_submitted: boolean | null;
+  premium_interest_submitted: boolean | null;
 };
