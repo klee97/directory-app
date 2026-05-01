@@ -3,12 +3,13 @@ import { getAllPosts } from '@/features/blog/api/getBlogPosts';
 import { isDevOrPreview, shouldIncludeFuturePosts } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
 import { BlogContent } from './BlogContent';
+import { FILTER_KEY_CATEGORY, FILTER_KEY_CULTURE, FILTER_KEY_LOCATION, FilterKey } from './postLabels';
 
 const FEATURED_POST_TAG_ID = 'featured';
 
 export interface FilterGroup {
   label: string;
-  key: 'categoryList' | 'cultures' | 'locations';
+  key: FilterKey;
   options: string[];
 }
 
@@ -41,21 +42,21 @@ export async function ArticleTable() {
   };
 
   for (const post of validPosts) {
-    for (const val of post.categoryList ?? []) {
+    for (const val of post[FILTER_KEY_CATEGORY] ?? []) {
       if (val && !isExcluded(val)) categorySet.add(val);
     }
-    for (const val of post.cultures ?? []) {
+    for (const val of post[FILTER_KEY_CULTURE] ?? []) {
       if (val && !isExcluded(val, ['general'])) cultureSet.add(val);
     }
-    for (const val of post.locations ?? []) {
+    for (const val of post[FILTER_KEY_LOCATION] ?? []) {
       if (val && !isExcluded(val)) locationSet.add(val);
     }
   }
 
   const allGroups: FilterGroup[] = [
-    { label: 'Category', key: 'categoryList', options: Array.from(categorySet).sort() },
-    { label: 'Culture', key: 'cultures', options: Array.from(cultureSet).sort() },
-    { label: 'Location', key: 'locations', options: Array.from(locationSet).sort() },
+    { label: 'Category', key: FILTER_KEY_CATEGORY, options: Array.from(categorySet).sort() },
+    { label: 'Culture', key: FILTER_KEY_CULTURE, options: Array.from(cultureSet).sort() },
+    { label: 'Location', key: FILTER_KEY_LOCATION, options: Array.from(locationSet).sort() },
   ];
   const filterGroups = allGroups.filter((g) => g.options.length > 0);
 
