@@ -6,9 +6,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import CloseIcon from '@mui/icons-material/Close';
 import Link from 'next/link';
 import ContentfulImage from '@/components/ui/ContentfulImage';
 import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
@@ -47,21 +44,9 @@ function postMatchesSearch(post: PageBlogPost, query: string): boolean {
 export function BlogContent({ featuredPost, posts, filterGroups, showRefreshButton }: BlogContentProps) {
   const [activeFilters, setActiveFilters] = useState<ActiveFilters>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [expanded, setExpanded] = useState(false);
 
   const handleFilterChange = useCallback((key: string, value: string | null) => {
     setActiveFilters((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
-  const handleToggleExpanded = useCallback(() => {
-    setExpanded((prev) => {
-      if (prev) {
-        // Collapsing — clear all filters and search
-        setActiveFilters({});
-        setSearchQuery('');
-      }
-      return !prev;
-    });
   }, []);
 
   const hasActiveFilter = Object.values(activeFilters).some((v) => v != null);
@@ -83,33 +68,17 @@ export function BlogContent({ featuredPost, posts, filterGroups, showRefreshButt
   return (
     <>
       {showRefreshButton}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h1" component="h1">
-          Blog
-        </Typography>
-        <IconButton
-          onClick={handleToggleExpanded}
-          aria-label={expanded ? 'Close search and filters' : 'Open search and filters'}
-          sx={{
-            border: '1px solid',
-            borderColor: expanded ? 'primary.main' : 'divider',
-            color: expanded ? 'primary.main' : 'text.secondary',
-            transition: 'all 0.2s',
-            '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
-          }}
-        >
-          {expanded ? <CloseIcon /> : <SearchIcon />}
-        </IconButton>
-      </Box>
+      <Typography variant="h1" component="h1" sx={{ mb: 4 }}>
+        Blog
+      </Typography>
+      {showFeatured && <FeaturedPost post={featuredPost!} />}
       <TagFilter
         filterGroups={filterGroups}
         activeFilters={activeFilters}
         onChange={handleFilterChange}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        expanded={expanded}
       />
-      {showFeatured && <FeaturedPost post={featuredPost!} />}
       {filteredPosts.length === 0 ? (
         <Typography color="text.secondary" sx={{ mt: 4 }}>
           No posts found for this filter.
