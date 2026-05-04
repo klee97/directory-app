@@ -25,8 +25,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isRoleLoading, setIsRoleLoading] = useState(true);
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
+      setUser(prev => {
+        if (prev?.id === session?.user?.id) return prev; // same user, keep same reference
+        return session?.user || null;
+      });
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Check role and vendor status whenever user changes
   useEffect(() => {
+    if (isLoading) return; // waits for auth to settle before running
+
     const checkUserRole = async () => {
       if (!user) {
         setRole(UserRole.USER);
@@ -55,19 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkUserRole();
-  }, [user]);
+  }, [user, isLoading]);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setIsRoleLoading(true);
-      }
-      setUser(session?.user || null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const value = {
     user,
