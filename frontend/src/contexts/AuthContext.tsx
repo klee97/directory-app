@@ -59,6 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setIsRoleLoading(true);
+      }
       setUser(session?.user || null);
       setIsLoading(false);
     });
