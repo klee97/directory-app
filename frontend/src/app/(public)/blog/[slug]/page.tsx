@@ -5,6 +5,8 @@ import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
+import { cookies } from 'next/headers';
+import PasswordGate from '@/components/ui/PasswordGate';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -71,6 +73,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
+
+  // Gate future posts
+  if (post && new Date(post.publishedDate) > new Date()) {
+    const cookieStore = await cookies()
+    const previewCookie = cookieStore.get('preview-auth')
+    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD
+
+    if (!authorized) {
+      return <PasswordGate redirectTo={`/blog/${slug}`} />
+    }
+  }
+
   let jsonLd = {};
 
   if (post) {
