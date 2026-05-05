@@ -30,21 +30,21 @@ export async function getAllPosts() {
   }
 }
 
-const _getPostBySlug = unstable_cache(
-  async (slug: string) => {
+const _getPostBySlug = (slug: string) => unstable_cache(
+  async () => {
     const { pageBlogPostCollection } = await graphQLClient.request<GetBlogPostBySlugQuery>(
       GetBlogPostBySlugDocument,
       { slug }
     );
     return pageBlogPostCollection?.items[0] ?? null;
   },
-  ['post-by-slug'],
+  [`post-by-slug-${slug}`],
   { revalidate: 300, tags: ['all-posts'] }
-)
+);
 
 export async function getPostBySlug(slug: string) {
   try {
-    return await _getPostBySlug(slug)
+    return await _getPostBySlug(slug)();
   } catch (err) {
     console.error(`Error fetching post by slug (${slug}):`, err)
     return null
