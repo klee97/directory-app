@@ -1,0 +1,12 @@
+reviews:
+  auto_review:
+    # Automatically trigger reviews when PRs are opened or updated
+    enabled: true
+    # Skip auto-review if PR title contains these keywords
+    ignore_title_keywords:
+      - "WIP"
+    # Don't auto-review draft PRs
+    drafts: false
+    # Only auto-review PRs targeting these branches
+    base_branches:
+      - main
