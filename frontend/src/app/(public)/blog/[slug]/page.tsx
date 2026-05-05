@@ -5,7 +5,6 @@ import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
-import { cookies } from 'next/headers';
 import PasswordGate from '@/components/ui/PasswordGate';
 
 type Props = {
@@ -76,9 +75,11 @@ export default async function BlogPostPage({ params }: Props) {
 
   // Gate future posts
   if (post && new Date(post.publishedDate) > new Date()) {
-    const cookieStore = await cookies()
-    const previewCookie = cookieStore.get('preview-auth')
-    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD
+    // Must be inside the component to run at request time for only future posts
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const previewCookie = cookieStore.get('preview-auth');
+    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD;
 
     if (!authorized) {
       return <PasswordGate redirectTo={`/blog/${slug}`} />
