@@ -1,19 +1,25 @@
 import { Metadata } from 'next';
-import { getAllPosts, getPostBySlug } from '@/features/blog/api/getBlogPosts';
+import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
+import PasswordGate from '@/components/ui/PasswordGate';
+import { graphQLClient } from '@/lib/contentful/graphqlClient';
+import { GetAllBlogPostsDocument, GetAllBlogPostsQuery } from '@/lib/generated/graphql';
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
+  const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
+  const posts = pageBlogPostCollection?.items || [];
   return posts
-    .filter(post => post && new Date(post.publishedDate) <= new Date()) // exclude future posts
+    .filter(post => post && new Date(post.publishedDate) <= new Date())
     .map(post => ({ slug: post?.slug }));
 }
 
@@ -71,6 +77,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
+
+  // Gate future posts
+  if (post && new Date(post.publishedDate) > new Date()) {
+    // Must be inside the component to run at request time for only future posts
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const previewCookie = cookieStore.get('preview-auth');
+    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD;
+
+    if (!authorized) {
+      return <PasswordGate redirectTo={`/blog/${slug}`} />
+    }
+  }
+
   let jsonLd = {};
 
   if (post) {
