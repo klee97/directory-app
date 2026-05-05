@@ -11,6 +11,8 @@ type Props = {
   params: Promise<{ slug: string }>
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts
