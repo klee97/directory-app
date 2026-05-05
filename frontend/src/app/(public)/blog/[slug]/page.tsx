@@ -1,11 +1,13 @@
 import { Metadata } from 'next';
-import { getAllPosts, getPostBySlug } from '@/features/blog/api/getBlogPosts';
+import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
 import PasswordGate from '@/components/ui/PasswordGate';
+import { graphQLClient } from '@/lib/contentful/graphqlClient';
+import { GetAllBlogPostsDocument, GetAllBlogPostsQuery } from '@/lib/generated/graphql';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -14,9 +16,10 @@ type Props = {
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
+  const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
+  const posts = pageBlogPostCollection?.items || [];
   return posts
-    .filter(post => post && new Date(post.publishedDate) <= new Date()) // exclude future posts
+    .filter(post => post && new Date(post.publishedDate) <= new Date())
     .map(post => ({ slug: post?.slug }));
 }
 
