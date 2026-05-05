@@ -35,27 +35,11 @@ export function TagFilter({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 4 }}>
-      <TextField
-        size="small"
-        placeholder="Search posts..."
-        value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" color="action" />
-              </InputAdornment>
-            ),
-          },
-        }}
-        fullWidth
-      />
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 4, alignItems: 'center' }}>
       {filterGroups.length > 0 && (
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'nowrap', flex: { xs: '1 1 100%', md: 'none' } }}>
           {filterGroups.map((group) => (
-            <FormControl key={group.key} size="small" sx={{ minWidth: 160 }}>
+            <FormControl key={group.key} size="small" sx={{ minWidth: { xs: 0, md: 160 }, flex: { xs: 1, md: 'none' } }}>
               <InputLabel id={`filter-${group.key}-label`}>{group.label}</InputLabel>
               <Select
                 labelId={`filter-${group.key}-label`}
@@ -74,6 +58,26 @@ export function TagFilter({
           ))}
         </Box>
       )}
+      <TextField
+        size="small"
+        placeholder="Search posts..."
+        value={searchQuery}
+        onChange={(e) => onSearchChange(e.target.value)}
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" color="action" />
+              </InputAdornment>
+            ),
+          },
+        }}
+        sx={{
+          flexGrow: 1,
+          minWidth: { xs: '100%', md: 200 },
+          order: { xs: -1, md: 0 },
+        }}
+      />
     </Box>
   );
 }

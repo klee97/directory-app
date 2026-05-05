@@ -33,6 +33,8 @@ test.describe('Blog page layout', () => {
 
   test('search filters posts by title', async ({ page }) => {
     const searchInput = page.getByPlaceholder('Search posts...');
+    await searchInput.scrollIntoViewIfNeeded();
+    await searchInput.click();
     await searchInput.fill('Bridal');
 
     // Only the matching post should remain
@@ -41,7 +43,10 @@ test.describe('Blog page layout', () => {
   });
 
   test('search shows no results message for unmatched query', async ({ page }) => {
-    await page.getByPlaceholder('Search posts...').fill('xyznonexistent12345');
+    const searchInput = page.getByPlaceholder('Search posts...');
+    await searchInput.scrollIntoViewIfNeeded();
+    await searchInput.click();
+    await searchInput.fill('xyznonexistent12345');
     await expect(page.getByText('No posts found for this filter.')).toBeVisible();
   });
 

@@ -94,8 +94,8 @@ jobs:
           # Add any other required vars here, e.g:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 
-          # Test credentials — dedicated Supabase test account
           NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
+          CONTENTFUL_GRAPHQL_ENDPOINT: "http://localhost:3000/api/test/contentful-mock"
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI
