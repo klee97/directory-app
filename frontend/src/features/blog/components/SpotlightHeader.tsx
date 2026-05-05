@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
 const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
+  const isLandscape = (post.featuredImage?.width ?? 0) > (post.featuredImage?.height ?? 0)
 
   return (
     <>
@@ -15,10 +16,17 @@ const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%', mb: 4 }}>
           <Box sx={{
             position: 'relative',
-            aspectRatio: '4 / 3',
-            width: '100%',
-            maxHeight: { xs: '400px', md: '600px' },
-            mb: 4
+            ...(isLandscape ? {
+              aspectRatio: '4 / 3',
+              width: '100%',
+              maxHeight: { xs: '400px', md: '600px' },
+            } : {
+              height: '600px',
+              width: '100%',
+              maxWidth: '500px',
+              margin: '0 auto',
+            }),
+            mb: 2
           }}>
             <ContentfulImage
               alt={`Cover Image: ${post.featuredImage.title}`}
@@ -32,7 +40,7 @@ const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
               }}
             />
           </Box>
-        </Box>
+        </Box >
       )}
     </>
   )
