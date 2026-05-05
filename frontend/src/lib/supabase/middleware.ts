@@ -85,14 +85,17 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname.startsWith('/blog/')) {
-    const slug = request.nextUrl.pathname.split('/blog/')[1]
+    const slug = request.nextUrl.pathname.split('/blog/')[1];
 
     if (slug) {
-      const isFuture = await isPostInFuture(slug)
+      const isFuture = await isPostInFuture(slug);
+      console.log('[middleware] slug:', slug, '| isFuture:', isFuture);
+
 
       if (isFuture) {
         const previewCookie = request.cookies.get('preview-auth')
         const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD
+        console.log('[middleware] authorized:', authorized);
 
         if (!authorized) {
           const url = request.nextUrl.clone()
