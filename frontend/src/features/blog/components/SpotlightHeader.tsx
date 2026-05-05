@@ -13,19 +13,19 @@ const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
       <Typography variant="h6" paddingBottom={2} align="center">{post.shortDescription}</Typography>
       {post.featuredImage?.url && (
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%', mb: 4 }}>
-          <Box sx={{ 
-            position: 'relative', 
-            height: '600px', 
-            width: '100%', 
-            maxWidth: '500px', // Limit width for portrait photos
-            margin: '0 auto' // Center the container
+          <Box sx={{
+            position: 'relative',
+            aspectRatio: '4 / 3',
+            width: '100%',
+            maxHeight: { xs: '400px', md: '600px' },
+            mb: 4
           }}>
             <ContentfulImage
               alt={`Cover Image: ${post.featuredImage.title}`}
               src={post.featuredImage.url}
               fill
               priority
-              sizes="(max-width: 500px) 100vw, 500px"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
               style={{
                 objectPosition: 'center top', // Focus on the top portion
                 objectFit: 'cover',
