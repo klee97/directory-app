@@ -12,9 +12,9 @@ type Props = {
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
-  return posts.map((post) => ({
-    slug: post?.slug,
-  }));
+  return posts
+    .filter(post => post && new Date(post.publishedDate) <= new Date()) // exclude future posts
+    .map(post => ({ slug: post?.slug }));
 }
 
 // This function runs at build time for paths returned by generateStaticParams
