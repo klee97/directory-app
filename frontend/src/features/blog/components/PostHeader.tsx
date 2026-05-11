@@ -6,6 +6,7 @@ import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 import { renderCaption } from '@/components/ui/RichText'
 import { getPostLabels } from './postLabels'
+import { formatDateUTC } from '../utils/formatDate'
 
 const PostHeader = ({ post }: { post: PageBlogPost }) => {
   const labels = getPostLabels(post);
@@ -51,7 +52,7 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
           <Avatar src={post.author?.avatar?.url} name={post.author?.name ?? ''} />
         )}
         <Typography variant="subtitle1">
-          {post.author?.name} • {new Date(post.publishedDate).toLocaleDateString()}
+          {post.author?.name} • {formatDateUTC(post.publishedDate)}
         </Typography>
       </Box>
       <Typography variant="h6" color={'secondary'} fontWeight={600} gutterBottom>{post.shortDescription}</Typography>

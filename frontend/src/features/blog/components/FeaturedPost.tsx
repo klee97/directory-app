@@ -7,6 +7,7 @@ import Link from 'next/link';
 import ContentfulImage from '@/components/ui/ContentfulImage';
 import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
 import { getPostLabels } from './postLabels';
+import { formatDateUTC } from '../utils/formatDate';
 
 interface FeaturedPostProps {
   post: PageBlogPost;
@@ -16,11 +17,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
   const labels = getPostLabels(post);
 
   const publishedDate = post.publishedDate
-    ? new Date(post.publishedDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+    ? formatDateUTC(post.publishedDate)
     : null;
 
   return (
@@ -98,7 +95,12 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
             )}
           </Box>
 
-          <Button variant="contained" color="primary" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+          <Button
+            component="span"
+            variant="contained"
+            color="primary"
+            sx={{ alignSelf: 'flex-start', mt: 1 }}
+          >
             Read Post
           </Button>
         </Box>

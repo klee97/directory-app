@@ -22,14 +22,24 @@ export function formatLabel(val: string): string {
 
 export function getPostLabels(post: PageBlogPost): string[] {
   const labels: string[] = [];
+  const seen = new Set<string>();
+
+  const pushUnique = (val: string | null, excluded: string[]) => {
+    if (!val || isExcluded(val, excluded)) return;
+    const formatted = formatLabel(val);
+    if (seen.has(formatted)) return;
+    seen.add(formatted);
+    labels.push(formatted);
+  };
+
   for (const val of post[FILTER_KEY_CATEGORY] ?? []) {
-    if (val && !isExcluded(val, GLOBAL_EXCLUDED)) labels.push(formatLabel(val));
+    pushUnique(val, GLOBAL_EXCLUDED);
   }
   for (const val of post[FILTER_KEY_CULTURE] ?? []) {
-    if (val && !isExcluded(val, CULTURE_EXCLUDED)) labels.push(formatLabel(val));
+    pushUnique(val, CULTURE_EXCLUDED);
   }
   for (const val of post[FILTER_KEY_LOCATION] ?? []) {
-    if (val && !isExcluded(val, GLOBAL_EXCLUDED)) labels.push(formatLabel(val));
+    pushUnique(val, GLOBAL_EXCLUDED);
   }
   return labels;
 }

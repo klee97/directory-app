@@ -53,7 +53,13 @@ const MOCK_POSTS = [
   },
 ];
 
+const isMockEnabled = process.env.ENABLE_TEST_MOCK_API === 'true';
+
 export async function POST(request: Request) {
+  if (!isMockEnabled) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const body = await request.json();
   const query = body.query as string;
 

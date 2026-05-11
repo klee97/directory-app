@@ -13,6 +13,7 @@ import { FeaturedPost } from './FeaturedPost';
 import { TagFilter, ActiveFilters } from './TagFilter';
 import type { FilterGroup } from './ArticleTable';
 import { getPostLabels } from './postLabels';
+import { formatDateUTC } from '../utils/formatDate';
 
 interface BlogContentProps {
   featuredPost: PageBlogPost | null;
@@ -49,6 +50,11 @@ export function BlogContent({ featuredPost, posts, filterGroups, showRefreshButt
     setActiveFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
+  const handleClear = useCallback(() => {
+    setActiveFilters({});
+    setSearchQuery('');
+  }, []);
+
   const hasActiveFilter = Object.values(activeFilters).some((v) => v != null);
   const trimmedSearch = searchQuery.trim();
   const isFiltering = hasActiveFilter || trimmedSearch.length > 0;
@@ -78,6 +84,8 @@ export function BlogContent({ featuredPost, posts, filterGroups, showRefreshButt
         onChange={handleFilterChange}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        isFiltering={isFiltering}
+        onClear={handleClear}
       />
       {filteredPosts.length === 0 ? (
         <Typography color="text.secondary" sx={{ mt: 4 }}>
@@ -132,11 +140,7 @@ export function BlogContent({ featuredPost, posts, filterGroups, showRefreshButt
                       </Typography>
                       {post.publishedDate && (
                         <Typography variant="caption" color="text.disabled" sx={{ mt: 'auto', pt: 1 }}>
-                          {new Date(post.publishedDate).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                          })}
+                          {formatDateUTC(post.publishedDate)}
                         </Typography>
                       )}
                     </CardContent>
