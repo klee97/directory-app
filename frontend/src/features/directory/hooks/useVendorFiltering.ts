@@ -1,5 +1,5 @@
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "@/features/directory/api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
@@ -25,7 +25,6 @@ export const useVendorFiltering = ({
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
-  const prevLocationRef = useRef<LocationResult | null>(null);
 
   const { getParam } = useURLFiltersContext();
   const urlLat = getParam(LATITUDE_PARAM);
@@ -151,6 +150,10 @@ export const useVendorFiltering = ({
       return 0; // both same premium status, move on to next sort
     });
     switch (sortOption) {
+      case SORT_OPTIONS.DEFAULT:
+        sortedVendors.sort((a, b) => getVendorPriority(a) - getVendorPriority(b));
+        break;
+
       case SORT_OPTIONS.PRICE_ASC:
         sortedVendors.sort((a, b) => {
           if (a.bridal_makeup_price === null) return 1;
@@ -183,24 +186,6 @@ export const useVendorFiltering = ({
     return sortedVendors;
   }, [searchQuery, filteredVendors, sortOption]);
 
-  // set default sort option. If location is selected, default to distance sort
-  useEffect(() => {
-    const hadLocation = prevLocationRef.current !== null;
-    const hasLocation = selectedLocation !== null;
-
-    // Only change sort option when transitioning between having/not having a location
-    if (hadLocation !== hasLocation) {
-      if (hasLocation) {
-        setSortOption(SORT_OPTIONS.DISTANCE_ASC);
-      } else {
-        setSortOption(SORT_OPTIONS.DEFAULT);
-      }
-    }
-
-    prevLocationRef.current = selectedLocation;
-  }, [selectedLocation]);
-
-
   return {
     vendorsInRadius,
     filteredVendors,
@@ -211,3 +196,9 @@ export const useVendorFiltering = ({
     setLoading
   };
 };
+
+function getVendorPriority(vendor: VendorByDistance): number {
+  if (vendor.is_premium || vendor.verified_at) return 0;
+  if (vendor.images.length > 0) return 1;
+  return 2;
+}
