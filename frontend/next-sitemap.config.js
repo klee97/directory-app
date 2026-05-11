@@ -11,16 +11,17 @@ export async function fetchLocationSlugs() {
 }
 
 async function fetchBlogSlugs() {
-  const response = await fetch(
-    `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
-      },
-      body: JSON.stringify({
-        query: `
+  try {
+    const response = await fetch(
+      `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+        },
+        body: JSON.stringify({
+          query: `
           query {
             pageBlogPostCollection {
               items {
@@ -30,15 +31,18 @@ async function fetchBlogSlugs() {
             }
           }
         `
-      }),
-    }
-  );
+        }),
+      }
+    );
 
-  const { data } = await response.json();
-  const posts = data?.pageBlogPostCollection?.items || [];
-  return posts
-    .filter(post => post?.slug && new Date(post.publishedDate) <= new Date())
-    .map(post => post.slug);
+    const { data } = await response.json();
+    const posts = data?.pageBlogPostCollection?.items || [];
+    return posts
+      .filter(post => post?.slug && new Date(post.publishedDate) <= new Date())
+      .map(post => post.slug);
+  } catch {
+    return [];
+  }
 }
 
 // Cache location slugs to avoid multiple database calls
