@@ -1,13 +1,17 @@
-import Typography from '@mui/material/Typography';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
-import Link from 'next/link';
-import ContentfulImage from '@/components/ui/ContentfulImage';
 import { isDevOrPreview, shouldIncludeFuturePosts } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
+import { BlogContent } from './BlogContent';
+import { FILTER_KEY_CATEGORY, FILTER_KEY_CULTURE, FILTER_KEY_LOCATION, FilterKey } from './postLabels';
+
+const FEATURED_POST_TAG_ID = 'featured';
+
+export interface FilterGroup {
+  label: string;
+  key: FilterKey;
+  options: string[];
+}
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
@@ -18,48 +22,56 @@ export async function ArticleTable() {
     }
     return true;
   });
-  const shouldShowRefreshButton = isDevOrPreview();
+
+  const featuredIndex = validPosts.findIndex((p) =>
+    p.contentfulMetadata?.tags?.some((t) => t?.id === FEATURED_POST_TAG_ID)
+  );
+  const featuredPost = featuredIndex !== -1 ? validPosts[featuredIndex] : (validPosts[0] ?? null);
+  const remainingPosts =
+    featuredIndex !== -1
+      ? validPosts.filter((_, i) => i !== featuredIndex)
+      : validPosts.slice(1);
+
+  const categorySet = new Set<string>();
+  const cultureSet = new Set<string>();
+  const locationSet = new Set<string>();
+
+  const isExcluded = (v: string, extra: string[] = []) => {
+    const lower = v.toLowerCase();
+    return lower === 'uncategorized' || extra.includes(lower);
+  };
+
+  for (const post of validPosts) {
+    for (const val of post[FILTER_KEY_CATEGORY] ?? []) {
+      if (val && !isExcluded(val)) categorySet.add(val);
+    }
+    for (const val of post[FILTER_KEY_CULTURE] ?? []) {
+      if (val && !isExcluded(val, ['general'])) cultureSet.add(val);
+    }
+    for (const val of post[FILTER_KEY_LOCATION] ?? []) {
+      if (val && !isExcluded(val)) locationSet.add(val);
+    }
+  }
+
+  const allGroups: FilterGroup[] = [
+    { label: 'Category', key: FILTER_KEY_CATEGORY, options: Array.from(categorySet).sort() },
+    { label: 'Culture', key: FILTER_KEY_CULTURE, options: Array.from(cultureSet).sort() },
+    { label: 'Location', key: FILTER_KEY_LOCATION, options: Array.from(locationSet).sort() },
+  ];
+  const filterGroups = allGroups.filter((g) => g.options.length > 0);
+
+  const refreshButton = isDevOrPreview() ? (
+    <Box sx={{ mb: 2, display: 'flex' }}>
+      <RefreshButton />
+    </Box>
+  ) : undefined;
 
   return (
-    <>
-      {shouldShowRefreshButton && (
-        <Box sx={{ mb: 2, display: 'flex' }}>
-          <RefreshButton />
-        </Box>
-      )}
-      <Grid container spacing={2} justifyContent="center">
-        {validPosts.map((post) => (
-          <Grid key={post.slug} size={{ xs: 8, md: 4 }} sx={{ display: 'flex' }}>
-            <Link href={`/blog/${post.slug}`} passHref style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                {post.featuredImage && post.featuredImage.url && (
-                  <Box sx={{ position: 'relative', height: '300px', width: '100%' }}>
-                    <ContentfulImage
-                      alt={post.featuredImage.description ?? `Cover Image for ${post.featuredImage.title}`}
-                      src={post.featuredImage.url}
-                      fill
-                      priority
-                      sizes="(max-width: 300px) 100vw, 50vw, 33vw"
-                      style={{
-                        objectPosition: 'center',
-                        objectFit: 'cover',
-                      }}
-                    />
-                  </Box>
-                )}
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {post.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {post.shortDescription}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Link>
-          </Grid>
-        ))}
-      </Grid>
-    </>
-  )
+    <BlogContent
+      featuredPost={featuredPost}
+      posts={remainingPosts}
+      filterGroups={filterGroups}
+      showRefreshButton={refreshButton}
+    />
+  );
 }

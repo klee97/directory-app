@@ -1,6 +1,7 @@
 import { GraphQLClient } from 'graphql-request';
 
-const endpoint = `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/master`;
+const endpoint = process.env.CONTENTFUL_GRAPHQL_ENDPOINT
+  ?? `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}/environments/master`;
 
 export const graphQLClient = new GraphQLClient(endpoint, {
   headers: {
