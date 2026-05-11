@@ -1,23 +1,26 @@
 import { Metadata } from 'next';
-import { getAllPosts, getPostBySlug } from '@/features/blog/api/getBlogPosts';
+import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
 import Article from '@/features/blog/components/Article';
+import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
 import Spotlight from '@/features/blog/components/Spotlight';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import { isProduction } from '@/lib/env/env';
+import PasswordGate from '@/components/ui/PasswordGate';
+import { graphQLClient } from '@/lib/contentful/graphqlClient';
+import { GetAllBlogPostsDocument, GetAllBlogPostsQuery } from '@/lib/generated/graphql';
 
 type Props = {
   params: Promise<{ slug: string }>
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
-  const posts = await getAllPosts();
-  return posts.map((post) => ({
-    slug: post?.slug,
-  }));
+  const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
+  const posts = pageBlogPostCollection?.items || [];
+  return posts
+    .filter(post => post && new Date(post.publishedDate) <= new Date())
+    .map(post => ({ slug: post?.slug }));
 }
 
 // This function runs at build time for paths returned by generateStaticParams
@@ -25,15 +28,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) {
-    return { title: 'Post not found' };
-  }
-  if (!post) {
     return {
       title: "Post not found",
       description: "This blog post could not be found.",
     };
   }
 
+  const isFuture = new Date(post.publishedDate) > new Date();
   const fullUrl = `https://www.asianweddingmakeup.com/blog/${post.slug}`;
   const imageUrl = post.featuredImage?.url || previewImage.src;
 
@@ -66,6 +67,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.shortDescription ?? "",
       images: [imageUrl],
     },
+    ...(isFuture && {
+      robots: { index: false, follow: false },
+    }),
   };
 }
 
@@ -73,14 +77,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
+
+  // Gate future posts
+  if (post && new Date(post.publishedDate) > new Date()) {
+    // Must be inside the component to run at request time for only future posts
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const previewCookie = cookieStore.get('preview-auth');
+    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD;
+
+    if (!authorized) {
+      return <PasswordGate redirectTo={`/blog/${slug}`} />
+    }
+  }
+
   let jsonLd = {};
 
-  // Check if post is scheduled for the future and we're in production
-  const isFuturePost = post?.publishedDate &&
-    new Date(post.publishedDate) > new Date() &&
-    isProduction();
-
-  if (post && !isFuturePost) {
+  if (post) {
     jsonLd = {
       "@context": "https://schema.org",
       "@type": "BlogPosting",
@@ -113,7 +126,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <section>
-        {post && !isFuturePost && (
+        {post && (
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -123,31 +136,12 @@ export default async function BlogPostPage({ params }: Props) {
       <Button variant="text" href="/blog" color='secondary'>
         ← Back
       </Button>
-      {isFuturePost ? (
-        <Container maxWidth="md">
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '60vh',
-              textAlign: 'center',
-            }}
-          >
-            <Typography variant="h2" component="h1" gutterBottom>
-              Coming Soon!
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-              This post will be available on {new Date(post.publishedDate).toLocaleDateString()}
-            </Typography>
-          </Box>
-        </Container>
-      ) : isSpotlight ? (
+      {isSpotlight ? (
         <Spotlight post={post} />
       ) : (
         <Article post={post} />
       )}
+      <Scroll showBelow={300} />
     </>
   )
 }

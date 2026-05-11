@@ -1,15 +1,15 @@
 import { logEnvironmentInfo, shouldIncludeTestVendors } from "@/lib/env/env";
-import { createClient } from "@/lib/supabase/server";
-import { transformBackendVendorToFrontend } from "@/types/vendor";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
+import { PortalVendor, transformBackendVendorToPortalVendor } from "@/types/vendor";
 
-export async function getVendorForCurrentUser(userId: string) {
+export async function getVendorForCurrentUser(userId: string): Promise<PortalVendor | null> {
   if (!userId) {
     return null;
   }
 
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
-  const query = supabase
+  const query = supabaseServerClient
     .from('profiles')
     .select(`
       vendor_id,
@@ -45,5 +45,5 @@ export async function getVendorForCurrentUser(userId: string) {
     }
   }
 
-  return transformBackendVendorToFrontend(vendor);
+  return transformBackendVendorToPortalVendor(vendor);
 }

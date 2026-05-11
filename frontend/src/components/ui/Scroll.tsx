@@ -1,3 +1,5 @@
+"use client";
+
 import IconButton from "@mui/material/IconButton"
 import ExpandLessIcon from "@mui/icons-material/ExpandLess"
 import { useEffect, useState } from "react"
@@ -5,7 +7,7 @@ import { useEffect, useState } from "react"
 const Scroll = (
   { showBelow }: { showBelow: number }
 ) => {
-  const [show, setShow] = useState(showBelow ? false : true)
+  const [show, setShow] = useState(!showBelow)
 
   const handleScroll = () => {
     if (window.pageYOffset > showBelow) {

@@ -1,7 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest } from 'next/server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@/lib/supabase/clients/serverClient'
 import { redirect } from 'next/navigation'
 
 enum EmailType {
@@ -31,9 +31,9 @@ export async function GET(request: NextRequest) {
   }
 
   if (token_hash && type) {
-    const supabase = await createClient()
+    const supabaseServerClient = await createServerClient()
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { error } = await supabaseServerClient.auth.verifyOtp({
       type,
       token_hash,
     })

@@ -1,24 +1,21 @@
-import { createClient } from '@/lib/supabase/client';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
 import { getBaseUrl } from '@/lib/env/env';
 
-const supabase = createClient();
+const supabaseBrowserClient = createBrowserClient();
 
-export const updateEmail = async (currentPassword: string, newEmail: string, isVendor: boolean) => {
+export const updateEmail = async (currentEmail: string, currentPassword: string, newEmail: string, isVendor: boolean) => {
   // Step 1: Verify current password via log-in
-  const { data: userData } = await supabase.auth.getUser();
-  const currentEmail = userData.user?.email || '';
-
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
     email: currentEmail,
     password: currentPassword,
   });
 
   if (signInError) {
-    throw new Error('Invalid password. Please check your password and try again.');
+    return { error: 'Invalid password. Please check your password and try again.' };
   }
 
   // Step 2: Attempt email update
-  const { error: updateError } = await supabase.auth.updateUser({
+  const { error: updateError } = await supabaseBrowserClient.auth.updateUser({
     email: newEmail,
   }, {
     emailRedirectTo: `${getBaseUrl()}${isVendor ? '/partner/dashboard' : '/settings'}`,
@@ -36,6 +33,7 @@ export const updateEmail = async (currentPassword: string, newEmail: string, isV
     }
 
     // We don't let user know if the email is already in use to avoid information leakage
-    throw new Error('Failed to update email address.');
+    return { error: 'Failed to update email address.' };
   }
+  return { error: null };
 };

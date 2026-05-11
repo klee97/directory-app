@@ -1,3 +1,4 @@
+import LoadingPage from "@/components/layouts/LoadingPage";
 import UserLogin from "@/features/login/components/UserLogin";
 import { Metadata } from "next";
 import { Suspense } from "react";
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage />}>
       <UserLogin />
     </Suspense>
   );

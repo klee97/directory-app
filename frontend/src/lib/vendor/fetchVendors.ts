@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/api-client';
+import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 import { unstable_cache } from 'next/cache';
@@ -6,7 +6,7 @@ import { unstable_cache } from 'next/cache';
 export async function fetchVendorBySlug(slug: string) {
   console.debug("Fetching vendor with slug: %s", slug);
 
-  let query = supabase
+  let query = supabaseStaticClient
     .from('vendors')
     .select(`
       *, 
@@ -34,7 +34,7 @@ export async function fetchVendorBySlug(slug: string) {
 export async function fetchVendorById(id: string) {
   console.debug("Fetching vendor with id: %s", id);
 
-  let query = supabase
+  let query = supabaseStaticClient
     .from('vendors')
     .select(`
       *, 
@@ -94,7 +94,7 @@ export async function fetchAllVendors() {
   try {
     console.debug("Fetching all vendors");
 
-    let query = supabase.from('vendors')
+    let query = supabaseStaticClient.from('vendors')
       .select(`
         *, 
         usmetro!metro_id(display_name), 

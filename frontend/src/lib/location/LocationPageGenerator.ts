@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/api-client';
+import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { transformBackendVendorToFrontend, VendorByDistance } from '@/types/vendor';
 import { getDisplayName } from './locationNames';
@@ -11,7 +11,7 @@ export class LocationPageGenerator {
 
   async getValidLocationSlugs(): Promise<Set<string>> {
     if (this._cachedSlugs) return this._cachedSlugs;
-    const { data, error } = await supabase.from('location_slugs').select('slug');
+    const { data, error } = await supabaseStaticClient.from('location_slugs').select('slug');
     if (error || !data) return new Set();
     this._cachedSlugs = new Set(data.map((row: { slug: string }) => row.slug));
     return this._cachedSlugs;
@@ -29,7 +29,7 @@ export class LocationPageGenerator {
   }
 
   async getLocationBySlug(slug: string): Promise<LocationResult | null> {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseStaticClient
       .from('location_slugs')
       .select(`
       city,
@@ -70,7 +70,7 @@ export class LocationPageGenerator {
     radiusMiles: number = SEARCH_RADIUS_MILES_DEFAULT,
     limitResults: number = 100
   ): Promise<VendorByDistance[]> {
-    const { data, error } = await supabase.rpc('get_vendors_by_location_with_distinct_tags_and_media_v2', {
+    const { data, error } = await supabaseStaticClient.rpc('get_vendors_by_location_with_distinct_tags_and_media_v2', {
       lat,
       lon,
       radius_miles: radiusMiles,

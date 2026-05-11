@@ -1,5 +1,5 @@
 "use server";
-import { supabase } from "@/lib/api-client";
+import { supabaseStaticClient } from "@/lib/supabase/clients/staticClient";
 import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { filterTestVendors } from "@/lib/vendor/testVendors";
 import {
@@ -20,7 +20,7 @@ const SEARCH_QUERY = `
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 function buildVendorQuery() {
-  const query = supabase.from("vendors").select(SEARCH_QUERY);
+  const query = supabaseStaticClient.from("vendors").select(SEARCH_QUERY);
   return shouldIncludeTestVendors() ? query : query.not("id", "like", "TEST-%");
 }
 
@@ -29,7 +29,7 @@ function buildVendorQuery() {
 // Inner cached fetch — throws on error so Next.js does NOT cache bad results
 const _getVendorsByDistance = unstable_cache(
   async (lat: number, lon: number, radiusMi: number, limit: number, _includeTestVendors: boolean): Promise<VendorByDistance[]> => {
-    const { data, error } = await supabase.rpc(
+    const { data, error } = await supabaseStaticClient.rpc(
       "get_vendors_by_location_with_distinct_tags_and_media_v2",
       { lat, lon, radius_miles: radiusMi, limit_results: limit }
     );

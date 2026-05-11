@@ -87,7 +87,7 @@ export default function BaseCard({
           {action && <Box>{action}</Box>}
         </Box>
       )}
-      <CardContent>
+      <CardContent sx={{ px: 3 }}>
         {children}
       </CardContent>
     </Card>

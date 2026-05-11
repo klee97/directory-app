@@ -45,7 +45,7 @@ Follow this section to run these tests locally.
 ```bash
    cp .env.test.example .env.test
 ```
-   The `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are already set to local defaults. You can confirm the anon key by running `npx supabase status`.
+   The `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are already set to local defaults. You can confirm the anon key by running `npx supabase status`.
 
 4. Seed the database:
 ```bash

@@ -1,8 +1,8 @@
 "use server";
-import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@/lib/supabase/clients/serverClient";
 
 export async function updateInquiryAvailability(vendorId: string, enabled: boolean) {
-  const supabase = await createClient();
+  const supabase = await createServerClient();
 
   const { error } = await supabase
     .from("vendors")
@@ -12,6 +12,8 @@ export async function updateInquiryAvailability(vendorId: string, enabled: boole
     .eq("id", vendorId);
 
   if (error) {
-    throw new Error("Failed to update inquiry settings");
+    return { error: 'Failed to update inquiry settings. Please try again later.' };
   }
+
+  return { error: null };
 }

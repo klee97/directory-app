@@ -1,6 +1,6 @@
 "use server";
 
-import { supabaseAdmin } from '@/lib/admin-client';
+import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
 
 export async function claimVendor(accessToken: string, userId: string) {
@@ -8,7 +8,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   const user = { id: userId };
 
   // Verify the vendor exists with this access token
-  const { data: vendor, error: vendorError } = await supabaseAdmin
+  const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
     .select('id, email')
     .eq('access_token', accessToken)
@@ -19,7 +19,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   }
 
   // Check if vendor is already claimed by someone
-  const { data: existingClaim } = await supabaseAdmin
+  const { data: existingClaim } = await supabaseAdminClient
     .from('profiles')
     .select('id, vendor_id')
     .eq('vendor_id', vendor.id)
@@ -30,7 +30,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   }
 
   // Check if this user already has this vendor (idempotent)
-  const { data: existingProfile } = await supabaseAdmin
+  const { data: existingProfile } = await supabaseAdminClient
     .from('profiles')
     .select('vendor_id')
     .eq('id', user.id)
@@ -46,7 +46,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   }
 
   // Update the user's profile to link to this vendor
-  const { error: profileError } = await supabaseAdmin
+  const { error: profileError } = await supabaseAdminClient
     .from('profiles')
     .update({
       vendor_id: vendor.id,
@@ -63,7 +63,7 @@ export async function claimVendor(accessToken: string, userId: string) {
 
 export async function signUpAndClaimVendor(email: string, accessToken: string, password: string, enableInquiries: boolean) {
   // Verify the vendor exists with this access token FIRST
-  const { data: vendor, error: vendorError } = await supabaseAdmin
+  const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
     .select('id, email')
     .eq('access_token', accessToken)
@@ -78,7 +78,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   }
 
   // Check if vendor is already claimed
-  const { data: existingClaim } = await supabaseAdmin
+  const { data: existingClaim } = await supabaseAdminClient
     .from('profiles')
     .select('id, user_id, vendor_id')
     .eq('vendor_id', vendor.id)
@@ -93,7 +93,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   }
 
   // create user silently with NO confirmation email
-  const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+  const { data: newUser, error: createError } = await supabaseAdminClient.auth.admin.createUser({
     email,
     password,
     email_confirm: true,        // confirming email is legitimate and verified since we are using existing vendor email
@@ -130,7 +130,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
-    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(newUserId);
+    const { error: deleteError } = await supabaseAdminClient.auth.admin.deleteUser(newUserId);
     if (deleteError) {
       console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
       // todo: create an alert or slack message for this
@@ -146,7 +146,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   const now = new Date().toISOString();
 
   // Clear the access token so it can't be reused, update verified_at, and set inquiry consent
-  await supabaseAdmin
+  await supabaseAdminClient
     .from('vendors')
     .update({
       access_token: null,

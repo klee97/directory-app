@@ -1,35 +1,36 @@
 'use client';
 
-import * as React from 'react';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import FavoriteTable from '@/features/favorites/components/FavoriteTable';
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { Vendor } from '@/types/vendor';
 import { useRouter } from 'next/navigation';
 import { getFavoriteVendors } from '@/features/favorites/api/getUserFavorites';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 export function FavoritesContent() {
   const [favoriteVendors, setFavoriteVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
+
+    if (isAuthLoading) return; // wait for auth to resolve before checking
+
+    if (!isLoggedIn) {
+      router.push('/login');
+      return;
+    }
+
     let mounted = true;
 
+
     async function loadFavorites() {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        router.push('/login');
-        return;
-      }
-
       try {
         const favorites = await getFavoriteVendors();
         if (mounted) {
@@ -53,7 +54,7 @@ export function FavoritesContent() {
     return () => {
       mounted = false;
     };
-  }, [router, supabase]);
+  }, [router, isLoggedIn, isAuthLoading]);
 
   return (
     <Container maxWidth="lg">

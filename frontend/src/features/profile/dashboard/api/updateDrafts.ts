@@ -1,6 +1,6 @@
 "use server";
 import { VendorDraft } from '@/types/vendorDraft';
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { VendorFormData } from '@/types/vendorFormData';
 import { formDataToDraft } from '@/lib/profile/formToDraftTranslator';
 import { updateVendor } from '@/features/profile/common/api/updateVendor';
@@ -11,9 +11,9 @@ export async function loadUnpublishedDraft(
   vendorId: string,
   userId: string
 ): Promise<VendorDraft | null> {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
   // Just check if unpublished draft exists
-  const { data: draft } = await supabase
+  const { data: draft } = await supabaseServerClient
     .from('vendor_drafts')
     .select('*')
     .eq('vendor_id', vendorId)
@@ -30,12 +30,12 @@ export async function createOrUpdateDraft(
   userId: string,
   existingDraftId: string | null
 ): Promise<VendorDraft> {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   // Convert formData to draft
   const draftData = formDataToDraft(formData, vendorId, userId, existingDraftId);
   console.debug("vendorId:", vendorId, "userId:", userId, "existingDraftId:", existingDraftId);
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServerClient
     .from('vendor_drafts')
     .upsert(draftData, {
       onConflict: 'vendor_id,user_id'
@@ -53,11 +53,11 @@ export async function createOrUpdateDraft(
 export async function publishDraft(
   draftId: string
 ): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   try {
     // Load draft
-    const { data: draft, error: loadError } = await supabase
+    const { data: draft, error: loadError } = await supabaseServerClient
       .from('vendor_drafts')
       .select('*')
       .eq('id', draftId)
@@ -97,7 +97,7 @@ export async function publishDraft(
 
 
     // Mark draft as published
-    const { error: markError } = await supabase
+    const { error: markError } = await supabaseServerClient
       .from('vendor_drafts')
       .update({ is_published: true })
       .eq('id', draftId);
@@ -121,10 +121,10 @@ export async function publishDraft(
  * Discard draft changes (revert to published version)
  */
 export async function discardDraft(draftId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   try {
-    const { data: draft } = await supabase
+    const { data: draft } = await supabaseServerClient
       .from('vendor_drafts')
       .select('vendor_id')
       .eq('id', draftId)
@@ -133,7 +133,7 @@ export async function discardDraft(draftId: string): Promise<boolean> {
     if (!draft) return false;
 
     // Reload from vendor table
-    const { data: vendor } = await supabase
+    const { data: vendor } = await supabaseServerClient
       .from('vendors')
       .select('*')
       .eq('id', draft.vendor_id)
@@ -142,7 +142,7 @@ export async function discardDraft(draftId: string): Promise<boolean> {
     if (!vendor) return false;
 
     // Reset draft to match vendor
-    await supabase
+    await supabaseServerClient
       .from('vendor_drafts')
       .update({
         business_name: vendor.business_name,

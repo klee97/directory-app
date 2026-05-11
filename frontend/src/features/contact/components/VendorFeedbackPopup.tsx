@@ -64,8 +64,8 @@ export const VendorFeedbackPopup = ({
   };
 
   const handleNothingWrong = async () => {
-    await submitVendorFeedback(vendorId, businessName, NO_FEEDBACK_TEXT);
     handleClose();
+    submitVendorFeedback(vendorId, businessName, NO_FEEDBACK_TEXT);
   };
 
   return (

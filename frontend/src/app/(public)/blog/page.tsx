@@ -1,4 +1,5 @@
 import { ArticleTable } from '@/features/blog/components/ArticleTable';
+import Scroll from '@/components/ui/Scroll';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { Metadata } from 'next';
@@ -40,6 +41,7 @@ export default async function BlogIndex() {
 
       </Box>
       <br />
+      <Scroll showBelow={300} />
     </Container>
 
   );

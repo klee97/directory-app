@@ -1,21 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { NextResponse } from 'next/server';
-import { SupabaseClient } from '@supabase/supabase-js';
 
-export async function requireAuth() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export async function requireVendorAccess(vendorSlug: string, userId: string) {
+  const supabaseServerClient = await createServerClient();
 
-  if (!user) {
-    return { user: null, error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-  }
-
-  return { user, error: null, supabase };
-}
-
-export async function requireVendorAccess(vendorSlug: string, user: { id: string }, supabase: SupabaseClient) {
   // Get vendor
-  const vendorQuery = supabase
+  const vendorQuery = supabaseServerClient
     .from('vendors')
     .select('id, slug');
 
@@ -29,10 +19,10 @@ export async function requireVendorAccess(vendorSlug: string, user: { id: string
   }
 
   // Check if admin
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseServerClient
     .from('profiles')
     .select('is_admin, vendor_id')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single();
 
   const isAdmin = profile?.is_admin;

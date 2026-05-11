@@ -13,7 +13,7 @@ test('vendor login page renders', async ({ page }) => {
 
 test('unauthenticated user accessing vendor dashboard is redirected to login with redirectTo param', async ({ page }) => {
   await page.goto('/partner/dashboard');
-  await expect(page).toHaveURL(/\/login\?redirectTo=\/partner\/dashboard/, { timeout: 15_000 });
+  expect(decodeURIComponent(page.url())).toMatch(/\/partner\/login\?redirectTo=\/partner\/dashboard/);
 });
 
 test('vendor login with no redirectTo lands on partner dashboard', async ({ page }, workerInfo) => {
@@ -58,7 +58,7 @@ test('unauthenticated vendor accessing deep vendor route is redirected to login 
   await page.goto('/partner/dashboard/profile');
 
   // 2. Should land on login with correct redirectTo
-  await expect(page).toHaveURL(/\/login\?redirectTo=\/partner\/dashboard\/profile/);
+  expect(decodeURIComponent(page.url())).toMatch(/\/partner\/login\?redirectTo=\/partner\/dashboard\/profile/);
 
   // 3. Log in as vendor
   await page.getByLabel('Email Address').fill(email);

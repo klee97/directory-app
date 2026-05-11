@@ -32,7 +32,7 @@ jobs:
   # Runs only on PRs to main (~5-10 min)
   # Requires these GitHub secrets to be set:
   #   - NEXT_PUBLIC_SUPABASE_URL
-  #   - NEXT_PUBLIC_SUPABASE_ANON_KEY
+  #   - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   #   - NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED
   # -------------------------------------------------------------------
   e2e:
@@ -90,7 +90,7 @@ jobs:
           # App env vars — mirror these from your Vercel project into GitHub Actions secrets:
           # Settings → Secrets and variables → Actions → New repository secret
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_LOCAL_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_LOCAL_PUBLISHABLE_KEY }}
           # Add any other required vars here, e.g:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 

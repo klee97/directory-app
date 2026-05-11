@@ -1,14 +1,48 @@
-import { supabase } from './src/lib/api-client.ts';
-
+import { supabaseStaticClient } from './src/lib/supabase/clients/staticClient.ts';
 
 export async function fetchVendorSlugs() {
-  const { data } = await supabase.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
+  const { data } = await supabaseStaticClient.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 
 export async function fetchLocationSlugs() {
-  const { data } = await supabase.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
+  const { data } = await supabaseStaticClient.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
+}
+
+async function fetchBlogSlugs() {
+  try {
+    const response = await fetch(
+      `https://graphql.contentful.com/content/v1/spaces/${process.env.CONTENTFUL_SPACE_ID}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.CONTENTFUL_ACCESS_TOKEN}`,
+        },
+        body: JSON.stringify({
+          query: `
+          query {
+            pageBlogPostCollection {
+              items {
+                slug
+                publishedDate
+              }
+            }
+          }
+        `
+        }),
+      }
+    );
+
+    const { data } = await response.json();
+    const posts = data?.pageBlogPostCollection?.items || [];
+    return posts
+      .filter(post => post?.slug && new Date(post.publishedDate) <= new Date())
+      .map(post => post.slug);
+  } catch {
+    return [];
+  }
 }
 
 // Cache location slugs to avoid multiple database calls
@@ -47,7 +81,7 @@ const config = {
     // Override priorities for specific pages
     const priorityMap = {
       '/': 1.0,
-      '/blog': 0.9,
+      '/blog': 0.7,
       '/about': 0.3,
       '/contact': 0.3,
       '/faq': 0.8
@@ -88,10 +122,16 @@ const config = {
     const vendorPages = vendorData.map((vendor) => ({
       loc: `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
       lastmod: new Date().toISOString(),
-      priority: 0.5,
+      priority: 0.9,
     }));
 
-    return vendorPages;
+    const blogSlugs = await fetchBlogSlugs();
+    const blogPages = blogSlugs.map((slug) => ({
+      loc: `https://www.asianweddingmakeup.com/blog/${slug}`,
+      lastmod: new Date().toISOString(),
+      priority: 0.9,
+    }));
+    return [...vendorPages, ...blogPages];
   },
 };
 

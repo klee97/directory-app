@@ -2,11 +2,11 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { createClient } from '@/lib/supabase/server';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
 import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 export async function login(formData: FormData) {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -15,7 +15,7 @@ export async function login(formData: FormData) {
     return { error: 'Email and password are required' };
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabaseServerClient.auth.signInWithPassword({
     email,
     password,
   });
@@ -36,7 +36,7 @@ export async function login(formData: FormData) {
     }
   }
 
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseServerClient
     .from('profiles')
     .select('vendor_id, role')
     .eq('id', data.user.id)
@@ -45,5 +45,9 @@ export async function login(formData: FormData) {
   const isVendorAccount = getUserRole(profile) === UserRole.VENDOR;
 
   revalidatePath('/', 'layout');
-  return { success: true, session: data.session, isVendorAccount };
+  return {
+    success: true, isVendorAccount,
+    accessToken: data.session.access_token,
+    refreshToken: data.session.refresh_token,
+  };
 }

@@ -1,17 +1,14 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
-import type { SupabaseClient, User, Session } from '@supabase/supabase-js';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { createBrowserClient } from '@/lib/supabase/clients/browserClient';
+import type { User } from '@supabase/supabase-js';
 import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 type AuthContextType = {
   user: User | null;
-  session: Session | null;
   isLoading: boolean;
   isLoggedIn: boolean;
-  supabase: SupabaseClient;
-  refreshSession: () => Promise<void>;
   role: UserRole;
   vendorId: string | null;
   isRoleLoading: boolean;
@@ -19,17 +16,32 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const supabaseBrowserClient = createBrowserClient();
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [role, setRole] = useState<UserRole>(UserRole.USER);
   const [vendorId, setVendorId] = useState<string | null>(null);
   const [isRoleLoading, setIsRoleLoading] = useState(true);
-  const supabase = createClient();
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const { data: { subscription } } = supabaseBrowserClient.auth.onAuthStateChange((_event, session) => {
+      setUser(prev => {
+        if (prev?.id === session?.user?.id) return prev; // same user, keep same reference
+        return session?.user || null;
+      });
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Check role and vendor status whenever user changes
   useEffect(() => {
+    if (isLoading) return; // waits for auth to settle before running
+
     const checkUserRole = async () => {
       if (!user) {
         setRole(UserRole.USER);
@@ -40,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setIsRoleLoading(true);
       try {
-        const { data: profile } = await supabase
+        const { data: profile } = await supabaseBrowserClient
           .from('profiles')
           .select('role, vendor_id')
           .eq('id', user.id)
@@ -58,34 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkUserRole();
-  }, [user, supabase]);
+  }, [user, isLoading]);
 
-  const refreshSession = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    setSession(data.session);
-    setUser(data.session?.user || null);
-    setIsLoading(false);
-  }, [supabase]);
-
-  useEffect(() => {
-    refreshSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user || null);
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [refreshSession, supabase.auth]);
 
   const value = {
     user,
-    session,
     isLoading,
-    isLoggedIn: !!session,
-    supabase,
-    refreshSession,
+    isLoggedIn: !!user,
     role,
     vendorId,
     isRoleLoading,

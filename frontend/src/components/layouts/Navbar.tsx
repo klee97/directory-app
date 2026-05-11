@@ -64,7 +64,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const homeUrl = isVendorNavbar ? '/partner/dashboard' : '/';
+  // Determine home URL based on navbar type and authentication status
+  const homeUrl = isVendorNavbar ? (isLoggedIn ? '/partner/dashboard' : '/partner') : '/';
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {

@@ -81,7 +81,7 @@ export const colorSchemes = {
         publicNavbar: '#d18f90',
         vendorNavbar: '#85a07a'
       },
-      divider: '#ececec',
+      divider: '#d8d4d0',
     },
     typography: typography,
   },

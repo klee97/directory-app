@@ -7,6 +7,7 @@ import { getPostLabels } from './postLabels'
 
 const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
   const labels = getPostLabels(post);
+  const isLandscape = (post.featuredImage?.width ?? 0) > (post.featuredImage?.height ?? 0)
 
   return (
     <>
@@ -26,23 +27,33 @@ const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
           <Box sx={{
             position: 'relative',
             height: '600px',
-            width: '100%',
             maxWidth: '500px',
-            margin: '0 auto'
+            margin: '0 auto',
+            ...(isLandscape ? {
+              aspectRatio: '4 / 3',
+              width: '100%',
+              maxHeight: { xs: '400px', md: '600px' },
+            } : {
+              height: '600px',
+              width: '100%',
+              maxWidth: '500px',
+              margin: '0 auto',
+            }),
+            mb: 2
           }}>
             <ContentfulImage
               alt={`Cover Image: ${post.featuredImage.title}`}
               src={post.featuredImage.url}
               fill
               priority
-              sizes="(max-width: 500px) 100vw, 500px"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
               style={{
                 objectPosition: 'center top',
                 objectFit: 'cover',
               }}
             />
           </Box>
-        </Box>
+        </Box >
       )}
     </>
   )

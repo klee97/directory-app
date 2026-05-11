@@ -13,6 +13,7 @@ import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
+import LoadingPage from '@/components/layouts/LoadingPage';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -125,7 +126,7 @@ export default async function VendorPage({ params }: PageProps) {
         />
         {/* ... */}
       </section>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<LoadingPage />}>
         <BackButton />
         <Container sx={{ py: 4 }}>
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />

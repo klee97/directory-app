@@ -18,7 +18,6 @@ import { validatePassword } from "@/utils/passwordValidation";
 type Props = {
   open: boolean;
   onClose: () => void;
-  hasPassword: boolean;
   isUserEmailVerified: boolean;
   isSubmitting: boolean;
   onSubmit: (currentPassword: string, newPassword: string, confirmPassword: string) => void;
@@ -27,7 +26,6 @@ type Props = {
 export default function ChangePasswordDialog({
   open,
   onClose,
-  hasPassword,
   isUserEmailVerified,
   isSubmitting,
   onSubmit,
@@ -61,33 +59,31 @@ export default function ChangePasswordDialog({
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{hasPassword ? "Change Password" : "Create A Password"}</DialogTitle>
+      <DialogTitle>{"Change Password"}</DialogTitle>
       <DialogContent>
         {isUserEmailVerified ? (
           <form onSubmit={handleSubmit}>
-            {hasPassword && (
-              <TextField
-                fullWidth
-                type={showCurrentPassword ? "text" : "password"}
-                label="Current Password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                margin="normal"
-                required
-                disabled={isSubmitting}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
-                          {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }
-                }}
-              />
-            )}
+            <TextField
+              fullWidth
+              type={showCurrentPassword ? "text" : "password"}
+              label="Current Password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              margin="normal"
+              required
+              disabled={isSubmitting}
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowCurrentPassword(!showCurrentPassword)} edge="end">
+                        {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }
+              }}
+            />
             <TextField
               fullWidth
               type={showNewPassword ? "text" : "password"}

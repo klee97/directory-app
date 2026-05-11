@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
@@ -22,11 +21,14 @@ import Visibility from "@mui/icons-material/Visibility";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
+import { createBrowserClient } from "@/lib/supabase/clients/browserClient";
+
+
+const supabaseBrowserClient = createBrowserClient();
 
 export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolean, redirectTo: string | undefined }) => {
   const { addNotification } = useNotification();
   const router = useRouter();
-  const { refreshSession } = useAuth();
   const [verificationNeeded, setVerificationNeeded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -40,39 +42,39 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
       const result = await login(formData);
       if (result && result.action === 'verify-email') {
         setVerificationNeeded(true);
+        setIsSubmitting(false);
         return;
       }
 
       if (result && result.error) {
         addNotification(result.error, 'error');
+        setIsSubmitting(false);
         return;
       }
 
-      const isVendorAccount = result?.isVendorAccount ?? isVendorLogin;
-      let redirectPath: string;
-      const notificationMessage = 'Logged in successfully!';
+      const isVendorAccount = result?.isVendorAccount ?? false;
+      const isValidRedirect = redirectTo && (
+        isVendorAccount ? redirectTo.startsWith('/partner') : !redirectTo.startsWith('/partner')
+      );
 
-      if (isVendorAccount && !isVendorLogin) {
-        redirectPath = redirectTo || '/partner/dashboard';
-      } else if (!isVendorAccount && isVendorLogin) {
-        redirectPath = redirectTo || '/';
-      } else {
-        redirectPath = redirectTo || (isVendorLogin ? '/partner/dashboard' : '/');
+      const redirectPath = isValidRedirect
+        ? redirectTo
+        : (isVendorAccount ? '/partner/dashboard' : '/');
+
+      if (!result.accessToken || !result.refreshToken) {
+        router.push(redirectPath);
+        return;
       }
 
-      // Refresh client-side auth state so the navbar and other client UI update
-      refreshSession().catch((e) => {
-        console.debug('refreshSession failed after login:', e);
+      await supabaseBrowserClient.auth.setSession({
+        access_token: result.accessToken,
+        refresh_token: result.refreshToken,
       });
-
-      addNotification(notificationMessage);
       router.push(redirectPath);
 
     } catch (error) {
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

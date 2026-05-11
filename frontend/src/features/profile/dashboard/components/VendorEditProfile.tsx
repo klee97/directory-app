@@ -13,7 +13,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import VendorProfile from '@/features/profile/common/components/VendorProfile';
-import { Vendor, VendorTag } from '@/types/vendor';
+import { PortalVendor, Vendor, VendorTag } from '@/types/vendor';
 import MenuView from './MenuView';
 import EditFormView from './EditFormView';
 import { createOrUpdateDraft, loadUnpublishedDraft, publishDraft } from '@/features/profile/dashboard/api/updateDrafts';
@@ -31,7 +31,7 @@ import DesktopPromptOverlay from '@/components/ui/overlays/DesktopPromptOverlay'
 const DRAWER_WIDTH = 400;
 
 interface VendorEditProfileProps {
-  vendor: Vendor;
+  vendor: PortalVendor;
   tags: VendorTag[];
   userId: string;
 }

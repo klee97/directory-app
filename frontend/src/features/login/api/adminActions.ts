@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { createClient } from '@/lib/supabase/server';
-import { supabaseAdmin } from '@/lib/admin-client';
+import { createServerClient } from '@/lib/supabase/clients/serverClient';
+import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { getBaseUrl } from '@/lib/env/env';
 import { UserRole, getUserRole } from '@/lib/auth/userRole';
 
 const getAccountType = async (email: string): Promise<UserRole | null> => {
-  const { data: userId, error } = await supabaseAdmin
+  const { data: userId, error } = await supabaseAdminClient
     .rpc("get_user_id_by_email",
       {
         p_email: email
@@ -20,7 +20,7 @@ const getAccountType = async (email: string): Promise<UserRole | null> => {
     return null;
   }
 
-  const { data: profile, error: profileError } = await supabaseAdmin
+  const { data: profile, error: profileError } = await supabaseAdminClient
     .from('profiles')
     .select(`
       vendor_id,
@@ -38,7 +38,7 @@ const getAccountType = async (email: string): Promise<UserRole | null> => {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient();
+  const supabaseServerClient = await createServerClient();
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -56,7 +56,7 @@ export async function signup(formData: FormData) {
     return { error: 'Password must be at least 6 characters long' };
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabaseServerClient.auth.signUp({
     email,
     password,
     options: {
@@ -101,7 +101,7 @@ export async function requestPasswordReset(email: string, isVendorSite: boolean)
         ? `${getBaseUrl()}/partner/auth/reset-password`
         : `${getBaseUrl()}/auth/reset-password`;
 
-      const { error: resetError } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+      const { error: resetError } = await supabaseAdminClient.auth.resetPasswordForEmail(email, {
         redirectTo: redirectToUrl,
       });
 
