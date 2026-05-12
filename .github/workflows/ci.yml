@@ -95,7 +95,7 @@ jobs:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 
           NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
-          CONTENTFUL_GRAPHQL_ENDPOINT: "http://localhost:3001/api/test/contentful-mock"
+          CONTENTFUL_GRAPHQL_ENDPOINT: "http://localhost:3000/api/test/contentful-mock"
           ENABLE_TEST_MOCK_API: "true"
 
       # Upload Playwright report as an artifact so you can download
