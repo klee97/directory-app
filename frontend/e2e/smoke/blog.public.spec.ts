@@ -305,7 +305,7 @@ test.describe('Future blog posts and password gating', () => {
       {
         name: 'preview-auth',
         value: previewPassword,
-        url: 'http://localhost:3000',
+        url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
       }
     ]);
 

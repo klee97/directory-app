@@ -74,7 +74,7 @@ const MOCK_POSTS = [
     title: 'Test Future Exclusive Preview',
     slug: 'test-future-exclusive-preview',
     shortDescription: 'An exclusive preview of an upcoming collection.',
-    publishedDate: '2026-06-01T00:00:00.000Z',
+    publishedDate: '2099-06-01T00:00:00.000Z',
     categoryList: ['wedding-inspo'],
     cultures: ['indian'],
     locations: ['california'],
