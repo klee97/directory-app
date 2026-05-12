@@ -288,7 +288,8 @@ test.describe('Future blog posts and password gating', () => {
     const passwordInput = page.getByPlaceholder('Password');
     const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
 
-    await passwordInput.fill('wrong-password');
+    await passwordInput.click();
+    await passwordInput.pressSequentially('wrong-password');
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
 
