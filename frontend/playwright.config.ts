@@ -128,8 +128,5 @@ export default defineConfig({
     url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: {
-      CONTENTFUL_GRAPHQL_ENDPOINT: 'http://localhost:3001/api/test/contentful-mock',
-    },
   },
 });

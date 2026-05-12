@@ -3,7 +3,8 @@ import { isProduction } from "@/lib/env/env";
 
 /**
  * Mock Contentful GraphQL endpoint for e2e tests.
- * Only available when NODE_ENV === 'test'.
+ * Blocked in production. In non-production environments, requires
+ * ENABLE_TEST_MOCK_API=true to serve mock data (returns 404 otherwise).
  */
 
 const MOCK_POSTS = [
