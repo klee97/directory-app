@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const isFuture = new Date(post.publishedDate) > new Date();
+  const isFuture = !isPublishedInEasternTime(post.publishedDate);
   const fullUrl = `https://www.asianweddingmakeup.com/blog/${post.slug}`;
   const imageUrl = post.featuredImage?.url || previewImage.src;
 
@@ -85,8 +85,8 @@ export default async function BlogPostPage({ params }: Props) {
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
     const previewCookie = cookieStore.get('preview-auth');
-    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD;
-
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD;
+    const authorized = Boolean(previewPassword) && previewCookie?.value === previewPassword;
     if (!authorized) {
       return <PasswordGate redirectTo={`/blog/${slug}`} />
     }
