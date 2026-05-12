@@ -289,6 +289,7 @@ test.describe('Future blog posts and password gating', () => {
     const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
 
     await passwordInput.fill('wrong-password');
+    await expect(submitButton).toBeEnabled();
     await submitButton.click();
 
     // Error message should appear
