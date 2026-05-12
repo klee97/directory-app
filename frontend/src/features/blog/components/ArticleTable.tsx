@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import { getAllPosts } from '@/features/blog/api/getBlogPosts';
-import { isDevOrPreview, shouldIncludeFuturePosts } from '@/lib/env/env';
+import { isPublishedInEasternTime } from '@/lib/dateUtils';
+import { isDevOrPreview } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
 import { BlogContent } from './BlogContent';
 import { FILTER_KEY_CATEGORY, FILTER_KEY_CULTURE, FILTER_KEY_LOCATION, FilterKey } from './postLabels';
@@ -17,10 +18,7 @@ export async function ArticleTable() {
   const posts = await getAllPosts();
   const validPosts = posts.filter((post): post is NonNullable<typeof post> => {
     if (!post) return false;
-    if (!shouldIncludeFuturePosts()) {
-      return new Date(post.publishedDate) <= new Date();
-    }
-    return true;
+    return isPublishedInEasternTime(post.publishedDate);
   });
 
   const featuredIndex = validPosts.findIndex((p) =>

@@ -252,3 +252,85 @@ test.describe('Blog post detail page', () => {
     await expect(page.getByRole('link', { name: /Back/ })).toBeVisible();
   });
 });
+
+test.describe('Future blog posts and password gating', () => {
+  test('future posts do not appear in blog listing', async ({ page }) => {
+    await page.goto('/blog');
+    await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
+
+    // Future post should not be visible in the list
+    await expect(page.getByText('Test Future Exclusive Preview')).not.toBeVisible();
+
+    // All other non-future posts should be visible
+    await expect(page.getByText('Test Featured Wedding Guide')).toBeVisible();
+    await expect(page.getByText('Test Bridal Makeup Tips')).toBeVisible();
+    await expect(page.getByText('Test Traditional Ceremony Styles')).toBeVisible();
+    await expect(page.getByText('Test Portrait Bridal Shoot')).toBeVisible();
+  });
+
+  test('accessing a future post directly shows password gate', async ({ page }) => {
+    await page.goto('/blog/test-future-exclusive-preview');
+
+    // Password gate should appear
+    const passwordInput = page.getByPlaceholder('Password');
+    const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
+
+    await expect(passwordInput).toBeVisible();
+    await expect(submitButton).toBeVisible();
+
+    // Future post content should not be visible
+    await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).not.toBeVisible();
+  });
+
+  test('wrong password on future post shows error', async ({ page }) => {
+    await page.goto('/blog/test-future-exclusive-preview');
+
+    const passwordInput = page.getByPlaceholder('Password');
+    const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
+
+    await passwordInput.click();
+    await passwordInput.pressSequentially('wrong-password');
+    await expect(submitButton).toBeEnabled();
+    await submitButton.click();
+
+    // Error message should appear
+    await expect(page.getByText('Incorrect password. Please try again.')).toBeVisible();
+
+    // Content should still not be visible
+    await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).not.toBeVisible();
+  });
+
+  test('correct password grants access to future post', async ({ page }) => {
+    // Set the preview auth cookie with the correct password
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
+    await page.context().addCookies([
+      {
+        name: 'preview-auth',
+        value: previewPassword,
+        url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+      }
+    ]);
+
+    await page.goto('/blog/test-future-exclusive-preview');
+
+    // Password gate should not appear
+    const passwordInput = page.getByPlaceholder('Password');
+    await expect(passwordInput).not.toBeVisible();
+
+    // Future post content should be visible
+    await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).toBeVisible();
+    await expect(page.getByText('An exclusive preview of an upcoming collection.')).toBeVisible();
+  });
+
+  test('published posts are not password-gated even without preview cookie', async ({ page }) => {
+    await page.goto('/blog/test-featured-wedding-guide');
+
+    // Password gate should NOT appear
+    const passwordInput = page.getByPlaceholder('Password');
+    await expect(passwordInput).not.toBeVisible();
+
+    // Published post content should be visible
+    await expect(page.getByRole('heading', { name: 'Test Featured Wedding Guide' })).toBeVisible();
+    await expect(page.getByText('A comprehensive guide to planning your dream wedding.')).toBeVisible();
+  });
+});

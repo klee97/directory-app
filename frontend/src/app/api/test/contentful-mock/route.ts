@@ -68,6 +68,21 @@ const MOCK_POSTS = [
     author: { name: 'Test Author', avatar: null },
     seoFields: { pageTitle: 'Test Portrait Bridal Shoot', pageDescription: 'Test description 4' },
   },
+  {
+    contentfulMetadata: { tags: [] },
+    sys: { id: 'test-post-5' },
+    title: 'Test Future Exclusive Preview',
+    slug: 'test-future-exclusive-preview',
+    shortDescription: 'An exclusive preview of an upcoming collection.',
+    publishedDate: '2099-06-01T00:00:00.000Z',
+    categoryList: ['wedding-inspo'],
+    cultures: ['indian'],
+    locations: ['california'],
+    content: { json: { nodeType: 'document', content: [{ nodeType: 'paragraph', content: [{ nodeType: 'text', value: 'Test content for future exclusive post.', marks: [], data: {} }], data: {} }], data: {} } },
+    featuredImage: { url: 'https://via.placeholder.com/800x600', title: 'Test Future Image', width: 800, height: 600, description: 'Test future image', contentType: 'image/jpeg' },
+    author: { name: 'Test Author', avatar: null },
+    seoFields: { pageTitle: 'Test Future Exclusive Preview', pageDescription: 'Test description 5' },
+  },
 ];
 
 const isMockEnabled = process.env.ENABLE_TEST_MOCK_API === 'true';

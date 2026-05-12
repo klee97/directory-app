@@ -60,11 +60,6 @@ export const isDevOrPreview = () => {
   return env === 'development' || env === 'preview'
 }
 
-export const shouldIncludeFuturePosts = () => {
-  // Include future posts in development and preview environments
-  return isDevOrPreview()
-}
-
 /**
  * Client-side helper for UI decisions only (e.g., showing test badges)
  * WARNING: This should NOT be used for authoritative data filtering.
@@ -120,7 +115,6 @@ export const logEnvironmentInfo = () => {
     isDevelopment: isDevelopment(),
     isPreview: isPreview(),
     isProduction: isProduction(),
-    shouldIncludeFuturePosts: shouldIncludeFuturePosts(),
     shouldIncludeTestVendors: shouldIncludeTestVendors(),
     shouldEnableAnalytics: shouldEnableAnalytics(),
   }

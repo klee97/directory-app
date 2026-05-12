@@ -97,6 +97,7 @@ jobs:
           NEXT_PUBLIC_FEATURE_FAVORITES_ENABLED: "true"
           CONTENTFUL_GRAPHQL_ENDPOINT: "http://localhost:3000/api/test/contentful-mock"
           ENABLE_TEST_MOCK_API: "true"
+          BLOG_PREVIEW_PASSWORD: "test-preview-password"
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI

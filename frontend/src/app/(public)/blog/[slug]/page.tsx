@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import previewImage from '@/assets/website_preview.jpeg';
+import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
 import Button from '@mui/material/Button';
@@ -19,7 +20,7 @@ export async function generateStaticParams() {
   const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
   const posts = pageBlogPostCollection?.items || [];
   return posts
-    .filter(post => post && new Date(post.publishedDate) <= new Date())
+    .filter(post => post && isPublishedInEasternTime(post.publishedDate))
     .map(post => ({ slug: post?.slug }));
 }
 
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const isFuture = new Date(post.publishedDate) > new Date();
+  const isFuture = !isPublishedInEasternTime(post.publishedDate);
   const fullUrl = `https://www.asianweddingmakeup.com/blog/${post.slug}`;
   const imageUrl = post.featuredImage?.url || previewImage.src;
 
@@ -79,13 +80,13 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(slug);
 
   // Gate future posts
-  if (post && new Date(post.publishedDate) > new Date()) {
+  if (post && !isPublishedInEasternTime(post.publishedDate)) {
     // Must be inside the component to run at request time for only future posts
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
     const previewCookie = cookieStore.get('preview-auth');
-    const authorized = previewCookie?.value === process.env.BLOG_PREVIEW_PASSWORD;
-
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD;
+    const authorized = Boolean(previewPassword) && previewCookie?.value === previewPassword;
     if (!authorized) {
       return <PasswordGate redirectTo={`/blog/${slug}`} />
     }
