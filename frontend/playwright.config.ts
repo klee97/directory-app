@@ -122,6 +122,7 @@ export default defineConfig({
   ],
 
   // Starts the Next.js dev server before tests run
+  // Uses the mock Contentful API route instead of real Contentful data.
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

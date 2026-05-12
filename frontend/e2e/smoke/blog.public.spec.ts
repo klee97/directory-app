@@ -8,9 +8,10 @@ import { test, expect } from '@playwright/test';
  * at /api/test/contentful-mock that returns deterministic test posts.
  *
  * Mock posts:
- *   1. "Test Featured Wedding Guide"      — featured, wedding-inspo, chinese, california
- *   2. "Test Bridal Makeup Tips"           — cultural-history, korean, new-york
- *   3. "Test Traditional Ceremony Styles"  — wedding-inspo, chinese, new-york
+ *   1. "Test Featured Wedding Guide"      — featured, wedding-inspo, chinese, california  (landscape 800x600)
+ *   2. "Test Bridal Makeup Tips"           — cultural-history, korean, new-york             (landscape 800x600)
+ *   3. "Test Traditional Ceremony Styles"  — wedding-inspo, chinese, new-york               (landscape 800x600)
+ *   4. "Test Portrait Bridal Shoot"        — wedding-inspo, vietnamese, california           (portrait 600x900)
  */
 
 test.describe('Blog page layout', () => {
@@ -37,8 +38,9 @@ test.describe('Blog page layout', () => {
     await searchInput.click();
     await searchInput.fill('Bridal');
 
-    // Only the matching post should remain
+    // Posts with "Bridal" in the title should remain (posts 2 and 4)
     await expect(page.getByText('Test Bridal Makeup Tips')).toBeVisible();
+    await expect(page.getByText('Test Portrait Bridal Shoot')).toBeVisible();
     await expect(page.getByText('Test Traditional Ceremony Styles')).not.toBeVisible();
   });
 
@@ -82,8 +84,9 @@ test.describe('Blog page layout', () => {
     await page.getByRole('option', { name: 'California' }).click();
 
     await expect(page.getByText('Featured', { exact: true })).not.toBeVisible();
-    // Only post 1 is in California
+    // Posts 1 and 4 are in California
     await expect(page.getByText('Test Featured Wedding Guide')).toBeVisible();
+    await expect(page.getByText('Test Portrait Bridal Shoot')).toBeVisible();
     await expect(page.getByText('Test Bridal Makeup Tips')).not.toBeVisible();
   });
 
@@ -117,6 +120,57 @@ test.describe('Blog page layout', () => {
     await expect(page.getByText('Test Featured Wedding Guide')).not.toBeVisible();
   });
 
+  test('"Clear all" button resets filters and restores featured post', async ({ page }) => {
+    // Apply a category filter
+    await page.getByLabel('Category').click();
+    await page.getByRole('option', { name: 'Cultural History' }).click();
+    await expect(page.getByText('Featured', { exact: true })).not.toBeVisible();
+
+    // "Clear all" button should appear
+    const clearButton = page.getByRole('button', { name: 'Clear all' });
+    await expect(clearButton).toBeVisible();
+    await clearButton.click();
+
+    // Featured post and all posts should be restored
+    await expect(page.getByText('Featured', { exact: true })).toBeVisible();
+    await expect(clearButton).not.toBeVisible();
+  });
+
+  test('"Clear all" button resets search and filters together', async ({ page }) => {
+    // Apply a search
+    const searchInput = page.getByPlaceholder('Search posts...');
+    await searchInput.scrollIntoViewIfNeeded();
+    await searchInput.click();
+    await searchInput.fill('Bridal');
+
+    // Also apply a filter
+    await page.getByLabel('Culture').click();
+    await page.getByRole('option', { name: 'Korean' }).click();
+
+    const clearButton = page.getByRole('button', { name: 'Clear all' });
+    await expect(clearButton).toBeVisible();
+    await clearButton.click();
+
+    // Search input should be cleared
+    await expect(searchInput).toHaveValue('');
+    // Featured post should reappear
+    await expect(page.getByText('Featured', { exact: true })).toBeVisible();
+    // All posts visible again
+    await expect(page.getByText('Test Bridal Makeup Tips')).toBeVisible();
+    await expect(page.getByText('Test Traditional Ceremony Styles')).toBeVisible();
+  });
+
+  test('search filters include featured post in results when matching', async ({ page }) => {
+    const searchInput = page.getByPlaceholder('Search posts...');
+    await searchInput.scrollIntoViewIfNeeded();
+    await searchInput.click();
+    await searchInput.fill('Wedding Guide');
+
+    // Featured chip disappears when filtering, but the post itself should appear in results
+    await expect(page.getByText('Test Featured Wedding Guide')).toBeVisible();
+    await expect(page.getByText('Test Bridal Makeup Tips')).not.toBeVisible();
+  });
+
   test('blog post cards display comma-separated labels', async ({ page }) => {
     // Post 2 has "Cultural History, Korean, New York" labels
     const post2Card = page.locator('a[href="/blog/test-bridal-makeup-tips"]');
@@ -137,6 +191,49 @@ test.describe('Blog page layout', () => {
     await page.getByLabel('Location').click();
     await expect(page.getByRole('option', { name: /uncategorized/i })).not.toBeVisible();
     await page.keyboard.press('Escape');
+  });
+});
+
+test.describe('Featured post image layout', () => {
+  test('featured post with landscape image uses column layout on mobile', async ({ page }) => {
+    // Set a mobile viewport
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/blog');
+    await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
+
+    // The featured card should exist with the image
+    const featuredCard = page.locator('a[href="/blog/test-featured-wedding-guide"]').locator('.MuiCard-root');
+    await expect(featuredCard).toBeVisible();
+
+    // Landscape featured card should stack vertically (column) on mobile
+    const flexDirection = await featuredCard.evaluate((el) => getComputedStyle(el).flexDirection);
+    expect(flexDirection).toBe('column');
+  });
+
+  test('featured post with landscape image uses row layout on desktop', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/blog');
+    await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
+
+    const featuredCard = page.locator('a[href="/blog/test-featured-wedding-guide"]').locator('.MuiCard-root');
+    await expect(featuredCard).toBeVisible();
+
+    // Landscape featured card should be side-by-side (row) on desktop
+    const flexDirection = await featuredCard.evaluate((el) => getComputedStyle(el).flexDirection);
+    expect(flexDirection).toBe('row');
+  });
+
+  test('portrait post card displays image correctly in grid', async ({ page }) => {
+    await page.goto('/blog');
+    await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
+
+    // Portrait post should be visible in the grid
+    const portraitCard = page.locator('a[href="/blog/test-portrait-bridal-shoot"]');
+    await expect(portraitCard).toBeVisible();
+
+    // The image should be rendered
+    const image = portraitCard.locator('img');
+    await expect(image).toBeVisible();
   });
 });
 

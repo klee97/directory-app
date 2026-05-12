@@ -15,6 +15,7 @@ interface FeaturedPostProps {
 
 export function FeaturedPost({ post }: FeaturedPostProps) {
   const labels = getPostLabels(post);
+  const isLandscape = (post.featuredImage?.width ?? 0) > (post.featuredImage?.height ?? 0);
 
   const publishedDate = post.publishedDate
     ? formatDateUTC(post.publishedDate)
@@ -25,7 +26,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
       <Card
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', md: 'row' },
+          flexDirection: isLandscape ? { xs: 'column', md: 'row' } : 'row',
           overflow: 'hidden',
           mb: 4,
           '&:hover': { boxShadow: 6 },
@@ -36,9 +37,17 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
           <Box
             sx={{
               position: 'relative',
-              width: { xs: '100%', md: '55%' },
-              height: { xs: '260px', md: '460px' },
               flexShrink: 0,
+              ...(isLandscape
+                ? {
+                    width: { xs: '100%', md: '55%' },
+                    aspectRatio: '3 / 2',
+                    maxHeight: { xs: '280px', md: '460px' },
+                  }
+                : {
+                    width: { xs: '40%', md: '45%' },
+                    minHeight: { xs: '250px', md: '400px' },
+                  }),
             }}
           >
             <ContentfulImage
@@ -46,8 +55,8 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
               src={post.featuredImage.url}
               fill
               priority
-              sizes="(max-width: 900px) 100vw, 55vw"
-              style={{ objectFit: 'cover', objectPosition: 'center' }}
+              sizes={isLandscape ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 900px) 40vw, 45vw'}
+              style={{ objectFit: 'cover', objectPosition: isLandscape ? 'center' : 'center top' }}
             />
           </Box>
         )}
@@ -56,8 +65,8 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            p: { xs: 3, md: 5 },
-            gap: 2,
+            p: isLandscape ? { xs: 3, md: 5 } : { xs: 2, md: 5 },
+            gap: isLandscape ? 2 : { xs: 1, md: 2 },
           }}
         >
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
@@ -67,12 +76,25 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
             ))}
           </Box>
 
-          <Typography variant="h2" component="h2">
+          <Typography
+            variant="h2"
+            component="h2"
+            sx={!isLandscape ? { fontSize: { xs: '1.25rem', sm: '1.5rem', md: undefined } } : undefined}
+          >
             {post.title}
           </Typography>
 
           {post.shortDescription && (
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              sx={!isLandscape ? {
+                display: { xs: '-webkit-box', md: 'block' },
+                WebkitLineClamp: { xs: 3, md: 'unset' },
+                WebkitBoxOrient: 'vertical',
+                overflow: { xs: 'hidden', md: 'visible' },
+              } : undefined}
+            >
               {post.shortDescription}
             </Typography>
           )}
