@@ -36,7 +36,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
 
     // Collect traces for failed tests only (great for debugging CI failures)
     trace: 'on-first-retry',
@@ -121,11 +121,15 @@ export default defineConfig({
     },
   ],
 
-  // Starts the Next.js dev server before tests run
+  // Starts a dedicated Next.js dev server for e2e tests on port 3001.
+  // Uses the mock Contentful API route instead of real Contentful data.
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
+    command: 'npx next dev --port 3001',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
+    env: {
+      CONTENTFUL_GRAPHQL_ENDPOINT: 'http://localhost:3001/api/test/contentful-mock',
+    },
   },
 });

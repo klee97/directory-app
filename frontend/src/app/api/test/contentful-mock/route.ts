@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isProduction } from "@/lib/env/env";
 
 /**
  * Mock Contentful GraphQL endpoint for e2e tests.
@@ -51,12 +52,27 @@ const MOCK_POSTS = [
     author: { name: 'Test Author 2', avatar: null },
     seoFields: { pageTitle: 'Test Traditional Ceremony Styles', pageDescription: 'Test description 3' },
   },
+  {
+    contentfulMetadata: { tags: [] },
+    sys: { id: 'test-post-4' },
+    title: 'Test Portrait Bridal Shoot',
+    slug: 'test-portrait-bridal-shoot',
+    shortDescription: 'A stunning portrait bridal photo session.',
+    publishedDate: '2026-04-15T00:00:00.000Z',
+    categoryList: ['wedding-inspo'],
+    cultures: ['vietnamese'],
+    locations: ['california'],
+    content: { json: { nodeType: 'document', content: [{ nodeType: 'paragraph', content: [{ nodeType: 'text', value: 'Test content for portrait shoot.', marks: [], data: {} }], data: {} }], data: {} } },
+    featuredImage: { url: 'https://via.placeholder.com/600x900', title: 'Test Portrait Image', width: 600, height: 900, description: 'Test portrait image', contentType: 'image/jpeg' },
+    author: { name: 'Test Author', avatar: null },
+    seoFields: { pageTitle: 'Test Portrait Bridal Shoot', pageDescription: 'Test description 4' },
+  },
 ];
 
 const isMockEnabled = process.env.ENABLE_TEST_MOCK_API === 'true';
 
 export async function POST(request: Request) {
-  if (!isMockEnabled) {
+  if (isProduction() || !isMockEnabled) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
