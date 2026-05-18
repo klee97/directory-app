@@ -5,12 +5,12 @@ import Typography from "@mui/material/Typography";
 import Checklist from "@/components/ui/Checklist";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
-import { Diversity3, Edit, Verified } from "@mui/icons-material";
+import { AddAPhoto, Diversity3, Edit, Verified } from "@mui/icons-material";
 
 const PERKS = [
-  { label: "Verified checkmark", detail: "and better search ranking", icon: <Verified sx={{ fontSize: 24, color: "primary.main" }} /> },
-  { label: "Full control", detail: "over your info, photos, and prices", icon: <Edit sx={{ fontSize: 24, color: "primary.main" }} /> },
-  { label: "Inquiries from brides", detail: "planning Asian weddings", icon: <Diversity3 sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Add a photo", detail: "for double the profile views", icon: <AddAPhoto sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Get discovered", detail: "with a verified checkmark and better search ranking", icon: <Verified sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Receive inquiries", detail: "from brides planning Asian weddings", icon: <Diversity3 sx={{ fontSize: 24, color: "primary.main" }} /> },
 ];
 
 export default function VendorClaimForm() {

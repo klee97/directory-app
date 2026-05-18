@@ -126,8 +126,13 @@ export default function VendorClaimContent() {
           {/* Header */}
           <Box sx={{ px: 6, pt: 2, pb: 2, borderBottom: "1px solid", borderColor: "divider" }}>
             <Typography variant="h2" sx={{ fontWeight: 500, mb: 0.75, lineHeight: 1.3 }}>
-              {errorType ? "Something went wrong" : "Your profile is ready to claim"}
+              {errorType ? "Something went wrong" : "Almost there!"}
             </Typography>
+            {!errorType &&
+              <Typography variant="h4" sx={{ fontWeight: 500, mb: 0.75, lineHeight: 1.3 }}>
+                Create a password to manage your artist profile.
+              </Typography>
+            }
 
           </Box>
 
