@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Checklist from "@/components/ui/Checklist";
 import Link from "@mui/material/Link";
 import NextLink from "next/link";
-import { AddAPhoto, Diversity3, Edit, Verified } from "@mui/icons-material";
+import { AddAPhoto, Diversity3, Verified } from "@mui/icons-material";
 
 const PERKS = [
   { label: "Add a photo", detail: "for double the profile views", icon: <AddAPhoto sx={{ fontSize: 24, color: "primary.main" }} /> },
