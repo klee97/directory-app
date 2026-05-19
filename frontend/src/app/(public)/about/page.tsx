@@ -73,8 +73,14 @@ export default function About() {
 
       {/* Katrina's Story Section */}
       <Container maxWidth="lg" sx={{ py: { xs: 6, md: 10 } }}>
-        <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
-          <Grid size={{ xs: 12, md: 5 }}>
+        <Grid container spacing={{ xs: 2, md: 8 }} alignItems="center">
+          {/* Title - visible only on small screens above photo */}
+          <Grid size={{ xs: 12, md: 0 }} sx={{ display: { xs: 'block', md: 'none' } }}>
+            <Typography variant="h2" component="h2" gutterBottom sx={{ textAlign: 'center' }}>
+              Where It Started
+            </Typography>
+          </Grid>
+          <Grid size={{ xs: 12, md: 5 }} order={{ xs: 2, md: 1 }}>
             <Box
               sx={{
                 position: 'relative',
@@ -95,8 +101,9 @@ export default function About() {
               />
             </Box>
           </Grid>
-          <Grid size={{ xs: 12, md: 7 }}>
-            <Typography variant="h2" component="h2" gutterBottom>
+          <Grid size={{ xs: 12, md: 7 }} order={{ xs: 3, md: 2 }}>
+            {/* Title - visible only on desktop next to photo */}
+            <Typography variant="h2" component="h2" gutterBottom sx={{ display: { xs: 'none', md: 'block' }, textAlign: 'left' }}>
               Where It Started
             </Typography>
             <Typography
@@ -124,9 +131,16 @@ export default function About() {
       {/* Mission Section */}
       <Box sx={{ backgroundColor: 'background.paper', py: { xs: 6, md: 10 } }}>
         <Container maxWidth="lg">
-          <Grid container spacing={{ xs: 4, md: 8 }} alignItems="center">
-            <Grid size={{ xs: 12, md: 7 }} order={{ xs: 2, md: 1 }}>
-              <Typography variant="h2" component="h2" gutterBottom>
+          <Grid container spacing={{ xs: 2, md: 8 }} alignItems="center">
+            {/* Title - visible only on small screens above photo */}
+            <Grid size={{ xs: 12, md: 0 }} sx={{ display: { xs: 'block', md: 'none' } }}>
+              <Typography variant="h2" component="h2" gutterBottom sx={{ textAlign: 'center' }}>
+                Our Mission
+              </Typography>
+            </Grid>
+            <Grid size={{ xs: 12, md: 7 }} order={{ xs: 3, md: 1 }}>
+              {/* Title - visible only on desktop next to photo */}
+              <Typography variant="h2" component="h2" gutterBottom sx={{ display: { xs: 'none', md: 'block' }, textAlign: 'left' }}>
                 Our Mission
               </Typography>
               <Typography
@@ -142,11 +156,11 @@ export default function About() {
                 We&apos;re committed to uplifting the Asian community by connecting couples with makeup artists who are not only technically skilled, but who truly understand and celebrate Asian beauty. Many of the businesses we feature are Asian-owned, creating a cycle of support within Asian diaspora communities.
               </Typography>
             </Grid>
-            <Grid size={{ xs: 12, md: 5 }} order={{ xs: 1, md: 2 }}>
+            <Grid size={{ xs: 12, md: 5 }} order={{ xs: 2, md: 2 }}>
               <Box
                 sx={{
                   position: 'relative',
-                  width: { xs: '60%', sm: '50%', md: '100%' },
+                  width: { xs: '50%', sm: '40%', md: '100%' },
                   mx: { xs: 'auto', md: 0 },
                   aspectRatio: '3 / 4',
                   borderRadius: 2,
@@ -157,7 +171,7 @@ export default function About() {
                   src={katrina1}
                   alt="Katrina getting ready for her wedding"
                   fill
-                  sizes="(max-width: 900px) 100vw, 50vw"
+                  sizes="(max-width: 900px) 50vw, 40vw"
                   style={{ objectFit: 'cover' }}
                 />
               </Box>
