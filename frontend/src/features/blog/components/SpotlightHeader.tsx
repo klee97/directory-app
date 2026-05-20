@@ -26,9 +26,6 @@ const SpotlightHeader = ({ post }: { post: PageBlogPost }) => {
         <Box display="flex" flexDirection="column" alignItems="center" sx={{ width: '100%', mb: 4 }}>
           <Box sx={{
             position: 'relative',
-            height: '600px',
-            maxWidth: '500px',
-            margin: '0 auto',
             ...(isLandscape ? {
               aspectRatio: '4 / 3',
               width: '100%',
