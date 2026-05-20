@@ -2,12 +2,11 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import Divider from '@mui/material/Divider';
 import { Metadata } from 'next';
 import Image from 'next/image';
 import defaultImage from '@/assets/photo_website_preview.jpg';
-import katrina1 from '@/assets/katrina_1.jpg';
-import katrina2 from '@/assets/katrina_2.jpg';
+import aboutStoryPhoto from '@/assets/about_story_photo.jpg';
+import aboutMissionPhoto from '@/assets/about_mission_photo.jpg';
 import BeholdWidget from "@behold/react"
 import { BEHOLD_IG_FEED_ID } from '@/lib/constants';
 
@@ -84,7 +83,8 @@ export default function About() {
             <Box
               sx={{
                 position: 'relative',
-                width: { xs: '50%', sm: '40%', md: '100%' },
+                width: '100%',
+                maxWidth: { xs: 260, sm: 300, md: '100%' },
                 mx: { xs: 'auto', md: 0 },
                 aspectRatio: '3 / 4',
                 borderRadius: 2,
@@ -92,10 +92,10 @@ export default function About() {
               }}
             >
               <Image
-                src={katrina2}
+                src={aboutStoryPhoto}
                 alt="Katrina on her wedding day"
                 fill
-                sizes="(max-width: 900px) 50vw, 40vw"
+                sizes="(max-width: 600px) 50vw, (max-width: 900px) 40vw, 33vw"
                 style={{ objectFit: 'cover' }}
                 priority
               />
@@ -160,7 +160,8 @@ export default function About() {
               <Box
                 sx={{
                   position: 'relative',
-                  width: { xs: '50%', sm: '40%', md: '100%' },
+                  width: '100%',
+                  maxWidth: { xs: 260, sm: 300, md: '100%' },
                   mx: { xs: 'auto', md: 0 },
                   aspectRatio: '3 / 4',
                   borderRadius: 2,
@@ -168,10 +169,10 @@ export default function About() {
                 }}
               >
                 <Image
-                  src={katrina1}
+                  src={aboutMissionPhoto}
                   alt="Katrina getting ready for her wedding"
                   fill
-                  sizes="(max-width: 900px) 50vw, 40vw"
+                  sizes="(max-width: 600px) 50vw, (max-width: 900px) 40vw, 33vw"
                   style={{ objectFit: 'cover' }}
                 />
               </Box>
