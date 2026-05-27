@@ -8,9 +8,9 @@ import NextLink from "next/link";
 import { AddAPhoto, Diversity3, Verified } from "@mui/icons-material";
 
 const PERKS = [
-  { label: "Add a photo", detail: "for double the profile views", icon: <AddAPhoto sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Receive inquiries", detail: "from real brides. Preview for free, then only pay for leads you want.", icon: <Diversity3 sx={{ fontSize: 24, color: "primary.main" }} /> },
   { label: "Get discovered", detail: "with a verified checkmark and better search ranking", icon: <Verified sx={{ fontSize: 24, color: "primary.main" }} /> },
-  { label: "Receive inquiries", detail: "from brides planning Asian weddings", icon: <Diversity3 sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Add a photo", detail: "for increased profile views", icon: <AddAPhoto sx={{ fontSize: 24, color: "primary.main" }} /> },
 ];
 
 export default function VendorClaimForm() {
