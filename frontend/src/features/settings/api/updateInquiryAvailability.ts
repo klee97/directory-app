@@ -7,7 +7,7 @@ export async function updateInquiryAvailability(vendorId: string, enabled: boole
   const { error } = await supabase
     .from("vendors")
     .update({
-      approved_inquiries_at: enabled ? new Date().toISOString() : null,
+      inquiries_opted_out_at: enabled ? null : new Date().toISOString(),
     })
     .eq("id", vendorId);
 

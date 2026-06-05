@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
       'Business Name': vendor.name,
       'Vendor Slug': vendor.slug,
       'Submission Date': new Date().toISOString().split('T')[0],
+      'Test Record': formData.isTestRecord,
       'Status': 'New',
     };
 

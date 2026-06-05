@@ -33,12 +33,12 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
 import { getDefaultBio } from '@/features/profile/common/utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
-import { Email } from '@mui/icons-material';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
 import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { VendorCoverImage } from './VendorCoverImage';
 import { useAuth } from '@/contexts/AuthContext';
+import { getInquiryState } from '../utils/getInquiryState';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -49,7 +49,7 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
+const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
   const dialogContentRef = useRef<HTMLDivElement>(null);
 
@@ -57,75 +57,76 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor,
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const inquiryState = getInquiryState(vendor.inquiries_opted_out_at, vendor.verified_at);
 
-  return (<StickyCard elevation={0} >
-    <CardContent >
-      <Typography variant="h5" component="h2" sx={{
-        mt: 2,
-        mb: 2,
-        textAlign: 'center'
-      }}>
-        Love their work?
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, alignContent: 'center', alignItems: 'center', justifyContent: 'center' }}>
-        {isInquiryEnabled ? (
-          <>
-            <Button
-              variant="contained"
-              sx={{ borderRadius: 6, paddingY: 1 }}
-              onClick={() => setFormOpen(true)}
-            >
-              Get a Quote
-            </Button>
+  return (
+    <StickyCard elevation={0}>
+      <CardContent>
+        <Typography variant="h5" component="h2" sx={{
+          mt: 2,
+          mb: 2,
+          textAlign: 'center'
+        }}>
+          Love their work?
+        </Typography>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 2,
+          mb: 2,
+          alignContent: 'center',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {inquiryState !== 'opted_out' && (
+            <>
+              <Button
+                variant="contained"
+                sx={{ borderRadius: 6, paddingY: 1 }}
+                onClick={() => setFormOpen(true)}
+              >
+                {inquiryState === 'verified' ? 'Get a Quote' : 'Contact'}
+              </Button>
 
-            <Dialog
-              open={formOpen}
-              onClose={(event, reason) => {
-                if (reason !== 'backdropClick') {
-                  setFormOpen(false);
-                }
-              }} maxWidth="sm"
-              fullWidth
-              fullScreen={isMobile}
-            >
-              <DialogContent ref={dialogContentRef} sx={{ p: 0 }}>
+              <Dialog
+                open={formOpen}
+                onClose={(event, reason) => {
+                  if (reason !== 'backdropClick') {
+                    setFormOpen(false);
+                  }
+                }}
+                maxWidth="md"
+                fullWidth
+                fullScreen={isMobile}
+              >
+                <DialogContent ref={dialogContentRef} sx={{ p: 0 }}>
 
-                <LeadCaptureForm
-                  onClose={() => setFormOpen(false)}
-                  onScrollToTop={() => dialogContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-                  vendor={{
-                    name: vendor.business_name ?? '',
-                    slug: vendor.slug ?? '',
-                    id: vendor.id,
-                    serviceTags: serviceTags,
-                    location: defaultLocation ?? '',
-                  }}
-                  isModal={true}
-                />
-              </DialogContent>
-            </Dialog>
-          </>
-        ) : (
-          <Button
-            variant="contained"
-            startIcon={<Email />}
-            href={vendor.email ? `mailto:${vendor.email}` : `https://www.instagram.com/${vendor.instagram}`}
-            target="_blank"
-            rel={vendor.email ? undefined : 'noopener noreferrer'}
-          >
-            Contact Artist
-          </Button>
-        )}
+                  <LeadCaptureForm
+                    onClose={() => setFormOpen(false)}
+                    onScrollToTop={() => dialogContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                    vendor={{
+                      businessName: vendor.business_name ?? '',
+                      slug: vendor.slug ?? '',
+                      id: vendor.id,
+                      serviceTags: serviceTags,
+                      location: defaultLocation ?? '',
+                    }}
+                    isModal={true}
+                    inquiryState={inquiryState}
+                  />
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
 
-        {/* Favorite Button */}
-        <FavoriteButton
-          vendorId={vendor.id}
-          initialIsFavorited={isFavorite}
-          sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid' }}
-        />
-      </Box>
-    </CardContent>
-  </StickyCard>
+          <FavoriteButton
+            vendorId={vendor.id}
+            initialIsFavorited={isFavorite}
+            sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid' }}
+          />
+        </Box>
+      </CardContent>
+    </StickyCard>
   )
 }
 
@@ -156,7 +157,6 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
   const allowlistIds = process.env.NEXT_PUBLIC_ALLOWLIST_VENDOR_SLUGS?.split(',') || [];
   const isAllowlisted = vendor.slug ? allowlistIds.includes(vendor.slug) : false;
   const isPaused = process.env.NEXT_PUBLIC_TRANSITION_ENABLED === 'true' && !isAllowlisted;
-  const isInquiryEnabled = vendor.approved_inquiries_at !== null;
 
   const theme = useTheme();
   const { isLoggedIn } = useAuth();
@@ -542,7 +542,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                   display: { xs: 'block', md: 'none' }, // show only when stacked
                 }}
               />
-              <ContactCard vendor={vendor} isFavorite={isFavorite} isInquiryEnabled={isInquiryEnabled} />
+              <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Grid>
           </Grid>
           {nearbyVendors && nearbyVendors.length > 0 && (

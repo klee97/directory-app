@@ -84,7 +84,7 @@ export default function DashboardContent({ vendor }: DashboardContentProps) {
           </Grid>
 
           <Grid size={{ xs: 12 }}>
-            <RecentInquiriesCard isApproved={!!vendor.approved_inquiries_at} />
+            <RecentInquiriesCard isApproved={!vendor.inquiries_opted_out_at} />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

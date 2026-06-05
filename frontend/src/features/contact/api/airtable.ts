@@ -1,12 +1,8 @@
-import { FormData, PartialLead } from '@/features/contact/components/LeadCaptureForm';
-
-interface VendorInfo {
-  name: string;
-  slug: string;
-}
+import { LeadFormData, PartialLead } from '@/types/leads';
+import { VendorInfo } from '@/types/leads';
 
 export const submitToAirtable = async (
-  data: FormData,
+  data: LeadFormData,
   vendor: VendorInfo
 ): Promise<boolean> => {
   try {

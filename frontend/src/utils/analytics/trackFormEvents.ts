@@ -1,4 +1,4 @@
-import { LeadStatus } from "@/features/contact/components/LeadCaptureForm";
+import { LeadStatus } from "@/types/leads";
 
 export interface BaseTrackingData {
   timestamp?: string;

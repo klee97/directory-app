@@ -61,7 +61,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   return vendor;
 }
 
-export async function signUpAndClaimVendor(email: string, accessToken: string, password: string, enableInquiries: boolean) {
+export async function signUpAndClaimVendor(email: string, accessToken: string, password: string) {
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
@@ -150,8 +150,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .from('vendors')
     .update({
       access_token: null,
-      verified_at: now,
-      approved_inquiries_at: enableInquiries ? now : null,
+      verified_at: now
     })
     .eq('id', vendor.id);
 

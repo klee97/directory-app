@@ -28,12 +28,15 @@ import DialogActions from '@mui/material/DialogActions';
 import { savePartialLeadToAirtable, submitToAirtable } from '@/features/contact/api/airtable';
 import { trackFormAbandonment, trackFormStarted, trackFormStepBack, trackFormSubmissionError, trackFormValidationErrors, trackPartialLeadSaved, trackStepProgress, trackVendorContactFormSubmission } from '@/utils/analytics/trackFormEvents';
 import { VendorTag } from '@/types/vendor';
+import { InquiryState } from '@/features/profile/common/utils/getInquiryState';
+import { isDevOrPreview } from '@/lib/env/env';
+import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/leads';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
   onScrollToTop?: () => void;
   vendor: {
-    name: string;
+    businessName: string;
     slug: string;
     serviceTags: VendorTag[];
     id: string;
@@ -41,51 +44,7 @@ interface LeadCaptureFormProps {
     location: string;
   };
   isModal?: boolean;
-}
-
-export interface FormData {
-  // Step 1: Services & Event Details
-  services: string[];
-  peopleCount: string;
-  flexibleCount: boolean;
-
-  // Step 2: Event details
-  firstName: string;
-  lastName: string;
-  email: string;
-  location: string;
-  weddingDate: string;
-  flexibleDate: boolean;
-  budget: string;
-  additionalDetails: string;
-
-  // Step 3: Style & Preferences
-  makeupStyles: string[];
-}
-
-export enum LeadStatus {
-  FORM_STARTED = 'form_started',
-  STEP_1_COMPLETED = 'step_1_completed',
-  STEP_2_WITH_EMAIL = 'step_2_with_email',
-  ABANDONED = 'abandoned'
-}
-
-export interface PartialLead {
-  formData: Partial<FormData>;
-  vendor: {
-    name: string;
-    slug: string;
-    id: string;
-  };
-  status: LeadStatus;
-  stepNumber: number;
-  fieldsCompleted: string[];
-  timeSpent: number;
-  timestamp: string;
-}
-
-interface FormErrors {
-  [key: string]: string | null;
+  inquiryState: InquiryState;
 }
 
 const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
@@ -158,7 +117,8 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   onClose,
   onScrollToTop,
   vendor,
-  isModal = false
+  isModal = false,
+  inquiryState
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -169,7 +129,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const formStartTime = useRef<number>(Date.now());
   const stepStartTime = useRef<number>(Date.now());
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<LeadFormData>({
+    isTestRecord: isDevOrPreview(),
+
     // Step 1: Event Details
     services: [],
     location: '',
@@ -189,7 +151,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     // Step 3: Style
     makeupStyles: []
   });
-  const [errors, setErrors] = useState<FormErrors>({});
+  const [errors, setErrors] = useState<LeadFormErrors>({});
 
 
   // 2-step process
@@ -278,7 +240,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   };
 
   const validateCurrentStep = (): boolean => {
-    const newErrors: FormErrors = {};
+    const newErrors: LeadFormErrors = {};
 
     switch (activeStep) {
       case 0:
@@ -311,6 +273,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         if (!formData.budget.trim()) {
           newErrors.budget = "Enter an estimated budget";
         }
+        if (!formData.additionalDetails.trim()) {
+          newErrors.additionalDetails = "Please enter a message";
+        }
         break;
     }
 
@@ -339,7 +304,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         const partialLead: PartialLead = {
           formData,
           vendor: {
-            name: vendor.name,
+            businessName: vendor.businessName,
             slug: vendor.slug,
             id: vendor.id
           },
@@ -385,7 +350,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       const partialLead: PartialLead = {
         formData,
         vendor: {
-          name: vendor.name,
+          businessName: vendor.businessName,
           slug: vendor.slug,
           id: vendor.id
         },
@@ -489,8 +454,8 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
               lineHeight: 1.6
             }}
           >
-            Your information has been sent and <strong>{vendor.name}</strong> will
-            reach out to you directly if it&apos;s a good fit.
+            We&apos;ve sent your details to <strong>{vendor.businessName}</strong>,
+            and they&apos;ll reach out to you directly if it&apos;s a good fit.
           </Typography>
         </DialogContent>
 
@@ -516,10 +481,21 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       case 0:
         return (
           <Box>
+
+            {inquiryState !== "verified" ? (
+              <Typography variant="h3" paddingX={2} paddingTop={2} sx={{ fontWeight: 600 }}>
+                Get a quote from <strong>{vendor.businessName}</strong>
+              </Typography>
+            )
+              : (<Typography variant="h3" paddingX={2} paddingTop={2} sx={{ fontWeight: 600 }}>
+                Tell <strong>{vendor.businessName}</strong> about your wedding.
+              </Typography>
+              )
+            }
             <Grid container paddingTop={4} paddingX={3} spacing={4}>
               <Grid size={{ xs: 12 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
-                  What can {vendor.name} help you with? *
+                  Which services do you need? *
                 </Typography>
                 <StyledToggleButtonGroup
                   value={formData.services}
@@ -741,7 +717,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
 
               <Grid size={{ xs: 12 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
-                  Anything else to add?
+                  Leave a message for {vendor.businessName} *
                 </Typography>
                 <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
                   Share your vision, special requests, or questions you have.
@@ -755,6 +731,8 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   onChange={handleInputChange}
                   placeholder="Hi, I'm looking for..."
                   variant="outlined"
+                  error={!!errors.additionalDetails}
+                  helperText={errors.additionalDetails}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       backgroundColor: 'grey.50'
@@ -846,7 +824,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   Sending Request...
                 </>
               ) : (
-                `Get My Quote`
+                inquiryState === 'verified' ? 'Get My Quote' : 'Send Inquiry'
               )}
             </Button>
           ) : (
