@@ -95,7 +95,7 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
                     setFormOpen(false);
                   }
                 }}
-                maxWidth="md"
+                maxWidth="sm"
                 fullWidth
                 fullScreen={isMobile}
               >
