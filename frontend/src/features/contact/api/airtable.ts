@@ -48,7 +48,7 @@ export const savePartialLeadToAirtable = async (
     return result.ok;
   } catch (error) {
     console.error('Error saving partial lead:', error);
-    throw error;
+    return false;
   }
 };
 

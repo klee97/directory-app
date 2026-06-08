@@ -51,6 +51,8 @@ const StickyCard = styled(Card)(({ theme }) => ({
 
 const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor, isFavorite: boolean, isInquiryEnabled: boolean }) => {
   const [formOpen, setFormOpen] = useState(false);
+  const dialogContentRef = useRef<HTMLDivElement>(null);
+
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
   const theme = useTheme();
@@ -82,13 +84,15 @@ const ContactCard = ({ vendor, isFavorite, isInquiryEnabled }: { vendor: Vendor,
                 if (reason !== 'backdropClick') {
                   setFormOpen(false);
                 }
-              }} maxWidth="md"
+              }} maxWidth="sm"
               fullWidth
               fullScreen={isMobile}
             >
-              <DialogContent sx={{ p: 0 }}>
+              <DialogContent ref={dialogContentRef} sx={{ p: 0 }}>
+
                 <LeadCaptureForm
                   onClose={() => setFormOpen(false)}
+                  onScrollToTop={() => dialogContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
                   vendor={{
                     name: vendor.business_name ?? '',
                     slug: vendor.slug ?? '',
