@@ -352,11 +352,17 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
 
         // Fire without awaiting so it doesn't block UI, but catch errors to log them
         savePartialLeadToAirtable(partialLead)
-          .then(() => trackPartialLeadSaved({
-            status: LeadStatus.STEP_1_COMPLETED,
-            fields_completed: completedFields.length,
-            vendor_slug: vendor.slug
-          }))
+          .then((saved) => {
+            if (!saved) {
+              console.error('Partial lead save returned an unsuccessful response');
+              return;
+            }
+            trackPartialLeadSaved({
+              status: LeadStatus.STEP_1_COMPLETED,
+              fields_completed: completedFields.length,
+              vendor_slug: vendor.slug
+            });
+          })
           .catch(err => console.error('Partial lead save failed:', err));
       }
 
@@ -391,11 +397,17 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       };
 
       savePartialLeadToAirtable(partialLead)
-        .then(() => trackPartialLeadSaved({
-          status: partialLead.status,
-          fields_completed: completedFields.length,
-          vendor_slug: vendor.slug,
-        }))
+        .then((saved) => {
+          if (!saved) {
+            console.error('Partial lead save returned an unsuccessful response');
+            return;
+          }
+          trackPartialLeadSaved({
+            status: partialLead.status,
+            fields_completed: completedFields.length,
+            vendor_slug: vendor.slug
+          });
+        })
         .catch(err => console.error('Partial lead save failed:', err));
     }
 
