@@ -31,6 +31,7 @@ import { VendorTag } from '@/types/vendor';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
+  onScrollToTop?: () => void;
   vendor: {
     name: string;
     slug: string;
@@ -155,6 +156,7 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 
 const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   onClose,
+  onScrollToTop,
   vendor,
   isModal = false
 }) => {
@@ -190,7 +192,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const [errors, setErrors] = useState<FormErrors>({});
 
 
-  // 2-step process with optional 3rd step for style preferences
+  // 2-step process
   const steps = ['Artist fit', 'Personal details'];
 
   const serviceOptions: string[] = vendor.serviceTags && vendor.serviceTags.length > 0
@@ -255,6 +257,11 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeStep]);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    onScrollToTop?.();
+  }, [activeStep]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -276,33 +283,33 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     switch (activeStep) {
       case 0:
         if (formData.services.length === 0) {
-          newErrors.services = 'Please select at least one service';
+          newErrors.services = 'Select at least one service';
         }
         if (!formData.location.trim()) {
           newErrors.location = 'Wedding location helps artists provide accurate availability';
         }
         if (!formData.peopleCount.trim()) {
-          newErrors.peopleCount = 'Please enter the number of people needing services';
+          newErrors.peopleCount = 'Enter a number';
         } else {
           const count = parseInt(formData.peopleCount);
           if (isNaN(count) || count < 1) {
-            newErrors.peopleCount = 'Please enter a valid number (1 or more)';
+            newErrors.peopleCount = 'Enter a valid number (1 or more)';
           }
         }
         break;
       case 1:
         if (!formData.weddingDate.trim()) {
-          newErrors.weddingDate = "Please enter a wedding date";
+          newErrors.weddingDate = "Enter a wedding date";
         }
-        if (!formData.firstName.trim()) newErrors.firstName = 'Please enter your first name';
-        if (!formData.lastName.trim()) newErrors.lastName = 'Please enter your last name';
+        if (!formData.firstName.trim()) newErrors.firstName = 'Enter your first name';
+        if (!formData.lastName.trim()) newErrors.lastName = 'Enter your last name';
         if (!formData.email.trim()) {
-          newErrors.email = 'Email is required so the artist can give you a quote.';
+          newErrors.email = 'Enter your email';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = 'Please enter a valid email address';
+          newErrors.email = 'Enter a valid email address';
         }
         if (!formData.budget.trim()) {
-          newErrors.budget = "Please enter an estimated budget";
+          newErrors.budget = "Enter an estimated budget";
         }
         break;
     }
@@ -339,17 +346,18 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           status: LeadStatus.STEP_1_COMPLETED,
           stepNumber: 1,
           fieldsCompleted: completedFields,
-          timeSpent: timeSpent,
+          timeSpent,
           timestamp: new Date().toISOString()
         };
 
-        await savePartialLeadToAirtable(partialLead);
-
-        trackPartialLeadSaved({
-          status: LeadStatus.STEP_1_COMPLETED,
-          fields_completed: completedFields.length,
-          vendor_slug: vendor.slug
-        });
+        // Fire without awaiting so it doesn't block UI, but catch errors to log them
+        savePartialLeadToAirtable(partialLead)
+          .then(() => trackPartialLeadSaved({
+            status: LeadStatus.STEP_1_COMPLETED,
+            fields_completed: completedFields.length,
+            vendor_slug: vendor.slug
+          }))
+          .catch(err => console.error('Partial lead save failed:', err));
       }
 
       setActiveStep(prev => prev + 1);
@@ -382,13 +390,13 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         timestamp: new Date().toISOString()
       };
 
-      await savePartialLeadToAirtable(partialLead);
-
-      trackPartialLeadSaved({
-        status: partialLead.status,
-        fields_completed: completedFields.length,
-        vendor_slug: vendor.slug,
-      });
+      savePartialLeadToAirtable(partialLead)
+        .then(() => trackPartialLeadSaved({
+          status: partialLead.status,
+          fields_completed: completedFields.length,
+          vendor_slug: vendor.slug,
+        }))
+        .catch(err => console.error('Partial lead save failed:', err));
     }
 
     trackFormAbandonment({
@@ -496,7 +504,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
       case 0:
         return (
           <Box>
-            <Grid container paddingTop={4} paddingX={3} spacing={3}>
+            <Grid container paddingTop={4} paddingX={3} spacing={4}>
               <Grid size={{ xs: 12 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
                   What can {vendor.name} help you with? *
@@ -558,7 +566,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                     error={!!errors.peopleCount}
                     helperText={errors.peopleCount}
                     slotProps={{ htmlInput: { min: 1 } }}
-                    sx={{ minWidth: 150 }}
+                    sx={{ width: 100 }}
                   />
                   <FormControlLabel
                     control={
@@ -569,7 +577,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                         }
                       />
                     }
-                    label="This number is flexible"
+                    label="Number is flexible"
                     sx={{ mt: isMobile ? 0 : 1 }}
                   />
                 </Box>
@@ -613,33 +621,39 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
             <Typography variant="h3" paddingY={2} sx={{ fontWeight: 600 }}>
               Almost there! Add your details to minimize back-and-forth.
             </Typography>
-            <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
-              Your Name *
-            </Typography>
-            <Grid container spacing={3}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  required
-                  fullWidth
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  error={!!errors.firstName}
-                  helperText={errors.firstName}
-                  placeholder="First"
-                />
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField
-                  required
-                  fullWidth
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  error={!!errors.lastName}
-                  helperText={errors.lastName}
-                  placeholder="Last"
-                />
+
+            <Grid container paddingTop={4} paddingX={3} spacing={4}>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Your Name *
+                </Typography>
+                <Grid container spacing={2}>
+
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      error={!!errors.firstName}
+                      helperText={errors.firstName}
+                      placeholder="First"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                      required
+                      fullWidth
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      error={!!errors.lastName}
+                      helperText={errors.lastName}
+                      placeholder="Last"
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
               <Grid size={{ xs: 12 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
@@ -657,7 +671,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   placeholder="Email"
                 />
               </Grid>
-              <Grid size={{ xs: 12, sm: 6 }}>
+              <Grid size={{ xs: 12 }}>
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
                   Wedding Date *
                 </Typography>
@@ -670,7 +684,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                     onChange={handleInputChange}
                     error={!!errors.weddingDate}
                     helperText={errors.weddingDate}
-                    slotProps={{ inputLabel: { shrink: true } }}
+                    slotProps={{
+                      inputLabel: { shrink: true },
+                      htmlInput: { min: new Date().toISOString().split('T')[0] }
+                    }}
                     sx={{ minWidth: 200 }}
                   />
                   <FormControlLabel
@@ -714,6 +731,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
                   Anything else to add?
                 </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+                  Share your vision, special requests, or questions you have.
+                </Typography>
                 <TextField
                   fullWidth
                   name="additionalDetails"
@@ -721,7 +741,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   rows={3}
                   value={formData.additionalDetails}
                   onChange={handleInputChange}
-                  placeholder="Describe your vision, special requests, or questions you have."
+                  placeholder="Hi, I'm looking for..."
                   variant="outlined"
                   sx={{
                     '& .MuiOutlinedInput-root': {
@@ -742,7 +762,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   };
 
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="sm">
       <Box sx={{ mt: isModal ? 2 : (isMobile ? 2 : 6), mb: 4 }}>
         {/* Close button for modal */}
         {isModal && onClose && (
