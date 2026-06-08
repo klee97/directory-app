@@ -60,7 +60,7 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'latitude'
   | 'longitude'
   | 'access_token'
-  | 'approved_inquiries_at'
+  | 'inquiries_opted_out_at'
   | 'verified_at'
 > & {
   'bridal_hair_makeup_price': number | null,
@@ -121,7 +121,7 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
       ? vendor.profile_image : null,
     cover_image: coverImage,
     access_token: vendor.access_token,
-    approved_inquiries_at: vendor.approved_inquiries_at,
+    inquiries_opted_out_at: vendor.inquiries_opted_out_at,
     verified_at: vendor.verified_at,
   }
 };

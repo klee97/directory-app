@@ -39,9 +39,10 @@ export async function POST(req: NextRequest) {
       'Services Requested': formData.services,
       'Budget': parseInt(formData.budget),
       'Additional Details': formData.additionalDetails,
-      'Business Name': vendor.name,
+      'Business Name': vendor.businessName,
       'Vendor Slug': vendor.slug,
       'Submission Date': new Date().toISOString().split('T')[0],
+      'Test Record': formData.isTestRecord,
       'Status': 'New',
     };
 

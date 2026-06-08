@@ -61,7 +61,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   return vendor;
 }
 
-export async function signUpAndClaimVendor(email: string, accessToken: string, password: string, enableInquiries: boolean) {
+export async function signUpAndClaimVendor(email: string, accessToken: string, password: string) {
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
@@ -145,15 +145,22 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
 
   const now = new Date().toISOString();
 
-  // Clear the access token so it can't be reused, update verified_at, and set inquiry consent
-  await supabaseAdminClient
+  // Clear the access token so it can't be reused, update verified_at
+  const { error: vendorUpdateError } = await supabaseAdminClient
     .from('vendors')
     .update({
       access_token: null,
-      verified_at: now,
-      approved_inquiries_at: enableInquiries ? now : null,
+      verified_at: now
     })
     .eq('id', vendor.id);
+
+  if (vendorUpdateError) {
+    return {
+      success: false,
+      type: 'vendor_update_failed',
+      error: 'Failed to finalize vendor claim: ' + vendorUpdateError.message
+    };
+  }
 
   return {
     success: true,

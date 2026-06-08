@@ -6,8 +6,6 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -34,7 +32,6 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
   const [formError, setFormError] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [termsError, setTermsError] = useState(false);
-  const [enableInquiries, setEnableInquiries] = useState(true);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -73,7 +70,6 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
         vendorInfo.email,
         token,
         password,
-        enableInquiries
       );
 
       if (!result.success) {
@@ -157,24 +153,6 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
         onChange={(e) => setConfirmPassword(e.target.value)}
         onKeyDown={(e) => { if (e.key === "Enter") handleClaim(e); }}
         sx={{ mb: 2.5 }}
-      />
-
-      {/* Inquiries opt-in */}
-      <FormControlLabel
-        sx={{ mt: 1, mb: 2, alignItems: 'flex-start' }}
-        control={
-          <Checkbox
-            checked={enableInquiries}
-            onChange={(e) => setEnableInquiries(e.target.checked)}
-            sx={{ pt: 0 }}
-            color="secondary"
-          />
-        }
-        label={
-          <Typography variant="body2">
-            Receive bridal inquiries through Asian Wedding Makeup
-          </Typography>
-        }
       />
 
       {/* Terms */}

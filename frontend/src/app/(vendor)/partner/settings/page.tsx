@@ -27,5 +27,10 @@ export default async function VendorSettingsPage() {
     redirect(`/partner/login?redirectTo=${encodeURIComponent('/partner/settings')}`);
   }
 
-  return <VendorSettings userEmail={currentUser.email} vendorId={vendor.id} vendorSlug={vendor.slug ?? undefined} approvedInquiriesAt={vendor.approved_inquiries_at} />;
+  return <VendorSettings
+    userEmail={currentUser.email}
+    vendorId={vendor.id}
+    vendorSlug={vendor.slug ?? undefined}
+    inquiriesOptedOutAt={vendor.inquiries_opted_out_at}
+  />;
 }

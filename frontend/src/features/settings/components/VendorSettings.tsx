@@ -39,14 +39,14 @@ type VendorSettingsProps = {
   userEmail: string;
   vendorId: string;
   vendorSlug?: string;
-  approvedInquiriesAt?: string | null;
+  inquiriesOptedOutAt?: string | null;
 };
 
 export const VendorSettings = ({
   userEmail,
   vendorId,
   vendorSlug,
-  approvedInquiriesAt,
+  inquiriesOptedOutAt,
 }: VendorSettingsProps) => {
   const { addNotification } = useNotification();
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -55,7 +55,7 @@ export const VendorSettings = ({
   const [emailChangePassword, setEmailChangePassword] = useState('');
   const [showEmailPassword, setShowEmailPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [inquiryEnabled, setInquiryEnabled] = useState(!!approvedInquiriesAt);
+  const [inquiryEnabled, setInquiryEnabled] = useState(!inquiriesOptedOutAt);
   const [isUpdatingInquiry, setIsUpdatingInquiry] = useState(false);
 
   const router = useRouter();
