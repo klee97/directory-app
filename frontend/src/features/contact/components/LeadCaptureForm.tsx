@@ -260,7 +260,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   // Scroll to top when step changes
   useEffect(() => {
     onScrollToTop?.();
-  }, [activeStep]);
+  }, [activeStep, onScrollToTop]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
