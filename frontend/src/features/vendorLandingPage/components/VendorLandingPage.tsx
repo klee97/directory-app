@@ -56,7 +56,7 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
     {
       step: "2",
       title: "Claim Your Profile",
-      description: "Claim your profile to edit your information and receive bridal inquiries. You may also delete your profile at any time by [contacting us](/partner/contact).",
+      description: "Claim your vendor profile to edit your information and manage your inquiries. You may also delete your profile at any time by [contacting us](/partner/contact).",
     },
     {
       step: "3",
@@ -118,7 +118,11 @@ const VendorLandingPage = ({ makeupImage }: VendorLandingPageProps) => {
       items: [
         {
           question: "How do I start receiving inquiries?",
-          answer: "Claim your profile to start receiving inquiries. We'll protect you from bots and spammers with our Real Response Guarantee.",
+          answer: "All profiles on our directory can receive inquiries by default. We'll protect you from bots and spammers with our Real Response Guarantee.  You can pause inquiries at any time (see below).",
+        },
+        { 
+          question: "How do I stop receiving inquiries?",
+          answer: "You can pause inquiries at any time through the [settings page in the Vendor Portal](/partner/settings). You can also [contact us at any time](/partner/contact)."
         },
         {
           question: "How does the pay-per-inquiry system work?",
