@@ -183,6 +183,25 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
       [BLOCKS.PARAGRAPH]: (_node: Block | Inline, children: React.ReactNode) => {
         return <Typography variant='body1' sx={{ py: 2 }}>{children}</Typography>;
       },
+      [BLOCKS.QUOTE]: (_node: Block | Inline, children: React.ReactNode) => {
+        return (
+          <Box
+            component="blockquote"
+            sx={{
+              borderLeft: '4px solid',
+              borderColor: 'primary.main',
+              pl: 2,
+              py: 1,
+              my: 3,
+              ml: 0,
+              fontStyle: 'italic',
+              color: 'text.secondary',
+            }}
+          >
+            {children}
+          </Box>
+        );
+      },
 
       [BLOCKS.EMBEDDED_ENTRY]: (node: Block | Inline) => {
         const entryId = node.data.target.sys.id;
