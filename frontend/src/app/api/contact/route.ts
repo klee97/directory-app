@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
     return apiError('All fields are required.', 400);
   }
 
-  const isHuman = await verifyRecaptchaToken(recaptchaToken);
-  if (!isHuman) {
+  const isHuman: { success: boolean } = await verifyRecaptchaToken(recaptchaToken);
+  if (!isHuman.success) {
     return apiError('CAPTCHA verification failed.', 400);
   }
 

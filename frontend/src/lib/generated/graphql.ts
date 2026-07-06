@@ -1,12 +1,12 @@
-import { GraphQLClient, RequestOptions } from 'graphql-request';
+/** Internal type. DO NOT USE DIRECTLY. */
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+/** Internal type. DO NOT USE DIRECTLY. */
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+import { Document } from '@contentful/rich-text-types';
+import { GraphQLClient, type RequestOptions } from 'graphql-request';
 import gql from 'graphql-tag';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 type GraphQLClientRequestHeaders = RequestOptions['requestHeaders'];
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -15,11 +15,11 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
-  Dimension: { input: any; output: any; }
-  HexColor: { input: any; output: any; }
-  JSON: { input: any; output: any; }
-  Quality: { input: any; output: any; }
+  DateTime: { input: string; output: string; }
+  Dimension: { input: unknown; output: unknown; }
+  HexColor: { input: unknown; output: unknown; }
+  JSON: { input: Document; output: Document; }
+  Quality: { input: unknown; output: unknown; }
 };
 
 /** Represents a binary file in a space. An asset can be any file type. */
@@ -2159,14 +2159,20 @@ export type CfPageBlogPostNestedFilter = {
 export type GetAllBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllBlogPostsQuery = { __typename?: 'Query', pageBlogPostCollection?: { __typename?: 'PageBlogPostCollection', items: Array<{ __typename?: 'PageBlogPost', title?: string | null, slug?: string | null, shortDescription?: string | null, publishedDate?: any | null, categoryList?: Array<string | null> | null, cultures?: Array<string | null> | null, locations?: Array<string | null> | null, contentfulMetadata: { __typename?: 'ContentfulMetadata', tags: Array<{ __typename?: 'ContentfulTag', id?: string | null, name?: string | null } | null> }, sys: { __typename?: 'Sys', id: string }, content?: { __typename?: 'PageBlogPostContent', json: any } | null, featuredImage?: { __typename?: 'Asset', url?: string | null, title?: string | null, width?: number | null, height?: number | null, description?: string | null, contentType?: string | null } | null, author?: { __typename?: 'ComponentAuthor', name?: string | null, avatar?: { __typename?: 'Asset', url?: string | null, title?: string | null, width?: number | null, height?: number | null, contentType?: string | null } | null } | null, seoFields?: { __typename?: 'ComponentSeo', pageTitle?: string | null, pageDescription?: string | null } | null } | null> } | null };
+export type GetAllBlogPostsQuery = { pageBlogPostCollection: { items: Array<{ title: string | null, slug: string | null, shortDescription: string | null, publishedDate: string | null, categoryList: Array<string | null> | null, cultures: Array<string | null> | null, locations: Array<string | null> | null, contentfulMetadata: { tags: Array<{ id: string | null, name: string | null } | null> }, sys: { id: string }, content: { json: Document } | null, featuredImage: { url: string | null, title: string | null, width: number | null, height: number | null, description: string | null, contentType: string | null } | null, author: { name: string | null, avatar: { url: string | null, title: string | null, width: number | null, height: number | null, contentType: string | null } | null } | null, seoFields: { pageTitle: string | null, pageDescription: string | null } | null } | null> } | null };
 
 export type GetBlogPostBySlugQueryVariables = Exact<{
-  slug: Scalars['String']['input'];
+  slug: string;
 }>;
 
 
-export type GetBlogPostBySlugQuery = { __typename?: 'Query', pageBlogPostCollection?: { __typename?: 'PageBlogPostCollection', items: Array<{ __typename?: 'PageBlogPost', title?: string | null, slug?: string | null, shortDescription?: string | null, publishedDate?: any | null, categoryList?: Array<string | null> | null, cultures?: Array<string | null> | null, locations?: Array<string | null> | null, contentfulMetadata: { __typename?: 'ContentfulMetadata', tags: Array<{ __typename?: 'ContentfulTag', id?: string | null, name?: string | null } | null>, concepts: Array<{ __typename?: 'TaxonomyConcept', id?: string | null } | null> }, sys: { __typename?: 'Sys', id: string }, content?: { __typename?: 'PageBlogPostContent', json: any, links: { __typename?: 'PageBlogPostContentLinks', assets: { __typename?: 'PageBlogPostContentAssets', block: Array<{ __typename?: 'Asset', url?: string | null, title?: string | null, width?: number | null, height?: number | null, description?: string | null, sys: { __typename?: 'Sys', id: string } } | null> }, entries: { __typename?: 'PageBlogPostContentEntries', block: Array<{ __typename: 'ComponentAuthor', sys: { __typename?: 'Sys', id: string } } | { __typename: 'ComponentRichImage', caption?: string | null, fullWidth?: boolean | null, image?: { __typename?: 'Asset', url?: string | null, description?: string | null, width?: number | null, height?: number | null } | null, sys: { __typename?: 'Sys', id: string } } | { __typename: 'ComponentSeo', sys: { __typename?: 'Sys', id: string } } | { __typename: 'PageBlogPost', sys: { __typename?: 'Sys', id: string } } | { __typename: 'PageLanding', sys: { __typename?: 'Sys', id: string } } | null> } } } | null, featuredImage?: { __typename?: 'Asset', url?: string | null, title?: string | null, width?: number | null, height?: number | null, description?: string | null, contentType?: string | null } | null, author?: { __typename?: 'ComponentAuthor', name?: string | null, avatar?: { __typename?: 'Asset', url?: string | null, title?: string | null, width?: number | null, height?: number | null, contentType?: string | null } | null } | null, seoFields?: { __typename?: 'ComponentSeo', pageTitle?: string | null, pageDescription?: string | null } | null } | null> } | null };
+export type GetBlogPostBySlugQuery = { pageBlogPostCollection: { items: Array<{ title: string | null, slug: string | null, shortDescription: string | null, publishedDate: string | null, categoryList: Array<string | null> | null, cultures: Array<string | null> | null, locations: Array<string | null> | null, contentfulMetadata: { tags: Array<{ id: string | null, name: string | null } | null>, concepts: Array<{ id: string | null } | null> }, sys: { id: string }, content: { json: Document, links: { assets: { block: Array<{ url: string | null, title: string | null, width: number | null, height: number | null, description: string | null, sys: { id: string } } | null> }, entries: { block: Array<
+              | { __typename: 'ComponentAuthor', sys: { id: string } }
+              | { __typename: 'ComponentRichImage', caption: string | null, fullWidth: boolean | null, image: { url: string | null, description: string | null, width: number | null, height: number | null } | null, sys: { id: string } }
+              | { __typename: 'ComponentSeo', sys: { id: string } }
+              | { __typename: 'PageBlogPost', sys: { id: string } }
+              | { __typename: 'PageLanding', sys: { id: string } }
+             | null> } } } | null, featuredImage: { url: string | null, title: string | null, width: number | null, height: number | null, description: string | null, contentType: string | null } | null, author: { name: string | null, avatar: { url: string | null, title: string | null, width: number | null, height: number | null, contentType: string | null } | null } | null, seoFields: { pageTitle: string | null, pageDescription: string | null } | null } | null> } | null };
 
 
 export const GetAllBlogPostsDocument = gql`

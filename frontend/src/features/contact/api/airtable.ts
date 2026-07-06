@@ -84,5 +84,11 @@ export async function submitPremiumWaitlist(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vendorId, businessName }),
   });
+
+  if (!result.ok) {
+    console.error('Premium waitlist submission error:', result.error);
+    return false;
+  }
+
   return result.ok;
 }

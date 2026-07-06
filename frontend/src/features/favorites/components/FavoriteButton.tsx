@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginPrompt from '@/features/login/components/LoginPrompt';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -19,15 +19,17 @@ export default function FavoriteButton({
   vendorId,
   initialIsFavorited = false,
   onFavoriteChange,
-  sx={}
+  sx = {}
 }: FavoriteButtonProps) {
+  const [prevInitialIsFavorited, setPrevInitialIsFavorited] = useState(initialIsFavorited);
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const { isLoggedIn } = useAuth();
 
-  useEffect(() => {
+  if (initialIsFavorited !== prevInitialIsFavorited) {
+    setPrevInitialIsFavorited(initialIsFavorited);
     setIsFavorited(initialIsFavorited);
-  }, [initialIsFavorited]); 
+  }
 
   const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();

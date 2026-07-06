@@ -1,7 +1,7 @@
 import { isDevOrPreview } from "@/lib/env/env";
 
 // Function to verify reCAPTCHA token with Google
-export async function verifyRecaptchaToken(token: string) {
+export async function verifyRecaptchaToken(token: string): Promise<{ success: boolean }> {
 
   if (isDevOrPreview() && token === 'test-fail') {
     throw new Error("CAPTCHA verification failed");

@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
       ],
       siteName: "Asian Wedding Makeup",
-      publishedTime: post.publishedDate,
+      publishedTime: post.publishedDate ?? undefined,
       authors: post.author?.name ? [post.author.name] : undefined,
     },
     twitter: {

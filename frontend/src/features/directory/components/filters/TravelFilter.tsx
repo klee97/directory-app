@@ -9,7 +9,7 @@ import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import React, { useEffect } from "react";
+import { useState } from "react";
 import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 
 export default function TravelFilter({
@@ -21,11 +21,13 @@ export default function TravelFilter({
 
   // Get the current value from URL (default to false if not set)
   const travelsWorldwideDefault = getParam(TRAVEL_PARAM)?.toLowerCase() === "true";
-  const [travelsWorldwide, setTravelsWorldwide] = React.useState<boolean>(travelsWorldwideDefault);
+  const [prevDefault, setPrevDefault] = useState(travelsWorldwideDefault);
+  const [travelsWorldwide, setTravelsWorldwide] = useState<boolean>(travelsWorldwideDefault);
 
-  useEffect(() => {
+  if (travelsWorldwideDefault !== prevDefault) {
+    setPrevDefault(travelsWorldwideDefault);
     setTravelsWorldwide(travelsWorldwideDefault);
-  }, [travelsWorldwideDefault]);
+  }
 
   // Function to update the URL param
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
