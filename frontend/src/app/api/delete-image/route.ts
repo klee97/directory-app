@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { isTestVendor } from '@/lib/env/env';
 import { requireVendorAccess } from '@/lib/auth/serverAuth';
 import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -18,13 +19,13 @@ export async function DELETE(request: NextRequest) {
     const currentUser: CurrentUser | null = await getCurrentUser();
     if (!currentUser) {
       console.error("Authentication error: No active session");
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiError('Unauthorized', 401);
     }
 
     const { imageUrl, vendorSlug } = await request.json();
 
     if (!imageUrl || !vendorSlug) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return apiError('Missing required fields', 400);
     }
 
     const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, currentUser.userId);
@@ -43,10 +44,7 @@ export async function DELETE(request: NextRequest) {
 
     if (!r2Bucket) {
       console.error('No R2 bucket found when deleting image');
-      return NextResponse.json(
-        { error: 'Failed to delete image' },
-        { status: 500 }
-      );
+      return apiError('Failed to delete image', 500);
     }
 
     // Delete from R2
@@ -57,13 +55,10 @@ export async function DELETE(request: NextRequest) {
 
     await s3.send(deleteCommand);
 
-    return NextResponse.json({ success: true });
+    return apiSuccess({ success: true });
 
   } catch (error) {
     console.error('Delete error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete image' },
-      { status: 500 }
-    );
+    return apiError('Failed to delete image', 500);
   }
 }

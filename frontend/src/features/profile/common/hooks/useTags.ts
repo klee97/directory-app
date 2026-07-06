@@ -1,6 +1,6 @@
+import { callApi } from '@/lib/api/client';
 import { VendorTag } from '@/types/vendor';
 import { useEffect, useState } from 'react';
-
 
 export function useTags() {
   const [tags, setTags] = useState<VendorTag[]>([]);
@@ -9,13 +9,8 @@ export function useTags() {
   useEffect(() => {
     async function fetchTags() {
       setLoading(true);
-      try {
-        const res = await fetch('/api/tags');
-        const data = await res.json();
-        setTags(data);
-      } catch {
-        setTags([]);
-      }
+      const result = await callApi<VendorTag[]>('/api/tags');
+      setTags(result.ok ? result.data : []);
       setLoading(false);
     }
     fetchTags();

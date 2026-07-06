@@ -1,14 +1,15 @@
 import { isProduction } from '@/lib/env/env'
-import { NextRequest, NextResponse } from 'next/server'
+import { apiError, apiSuccess } from '@/lib/api/respond'
+import { NextRequest } from 'next/server'
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
 
   if (password !== process.env.BLOG_PREVIEW_PASSWORD) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return apiError('Unauthorized', 401)
   }
 
-  const response = NextResponse.json({ ok: true })
+  const response = apiSuccess({ success: true })
   response.cookies.set('preview-auth', process.env.BLOG_PREVIEW_PASSWORD!, {
     httpOnly: true,
     secure: isProduction(),

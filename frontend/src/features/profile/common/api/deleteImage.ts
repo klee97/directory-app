@@ -1,14 +1,16 @@
+import { callApi } from '@/lib/api/client';
 
-export async function deleteImage(imageUrl: string, vendorSlug: string): Promise<void> {
+interface DeleteImageResponse {
+  success: true;
+}
+
+export async function deleteImage(imageUrl: string, vendorSlug: string): Promise<boolean> {
   console.debug(`Attempting to delete image from R2: ${imageUrl} for vendor: ${vendorSlug}`);
-  const res = await fetch('/api/delete-image', {
+  const result = await callApi<DeleteImageResponse>('/api/delete-image', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ imageUrl, vendorSlug }),
   });
 
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => ({}));
-    throw new Error(errBody.error || 'Image deletion failed');
-  }
+  return result.ok;
 }

@@ -20,6 +20,7 @@ import {
   Storage
 } from '@mui/icons-material';
 import { getEnvironment } from '@/lib/env/env';
+import { callApi } from '@/lib/api/client';
 
 interface ServerEnvInfo {
   detected: string;
@@ -34,16 +35,17 @@ const EnvDebugPanel = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/env-debug')
-      .then(res => res.json())
-      .then(data => {
-        setServerEnv(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Failed to fetch server env:', err);
-        setLoading(false);
-      });
+    const loadServerEnv = async () => {
+      const result = await callApi<ServerEnvInfo>('/api/env-debug');
+      if (result.ok) {
+        setServerEnv(result.data);
+      } else {
+        console.error('Failed to fetch server env:', result.error);
+      }
+      setLoading(false);
+    };
+
+    loadServerEnv();
   }, []);
 
   const clientEnv = {

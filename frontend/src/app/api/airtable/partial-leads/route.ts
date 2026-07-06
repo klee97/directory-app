@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getPartialLeadsTable } from '@/lib/airtable/constants';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 export async function POST(req: NextRequest) {
   const partialLead = await req.json();
@@ -33,9 +34,9 @@ export async function POST(req: NextRequest) {
     ]);
 
     const success = record.length > 0;
-    return NextResponse.json({ ok: success });
+    return apiSuccess({ success });
   } catch (error) {
     console.error('Error saving partial lead to Airtable:', error);
-    return NextResponse.json({ error: 'Failed to save partial lead.' }, { status: 502 });
+    return apiError('Failed to save partial lead.', 502);
   }
 }

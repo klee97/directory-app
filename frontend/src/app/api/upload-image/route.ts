@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import { isTestVendor } from '@/lib/env/env';
 import { requireVendorAccess } from '@/lib/auth/serverAuth';
 import { CurrentUser, getCurrentUser } from '@/lib/auth/getUser';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 const s3 = new S3Client({
   region: 'auto',
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
     const currentUser: CurrentUser | null = await getCurrentUser();
     if (!currentUser) {
       console.error("Authentication error: No active session");
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return apiError('Unauthorized', 401);
     }
 
     const formData = await request.formData();
@@ -32,11 +33,11 @@ export async function POST(request: NextRequest) {
     const vendorSlug = formData.get('vendorSlug') as string;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+      return apiError('No file provided', 400);
     }
 
     if (!vendorSlug) {
-      return NextResponse.json({ error: 'No vendor slug provided' }, { status: 400 });
+      return apiError('No vendor slug provided', 400);
     }
 
     const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, currentUser.userId);
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
 
     const r2Url = isTestData ? `${process.env.R2_TEST_URL}/${filename}` : `${R2_PUBLIC_URL}/${filename}`;
 
-    return NextResponse.json({
+    return apiSuccess({
       success: true,
       url: r2Url,
       originalSize: imageBuffer.length,
@@ -98,9 +99,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json(
-      { error: 'Failed to upload image' },
-      { status: 500 }
-    );
+    return apiError('Failed to upload image', 500);
   }
 }
