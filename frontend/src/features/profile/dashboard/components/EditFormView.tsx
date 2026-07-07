@@ -69,6 +69,13 @@ export default function EditFormView({
   const image = useImageUploadField();
   const loading = image.loading || isSaving;
 
+  // Helper to validate a price value
+  const validatePrice = (value: number | null): string | null => {
+    if (value === null || value === undefined) return null;
+    if (value < MIN_SERVICE_PRICE) return 'Price cannot be negative';
+    if (value > MAX_SERVICE_PRICE) return `Price cannot exceed $${MAX_SERVICE_PRICE.toLocaleString()}`;
+    return null;
+  };
 
   const PRICE_FIELDS: (keyof VendorFormData)[] = [
     'bridal_hair_price',
@@ -170,14 +177,6 @@ export default function EditFormView({
       }
     };
   }, []);
-
-  // Helper to validate a price value
-  const validatePrice = (value: number | null): string | null => {
-    if (value === null || value === undefined) return null;
-    if (value < MIN_SERVICE_PRICE) return 'Price cannot be negative';
-    if (value > MAX_SERVICE_PRICE) return `Price cannot exceed $${MAX_SERVICE_PRICE.toLocaleString()}`;
-    return null;
-  };
 
   // Helper to handle price change with validation
   const handlePriceChange = (fieldName: keyof VendorFormData, value: string) => {

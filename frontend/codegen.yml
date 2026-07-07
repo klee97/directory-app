@@ -9,3 +9,7 @@ generates:
       - typescript
       - typescript-operations
       - typescript-graphql-request
+config:
+  scalars:
+    DateTime: string
+    JSON: '@contentful/rich-text-types#Document'

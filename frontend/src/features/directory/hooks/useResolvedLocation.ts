@@ -14,7 +14,10 @@ export default function useResolvedLocation({
     immediateLocation?: LocationResult | null,
 }): LocationResult | null {
     console.debug('useResolvedLocation: Hook initialized with preselectedLocation:', preselectedLocation, 'immediateLocation:', immediateLocation);
-    const [resolvedFromFetch, setResolvedFromFetch] = useState<LocationResult | null>(null);
+    const [resolvedFromFetch, setResolvedFromFetch] = useState<{
+        key: string;
+        location: LocationResult | null;
+    } | null>(null);
     const lastCoordsRef = useRef<string | null>(null);
     const isResolvingRef = useRef<boolean>(false);
 
@@ -52,9 +55,9 @@ export default function useResolvedLocation({
                 const data: LocationResult | null = await res.json();
                 if (data) {
                     reverseGeocodeCache.set(coordsKey, data);
-                    setResolvedFromFetch(data); // setState inside an async callback — legitimate
-                    lastCoordsRef.current = coordsKey;
                 }
+                setResolvedFromFetch({ key: coordsKey, location: data });
+                lastCoordsRef.current = coordsKey;
             } catch (error) {
                 console.error('Error resolving location:', error);
             } finally {
@@ -63,5 +66,9 @@ export default function useResolvedLocation({
         })();
     }, [coords, coordsKey, syncLocation]);
 
-    return syncLocation !== undefined ? syncLocation : resolvedFromFetch;
+    return syncLocation !== undefined
+        ? syncLocation
+        : resolvedFromFetch?.key === coordsKey
+            ? resolvedFromFetch.location
+            : null;
 }
