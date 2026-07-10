@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { fetchApi } from '@/lib/api/client';
 import { LocationResult } from '@/types/location';
 import { CITIES_ONLY_PARAM, QUERY_PARAM } from '@/lib/constants';
 
@@ -55,14 +56,13 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
             console.debug('Fetching instant results for encoded query:', encodedQuery);
 
             try {
-                const response = await fetch(`/api/search/instant?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
-                const data = await response.json();
+                const response = await fetchApi<{ locations: LocationResult[]; query: string; cached: boolean }>(`/api/search/instant?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
 
                 // Only update if this is still the current query
                 if (currentQueryRef.current === originalQuery) {
                     setResults(prev => ({
                         ...prev,
-                        instantLocations: data.locations || [],
+                        instantLocations: response.ok ? response.data.locations : [],
                         isInstantLoading: false,
                     }));
                 }
@@ -82,16 +82,15 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
             console.debug('Fetching detailed results for query:', encodedQuery);
 
             try {
-                const response = await fetch(`/api/search/detailed?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
-                const data = await response.json();
+                const response = await fetchApi<{ locations: LocationResult[]; query: string; success: boolean; error?: string; cached: boolean }>(`/api/search/detailed?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
 
                 // Only update if this is still the current query
                 if (currentQueryRef.current === originalQuery) {
                     setResults(prev => ({
                         ...prev,
-                        detailedLocations: data.locations || [],
-                        detailedSuccess: data.success || false,
-                        detailedError: data.error,
+                        detailedLocations: response.ok ? response.data.locations : [],
+                        detailedSuccess: response.ok ? response.data.success : false,
+                        detailedError: response.ok ? response.data.error : response.error,
                         isDetailedLoading: false,
                     }));
                 }

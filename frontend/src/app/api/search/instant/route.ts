@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { LRUCache } from "lru-cache";
+import { apiSuccess } from "@/lib/api/respond";
 import { LocationResult } from "@/types/location";
 import { POPULATED_LOCATIONS } from "@/lib/location/populated-cities";
 import { CITIES_ONLY_PARAM, QUERY_PARAM } from "@/lib/constants";
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
     const popularCities = allCities
       .slice(0, 15);
 
-    return NextResponse.json({
+    return apiSuccess({
       locations: popularCities,
       query: "",
       cached: false
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
   // Check cache
   const cached = instantCache.get(cacheKey);
   if (cached) {
-    return NextResponse.json({
+    return apiSuccess({
       locations: cached,
       query: normalizedQuery,
       cached: true
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
     : matchingLocations;
   instantCache.set(cacheKey, filteredLocations);
   console.debug(`Instant search cache set for query: "${cacheKey}" -> ${filteredLocations.length} results`);
-  return NextResponse.json({
+  return apiSuccess({
     locations: filteredLocations,
     query: normalizedQuery,
     cached: false

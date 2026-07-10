@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { fetchApi } from '@/lib/api/client';
 import { LocationResult } from '@/types/location';
 
 interface SearchResults {
@@ -41,14 +42,13 @@ export function useSearch(query: string): SearchResults {
         console.debug('Fetching instant results for encoded query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/instant?q=${encodedQuery}`);
-            const data = await response.json();
+            const response = await fetchApi<{ locations: LocationResult[]; query: string; cached: boolean }>(`/api/search/instant?q=${encodedQuery}`);
 
             // Only update if this is still the current query
             if (currentQueryRef.current === originalQuery) {
                 setResults(prev => ({
                     ...prev,
-                    instantLocations: data.locations || [],
+                    instantLocations: response.ok ? response.data.locations : [],
                     isInstantLoading: false,
                 }));
             }
@@ -68,16 +68,15 @@ export function useSearch(query: string): SearchResults {
         console.debug('Fetching detailed results for query:', encodedQuery);
 
         try {
-            const response = await fetch(`/api/search/detailed?q=${encodedQuery}`);
-            const data = await response.json();
+            const response = await fetchApi<{ locations: LocationResult[]; query: string; success: boolean; error?: string; cached: boolean }>(`/api/search/detailed?q=${encodedQuery}`);
 
             // Only update if this is still the current query
             if (currentQueryRef.current === originalQuery) {
                 setResults(prev => ({
                     ...prev,
-                    detailedLocations: data.locations || [],
-                    detailedSuccess: data.success || false,
-                    detailedError: data.error,
+                    detailedLocations: response.ok ? response.data.locations : [],
+                    detailedSuccess: response.ok ? response.data.success : false,
+                    detailedError: response.ok ? response.data.error : response.error,
                     isDetailedLoading: false,
                 }));
             }

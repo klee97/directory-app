@@ -1,4 +1,4 @@
-import { callApi } from '@/lib/api/client';
+import { fetchApi } from '@/lib/api/client';
 
 interface UploadImageResponse {
   success: true;
@@ -12,7 +12,7 @@ export async function uploadImage(file: File, vendorIdentifier?: string): Promis
   fd.append('file', file);
   if (vendorIdentifier) fd.append('vendorSlug', vendorIdentifier);
 
-  const result = await callApi<UploadImageResponse>('/api/upload-image', {
+  const result = await fetchApi<UploadImageResponse>('/api/upload-image', {
     method: 'POST',
     body: fd,
   });

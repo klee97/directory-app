@@ -1,6 +1,6 @@
 import type { ApiResponse } from '@/types/api';
 
-export async function callApi<T>(
+export async function fetchApi<T>(
   url: string,
   init?: RequestInit
 ): Promise<ApiResponse<T>> {

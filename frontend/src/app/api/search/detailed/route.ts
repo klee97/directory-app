@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { LRUCache } from "lru-cache";
+import { apiSuccess } from "@/lib/api/respond";
 import { rawPhotonFetch } from "@/lib/location/geocode";
 import { LocationResult } from "@/types/location";
 import { fetchPhotonResults } from "@/lib/location/photonUtils";
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
   // Check cache first
   const cached = detailedCache.get(cacheKey);
   if (cached) {
-    return NextResponse.json({
+    return apiSuccess({
       locations: cached.locations,
       query: normalizedQuery,
       success: cached.success,
@@ -40,8 +41,8 @@ export async function GET(request: NextRequest) {
     const filteredLocations = citiesOnly
       ? locations.filter(loc => loc.type === 'city')
       : locations;
-    return NextResponse.json({
-      filteredLocations,
+    return apiSuccess({
+      locations: filteredLocations,
       query: normalizedQuery,
       success: true,
       cached: false
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
     const failureResult = { locations: [], success: false };
     detailedCache.set(cacheKey, failureResult);
 
-    return NextResponse.json({
+    return apiSuccess({
       locations: [],
       query: normalizedQuery,
       success: false,
