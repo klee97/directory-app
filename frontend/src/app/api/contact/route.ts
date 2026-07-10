@@ -36,5 +36,5 @@ export async function POST(req: NextRequest) {
     return apiError('Failed to send contact message.', 502);
   }
 
-  return apiSuccess({ success: true });
+  return apiSuccess({});
 }

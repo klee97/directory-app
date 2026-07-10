@@ -52,9 +52,12 @@ export async function POST(req: NextRequest) {
     }
 
     const record = await getLeadsTable().create([{ fields }]);
-    const success = record.length > 0;
 
-    return apiSuccess({ success });
+    if (record.length === 0) {
+      return apiError('Failed to submit lead.', 502);
+    }
+
+    return apiSuccess({});
   } catch (error) {
     console.error('Airtable submission error:', error);
     return apiError('Failed to submit lead.', 502);

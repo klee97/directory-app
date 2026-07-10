@@ -30,5 +30,5 @@ export async function POST(req: NextRequest) {
     return apiError('Failed to sign up for newsletter.', 502);
   }
 
-  return apiSuccess({ success: true });
+  return apiSuccess({});
 }

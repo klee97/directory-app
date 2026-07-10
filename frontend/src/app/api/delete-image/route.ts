@@ -53,10 +53,14 @@ export async function DELETE(request: NextRequest) {
       Key: filename,
     });
 
-    await s3.send(deleteCommand);
+    const result = await s3.send(deleteCommand);
 
-    return apiSuccess({ success: true });
-
+    if (!result.$metadata.httpStatusCode || result.$metadata.httpStatusCode !== 204) {
+      console.error('Failed to delete image from R2:', result);
+      return apiError('Failed to delete image', 500);
+    } else {
+      return apiSuccess({});
+    }
   } catch (error) {
     console.error('Delete error:', error);
     return apiError('Failed to delete image', 500);

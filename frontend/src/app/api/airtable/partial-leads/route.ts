@@ -33,8 +33,11 @@ export async function POST(req: NextRequest) {
       }
     ]);
 
-    const success = record.length > 0;
-    return apiSuccess({ success });
+    if (record.length === 0) {
+      return apiError('Failed to submit partial lead.', 502);
+    }
+
+    return apiSuccess({});
   } catch (error) {
     console.error('Error saving partial lead to Airtable:', error);
     return apiError('Failed to save partial lead.', 502);

@@ -21,9 +21,12 @@ export async function POST(req: NextRequest) {
       }
     }]);
     airtableSuccess = record.length > 0;
+    if (!airtableSuccess) {
+      return apiError('Failed to submit website interest.', 502);
+    }
   } catch (error) {
     console.error('Airtable website interest error:', error);
-    return apiError('Failed to submit.', 502);
+    return apiError('Failed to submit website interest.', 502);
   }
 
   // Write to Supabase — non-blocking, log but don't fail the request
@@ -38,5 +41,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return apiSuccess({ success: airtableSuccess });
+  return apiSuccess({});
 }

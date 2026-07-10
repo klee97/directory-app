@@ -19,10 +19,14 @@ export async function POST(req: NextRequest) {
         'Status': 'New',
       }
     }]);
-    airtableSuccess = record.length > 0;
+    if (record.length === 0) {
+      return apiError('Failed to submit premium interest.', 502);
+    }
+
+    airtableSuccess = true;
   } catch (error) {
     console.error('Airtable premium interest error:', error);
-    return apiError('Failed to submit.', 502);
+    return apiError('Failed to submit premium interest.', 502);
   }
 
   // Write to Supabase — non-blocking, log but don't fail the request
@@ -37,5 +41,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return apiSuccess({ success: airtableSuccess });
+  return apiSuccess({});
 }

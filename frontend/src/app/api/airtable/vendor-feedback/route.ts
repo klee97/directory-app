@@ -20,8 +20,11 @@ export async function POST(req: NextRequest) {
       },
     ]);
 
-    const success = record.length > 0;
-    return apiSuccess({ success });
+    if (record.length === 0) {
+      return apiError('Failed to submit feedback.', 502);
+    }
+
+    return apiSuccess({});
   } catch (error) {
     console.error("Vendor feedback submission error:", error);
     return apiError('Failed to submit feedback.', 502);

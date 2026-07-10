@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     return apiError('Unauthorized', 401)
   }
 
-  const response = apiSuccess({ success: true })
+  const response = apiSuccess({})
   response.cookies.set('preview-auth', process.env.BLOG_PREVIEW_PASSWORD!, {
     httpOnly: true,
     secure: isProduction(),

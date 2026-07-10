@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
     const r2Url = isTestData ? `${process.env.R2_TEST_URL}/${filename}` : `${R2_PUBLIC_URL}/${filename}`;
 
     return apiSuccess({
-      success: true,
       url: r2Url,
       originalSize: imageBuffer.length,
       processedSize: processedBuffer.length,
