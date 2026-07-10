@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchApi } from './client';
 
-describe('callApi', () => {
+describe('fetchApi', () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {

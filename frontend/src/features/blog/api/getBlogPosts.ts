@@ -56,7 +56,9 @@ export async function getPostBySlug(slug: string) {
 export async function isPostInFuture(slug: string): Promise<boolean> {
   try {
     const post = await getPostBySlug(slug)
-    if (!post || !post.publishedDate) return false
+    if (!post || !post.publishedDate) {
+      return false
+    }
     return new Date(post.publishedDate) > new Date()
   } catch {
     return false // fail open

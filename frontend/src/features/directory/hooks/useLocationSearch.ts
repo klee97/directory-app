@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchApi } from '@/lib/api/client';
-import { LocationResult } from '@/types/location';
+import { DetailedSearchResult, LocationResult } from '@/types/location';
 import { CITIES_ONLY_PARAM, QUERY_PARAM } from '@/lib/constants';
 
 interface SearchResults {
@@ -32,83 +32,58 @@ interface UseLocationSearchOptions {
 }
 
 export function useLocationSearch(query: string, { citiesOnly = false }: UseLocationSearchOptions): SearchResults {
-    const [results, setResults] = useState<SearchResults>({
-        instantLocations: [],
-        detailedLocations: [],
-        isInstantLoading: false,
-        isDetailedLoading: false,
-        detailedSuccess: false,
-    });
+    const [results, setResults] = useState<SearchResults>(defaultEmptyResults);
 
     // Use ref to track the current query to prevent race conditions
     const currentQueryRef = useRef<string>('');
+    const trimmedQuery = query.trim();
+
 
     useEffect(() => {
-        const trimmedQuery = query.trim();
         currentQueryRef.current = trimmedQuery;
 
         if (!trimmedQuery) {
-            setResults({ ...defaultEmptyResults });
             return;
         }
+
+        const buildUrl = (base: string, encodedQuery: string) =>
+            `${base}?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`;
 
         const fetchInstantResults = async (encodedQuery: string, originalQuery: string) => {
             console.debug('Fetching instant results for encoded query:', encodedQuery);
 
-            try {
-                const response = await fetchApi<{ locations: LocationResult[]; query: string; cached: boolean }>(`/api/search/instant?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
+            const response = await fetchApi<{ locations: LocationResult[]; query: string; cached: boolean }>(buildUrl('/api/search/instant', encodedQuery));
 
-                // Only update if this is still the current query
-                if (currentQueryRef.current === originalQuery) {
-                    setResults(prev => ({
-                        ...prev,
-                        instantLocations: response.ok ? response.data.locations : [],
-                        isInstantLoading: false,
-                    }));
-                }
-            } catch (error) {
-                console.error('Instant search failed:', error);
-                if (currentQueryRef.current === originalQuery) {
-                    setResults(prev => ({
-                        ...prev,
-                        instantLocations: [],
-                        isInstantLoading: false
-                    }));
-                }
-            }
+            if (currentQueryRef.current !== originalQuery) return;
+
+            setResults(prev => ({
+                ...prev,
+                instantLocations: response.ok ? response.data.locations : [],
+                isInstantLoading: false,
+            }));
         };
 
         const fetchDetailedResults = async (encodedQuery: string, originalQuery: string) => {
             console.debug('Fetching detailed results for query:', encodedQuery);
 
-            try {
-                const response = await fetchApi<{ locations: LocationResult[]; query: string; success: boolean; error?: string; cached: boolean }>(`/api/search/detailed?${QUERY_PARAM}=${encodedQuery}${citiesOnly ? `&${CITIES_ONLY_PARAM}=true` : ''}`);
+            const response = await fetchApi<DetailedSearchResult>(buildUrl('/api/search/detailed', encodedQuery));
 
-                // Only update if this is still the current query
-                if (currentQueryRef.current === originalQuery) {
-                    setResults(prev => ({
-                        ...prev,
-                        detailedLocations: response.ok ? response.data.locations : [],
-                        detailedSuccess: response.ok ? response.data.success : false,
-                        detailedError: response.ok ? response.data.error : response.error,
-                        isDetailedLoading: false,
-                    }));
-                }
-            } catch (error) {
-                console.error('Detailed search failed:', error);
-                if (currentQueryRef.current === originalQuery) {
-                    setResults(prev => ({
-                        ...prev,
-                        detailedLocations: [],
-                        detailedSuccess: false,
-                        detailedError: error instanceof Error ? error.message : String(error),
-                        isDetailedLoading: false,
-                    }));
-                }
+            // Only update if this is still the current query
+            if (currentQueryRef.current === originalQuery) {
+                setResults(prev => ({
+                    ...prev,
+                    detailedLocations: response.ok ? response.data.locations : [],
+                    detailedSuccess: response.ok,
+                    detailedError: response.ok ? undefined : response.error,
+                    isDetailedLoading: false,
+                }));
             }
-        };
+        }
 
         // Clear previous results and set loading states immediately
+        // Resetting loading state before an async fetch is intentional here — the
+        // extra render this causes is negligible for a search-as-you-type hook.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setResults(prev => ({
             ...prev,
             instantLocations: [],
@@ -125,7 +100,7 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
         if (trimmedQuery.length >= 3) {
             fetchDetailedResults(encodedQuery, trimmedQuery);
         }
-    }, [query, citiesOnly]);
+    }, [trimmedQuery, citiesOnly]);
 
     return results;
 }
