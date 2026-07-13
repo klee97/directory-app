@@ -1,10 +1,8 @@
 import { createServerClient } from '@/lib/supabase/clients/serverClient';
-import { NextResponse } from 'next/server';
 
 export async function requireVendorAccess(vendorSlug: string, userId: string) {
   const supabaseServerClient = await createServerClient();
 
-  // Get vendor
   const vendorQuery = supabaseServerClient
     .from('vendors')
     .select('id, slug');
@@ -15,10 +13,9 @@ export async function requireVendorAccess(vendorSlug: string, userId: string) {
 
   if (vendorError || !vendor) {
     console.error("Vendor not found for slug:", vendorSlug, vendorError);
-    return { vendor: null, error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+    return { vendor: null, error: 'Forbidden' };
   }
 
-  // Check if admin
   const { data: profile } = await supabaseServerClient
     .from('profiles')
     .select('is_admin, vendor_id')
@@ -29,7 +26,7 @@ export async function requireVendorAccess(vendorSlug: string, userId: string) {
   const isOwnVendor = profile?.vendor_id === vendor.id;
 
   if (!isAdmin && !isOwnVendor) {
-    return { vendor: null, error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+    return { vendor: null, error: 'Forbidden' };
   }
 
   return { vendor, error: null, isAdmin };

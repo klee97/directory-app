@@ -1,9 +1,9 @@
 import { createGeocodeKey } from '@/features/directory/components/reverseGeocodeCache';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 import { fetchPhotonResult } from '@/lib/location/photonUtils';
 import { rawReversePhotonFetch } from '@/lib/location/reverseGeocode';
 import { LocationResult } from '@/types/location';
 import { LRUCache } from 'lru-cache';
-import { NextResponse } from 'next/server';
 
 const reverseGeocodeCache = new LRUCache<string, { location: LocationResult, success: boolean }>({
   max: 100,
@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   const lon = searchParams.get('lon');
 
   if (!lat || !lon) {
-    return NextResponse.json({ error: 'Missing lat or lon' }, { status: 400 });
+    return apiError('Missing lat or lon', 400);
   }
 
   const latNum = parseFloat(lat);
@@ -26,7 +26,7 @@ export async function GET(req: Request) {
   // Check cache first
   const cached = reverseGeocodeCache.get(geocodeKey);
   if (cached) {
-    return NextResponse.json(cached.location);
+    return apiSuccess(cached.location);
   }
 
   try {
@@ -35,14 +35,14 @@ export async function GET(req: Request) {
     if (location) {
       reverseGeocodeCache.set(geocodeKey, { location, success: true });
       console.debug(`Reverse geocode success for (${lat}, ${lon}):`, location);
-      return NextResponse.json(location);
+      return apiSuccess(location);
     } else {
       console.warn(`Reverse geocode found no results for (${lat}, ${lon})`);
-      return NextResponse.json({ error: 'No results found' }, { status: 404 });
+      return apiError('No results found', 404);
     }
   } catch (error) {
     const errorMessage = (error instanceof Error) ? error.message : String(error);
     console.warn(`Reverse search failed for "${lat}, ${lon}":`, errorMessage);
-    return NextResponse.json({ error: 'Failed to resolve location' }, { status: 500 });
+    return apiError('Failed to resolve location', 500);
   }
 }

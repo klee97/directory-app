@@ -1,19 +1,26 @@
-export async function uploadImage(file: File, vendorIdentifier?: string): Promise<string> {
+import { fetchApi } from '@/lib/api/client';
+
+interface UploadImageResponse {
+  url: string;
+  originalSize: number;
+  processedSize: number;
+}
+
+export async function uploadImage(file: File, vendorIdentifier?: string): Promise<string | null> {
   const fd = new FormData();
   fd.append('file', file);
   if (vendorIdentifier) fd.append('vendorSlug', vendorIdentifier);
 
-  const res = await fetch('/api/upload-image', {
+  const result = await fetchApi<UploadImageResponse>('/api/upload-image', {
     method: 'POST',
     body: fd,
   });
 
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => ({}));
-    throw new Error(errBody.error || 'Image upload failed');
+  if (!result.ok) {
+    console.error('Failed to upload image:', result.error);
+    return null;
   }
 
-  const { url } = await res.json();
-  if (!url) throw new Error('Upload did not return a url');
-  return url;
+  const { url } = result.data;
+  return url || null;
 }

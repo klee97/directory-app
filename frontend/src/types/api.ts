@@ -1,0 +1,6 @@
+export type ApiSuccess<T> = { ok: true; data: T };
+export type ApiError = { ok: false; error: string; code?: string };
+export type ApiResponse<T> = ApiSuccess<T> | ApiError;
+
+// Use for endpoints that succeed/fail but return no meaningful payload
+export type EmptyResponse = Record<string, never>;

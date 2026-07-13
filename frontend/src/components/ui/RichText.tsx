@@ -1,4 +1,4 @@
-import { Block, BLOCKS, Inline, INLINES, MARKS } from '@contentful/rich-text-types'
+import { Block, BLOCKS, Document, Inline, INLINES, MARKS } from '@contentful/rich-text-types'
 import { documentToReactComponents, Options } from '@contentful/rich-text-react-renderer'
 import ContentfulImage from '@/components/ui/ContentfulImage'
 import Box from '@mui/material/Box'
@@ -283,9 +283,13 @@ const RichText: React.FC<RichTextProps> = ({ content }) => {
 
   const processedContent = processContent(content);
 
+  if (!processedContent) {
+    return null;
+  }
+
   return (
     <Box>
-      {documentToReactComponents(processedContent, {
+      {documentToReactComponents(processedContent as Document, {
         ...options,
         renderNode: {
           ...options.renderNode,

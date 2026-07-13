@@ -12,7 +12,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import Grid from '@mui/material/Grid2';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { ImageUpload } from '@/features/profile/common/components/ImageUpload';
+import { ImageUpload, ImageUploadRef } from '@/features/profile/common/components/ImageUpload';
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import LocationAutocomplete from '@/features/directory/components/filters/LocationAutocomplete';
@@ -61,13 +61,34 @@ export default function EditFormView({
 
   const [showValidation, setShowValidation] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [priceErrors, setPriceErrors] = useState<Partial<Record<string, string | null>>>({});
   const [imageError, setImageError] = useState<string | null>(null);
 
   const previousBlobUrlRef = useRef<string | null>(null);
 
+  const imageUploadRef = useRef<ImageUploadRef>(null);
   const image = useImageUploadField();
   const loading = image.loading || isSaving;
+
+  // Helper to validate a price value
+  const validatePrice = (value: number | null): string | null => {
+    if (value === null || value === undefined) return null;
+    if (value < MIN_SERVICE_PRICE) return 'Price cannot be negative';
+    if (value > MAX_SERVICE_PRICE) return `Price cannot exceed $${MAX_SERVICE_PRICE.toLocaleString()}`;
+    return null;
+  };
+
+  const PRICE_FIELDS: (keyof VendorFormData)[] = [
+    'bridal_hair_price',
+    'bridal_makeup_price',
+    'bridal_hair_&_makeup_price',
+    'bridesmaid_hair_price',
+    'bridesmaid_makeup_price',
+    'bridesmaid_hair_&_makeup_price',
+  ];
+
+  const priceErrors = Object.fromEntries(
+    PRICE_FIELDS.map(field => [field, validatePrice(formData[field] as number | null)])
+  ) as Partial<Record<string, string | null>>;
 
   const locationForm = useLocationForm({
     initialLocation: formData.locationResult,
@@ -157,19 +178,6 @@ export default function EditFormView({
     };
   }, []);
 
-  // Clear price errors when section changes
-  useEffect(() => {
-    setPriceErrors({});
-  }, [activeSection]);
-
-  // Helper to validate a price value
-  const validatePrice = (value: number | null): string | null => {
-    if (value === null || value === undefined) return null;
-    if (value < MIN_SERVICE_PRICE) return 'Price cannot be negative';
-    if (value > MAX_SERVICE_PRICE) return `Price cannot exceed $${MAX_SERVICE_PRICE.toLocaleString()}`;
-    return null;
-  };
-
   // Helper to handle price change with validation
   const handlePriceChange = (fieldName: keyof VendorFormData, value: string) => {
     const numValue = value === '' || Number(value) === 0 ? null : Number(value);
@@ -179,13 +187,6 @@ export default function EditFormView({
       ...formData,
       [fieldName]: numValue
     });
-
-    // Validate and update error state
-    const error = validatePrice(numValue);
-    setPriceErrors(prev => ({
-      ...prev,
-      [fieldName]: error
-    }));
   };
 
   // Helper to get error message for a field
@@ -549,7 +550,7 @@ export default function EditFormView({
               We recommend a vertical (portrait) photo with natural lighting or an outdoor setting.
             </Typography>
             <ImageUpload
-              ref={image.imageUploadRef}
+              ref={imageUploadRef}
               currentImageUrl={image.previewUrl ?? formData.cover_image?.media_url ?? undefined}
               onError={setImageError}
               onImageSelect={(file) =>

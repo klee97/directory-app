@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { apiSuccess } from '@/lib/api/respond'
 import { getEnvironment } from '@/lib/env/env'
 
 export async function GET() {
@@ -11,7 +11,7 @@ export async function GET() {
     NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV || 'undefined',
   }
 
-  return NextResponse.json(envInfo)
+  return apiSuccess(envInfo)
 }
 
 // Optional: Remove in production or add authentication

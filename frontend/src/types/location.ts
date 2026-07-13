@@ -25,6 +25,12 @@ export interface GeocodeResponse {
   }
 }
 
+export interface DetailedSearchResult {
+  locations: LocationResult[];
+  query: string;
+  cached: boolean;
+}
+
 export interface LocationResult {
   display_name: string;
   lat?: number | null;

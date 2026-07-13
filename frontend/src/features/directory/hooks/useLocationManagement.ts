@@ -1,5 +1,5 @@
 import useResolvedLocation from "@/features/directory/hooks/useResolvedLocation";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocationSearch } from "./useLocationSearch";
 import { LocationResult } from "@/types/location";
 import reverseGeocodeCache, { createGeocodeKey } from "@/features/directory/components/reverseGeocodeCache";
@@ -22,14 +22,9 @@ export const useLocationManagement = ({
 
   const router = useRouter();
   // Move location sync, selection, and URL management here
-  const clearImmediateLocation = useCallback(() => {
-    setImmediateLocation(null);
-  }, []);
-
   const selectedLocation: LocationResult | null = useResolvedLocation({
     preselectedLocation,
     immediateLocation,
-    clearImmediateLocation
   });
 
   const locationInputValue = inputOverride ?? selectedLocation?.display_name ?? '';

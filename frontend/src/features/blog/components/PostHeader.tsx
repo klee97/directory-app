@@ -52,7 +52,7 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
           <Avatar src={post.author?.avatar?.url} name={post.author?.name ?? ''} />
         )}
         <Typography variant="subtitle1">
-          {post.author?.name} • {formatDateUTC(post.publishedDate)}
+          {post.author?.name}{post.publishedDate && ` • ${formatDateUTC(post.publishedDate)}`}
         </Typography>
       </Box>
       <Typography variant="h6" color={'secondary'} fontWeight={600} gutterBottom>{post.shortDescription}</Typography>

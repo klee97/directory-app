@@ -21,11 +21,20 @@ export function usePagination<T>({
   loading = false,
   onLoadingChange
 }: UsePaginationProps<T>): UsePaginationReturn<T> {
-  const [visibleItems, setVisibleItems] = useState<T[]>([]);
+  const [loadedCount, setLoadedCount] = useState(pageSize);
+  const [prevItems, setPrevItems] = useState(items);
   const [isLoading, setIsLoading] = useState(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
+
+  // Reset the count (not an array) when items changes
+  if (items !== prevItems) {
+    setPrevItems(items);
+    setLoadedCount(pageSize);
+  }
+
   // Calculate if there are more items to load
+  const visibleItems = items.slice(0, loadedCount);
   const hasMore = visibleItems.length < items.length;
 
   // Load more items
@@ -37,28 +46,12 @@ export function usePagination<T>({
 
     // Use setTimeout to make this async and prevent blocking UI
     setTimeout(() => {
-      setVisibleItems((prevItems) => {
-        const currentLength = prevItems.length;
-        const nextItems = items.slice(currentLength, currentLength + pageSize);
+      setLoadedCount((prev) => Math.min(prev + pageSize, items.length));
+      setIsLoading(false);
+      onLoadingChange?.(false);
 
-        if (nextItems.length === 0) {
-          setIsLoading(false);
-          onLoadingChange?.(false);
-          return prevItems;
-        }
-
-        const newItems = [...prevItems, ...nextItems];
-        setIsLoading(false);
-        onLoadingChange?.(false);
-        return newItems;
-      });
     }, 0);
   }, [items, pageSize, loading, isLoading, hasMore, onLoadingChange]);
-
-  // Reset visible items when the items array changes
-  useEffect(() => {
-    setVisibleItems(items.slice(0, pageSize));
-  }, [items, pageSize]);
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {

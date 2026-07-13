@@ -126,8 +126,8 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const formStartTime = useRef<number>(Date.now());
-  const stepStartTime = useRef<number>(Date.now());
+  const [formStartTime] = useState<number>(() => Date.now());
+  const stepStartTime = useRef<number | null>(null);
 
   const [formData, setFormData] = useState<LeadFormData>({
     isTestRecord: isDevOrPreview(),
@@ -187,7 +187,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   }, [formData]);
 
   useEffect(() => {
-    const startTime = formStartTime.current;
+    const startTime = formStartTime;
     trackFormStarted({
       vendor_slug: vendor.slug,
       form_type: 'vendor_contact',
@@ -297,7 +297,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const handleNext = async () => {
 
     if (validateCurrentStep()) {
-      const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+      const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
 
       // Save partial lead when completing Step 1
       if (activeStep === 0) {
@@ -343,7 +343,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   };
 
   const handleClose = async () => {
-    const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+    const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
 
     // Save partial lead if they have email or completed step 1
     if ((activeStep === 1 && formData.email) || (activeStep >= 0 && completedFields.length >= 3)) {
@@ -397,7 +397,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
 
       if (success) {
         setSubmitted(true);
-        const timeSpent = Math.round((Date.now() - formStartTime.current) / 1000);
+        const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
 
         // Track successful conversion
         trackVendorContactFormSubmission({

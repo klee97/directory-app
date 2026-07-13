@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getLeadsTable, getVendorsTable } from '@/lib/airtable/constants';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 export async function POST(req: NextRequest) {
   const { formData, vendor } = await req.json();
 
   if (!formData.email || !formData.firstName || !formData.lastName) {
-    return NextResponse.json({ error: 'Required fields are missing.' }, { status: 400 });
+    return apiError('Required fields are missing.', 400);
   }
 
   try {
@@ -51,11 +52,14 @@ export async function POST(req: NextRequest) {
     }
 
     const record = await getLeadsTable().create([{ fields }]);
-    const success = record.length > 0;
 
-    return NextResponse.json({ ok: success });
+    if (record.length === 0) {
+      return apiError('Failed to submit lead.', 502);
+    }
+
+    return apiSuccess({});
   } catch (error) {
     console.error('Airtable submission error:', error);
-    return NextResponse.json({ error: 'Failed to submit lead.' }, { status: 502 });
+    return apiError('Failed to submit lead.', 502);
   }
 }

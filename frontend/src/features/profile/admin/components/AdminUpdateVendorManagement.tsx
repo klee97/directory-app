@@ -20,7 +20,7 @@ import { useNotification } from '@/contexts/NotificationContext';
 import TagSelector from '@/features/profile/common/components/TagSelector';
 import { useTags } from '@/features/profile/common/hooks/useTags';
 import Link from 'next/link';
-import { ImageUpload } from '@/features/profile/common/components/ImageUpload';
+import { ImageUpload, ImageUploadRef } from '@/features/profile/common/components/ImageUpload';
 import { VendorTag } from '@/types/vendor';
 import { VendorDataInput } from '@/features/profile/admin/util/vendorHelper';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
@@ -54,6 +54,7 @@ export const AdminUpdateVendorManagement = () => {
   const [lookupId, setLookupId] = useState<string>('');
   const [lookupSlug, setLookupSlug] = useState<string>('');
 
+  const imageUploadRef = useRef<ImageUploadRef>(null);
   const image = useImageUploadField();
 
   const locationForm = useLocationForm({
@@ -144,7 +145,7 @@ export const AdminUpdateVendorManagement = () => {
 
       // Reset the image field — the existing cover_image URL is already
       // part of the loaded form data so ImageUpload will render the preview.
-      image.reset();
+      image.reset(imageUploadRef);
 
       setVendorLoaded(true);
       addNotification(`Loaded vendor: ${vendor.business_name ?? vendor.id}`, 'success');
@@ -229,7 +230,7 @@ export const AdminUpdateVendorManagement = () => {
           setLookupId('');
           setLookupSlug('');
           setVendorLoaded(false);
-          image.reset();
+          image.reset(imageUploadRef);
         } else {
           addNotification(data?.error ?? "Failed to update vendor. Please try again.", "error");
         }
@@ -529,7 +530,7 @@ export const AdminUpdateVendorManagement = () => {
                 </Typography>
               )}
               <ImageUpload
-                ref={image.imageUploadRef}
+                ref={imageUploadRef}
                 currentImageUrl={image.previewUrl ?? newFormData!.cover_image?.media_url ?? undefined}
                 onError={setImageError}
                 onImageSelect={(file) => {

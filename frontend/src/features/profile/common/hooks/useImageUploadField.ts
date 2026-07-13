@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { useImageUploader } from '@/features/profile/common/hooks/useImageUploader';
 import type { ImageUploadRef } from '@/features/profile/common/components/ImageUpload';
 import { VendorMediaBase, VendorMediaForm } from "@/types/vendorMedia";
 
 export const useImageUploadField = () => {
-  const imageUploadRef = useRef<ImageUploadRef>(null);
   const [file, setFile] = useState<File | null>(null);
   const [imageChanged, setImageChanged] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -137,7 +136,7 @@ export const useImageUploadField = () => {
     } as VendorMediaForm,
   });
 
-  const reset = () => {
+  const reset = (imageUploadRef: React.RefObject<ImageUploadRef | null>) => {
     setFile(null);
     setPreviewUrl(null);
     setImageChanged(false);
@@ -145,7 +144,6 @@ export const useImageUploadField = () => {
   };
 
   return {
-    imageUploadRef,
     file,
     loading,
     handleSelect,

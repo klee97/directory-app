@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getPremiumInterestTable } from '@/lib/airtable/constants';
 import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 export async function POST(req: NextRequest) {
   const { vendorId, businessName } = await req.json();
 
   if (!vendorId) {
-    return NextResponse.json({ error: 'Required fields are missing.' }, { status: 400 });
+    return apiError('Required fields are missing.', 400);
   }
   // Write to Airtable
   let airtableSuccess = false;
@@ -18,10 +19,14 @@ export async function POST(req: NextRequest) {
         'Status': 'New',
       }
     }]);
-    airtableSuccess = record.length > 0;
+    if (record.length === 0) {
+      return apiError('Failed to submit premium interest.', 502);
+    }
+
+    airtableSuccess = true;
   } catch (error) {
     console.error('Airtable premium interest error:', error);
-    return NextResponse.json({ error: 'Failed to submit.' }, { status: 502 });
+    return apiError('Failed to submit premium interest.', 502);
   }
 
   // Write to Supabase — non-blocking, log but don't fail the request
@@ -36,5 +41,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: airtableSuccess });
+  return apiSuccess({});
 }

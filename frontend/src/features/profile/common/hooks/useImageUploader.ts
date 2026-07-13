@@ -11,6 +11,11 @@ export function useImageUploader() {
     setError(null);
     try {
       const url = await uploadImage(file, vendorIdentifier);
+      if (!url) {
+        const message = 'Upload failed';
+        setError(message);
+        throw new Error(message);
+      }
       return url;
     } catch (err) {
       const message = (err instanceof Error) ? err.message : 'Upload failed';
@@ -25,7 +30,12 @@ export function useImageUploader() {
     setLoading(true);
     setError(null);
     try {
-      await deleteImage(imageUrl, vendorSlug);
+      const deleted = await deleteImage(imageUrl, vendorSlug);
+      if (!deleted) {
+        const message = 'Delete failed';
+        setError(message);
+        throw new Error(message);
+      }
       console.debug("Image deleted successfully from R2");
     } catch (err) {
       const message = (err instanceof Error) ? err.message : 'Delete failed';

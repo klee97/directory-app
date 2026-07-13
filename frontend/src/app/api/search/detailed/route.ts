@@ -1,9 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { LRUCache } from "lru-cache";
 import { rawPhotonFetch } from "@/lib/location/geocode";
-import { LocationResult } from "@/types/location";
+import { LocationResult, DetailedSearchResult } from "@/types/location";
 import { fetchPhotonResults } from "@/lib/location/photonUtils";
 import { CITIES_ONLY_PARAM, QUERY_PARAM } from "@/lib/constants";
+import { apiSuccess, apiError } from "@/lib/api/respond";
 
 function normalizeString(str: string): string {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -23,11 +24,13 @@ export async function GET(request: NextRequest) {
   // Check cache first
   const cached = detailedCache.get(cacheKey);
   if (cached) {
-    return NextResponse.json({
+    if (!cached.success) {
+      return apiError("Detailed search failed.", 502);
+    }
+    return apiSuccess<DetailedSearchResult>({
       locations: cached.locations,
       query: normalizedQuery,
-      success: cached.success,
-      cached: true
+      cached: true,
     });
   }
 
@@ -37,30 +40,15 @@ export async function GET(request: NextRequest) {
 
     const result = { locations, success: true };
     detailedCache.set(cacheKey, result);
-    const filteredLocations = citiesOnly
-      ? locations.filter(loc => loc.type === 'city')
-      : locations;
-    return NextResponse.json({
-      filteredLocations,
+    return apiSuccess<DetailedSearchResult>({
+      locations,
       query: normalizedQuery,
-      success: true,
-      cached: false
+      cached: false,
     });
-
   } catch (error) {
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`Detailed search failed for "${cacheKey}":`, errorMessage);
 
-    // Cache the failure for a shorter time to avoid repeated calls
-    const failureResult = { locations: [], success: false };
-    detailedCache.set(cacheKey, failureResult);
-
-    return NextResponse.json({
-      locations: [],
-      query: normalizedQuery,
-      success: false,
-      error: errorMessage,
-      cached: false
-    });
+    return apiError("Detailed search failed.", 502);
   }
 }

@@ -1,17 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { verifyRecaptchaToken } from '@/lib/security/recaptchaVerification';
 import { HUBSPOT_FORM_PREFIX } from '@/lib/hubspot/constants';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 export async function POST(req: NextRequest) {
   const { firstname, lastname, email, reason, message, recaptchaToken } = await req.json();
 
   if (!firstname || !lastname || !email || !reason || !message) {
-    return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    return apiError('All fields are required.', 400);
   }
 
-  const isHuman = await verifyRecaptchaToken(recaptchaToken);
-  if (!isHuman) {
-    return NextResponse.json({ error: 'CAPTCHA verification failed.' }, { status: 400 });
+  const isHuman: { success: boolean } = await verifyRecaptchaToken(recaptchaToken);
+  if (!isHuman.success) {
+    return apiError('CAPTCHA verification failed.', 400);
   }
 
   const hubspotUrl = `${HUBSPOT_FORM_PREFIX}/${process.env.HUBSPOT_FORM_GUID}`;
@@ -32,8 +33,8 @@ export async function POST(req: NextRequest) {
 
   if (!response.ok) {
     console.error('Failed to submit to HubSpot:', response.statusText);
-    return NextResponse.json({ error: 'Failed to send contact message.' }, { status: 502 });
+    return apiError('Failed to send contact message.', 502);
   }
 
-  return NextResponse.json({ ok: true });
+  return apiSuccess({});
 }

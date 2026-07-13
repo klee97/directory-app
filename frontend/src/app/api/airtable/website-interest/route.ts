@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getWebsiteInterestTable } from '@/lib/airtable/constants';
 import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
+import { apiError, apiSuccess } from '@/lib/api/respond';
 
 export async function POST(req: NextRequest) {
   const { vendorId, businessName, priority } = await req.json();
 
   if (!vendorId || !priority) {
-    return NextResponse.json({ error: 'Required fields are missing.' }, { status: 400 });
+    return apiError('Required fields are missing.', 400);
   }
   // Write to Airtable
   let airtableSuccess = false;
@@ -20,9 +21,12 @@ export async function POST(req: NextRequest) {
       }
     }]);
     airtableSuccess = record.length > 0;
+    if (!airtableSuccess) {
+      return apiError('Failed to submit website interest.', 502);
+    }
   } catch (error) {
     console.error('Airtable website interest error:', error);
-    return NextResponse.json({ error: 'Failed to submit.' }, { status: 502 });
+    return apiError('Failed to submit website interest.', 502);
   }
 
   // Write to Supabase — non-blocking, log but don't fail the request
@@ -37,5 +41,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: airtableSuccess });
+  return apiSuccess({});
 }
