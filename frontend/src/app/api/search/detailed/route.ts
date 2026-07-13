@@ -40,11 +40,8 @@ export async function GET(request: NextRequest) {
 
     const result = { locations, success: true };
     detailedCache.set(cacheKey, result);
-    const filteredLocations = citiesOnly
-      ? locations.filter(loc => loc.type === 'city')
-      : locations;
     return apiSuccess<DetailedSearchResult>({
-      locations: filteredLocations,
+      locations,
       query: normalizedQuery,
       cached: false,
     });
