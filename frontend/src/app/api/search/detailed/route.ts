@@ -52,8 +52,6 @@ export async function GET(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`Detailed search failed for "${cacheKey}":`, errorMessage);
 
-    detailedCache.set(cacheKey, { locations: [], success: false });
-
-    return apiError(errorMessage, 502);
+    return apiError("Detailed search failed.", 502);
   }
 }

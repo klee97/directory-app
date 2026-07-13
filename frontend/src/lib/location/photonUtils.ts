@@ -10,20 +10,22 @@ async function fetchWithTimeout<T>(promise: Promise<T>, timeoutMs: number): Prom
 }
 
 
-export async function fetchPhotonResults(fetchFunction: () => Promise<LocationResult[]>): Promise<LocationResult[]> {
-  const tryFetch = async () => await fetchWithTimeout(fetchFunction(), PHOTON_TIMEOUT_MS);
+export async function fetchPhotonResults(
+  fetchFunction: () => Promise<LocationResult[]>,
+  attempts = 2
+): Promise<LocationResult[]> {
+  let lastError: unknown;
 
-  try {
-    return await tryFetch();
-  } catch (err) {
-    console.warn("Photon API failed, retrying once:", err);
+  for (let i = 0; i < attempts; i++) {
     try {
-      return await tryFetch();
-    } catch (retryErr) {
-      console.error("Photon retry failed:", retryErr);
-      return [];
+      return await fetchWithTimeout(fetchFunction(), PHOTON_TIMEOUT_MS);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Photon API attempt ${i + 1}/${attempts} failed:`, err);
     }
   }
+
+  throw lastError;
 }
 
 export async function fetchPhotonResult(

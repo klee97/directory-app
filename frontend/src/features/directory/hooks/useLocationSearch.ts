@@ -52,7 +52,7 @@ export function useLocationSearch(query: string, { citiesOnly = false }: UseLoca
         const fetchInstantResults = async (encodedQuery: string, originalQuery: string) => {
             console.debug('Fetching instant results for encoded query:', encodedQuery);
 
-            const response = await fetchApi<{ locations: LocationResult[]; query: string; cached: boolean }>(buildUrl('/api/search/instant', encodedQuery));
+            const response = await fetchApi<DetailedSearchResult>(buildUrl('/api/search/instant', encodedQuery));
 
             if (currentQueryRef.current !== originalQuery) return;
 

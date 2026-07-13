@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import { fetchApi } from '@/lib/api/client'
+import { EmptyResponse } from '@/types/api'
 
 interface PasswordGateProps {
   redirectTo?: string
@@ -23,7 +24,7 @@ export default function PasswordGate({ redirectTo = '/blog' }: PasswordGateProps
     setLoading(true)
     setError('')
 
-    const result = await fetchApi<{ success: true }>('/api/preview-auth', {
+    const result = await fetchApi<EmptyResponse>('/api/preview-auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),

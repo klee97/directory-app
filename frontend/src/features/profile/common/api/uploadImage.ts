@@ -1,7 +1,6 @@
 import { fetchApi } from '@/lib/api/client';
 
 interface UploadImageResponse {
-  success: true;
   url: string;
   originalSize: number;
   processedSize: number;
@@ -18,6 +17,7 @@ export async function uploadImage(file: File, vendorIdentifier?: string): Promis
   });
 
   if (!result.ok) {
+    console.error('Failed to upload image:', result.error);
     return null;
   }
 

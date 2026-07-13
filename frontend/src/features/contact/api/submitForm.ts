@@ -1,5 +1,5 @@
 import { fetchApi } from '@/lib/api/client';
-import type { ApiResponse } from '@/types/api';
+import type { ApiResponse, EmptyResponse } from '@/types/api';
 
 export async function submitForm({
   firstname,
@@ -15,8 +15,8 @@ export async function submitForm({
   reason: string,
   message: string,
   recaptchaToken: string
-}): Promise<ApiResponse<{ success: true }>> {
-  return fetchApi('/api/contact', {
+}): Promise<ApiResponse<EmptyResponse>> {
+  return fetchApi<EmptyResponse>('/api/contact', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ firstname, lastname, email, reason, message, recaptchaToken }),
@@ -28,8 +28,8 @@ export async function submitNewsletterForm({
 }: {
   email: string;
   recaptchaToken: string;
-}): Promise<ApiResponse<{ success: true }>> {
-  return fetchApi('/api/newsletter', {
+}): Promise<ApiResponse<EmptyResponse>> {
+  return fetchApi<EmptyResponse>('/api/newsletter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, recaptchaToken }),

@@ -30,7 +30,11 @@ export async function DELETE(request: NextRequest) {
 
     const { vendor, error: accessError } = await requireVendorAccess(vendorSlug, currentUser.userId);
 
-    if (accessError) return accessError;
+    if (accessError) return apiError(accessError, 403);
+
+    if (!vendor) {
+      return apiError('No vendor found', 404);
+    }
 
     // Extract filename from URL
     const url = new URL(imageUrl);

@@ -2,11 +2,13 @@ import { fetchApi } from '@/lib/api/client';
 import { LeadFormData, PartialLead } from '@/types/leads';
 import { VendorInfo } from '@/types/leads';
 
+export type AirtableRecordResponse = { recordId: string };
+
 export const submitToAirtable = async (
   data: LeadFormData,
   vendor: VendorInfo
 ): Promise<boolean> => {
-  const result = await fetchApi<{ recordId: string }>('/api/airtable/leads', {
+  const result = await fetchApi<AirtableRecordResponse>('/api/airtable/leads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ formData: data, vendor }),
@@ -23,7 +25,7 @@ export const submitToAirtable = async (
 export const savePartialLeadToAirtable = async (
   partialLead: PartialLead
 ): Promise<boolean> => {
-  const result = await fetchApi<{ recordId: string }>('/api/airtable/partial-leads', {
+  const result = await fetchApi<AirtableRecordResponse>('/api/airtable/partial-leads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(partialLead),
@@ -42,7 +44,7 @@ export const submitVendorFeedback = async (
   businessName: string,
   comment: string
 ): Promise<boolean> => {
-  const result = await fetchApi<{ recordId: string }>('/api/airtable/vendor-feedback', {
+  const result = await fetchApi<AirtableRecordResponse>('/api/airtable/vendor-feedback', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vendorId, businessName, comment }),
@@ -61,7 +63,7 @@ export const submitWebsiteInterest = async (
   businessName: string,
   priority: string
 ): Promise<boolean> => {
-  const result = await fetchApi<{ recordId: string }>('/api/airtable/website-interest', {
+  const result = await fetchApi<AirtableRecordResponse>('/api/airtable/website-interest', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vendorId, businessName, priority }),
@@ -79,7 +81,7 @@ export async function submitPremiumWaitlist(
   vendorId: string,
   businessName: string,
 ): Promise<boolean> {
-  const result = await fetchApi<{ recordId: string }>('/api/airtable/premium-interest', {
+  const result = await fetchApi<AirtableRecordResponse>('/api/airtable/premium-interest', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vendorId, businessName }),
@@ -90,5 +92,5 @@ export async function submitPremiumWaitlist(
     return false;
   }
 
-  return result.ok;
+  return true;
 }
