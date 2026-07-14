@@ -49,9 +49,9 @@ export default async function Home() {
   ).slice(0, VENDOR_PREVIEW_COUNT);
 
   const publishedPosts = getValidPosts(posts)
-    .sort(
+      .sort(
       (a, b) =>
-        new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
+        new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime()
     );
 
   const FEATURED_CATEGORIES = ['vendor-spotlight', 'cultural-history', 'vendor-list'] as const;
@@ -60,10 +60,6 @@ export default async function Home() {
       publishedPosts.find((post) => post.categoryList?.includes(category))
     )
     .filter((post): post is NonNullable<typeof post> => post != null)
-    .sort(
-      (a, b) =>
-        new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
-    );
 
   const jsonLd = {
     '@context': 'https://schema.org',
