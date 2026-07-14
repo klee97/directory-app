@@ -109,8 +109,8 @@ export default async function Home() {
               mb: 4,
             }}
           >
-            Every bride deserves to feel radiant on her wedding day, without settling for someone who doesn&#39;t know how to highlight her natural beauty.
-            There is an artist out there who will make you feel absolutely stunning, and we&#39;re here to help you find them.
+            As Asian Americans, we know how hard it is to find hair and makeup artists who understand your features.
+            That&#39;s why we&#39;re building a home for Asian wedding planning: community-recommended beauty artists, interviews with Asian wedding vendors, and ideas for a wedding that honors all parts of you.
           </Typography>
           <Box
             sx={{
@@ -150,7 +150,7 @@ export default async function Home() {
             >
               <Box>
                 <Typography variant="h2" component="h2" gutterBottom>
-                  Discover the best artists
+                  Discover the Best Makeup Artists for Asian Features
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
                     Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
@@ -182,7 +182,7 @@ export default async function Home() {
           >
           <Box>
               <Typography variant="h2" component="h2" gutterBottom>
-                  Get inspiration from our blog
+                From Our Blog: Vendor Stories & Cultural Wedding Inspo
               </Typography>
               <Typography variant="body1" color="text.secondary">
                   Read stories from our spotlighted vendors, learn cultural histories, and be inspired!
