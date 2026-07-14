@@ -64,6 +64,7 @@ const ReCaptcha = forwardRef<ReCaptchaRef, ReCaptchaProps>((props, ref) => {
       ref={recaptchaRef}
       sitekey={siteKey}
       size={size}
+      badge="bottomleft"
       theme={theme.palette.mode}
       tabindex={tabIndex}
       onChange={onChange}

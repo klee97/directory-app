@@ -46,7 +46,6 @@ export default function CTABanner({
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(localStorage.getItem(bannerKey) !== "dismissed");
   }, [bannerKey]);
 

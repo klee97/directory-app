@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
-import { getAllPosts } from '@/features/blog/api/getBlogPosts';
-import { isPublishedInEasternTime } from '@/lib/dateUtils';
+import { getAllPosts, getValidPosts } from '@/features/blog/api/getBlogPosts';
 import { isDevOrPreview } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
 import { BlogContent } from './BlogContent';
@@ -16,10 +15,7 @@ export interface FilterGroup {
 
 export async function ArticleTable() {
   const posts = await getAllPosts();
-  const validPosts = posts.filter((post): post is NonNullable<typeof post> => {
-    if (!post) return false;
-    return isPublishedInEasternTime(post.publishedDate);
-  });
+  const validPosts = getValidPosts(posts);
 
   const featuredIndex = validPosts.findIndex((p) =>
     p.contentfulMetadata?.tags?.some((t) => t?.id === FEATURED_POST_TAG_ID)

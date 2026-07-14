@@ -8,10 +8,9 @@ import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
 import { getCachedVendors } from '@/lib/vendor/fetchVendors';
 import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
-import { getAllPosts } from '@/features/blog/api/getBlogPosts';
+import { getAllPosts, getValidPosts } from '@/features/blog/api/getBlogPosts';
 import { BlogPostCarousel } from '@/features/blog/components/BlogPostCarousel';
 import { VendorPreviewGrid } from '@/features/directory/components/VendorPreviewGrid';
-import { isPublishedInEasternTime } from '@/lib/dateUtils';
 
 const VENDOR_PREVIEW_COUNT = 6;
 
@@ -43,16 +42,13 @@ export default async function Home() {
     getAllPosts(),
   ]);
 
+  // Only show verified vendors with photos on the landing page
   const verifiedVendors = shuffleVendorsWithSeed(
     vendors.filter((v) => v.verified_at != null && v.cover_image != null),
     getTodaySeed()
   ).slice(0, VENDOR_PREVIEW_COUNT);
 
-  const publishedPosts = posts
-    .filter((post): post is NonNullable<typeof post> => {
-      if (!post) return false;
-      return isPublishedInEasternTime(post.publishedDate);
-    })
+  const publishedPosts = getValidPosts(posts)
     .sort(
       (a, b) =>
         new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime()
