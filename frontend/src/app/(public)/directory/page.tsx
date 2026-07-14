@@ -73,7 +73,7 @@ export default async function DirectoryPage() {
       <section>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
       </section>
       <Directory vendors={shuffledVendors} tags={uniqueTags} />
