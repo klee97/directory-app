@@ -14,31 +14,16 @@ type CarouselProps = {
   isCompact?: boolean; // Optional prop to control compact mode
 };
 
+// Width of the edge fade overlays. Snapped items are inset by this amount
+// (via scroll-padding) so a card's left edge never lands under the fade/arrow.
+const FADE_WIDTH = 60;
+const GAP = 16; // matches the `gap: 2` spacing on the scroll container
+
 export const Carousel = ({ children, title, isCompact = false }: CarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(true);
-  const [isNarrow, setIsNarrow] = useState(false);
   const theme = useTheme();
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const checkWidth = () => {
-      setIsNarrow(el.clientWidth < theme.breakpoints.values.sm);
-    };
-    checkWidth();
-
-    // Use ResizeObserver for responsive detection
-    const resizeObserver = new window.ResizeObserver(checkWidth);
-    resizeObserver.observe(el);
-    window.addEventListener('resize', checkWidth);
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', checkWidth);
-    }
-  }, [theme.breakpoints.values.sm]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -74,10 +59,15 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
   }, [children]);
 
   const scroll = (direction: 'left' | 'right') => {
-    if (!scrollRef.current) return;
-
     const container = scrollRef.current;
-    const scrollAmount = container.clientWidth;
+    if (!container) return;
+
+    // Advance by a single card so each click lands cleanly on a snap point.
+    // Falls back to a full viewport if there are no children to measure.
+    const firstChild = container.firstElementChild as HTMLElement | null;
+    const scrollAmount = firstChild
+      ? firstChild.offsetWidth + GAP
+      : container.clientWidth;
 
     container.scrollBy({
       left: direction === 'left' ? -scrollAmount : scrollAmount,
@@ -107,7 +97,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
               left: 0,
               top: 0,
               bottom: 0,
-              width: 60,
+              width: FADE_WIDTH,
               background: `linear-gradient(to right, ${theme.palette.background.default} 40%, transparent)`,
               zIndex: 1,
               pointerEvents: 'none',
@@ -121,39 +111,16 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
               right: 0,
               top: 0,
               bottom: 0,
-              width: 60,
+              width: FADE_WIDTH,
               background: `linear-gradient(to left, ${theme.palette.background.default} 40%, transparent)`,
               zIndex: 1,
               pointerEvents: 'none',
             }}
           />
         )}
-        <Box
-          ref={scrollRef}
-          sx={{
-            overflowX: 'auto',
-            display: 'flex',
-            gap: 2,
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-            ...(isNarrow && {
-              '& > *': {
-                scrollSnapAlign: 'start',
-                flex: '0 0 auto',
-                minWidth: '100%',
-              },
-            }),
-            ...(!isNarrow && {
-              scrollSnapType: 'x mandatory',
-            }),
-            scrollBehavior: 'smooth',
-            px: 2,
-          }}
-        />
         <Box sx={{ position: 'relative' }}>
           {/* Arrows */}
-          {!!showLeftFade && (
+          {showLeftFade && (
             <IconButton
               onClick={e => {
                 e.preventDefault();
@@ -175,7 +142,7 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
               <ChevronLeftIcon />
             </IconButton>
           )}
-          {!!showRightFade && (
+          {showRightFade && (
             <IconButton
               onClick={e => {
                 e.preventDefault();
@@ -198,14 +165,23 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
             </IconButton>
           )}
 
-          {/* Scrollable container */}
+          {/* Scrollable container. Item sizing (width, flex, scroll-snap
+              alignment) is left to the children so the same carousel can host
+              differently-sized cards — e.g. blog posts and vendors on the
+              landing page. */}
           <Box
             ref={scrollRef}
             sx={{
               display: 'flex',
               overflowX: 'auto',
-              gap: 2,
-              scrollPaddingX: '1rem',
+              gap: `${GAP}px`,
+              scrollSnapType: 'x mandatory',
+              scrollBehavior: 'smooth',
+              // Inset snap targets past the fade/arrow so a snapped card's
+              // leading edge stays fully visible instead of tucking under it.
+              scrollPaddingLeft: `${FADE_WIDTH}px`,
+              scrollPaddingRight: `${FADE_WIDTH}px`,
+              px: 2,
               pt: 1,
               pb: 5,
               '&::-webkit-scrollbar': { display: 'none' },
