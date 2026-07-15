@@ -31,6 +31,7 @@ import { VendorTag } from '@/types/vendor';
 import { InquiryState } from '@/features/profile/common/utils/getInquiryState';
 import { isDevOrPreview } from '@/lib/env/env';
 import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/leads';
+import { getSelectedServiceLabels } from '@/lib/directory/getServiceTagNames';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -157,11 +158,16 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   // 2-step process
   const steps = ['Artist fit', 'Personal details'];
 
-  const serviceOptions: string[] = vendor.serviceTags && vendor.serviceTags.length > 0
-    ? vendor.serviceTags.map(
-      (serviceTag: VendorTag) => serviceTag.display_name)
-      .filter((name): name is string => typeof name === 'string')
-    : ["Hair", "Makeup"];
+  // tag ids and display names of the services offered (makeup or hair)
+  const serviceOptions: VendorTag[] = vendor.serviceTags
+    .filter((t: VendorTag) => t.id && t.display_name && t.type === 'SERVICE');
+
+  const selectedServiceLabels = useMemo(
+    () => getSelectedServiceLabels(formData.services, serviceOptions),
+    [formData.services, serviceOptions]
+  );
+
+  const hasNoServiceOptions = serviceOptions.length === 0;
 
   const makeupStyleOptions = [
     'Natural',
@@ -186,6 +192,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     return completed;
   }, [formData]);
 
+  const getTimeSpentSeconds = (startTime: number): number =>
+    Math.round((Date.now() - startTime) / 1000);
+
   useEffect(() => {
     const startTime = formStartTime;
     trackFormStarted({
@@ -196,7 +205,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     return () => {
       // Track abandonment on component unmount if not submitted
       if (!submitted) {
-        const timeSpent = Math.round((Date.now() - startTime) / 1000);
+        const timeSpent = getTimeSpentSeconds(startTime);
         trackFormAbandonment({
           step_number: activeStep + 1,
           fields_completed: completedFields,
@@ -297,12 +306,15 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const handleNext = async () => {
 
     if (validateCurrentStep()) {
-      const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
+      const timeSpent = getTimeSpentSeconds(formStartTime);
 
       // Save partial lead when completing Step 1
       if (activeStep === 0) {
         const partialLead: PartialLead = {
-          formData,
+          formData: {
+            ...formData,
+            services: selectedServiceLabels,
+          },
           vendor: {
             businessName: vendor.businessName,
             slug: vendor.slug,
@@ -341,14 +353,16 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     });
     setActiveStep(prev => prev - 1);
   };
-
   const handleClose = async () => {
-    const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
+    const timeSpent = getTimeSpentSeconds(formStartTime);
 
     // Save partial lead if they have email or completed step 1
     if ((activeStep === 1 && formData.email) || (activeStep >= 0 && completedFields.length >= 3)) {
       const partialLead: PartialLead = {
-        formData,
+        formData: {
+          ...formData,
+          services: selectedServiceLabels,
+        },
         vendor: {
           businessName: vendor.businessName,
           slug: vendor.slug,
@@ -393,17 +407,21 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const success = await submitToAirtable(formData, vendor);
+      const airtableFormData: LeadFormData = {
+        ...formData,
+        services: selectedServiceLabels,
+      };
+      const success = await submitToAirtable(airtableFormData, vendor);
 
       if (success) {
         setSubmitted(true);
-        const timeSpent = Math.round((Date.now() - formStartTime) / 1000);
+        const timeSpent = getTimeSpentSeconds(formStartTime);
 
         // Track successful conversion
         trackVendorContactFormSubmission({
           form_type: 'vendor_contact',
           vendor_slug: vendor.slug,
-          services: formData.services.join(', '),
+          services: airtableFormData.services.join(', '),
           location: formData.location,
           people_count: formData.peopleCount,
           budget: formData.budget,
@@ -497,29 +515,36 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                 <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
                   Which services do you need? *
                 </Typography>
-                <StyledToggleButtonGroup
-                  value={formData.services}
-                  onChange={(e, newValue) => {
-                    // Allow newValue to be empty array or have values
-                    setFormData({ ...formData, services: newValue || [] });
-                    // Clear error when user makes a selection
-                    if (errors.services) {
-                      setErrors(prev => ({ ...prev, services: null }));
-                    }
-                  }}
-                  color="primary"
-                  aria-label="services"
-                >
-                  {serviceOptions.map(service => (
-                    <ToggleButton key={service} value={service}>
-                      {service}
-                    </ToggleButton>
-                  ))}
-                </StyledToggleButtonGroup>
-                {errors.services && (
-                  <Typography variant="caption" color="error" sx={{ ml: 0, mt: 0.5, display: 'block' }}>
-                    {errors.services}
-                  </Typography>
+                {hasNoServiceOptions ? (
+                  <Alert severity="error">
+                    This vendor doesn&apos;t have any services configured yet.
+                    Please check back later or contact support.
+                  </Alert>
+                ) : (
+                  <>
+                    <StyledToggleButtonGroup
+                      value={formData.services}
+                      onChange={(e, newValue) => {
+                        setFormData({ ...formData, services: newValue || [] });
+                        if (errors.services) {
+                          setErrors(prev => ({ ...prev, services: null }));
+                        }
+                      }}
+                      color="primary"
+                      aria-label="services"
+                    >
+                      {serviceOptions.map(({ id, display_name }) => (
+                        <ToggleButton key={id} value={id}>
+                          {display_name}
+                        </ToggleButton>
+                      ))}
+                    </StyledToggleButtonGroup>
+                    {errors.services && (
+                      <Typography variant="caption" color="error" sx={{ ml: 0, mt: 0.5, display: 'block' }}>
+                        {errors.services}
+                      </Typography>
+                    )}
+                  </>
                 )}
               </Grid>
 

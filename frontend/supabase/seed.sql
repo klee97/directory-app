@@ -209,11 +209,11 @@ VALUES
   ('TEST-E2E-CLAIM', 'Test Claim Vendor', 'test-claim-vendor', false, 'Seattle', 'Washington', 'United States', 'claim-vendor@example.com', '11111111-1111-1111-1111-111111111111', null, null);
 
 -- Test tags  (style='primary' → Service chip; anything else → Skill chip)
-INSERT INTO public.tags (id, name, display_name, is_visible, style)
+INSERT INTO public.tags (id, name, display_name, is_visible, style, type)
 VALUES
-  ('e2e00000-0000-0000-0000-000000000001', 'SPECIALTY_HAIR', 'Hair',       true, 'primary'),
-  ('e2e00000-0000-0000-0000-000000000002', 'SKILL_THAI',     'Thai Makeup', true, 'default'),
-  ('e2e00000-0000-0000-0000-000000000003', 'SPECIALTY_MAKEUP', 'Makeup', true, 'primary');
+  ('e2e00000-0000-0000-0000-000000000001', 'SPECIALTY_HAIR', 'Hair',       true, 'primary', 'SERVICE'),
+  ('e2e00000-0000-0000-0000-000000000002', 'SKILL_THAI',     'Thai Makeup', true, 'default', 'SKILL'),
+  ('e2e00000-0000-0000-0000-000000000003', 'SPECIALTY_MAKEUP', 'Makeup', true, 'primary', 'SERVICE');
 
 
 -- Link vendors → tags
