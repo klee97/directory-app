@@ -6,34 +6,6 @@ import { savePartialLeadToAirtable, submitToAirtable } from '@/features/contact/
 import { VendorTag } from '@/types/vendor';
 import { InquiryState } from '@/features/profile/common/utils/getInquiryState';
 
-/**
- * ASSUMPTIONS — please correct me if these don't match your setup:
- *
- * 1. Vitest + @testing-library/react (+ @testing-library/user-event), with the
- *    '@/...' path alias resolved via vite-tsconfig-paths or an explicit
- *    `resolve.alias` in vitest.config — same alias the app itself uses.
- *    Test environment is assumed to be 'jsdom' (needed for DOM APIs below).
- * 2. `InquiryState` is a string union (e.g. 'verified' | 'not_verified' | 'opted_out').
- *    I couldn't see the exact type definition, so I cast the literal below —
- *    swap in the real values if they differ.
- * 3. Several fields in the component (peopleCount, budget) aren't wired up with
- *    accessible labels (no htmlFor/aria-label pointing at the visible
- *    <Typography> "label"), so a couple of queries below fall back to
- *    `document.body.querySelector('input[name="..."]')` / `input[type="number"]`
- *    instead of RTL's preferred `getByLabelText`. Adding `aria-label`s (or real
- *    <label htmlFor> elements) to those fields would let these tests (and
- *    screen readers) use proper accessible queries.
- *
- * FOCUS: these tests exercise the id -> display_name translation for service
- * tags. `formData.services` stores VendorTag ids (the source of truth used for
- * the toggle button `value`s), but Airtable submissions need the human-readable
- * `display_name`s. That conversion happens in a local, unexported
- * `getSelectedServiceLabels` closure, so it's only reachable indirectly by
- * driving the real UI and inspecting what gets handed to the mocked API calls.
- * If you pull that mapping out into an exported/pure helper, it'd be worth
- * adding a small direct unit test for it too (id not found -> dropped, empty
- * selection -> [], etc.) alongside these.
- */
 
 vi.mock('@/features/contact/api/airtable', () => ({
   savePartialLeadToAirtable: vi.fn().mockResolvedValue(true),
@@ -93,9 +65,9 @@ const baseVendor = {
 // should never show up as a selectable option, and deliberately non-sequential
 // ids so we can be sure we're asserting on translated *labels*, not ids.
 const serviceTagsWithPrimaryOptions: VendorTag[] = [
-  { id: 'tag-abc', display_name: 'Hair', style: 'primary' } as VendorTag,
-  { id: 'tag-xyz', display_name: 'Makeup', style: 'primary' } as VendorTag,
-  { id: 'tag-secondary', display_name: 'Bridal Specialist', style: 'secondary' } as VendorTag,
+  { id: 'tag-abc', display_name: 'Hair', type: 'SERVICE', is_visible: true, name: 'SPECIALTY_HAIR' } as VendorTag,
+  { id: 'tag-xyz', display_name: 'Makeup', type: 'SERVICE', is_visible: true, name: 'SPECIALTY_MAKEUP' } as VendorTag,
+  { id: 'tag-skill', display_name: 'Thai Makeup', type: 'SKILL', is_visible: true, name: 'SKILL_THAI' } as VendorTag,
 ];
 
 async function fillStep1AndContinue(services: string[] = ['Hair']) {
