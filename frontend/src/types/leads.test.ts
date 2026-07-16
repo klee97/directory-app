@@ -77,6 +77,11 @@ describe('leadFormSchema', () => {
     expect(() => leadFormSchema.parse(payload)).toThrow();
   });
 
+  it.each(['', '   '])('rejects a blank budget value %p', (value) => {
+    const payload = { ...validPayload, budget: value };
+    expect(() => leadFormSchema.parse(payload)).toThrow();
+  });
+
   it('rejects a non-numeric budget', () => {
     const payload = { ...validPayload, budget: 'lots' };
     expect(() => leadFormSchema.parse(payload)).toThrow();

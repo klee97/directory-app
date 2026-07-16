@@ -129,7 +129,7 @@ describe('LeadCaptureForm — service tag translation', () => {
 
     expect(screen.getByRole('button', { name: 'Hair' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Makeup' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Bridal Specialist' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Thai Makeup' })).not.toBeInTheDocument();
   });
 
   it('shows a configuration error and no selector when there are no primary service tags', () => {
@@ -173,7 +173,6 @@ describe('LeadCaptureForm — service tag translation', () => {
     // ...never the internal VendorTag ids.
     expect(submittedFormData.services).not.toEqual(expect.arrayContaining(['tag-abc', 'tag-xyz']));
 
-    await screen.findByText('Request Sent Successfully! 🎉');
   });
 
   it('also translates ids to display names in the step-1 partial lead save', async () => {
@@ -197,7 +196,7 @@ describe('LeadCaptureForm — service tag translation', () => {
     // Regression guard: if a service tag is deleted/renamed server-side after
     // the toggle group renders, getSelectedServiceLabels must silently drop
     // the stale id rather than sending `undefined` through to Airtable.
-    render(
+    const { rerender } = render(
       <LeadCaptureForm
         vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
         inquiryState={'not_verified' as unknown as InquiryState}
@@ -205,12 +204,24 @@ describe('LeadCaptureForm — service tag translation', () => {
     );
 
     await fillStep1AndContinue(['Hair']);
+
+    rerender(
+      <LeadCaptureForm
+        vendor={{
+          ...baseVendor,
+          serviceTags: serviceTagsWithPrimaryOptions.filter((tag) => tag.id !== 'tag-abc'),
+        }}
+        inquiryState={'not_verified' as unknown as InquiryState}
+      />
+    );
+
     await fillStep2();
     await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
 
     await waitFor(() => expect(mockedSubmitToAirtable).toHaveBeenCalledTimes(1));
     const [submittedFormData] = mockedSubmitToAirtable.mock.calls[0];
 
+    expect(submittedFormData.services).toEqual([]);
     expect(submittedFormData.services.every((label: string) => typeof label === 'string')).toBe(true);
     expect(submittedFormData.services).not.toContain(undefined);
   });

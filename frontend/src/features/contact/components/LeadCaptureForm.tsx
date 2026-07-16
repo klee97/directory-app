@@ -518,7 +518,6 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                 {hasNoServiceOptions ? (
                   <Alert severity="error">
                     This vendor doesn&apos;t have any services configured yet.
-                    Please check back later or contact support.
                   </Alert>
                 ) : (
                   <>

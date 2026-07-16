@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * Runs against the local Supabase instance, which the 'supabase-setup'
@@ -11,6 +12,10 @@ import { test, expect } from '@playwright/test';
 
 const HAIR_TAG_ID = 'e2e00000-0000-0000-0000-000000000001';
 const MAKEUP_TAG_ID = 'e2e00000-0000-0000-0000-000000000003';
+const supabaseAdminClient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SECRET_KEY!
+);
 
 test.describe('POST /api/inquiries (local Supabase)', () => {
   test('creates a real inquiry row end-to-end', async ({ request }) => {
@@ -42,6 +47,22 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
     const body = await response.json();
     expect(body.ok).toBe(true);
     expect(typeof body.data.id).toBe('string');
+
+    const { data: inquiry, error } = await supabaseAdminClient
+      .from('inquiries')
+      .select('is_test_record, service_tag_ids, bride_first_name, bride_last_name, budget, people_count')
+      .eq('id', body.data.id)
+      .maybeSingle();
+
+    expect(error).toBeNull();
+    expect(inquiry).toMatchObject({
+      is_test_record: true,
+      service_tag_ids: [HAIR_TAG_ID, MAKEUP_TAG_ID],
+      bride_first_name: 'Playwright',
+      bride_last_name: 'Test',
+      budget: 500,
+      people_count: 4,
+    });
   });
 
   test('returns 500 for invalid inquiry, like an unknown vendor_id', async ({ request }) => {
@@ -60,12 +81,12 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
       },
     });
 
-    expect(response.status()).toBe(500);
+    expect(response.status()).toBe(422);
     const body = await response.json();
     expect(body).toEqual({
       ok: false,
-      error: 'Could not save inquiry',
-      code: 'INSERT_FAILED',
+      error: 'Vendor could not be found',
+      code: 'INVALID_VENDOR',
     });
   });
 

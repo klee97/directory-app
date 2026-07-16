@@ -32,6 +32,7 @@ export async function POST(
     .from("inquiries")
     .insert({
       vendor_id: input.vendor_id,
+      is_test_record: input.isTestRecord,
 
       bride_first_name: input.firstName,
       bride_last_name: input.lastName,
@@ -61,16 +62,13 @@ export async function POST(
   if (error) {
     console.error("Failed to insert inquiry", error);
 
-    // The DB trigger (inquiries_validate_service_tag_ids) raises with this
-    // message if a tag id doesn't exist or isn't a primary/service tag —
-    // surface that distinctly rather than as a generic 500, since it
-    // usually means stale client-side tag data, not a server problem.
-    if (error.message?.includes("valid primary/service tag")) {
-      return apiError(
-        "One or more selected services are no longer valid",
-        422,
-        "INVALID_SERVICE_TAGS"
-      );
+    const isForeignKeyViolation =
+      error.code === "23503" ||
+      error.message?.includes("foreign key") ||
+      error.message?.includes("violates foreign key constraint");
+
+    if (isForeignKeyViolation) {
+      return apiError("Vendor could not be found", 422, "INVALID_VENDOR");
     }
 
     return apiError("Could not save inquiry", 500, "INSERT_FAILED");

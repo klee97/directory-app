@@ -19,21 +19,26 @@ export const leadFormSchema = z.object({
   email: z.string().trim().email('Enter a valid email address').max(255),
   additionalDetails: z.string().trim().min(1, 'Message is required').max(5000),
 
-  weddingDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'weddingDate must be YYYY-MM-DD')
-    .optional(),
+  weddingDate: z.iso.date().optional(),
   flexibleDate: z.boolean().default(false),
 
   location: z.string().trim().min(1, 'Location is required').max(255),
 
   // Sent as a string from the form's number input; coerce + validate here.
-  budget: z.coerce
-    .number({
-      error: () => "Enter a valid budget"
-    })
-    .nonnegative()
-    .max(1_000_000),
+  budget: z.preprocess(
+    (value) => {
+      if (typeof value === 'string' && value.trim() === '') {
+        return undefined;
+      }
+      return value;
+    },
+    z.coerce
+      .number({
+        error: () => "Enter a valid budget"
+      })
+      .nonnegative()
+      .max(1_000_000)
+  ),
 
   peopleCount: z.coerce
     .number({
@@ -41,7 +46,7 @@ export const leadFormSchema = z.object({
     })
     .int()
     .positive()
-    .max(1000),
+    .max(100),
   flexibleCount: z.boolean().default(false),
 
   // Expected to be an array of tag ids, not tag names
@@ -49,7 +54,7 @@ export const leadFormSchema = z.object({
     .array(z.guid('Each service must be a valid tag id'))
     .min(1, 'At least one service is required'),
 
-  makeupStyles: z.array(z.string().trim().max(100)).default([]),
+  makeupStyles: z.array(z.string().trim().max(10)).default([]),
 });
 
 export type LeadFormWireInput = z.infer<typeof leadFormSchema>;

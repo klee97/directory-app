@@ -20,6 +20,7 @@ export async function submitInquiryToSupabase(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       vendor_id: vendor.id,
+      isTestRecord: formData.isTestRecord,
       services: formData.services,
       peopleCount: formData.peopleCount,
       flexibleCount: formData.flexibleCount,
