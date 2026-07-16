@@ -11,13 +11,13 @@ test.describe('Landing page — guest', () => {
   test('hero section renders heading, intro, and CTAs', async ({ page }) => {
     await expect(
       page.getByRole('heading', {
-        name: 'The Best Wedding Makeup Artists for Asian Features',
+        name: 'Your Home for Asian Weddings',
         level: 1,
       })
     ).toBeVisible();
 
     await expect(
-      page.getByText('As Asian Americans, we know how hard it is')
+      page.getByText('As Asian Americans, we know that mainstream wedding resources')
     ).toBeVisible();
 
     // "Search all artists" appears in the hero and (conditionally) the vendors

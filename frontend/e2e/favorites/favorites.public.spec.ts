@@ -21,7 +21,7 @@ test.describe('Favorites — guest', () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/directory');
     await expect(page.getByText(/4 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
@@ -32,13 +32,13 @@ test.describe('Favorites — guest', () => {
     await expect(page.getByText('Log in to favorite this vendor.')).toBeVisible();
   });
 
-  test('closing login prompt stays on homepage', async ({ page }) => {
+  test('closing login prompt stays on directory', async ({ page }) => {
     await page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
 
     await page.getByRole('button', { name: 'Close', exact: true }).click();
 
-    await expect(page).toHaveURL('/');
+    await expect(page).toHaveURL('/directory');
     await expect(page.getByRole('dialog')).not.toBeVisible();
   });
 

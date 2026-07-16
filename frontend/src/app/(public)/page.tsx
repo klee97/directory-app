@@ -87,7 +87,7 @@ export default async function Home() {
             component="h1"
             sx={{ textAlign: 'center', mb: 2 }}
           >
-            The Best Wedding Makeup Artists for Asian Features
+            Your Home for Asian Weddings
           </Typography>
           <Typography
             variant="body1"
@@ -101,8 +101,9 @@ export default async function Home() {
               mb: 4,
             }}
           >
-            As Asian Americans, we know how hard it is to find hair and makeup artists who understand your features.
-            That&#39;s why we&#39;re building a home for Asian wedding planning: community-recommended beauty artists, interviews with Asian wedding vendors, and ideas for a wedding that honors all parts of you.
+            As Asian Americans, we know that mainstream wedding resources aren&#39;t always made for us. That&#39;s why
+            we made a space of our own. Here, you&#39;ll find hair and makeup artists who understand our features,
+            interviews with Asian wedding vendors we love, and ideas for a wedding that honors all of who we are.
           </Typography>
           <Box
             sx={{

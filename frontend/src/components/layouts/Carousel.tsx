@@ -119,51 +119,52 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
           />
         )}
         <Box sx={{ position: 'relative' }}>
-          {/* Arrows */}
-          {showLeftFade && (
-            <IconButton
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                scroll('left');
-              }}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: scrollArrowsOffset,
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: 'background.paper',
-                boxShadow: 2,
-                pointerEvents: 'auto', // ensure clickable
-              }}
-              aria-label="Scroll left"
-            >
-              <ChevronLeftIcon />
-            </IconButton>
-          )}
-          {showRightFade && (
-            <IconButton
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                scroll('right');
-              }}
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                right: scrollArrowsOffset,
-                transform: 'translateY(-50%)',
-                zIndex: 2,
-                backgroundColor: 'background.paper',
-                boxShadow: 2,
-                pointerEvents: 'auto',
-              }}
-              aria-label="Scroll right"
-            >
-              <ChevronRightIcon />
-            </IconButton>
-          )}
+          {/* Arrows. Kept mounted and toggled via `display` (rather than
+              conditionally rendered) so the node isn't detached from the DOM
+              mid-interaction when the fade state recomputes — e.g. as carousel
+              images finish loading. */}
+          <IconButton
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              scroll('left');
+            }}
+            sx={{
+              display: showLeftFade ? 'inline-flex' : 'none',
+              position: 'absolute',
+              top: '50%',
+              left: scrollArrowsOffset,
+              transform: 'translateY(-50%)',
+              zIndex: 2,
+              backgroundColor: 'background.paper',
+              boxShadow: 2,
+              pointerEvents: 'auto', // ensure clickable
+            }}
+            aria-label="Scroll left"
+          >
+            <ChevronLeftIcon />
+          </IconButton>
+          <IconButton
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              scroll('right');
+            }}
+            sx={{
+              display: showRightFade ? 'inline-flex' : 'none',
+              position: 'absolute',
+              top: '50%',
+              right: scrollArrowsOffset,
+              transform: 'translateY(-50%)',
+              zIndex: 2,
+              backgroundColor: 'background.paper',
+              boxShadow: 2,
+              pointerEvents: 'auto',
+            }}
+            aria-label="Scroll right"
+          >
+            <ChevronRightIcon />
+          </IconButton>
 
           {/* Scrollable container. Item sizing (width, flex, scroll-snap
               alignment) is left to the children so the same carousel can host
