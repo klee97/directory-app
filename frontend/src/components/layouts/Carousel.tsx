@@ -22,7 +22,10 @@ const GAP = 16; // matches the `gap: 2` spacing on the scroll container
 export const Carousel = ({ children, title, isCompact = false }: CarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
-  const [showRightFade, setShowRightFade] = useState(true);
+  // Default to false: only reveal the right fade/arrow once we've measured that
+  // the content actually overflows. Defaulting to true caused the arrow to flash in
+  // even for non-overflowing carousels.
+  const [showRightFade, setShowRightFade] = useState(false);
   const theme = useTheme();
 
   useEffect(() => {
@@ -37,11 +40,16 @@ export const Carousel = ({ children, title, isCompact = false }: CarouselProps) 
 
     el.addEventListener('scroll', updateFade);
     window.addEventListener('resize', updateFade);
+    // Recompute when the container or its content changes size (e.g. images
+    // finishing loading) so the arrows converge to a stable, correct state.
+    const resizeObserver = new window.ResizeObserver(updateFade);
+    resizeObserver.observe(el);
     updateFade();
 
     return () => {
       el.removeEventListener('scroll', updateFade);
       window.removeEventListener('resize', updateFade);
+      resizeObserver.disconnect();
     };
   }, []);
 

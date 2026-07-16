@@ -56,7 +56,6 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
         favoriteVendorIds={favoriteVendorIds}
         tags={tags}
         preselectedLocation={selectedLocation}
-        useLocationPages={!!selectedLocation}
       />
     </Container>
   );

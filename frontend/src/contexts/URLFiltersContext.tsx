@@ -5,12 +5,10 @@ const URLFiltersContext = createContext<ReturnType<typeof useURLFilters> | null>
 
 export const URLFiltersProvider = ({
   children,
-  preservePathname = false,
 }: {
   children: React.ReactNode;
-  preservePathname?: boolean;
 }) => {
-  const value = useURLFilters(preservePathname);
+  const value = useURLFilters();
   return <URLFiltersContext.Provider value={value}>{children}</URLFiltersContext.Provider>;
 };
 

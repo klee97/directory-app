@@ -8,7 +8,7 @@ import { VendorGrid } from './VendorGrid';
 import { SearchBar } from './filters/SearchBar';
 import { VendorId, VendorByDistance } from '@/types/vendor';
 import { LocationResult } from '@/types/location';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { SEARCH_PARAM, SKILL_PARAM, TRAVEL_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM, SERVICE_PARAM } from '@/lib/constants';
 import { Suspense } from 'react';
 import useScrollRestoration from '@/hooks/useScrollRestoration';
@@ -35,7 +35,6 @@ interface FilterableVendorTableContentProps {
   vendors: VendorByDistance[];
   favoriteVendorIds: VendorId[];
   preselectedLocation: LocationResult | null;
-  useLocationPages?: boolean;
 }
 
 export function FilterableVendorTableContent({
@@ -47,6 +46,7 @@ export function FilterableVendorTableContent({
   const searchParams = useSearchParams();
   const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
   const router = useRouter();
+  const pathname = usePathname() || '/directory';
 
   // Extract search parameters
   const searchQuery = searchParams?.get(SEARCH_PARAM) || "";
@@ -178,7 +178,7 @@ export function FilterableVendorTableContent({
                       params.delete(LONGITUDE_PARAM);
                       locationManagement.handleSelectLocation(null);
                     }
-                    router.push(`/?${params.toString()}`);
+                    router.push(`${pathname}?${params.toString()}`);
                   }}
                   sx={{
                     color: 'primary.main',
@@ -249,11 +249,10 @@ export default function FilterableVendorTable(props: {
   vendors: VendorByDistance[],
   favoriteVendorIds: VendorId[],
   preselectedLocation?: LocationResult | null,
-  useLocationPages?: boolean,
 }) {
   return (
     <Suspense fallback={<LoadingPage />}>
-      <URLFiltersProvider preservePathname={props.useLocationPages ?? false}>
+      <URLFiltersProvider>
         <FilterableVendorTableContent
           {...props}
           preselectedLocation={props.preselectedLocation ?? null}
