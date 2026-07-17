@@ -91,6 +91,7 @@ jobs:
           # Settings → Secrets and variables → Actions → New repository secret
           NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_LOCAL_PUBLISHABLE_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_LOCAL_SECRET_KEY }}
           # Add any other required vars here, e.g:
           # NEXT_PUBLIC_SOME_API_KEY: ${{ secrets.NEXT_PUBLIC_SOME_API_KEY }}
 

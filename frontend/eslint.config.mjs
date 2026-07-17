@@ -1,7 +1,7 @@
 import nextConfig from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 
-const config =  [
+const config = [
   ...nextConfig,
   ...nextTypescript,
   {
@@ -9,6 +9,7 @@ const config =  [
       "@typescript-eslint/no-unused-vars": ["warn", {
         varsIgnorePattern: "^_",
         argsIgnorePattern: "^_",
+        ignoreRestSiblings: true
       }],
     },
   },
