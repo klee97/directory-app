@@ -1,12 +1,11 @@
 'use client';
 
-import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { VendorCard } from './VendorCard';
 import { Vendor } from '@/types/vendor';
-import { Carousel } from '@/components/layouts/Carousel';
+import { VendorCarousel } from "@/components/layouts/VendorCarousel";
 
 export function VendorPreviewGrid({ vendors }: { vendors: Vendor[] }) {
   const theme = useTheme();
@@ -14,31 +13,7 @@ export function VendorPreviewGrid({ vendors }: { vendors: Vendor[] }) {
 
   if (isSmallScreen) {
     return (
-      <Carousel>
-        {vendors.map((vendor, index) => (
-          <Box
-            key={vendor.id}
-            sx={{
-              flex: '0 0 auto',
-              width: { xs: 260, sm: 280 },
-              scrollSnapAlign: 'start',
-            }}
-          >
-            <VendorCard
-              vendor={vendor}
-              searchParams=""
-              onFocus={() => {}}
-              onBlur={() => {}}
-              positionIndex={index}
-              tabIndex={0}
-              className=""
-              isFavorite={false}
-              showFavoriteButton={false}
-              variant="compact"
-            />
-          </Box>
-        ))}
-      </Carousel>
+        <VendorCarousel vendors={vendors}/>
     );
   }
 
