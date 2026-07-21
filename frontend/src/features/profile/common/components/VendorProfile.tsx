@@ -34,6 +34,8 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { VendorCoverImage } from './VendorCoverImage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getInquiryState } from '../utils/getInquiryState';
+import ManageProfilePrompt from '@/features/vendorClaim/components/ManageProfilePrompt';
+import { maskEmail } from '@/utils/maskEmail';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -531,6 +533,18 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Box>
           </Box>
+          {/* Low-key ownership affordance. Claimed listings send the owner
+              straight to login; unclaimed listings with an email on file open
+              the claim-link flow. Shown regardless of the content-transition
+              pause: managing a listing is independent of displayed content. */}
+          {vendor.business_name && (vendor.verified_at || vendor.email) && (
+            <ManageProfilePrompt
+              slug={vendor.slug ?? ''}
+              businessName={vendor.business_name}
+              isClaimed={!!vendor.verified_at}
+              emailHint={vendor.email ? maskEmail(vendor.email) : ''}
+            />
+          )}
           {children}
         </Container >
       </Box >
