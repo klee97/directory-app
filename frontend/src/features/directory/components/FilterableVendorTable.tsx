@@ -46,7 +46,7 @@ export function FilterableVendorTableContent({
   const searchParams = useSearchParams();
   const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
   const router = useRouter();
-  const pathname = usePathname() || '/directory';
+  const pathname = usePathname() || '/vendors';
 
   // Extract search parameters
   const searchQuery = searchParams?.get(SEARCH_PARAM) || "";

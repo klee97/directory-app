@@ -21,7 +21,7 @@ test.describe('Favorites — guest', () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/4 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
@@ -38,7 +38,7 @@ test.describe('Favorites — guest', () => {
 
     await page.getByRole('button', { name: 'Close', exact: true }).click();
 
-    await expect(page).toHaveURL('/directory');
+    await expect(page).toHaveURL('/vendors');
     await expect(page.getByRole('dialog')).not.toBeVisible();
   });
 

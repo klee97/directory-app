@@ -63,7 +63,7 @@ test.describe.serial('Favorites — authenticated', () => {
       r => r.request().method() === 'POST' && !!r.request().headers()['next-action'],
       { timeout: 10_000 }
     );
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
     // If getFavoriteVendorIds doesn't fire (e.g. user is logged out after a test),
     // ignore the timeout and continue.
@@ -79,7 +79,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await expect(page.getByText(GLAMOUR_NAME)).toBeVisible();
 
     // Cleanup
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
     await clickFavoriteAndPersist(
       page,
@@ -179,7 +179,7 @@ test.describe.serial('Favorites — authenticated', () => {
     await clickFavoriteAndPersist(page, page.getByRole('button', { name: 'Remove from favorites' }));
     await expect(page.getByRole('button', { name: 'Add to favorites' })).toBeVisible();
 
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
     await expect(
       page.getByTestId(`vendor-card-${GLAMOUR_SLUG}`).getByRole('button', { name: 'Add to favorites' })
@@ -209,7 +209,7 @@ test.describe.serial('Favorites — authenticated', () => {
     expect(bridalBounds!.y).toBeLessThan(glamourBounds!.y);
 
     // Cleanup
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
     await clickFavoriteAndPersist(
       page,
@@ -241,7 +241,7 @@ test.describe.serial('Favorites — authenticated', () => {
 
     // Logging out returns to the landing page ("/"), so go back to the directory
     // to verify the (now logged-out) heart state on the vendor card.
-    await page.goto('/directory');
+    await page.goto('/vendors');
     await expect(page.getByText(/Wedding Beauty Artist/).first()).toBeVisible({ timeout: 15_000 });
 
     // Heart should now show as outline since user is logged out

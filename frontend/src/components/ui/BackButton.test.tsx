@@ -89,7 +89,7 @@ describe("BackButton", () => {
 
     it("calls router.back() instead of the fallback", async () => {
       const user = userEvent.setup();
-      render(<BackButton fallbackHref="/directory" />);
+      render(<BackButton fallbackHref="/vendors" />);
 
       await user.click(screen.getByRole("button", { name: /back/i }));
 

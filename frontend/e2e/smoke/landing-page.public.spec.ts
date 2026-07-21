@@ -20,17 +20,15 @@ test.describe('Landing page — guest', () => {
       page.getByText('As Asian Americans, we know that mainstream wedding resources')
     ).toBeVisible();
 
-    // "Search all artists" appears in the hero and (conditionally) the vendors
-    // section, so scope the hero assertion to the first occurrence.
     await expect(
-      page.getByRole('link', { name: 'Search all artists' }).first()
+      page.getByRole('link', { name: 'Find a makeup artist' })
     ).toBeVisible();
     await expect(page.getByRole('link', { name: 'Our Story' })).toBeVisible();
   });
 
-  test('hero "Search all artists" navigates to the directory', async ({ page }) => {
-    await page.getByRole('link', { name: 'Search all artists' }).first().click();
-    await expect(page).toHaveURL('/directory');
+  test('hero "Find a makeup artist" navigates to the directory', async ({ page }) => {
+    await page.getByRole('link', { name: 'Find a makeup artist' }).click();
+    await expect(page).toHaveURL('/vendors');
   });
 
   test('hero "Our Story" navigates to the about page', async ({ page }) => {
@@ -40,7 +38,7 @@ test.describe('Landing page — guest', () => {
 
   test('verified vendors section shows vendor cards when present', async ({ page }) => {
     const heading = page.getByRole('heading', {
-      name: 'Discover the Best Makeup Artists for Asian Features',
+      name: 'The Best Makeup Artists for Asian Features',
     });
 
     // Section is conditional on there being verified vendors with cover images.
@@ -56,7 +54,7 @@ test.describe('Landing page — guest', () => {
 
   test('blog section renders and "View all blog posts" navigates to /blog', async ({ page }) => {
     const heading = page.getByRole('heading', {
-      name: 'From Our Blog: Vendor Stories & Cultural Wedding Inspo',
+      name: 'Vendor Stories & Cultural Wedding Guides',
     });
 
     // Section is conditional on there being published featured posts.

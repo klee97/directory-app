@@ -34,7 +34,7 @@ import { useEffect, useState } from 'react';
 import { useHasMounted } from '@/hooks/useHasMounted';
 
 
-const pages = ["Directory", "About", "Contact", "Recommend"];
+const pages = ["Vendors", "About", "Contact", "Recommend"];
 const vendorPages: string[] = [];
 const resources = ["FAQ", "Blog"];
 const Title = 'ASIAN WEDDING MAKEUP';

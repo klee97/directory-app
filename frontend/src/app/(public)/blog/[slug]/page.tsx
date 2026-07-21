@@ -4,7 +4,7 @@ import previewImage from '@/assets/website_preview.jpeg';
 import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
-import Button from '@mui/material/Button';
+import BackButton from '@/components/ui/BackButton';
 import Spotlight from '@/features/blog/components/Spotlight';
 import PasswordGate from '@/components/ui/PasswordGate';
 import { graphQLClient } from '@/lib/contentful/graphqlClient';
@@ -134,9 +134,7 @@ export default async function BlogPostPage({ params }: Props) {
           />
         )}
       </section>
-      <Button variant="text" href="/blog" color='secondary'>
-        ← Back
-      </Button>
+      <BackButton fallbackHref="/blog" />
       {isSpotlight ? (
         <Spotlight post={post} />
       ) : (

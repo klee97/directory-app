@@ -69,7 +69,7 @@ export const useLocationManagement = ({
           currentParams.set(LATITUDE_PARAM, String(lat));
           currentParams.set(LONGITUDE_PARAM, String(lon));
           const paramsString = currentParams.toString();
-          router.push(paramsString ? `/directory?${paramsString}` : '/directory', { scroll: false });
+          router.push(paramsString ? `/vendors?${paramsString}` : '/vendors', { scroll: false });
         } else {
           // On home page, just update URL params
           setParams({
@@ -87,7 +87,7 @@ export const useLocationManagement = ({
         currentParams.delete(LATITUDE_PARAM);
         currentParams.delete(LONGITUDE_PARAM);
         const paramsString = currentParams.toString();
-        router.push(paramsString ? `/directory?${paramsString}` : '/directory', { scroll: false });
+        router.push(paramsString ? `/vendors?${paramsString}` : '/vendors', { scroll: false });
       } else {
         setParams({
           [LATITUDE_PARAM]: null,

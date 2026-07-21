@@ -42,7 +42,7 @@ export function useURLFilters() {
         }
       });
       const search = newParams.toString();
-      // Always stay on the current page (e.g. /directory or /directory/[location])
+      // Always stay on the current page (e.g. /vendors or a /[location] page)
       // so applying a filter never bounces the user to a different route.
       const targetPath = pathnameRef.current;
       const newUrl = search ? `${targetPath}?${search}` : targetPath;

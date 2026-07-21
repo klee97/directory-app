@@ -113,9 +113,9 @@ export default async function Home() {
               flexWrap: 'wrap',
             }}
           >
-            <Link href="/directory" style={{ textDecoration: 'none' }}>
+            <Link href="/vendors" style={{ textDecoration: 'none' }}>
               <Button variant="contained" color="primary" size="large">
-                Search all artists
+                Find a makeup artist
               </Button>
             </Link>
             <Link href="/about" style={{ textDecoration: 'none' }}>
@@ -143,13 +143,13 @@ export default async function Home() {
             >
               <Box>
                 <Typography variant="h2" component="h2" gutterBottom>
-                  Discover the Best Makeup Artists for Asian Features
+                  The Best Makeup Artists for Asian Features
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
                     Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
                 </Typography>
               </Box>
-              <Link href="/directory" style={{ textDecoration: 'none' }}>
+              <Link href="/vendors" style={{ textDecoration: 'none' }}>
                 <Button variant="contained" color="primary">
                   Search all artists
                 </Button>
@@ -175,10 +175,10 @@ export default async function Home() {
           >
           <Box>
               <Typography variant="h2" component="h2" gutterBottom>
-                From Our Blog: Vendor Stories & Cultural Wedding Inspo
+                Vendor Stories & Cultural Wedding Guides
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                  Read stories from our spotlighted vendors, learn cultural histories, and be inspired!
+                  Read stories from our spotlighted vendors, learn cultural histories, and get inspired!
               </Typography>
           </Box>
             <Link href="/blog" style={{ textDecoration: 'none' }}>

@@ -127,7 +127,7 @@ export default async function VendorPage({ params }: PageProps) {
         {/* ... */}
       </section>
       <Suspense fallback={<LoadingPage />}>
-        <BackButton fallbackHref="/directory" />
+        <BackButton fallbackHref="/vendors" />
         <Container sx={{ py: 4 }}>
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
         </Container>
