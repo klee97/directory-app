@@ -72,7 +72,7 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
               <Link href="/blog" style={{ color: "inherit", textDecoration: "none" }}>
                 Blog
               </Link>
-              <Link href="/vendors" style={{ color: "inherit", textDecoration: "none" }}>
+              <Link href="/all-vendors" style={{ color: "inherit", textDecoration: "none" }}>
                 All Vendors
               </Link>
             </>

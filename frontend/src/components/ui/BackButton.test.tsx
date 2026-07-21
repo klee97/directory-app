@@ -21,10 +21,20 @@ function setReferrer(value: string) {
   });
 }
 
+function setHistoryLength(value: number) {
+  Object.defineProperty(window.history, "length", {
+    value,
+    configurable: true,
+  });
+}
+
 describe("BackButton", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     setReferrer("");
+    // Default to a single history entry (a direct load) so referrer-based cases
+    // are isolated from the in-app history heuristic.
+    setHistoryLength(1);
     mockUseSearchParams.mockReturnValue(new URLSearchParams());
 
   });
@@ -69,6 +79,22 @@ describe("BackButton", () => {
 
       expect(mockPush).toHaveBeenCalledWith("/");
       expect(mockBack).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when there is no referrer but in-app history exists (soft navigation)", () => {
+    beforeEach(() => {
+      setHistoryLength(2);
+    });
+
+    it("calls router.back() instead of the fallback", async () => {
+      const user = userEvent.setup();
+      render(<BackButton fallbackHref="/vendors" />);
+
+      await user.click(screen.getByRole("button", { name: /back/i }));
+
+      expect(mockBack).toHaveBeenCalledTimes(1);
+      expect(mockPush).not.toHaveBeenCalled();
     });
   });
 

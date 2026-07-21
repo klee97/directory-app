@@ -1,7 +1,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
-export function useURLFilters(preservePathname: boolean = false) {
+export function useURLFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname() || ''; // SSR-safe
@@ -42,11 +42,13 @@ export function useURLFilters(preservePathname: boolean = false) {
         }
       });
       const search = newParams.toString();
-      const targetPath = preservePathname ? pathnameRef.current : '/';
+      // Always stay on the current page (e.g. /vendors or a /[location] page)
+      // so applying a filter never bounces the user to a different route.
+      const targetPath = pathnameRef.current;
       const newUrl = search ? `${targetPath}?${search}` : targetPath;
       router.push(newUrl, { scroll: false });
     },
-    [router, preservePathname]
+    [router]
   );
 
   const setParam = useCallback(
@@ -65,11 +67,11 @@ export function useURLFilters(preservePathname: boolean = false) {
         values.forEach(value => newParams.append(key, value));
       }
       const search = newParams.toString();
-      const targetPath = preservePathname ? pathnameRef.current : '/';
+      const targetPath = pathnameRef.current;
       const newUrl = search ? `${targetPath}?${search}` : targetPath;
       router.push(newUrl, { scroll: false });
     },
-    [router, preservePathname]
+    [router]
   );
 
   return {

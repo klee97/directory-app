@@ -63,13 +63,13 @@ export const useLocationManagement = ({
       if (serialized) {
         const { lat, lon } = serialized;
         console.debug('Setting URL params via useURLFilters:', { lat, lon });
-        // If we're on a location page, navigate to home with new coordinates
+        // If we're on a location page, navigate to the directory with new coordinates
         if (preselectedLocation) {
           const currentParams = new URLSearchParams(window.location.search);
           currentParams.set(LATITUDE_PARAM, String(lat));
           currentParams.set(LONGITUDE_PARAM, String(lon));
           const paramsString = currentParams.toString();
-          router.push(paramsString ? `/?${paramsString}` : '/', { scroll: false });
+          router.push(paramsString ? `/vendors?${paramsString}` : '/vendors', { scroll: false });
         } else {
           // On home page, just update URL params
           setParams({
@@ -81,13 +81,13 @@ export const useLocationManagement = ({
     } else {
       // Clear everything immediately
       setLocationSearchQuery('');
-      // If on location page, go home; otherwise just clear params
+      // If on location page, go to the directory; otherwise just clear params
       if (preselectedLocation) {
         const currentParams = new URLSearchParams(window.location.search);
         currentParams.delete(LATITUDE_PARAM);
         currentParams.delete(LONGITUDE_PARAM);
         const paramsString = currentParams.toString();
-        router.push(paramsString ? `/?${paramsString}` : '/', { scroll: false });
+        router.push(paramsString ? `/vendors?${paramsString}` : '/vendors', { scroll: false });
       } else {
         setParams({
           [LATITUDE_PARAM]: null,

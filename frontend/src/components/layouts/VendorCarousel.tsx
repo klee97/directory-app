@@ -13,7 +13,7 @@ export const VendorCarousel = ({
 }: {
   vendors: VendorByDistance[];
   title?: string;
-  filterContext: FilterContext
+  filterContext?: FilterContext
 }) => {
   return (
     <Carousel title={title}>

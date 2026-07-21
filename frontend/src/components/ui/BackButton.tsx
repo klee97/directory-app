@@ -15,14 +15,22 @@ export default function BackButton({
 
   const canGoBack = (() => {
     if (typeof window === "undefined") return false;
-    if (!document.referrer) return false;
 
-    try {
-      const referrerUrl = new URL(document.referrer);
-      return referrerUrl.origin === window.location.origin;
-    } catch {
-      return false;
+    // A referrer is only set on a hard navigation into this page. When present,
+    // only go back if it's same-origin so we never leave the site.
+    if (document.referrer) {
+      try {
+        return new URL(document.referrer).origin === window.location.origin;
+      } catch {
+        return false;
+      }
     }
+
+    // Next.js soft (client-side) navigations don't update document.referrer, so
+    // an empty referrer doesn't mean there's nowhere to go back to. If the
+    // history stack has more than this entry, the user navigated here within the
+    // app (e.g. from the directory or the landing page) — return them there.
+    return window.history.length > 1;
   })();
 
   const handleBack = () => {

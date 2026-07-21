@@ -249,7 +249,7 @@ test.describe('Blog post detail page', () => {
 
     await expect(page).toHaveURL(/\/blog\/test-bridal-makeup-tips/);
     await expect(page.getByRole('heading', { name: 'Test Bridal Makeup Tips' })).toBeVisible();
-    await expect(page.getByRole('link', { name: /Back/ })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Back/ })).toBeVisible();
   });
 });
 

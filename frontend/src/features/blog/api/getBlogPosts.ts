@@ -1,5 +1,6 @@
 import { graphQLClient } from '@/lib/contentful/graphqlClient';
 import { GetAllBlogPostsQuery, GetAllBlogPostsDocument, GetBlogPostBySlugQuery, GetBlogPostBySlugDocument } from '@/lib/generated/graphql';
+import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import { unstable_cache } from 'next/cache';
 
 const CACHE_TTL = 900; // 15 minutes
@@ -28,6 +29,18 @@ export async function getAllPosts() {
     console.error('Error fetching all posts:', err)
     return []
   }
+}
+
+/**
+ * Filters a list of posts down to the ones that should be shown publicly:
+ * drops null entries and any post whose publish date hasn't passed in Eastern Time
+ * (keeps future-dated / scheduled posts hidden until they go live).
+ */
+export function getValidPosts(posts: (PageBlogPost | null)[]): PageBlogPost[] {
+  return posts.filter((post): post is PageBlogPost => {
+    if (!post) return false;
+    return isPublishedInEasternTime(post.publishedDate);
+  });
 }
 
 const _getPostBySlug = (slug: string) => unstable_cache(
