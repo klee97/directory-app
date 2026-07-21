@@ -1,10 +1,12 @@
-import { it, expect, vi } from 'vitest';
+import { it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
+import { updateSession } from '@/lib/supabase/middleware';
+import { proxy } from './proxy';
+
 vi.mock('@/lib/supabase/middleware', () => ({
   updateSession: vi.fn(async () => NextResponse.next()),
 }));
-import { updateSession } from '@/lib/supabase/middleware';
-import { proxy } from './proxy';
+beforeEach(() => vi.clearAllMocks());
 
 it('skips updateSession when a directory redirect fires', async () => {
   const req = new NextRequest(new Request('https://www.asianweddingmakeup.com/?lat=37.7793&lon=-122.4193'));

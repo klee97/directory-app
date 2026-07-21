@@ -9,18 +9,13 @@ import { DIRECTORY_FILTER_PARAMS } from '../constants';
 export function getDirectoryRedirect(request: NextRequest): NextResponse | null {
   const { pathname, searchParams } = request.nextUrl;
 
-  console.log('getDirectoryRedirect: pathname', pathname);
   if (pathname !== '/') {
     return null;
   }
 
-  console.log('getDirectoryRedirect: searchParams', searchParams);
-
   const hasDirectoryFilter = DIRECTORY_FILTER_PARAMS.some((param) =>
     searchParams.has(param)
   );
-
-  console.log('getDirectoryRedirect: hasDirectoryFilter', hasDirectoryFilter);
 
   if (!hasDirectoryFilter) {
     return null;

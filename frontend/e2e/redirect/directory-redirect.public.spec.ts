@@ -7,7 +7,7 @@ test('old Reddit-style homepage link redirects to filtered directory', async ({ 
   expect(page.url()).toContain('/vendors?lat=40.7127&lon=-74.006');
 
   // Confirm the directory page actually applied the filter, not just that the URL looks right
-  await expect(page.getByText("Wedding Beauty Artists found near New York City")).toBeVisible(); // adjust to a real filtered-result assertion
+  await expect(page.getByText("Wedding Beauty Artists found near New York City")).toBeVisible();
 });
 
 test('homepage without filter params does not redirect', async ({ page }) => {
