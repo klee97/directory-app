@@ -12,6 +12,8 @@ export const QUERY_PARAM = 'q';
 export const LATITUDE_PARAM = 'lat';
 export const LONGITUDE_PARAM = 'lon';
 
+export const DIRECTORY_FILTER_PARAMS = [SEARCH_PARAM, LOCATION_PARAM, TRAVEL_PARAM, SKILL_PARAM, SERVICE_PARAM, LATITUDE_PARAM, LONGITUDE_PARAM];
+
 // magic link params
 export const SLUG_PARAM = 'slug';
 export const EMAIL_PARAM = 'email';
