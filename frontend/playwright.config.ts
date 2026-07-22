@@ -119,6 +119,10 @@ export default defineConfig({
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.public.spec.ts',
     },
+    {
+      name: 'api',
+      testMatch: '**/e2e/**/*.api.spec.ts',
+    }
   ],
 
   // Starts the Next.js dev server before tests run
