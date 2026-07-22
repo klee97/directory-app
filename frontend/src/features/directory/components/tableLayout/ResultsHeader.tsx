@@ -68,6 +68,7 @@ export const ResultsHeader = ({
       {/* Filter Pills Row */}
       {hasFilters && (
         <Box
+          data-testid="active-filters"
           sx={{
             display: 'flex',
             flexWrap: 'wrap',
