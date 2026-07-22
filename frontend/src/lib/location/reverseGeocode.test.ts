@@ -11,11 +11,11 @@ vi.mock("@/lib/location/locationNames", () => ({
 }));
 
 function mockPhotonResponse(features: unknown[], ok = true, status = 200) {
-  global.fetch = vi.fn().mockResolvedValue({
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
     ok,
     status,
     json: async () => ({ features }),
-  }) as unknown as typeof fetch;
+  }));
 }
 
 function houseFeature(overrides: Record<string, unknown> = {}) {

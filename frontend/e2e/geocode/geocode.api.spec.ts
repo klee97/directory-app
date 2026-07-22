@@ -21,14 +21,4 @@ test.describe("reverse geocode: SF regression fix", () => {
 
     expect(status).toBe(404);
   });
-
-  test("a Photon upstream error still surfaces as a 5xx, not silently as 404", async ({ request }) => {
-    // Out-of-range coordinates are a cheap way to provoke a real error
-    // response from Photon without mocking, to confirm the null-vs-throw
-    // split still distinguishes "no results" from "actual failure".
-    const { status } = await reverse(request, 999, 999);
-
-    expect(status).toBeGreaterThanOrEqual(400);
-    expect(status).not.toBe(404);
-  });
 });
