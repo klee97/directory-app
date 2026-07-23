@@ -78,6 +78,7 @@ export default async function VendorPage({ params }: PageProps) {
     const allNearbyVendors = await getVendorsByDistanceWithFallback(
       vendor.latitude,
       vendor.longitude,
+      vendor.country,
       SEARCH_RADIUS_MILES_DEFAULT,
       10  // Get more results to filter from
     );

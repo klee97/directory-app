@@ -208,6 +208,44 @@ INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city,
 VALUES
   ('TEST-E2E-CLAIM', 'Test Claim Vendor', 'test-claim-vendor', false, 'Seattle', 'Washington', 'United States', 'claim-vendor@example.com', '11111111-1111-1111-1111-111111111111', null, null);
 
+
+
+-- -----------------------------------------------------------------------
+-- Backfill lat/lon on the existing US test vendor fixtures.
+-- Needed so radius-search e2e assertions are grounded in real distance —
+-- without this, vendors with null lat/lon are likely excluded from every
+-- radius search regardless of query coordinates, which would make
+-- "no nearby vendors" tests pass for the wrong reason.
+-- -----------------------------------------------------------------------
+UPDATE public.vendors SET latitude = 40.7128,  longitude = -74.0060  WHERE id = 'TEST-E2E-001'; -- New York, NY
+UPDATE public.vendors SET latitude = 34.0522,  longitude = -118.2437 WHERE id = 'TEST-E2E-002'; -- Los Angeles, CA
+UPDATE public.vendors SET latitude = 42.3601,  longitude = -71.0589  WHERE id = 'TEST-E2E-003'; -- Boston, MA
+UPDATE public.vendors SET latitude = 29.7604,  longitude = -95.3698  WHERE id = 'TEST-E2E-004'; -- Houston, TX
+UPDATE public.vendors SET latitude = 41.8781,  longitude = -87.6298  WHERE id = 'TEST-E2E-005'; -- Chicago, IL
+UPDATE public.vendors SET latitude = 41.8781,  longitude = -87.6298  WHERE id = 'TEST-E2E-006'; -- Chicago, IL 
+
+-- -----------------------------------------------------------------------
+-- Fixture for country-fallback e2e coverage (see fetchVendorsByLocation.ts
+-- getVendorsByDistanceWithFallback + reverseGeocode.ts PRECISE_COUNTRY_CODES)
+--
+-- Spain is intentionally NOT in PRECISE_COUNTRY_CODES (US, CA only), so a
+-- location resolving to "Spain" with no city/state should exercise the
+-- country-level fallback when nothing is found within the radius search.
+-- Coordinates are set far enough from Madrid that they fall outside the
+-- radius-expansion attempts but still resolve to Spain at the country
+-- level via reverse geocoding.
+-- -----------------------------------------------------------------------
+INSERT INTO public.vendors (
+  id, business_name, slug, include_in_directory,
+  city, state, country, latitude, longitude,
+  verified_at, approved_inquiries_at, website_interest_submitted, premium_interest_submitted
+)
+VALUES (
+  'TEST-E2E-ES', 'Test Madrid Beauty', 'test-madrid-beauty', true,
+  'Madrid', null, 'Spain', 40.4168, -3.7038,
+  timezone('utc'::text, now()), timezone('utc'::text, now()), false, false
+);
+
 -- Test tags  (style='primary' → Service chip; anything else → Skill chip)
 INSERT INTO public.tags (id, name, display_name, is_visible, style, type)
 VALUES

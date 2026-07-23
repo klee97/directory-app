@@ -19,16 +19,18 @@ export const useLocationManagement = ({
   const [locationSearchQuery, setLocationSearchQuery] = useState('');
 
   const { setParams } = useURLFiltersContext();
-
   const router = useRouter();
-  // Move location sync, selection, and URL management here
-  const selectedLocation: LocationResult | null = useResolvedLocation({
+
+  const rawSelectedLocation = useResolvedLocation({
     preselectedLocation,
     immediateLocation,
   });
 
-  const locationInputValue = inputOverride ?? selectedLocation?.display_name ?? '';
+  // Still waiting on the reverse-geocode fetch to settle
+  const isLocationResolving = rawSelectedLocation === undefined;
+  const selectedLocation: LocationResult | null = rawSelectedLocation ?? null;
 
+  const locationInputValue = inputOverride ?? selectedLocation?.display_name ?? '';
   // Location search results
   const {
     instantLocations,
@@ -114,6 +116,7 @@ export const useLocationManagement = ({
 
   return {
     selectedLocation,
+    isLocationResolving,
     locationInputValue,
     handleSelectLocation,
     handleLocationInputChange,

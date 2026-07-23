@@ -67,6 +67,7 @@ export async function getVendorsByDistance(
 export async function getVendorsByDistanceWithFallback(
   lat: number,
   lon: number,
+  country: string | undefined | null,
   initialRadius = SEARCH_RADIUS_MILES_DEFAULT,
   limit = SEARCH_VENDORS_LIMIT_DEFAULT
 ): Promise<VendorByDistance[]> {
@@ -80,6 +81,10 @@ export async function getVendorsByDistanceWithFallback(
     attempts++;
   }
 
+  if (results.length < SEARCH_RESULTS_MINIMUM) {
+      return getVendorsByCountry(country); // Fallback to country-level search if not enough results
+  }
+
   return results;
 }
 
@@ -88,6 +93,7 @@ export async function getVendorsByLocation(location: LocationResult): Promise<Ve
     return getVendorsByDistanceWithFallback(
       location.lat,
       location.lon,
+      location.address?.country,
       SEARCH_RADIUS_MILES_DEFAULT,
       SEARCH_VENDORS_LIMIT_DEFAULT
     );
@@ -110,13 +116,13 @@ const _getVendorsByState = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByState(location: LocationResult) {
-  if (!location.address?.state) {
-    console.warn("No state in location:", location);
+export async function getVendorsByState(state: string | undefined | null) {
+  if (!state) {
+    console.warn("No state provided");
     return [];
   }
   try {
-    return await _getVendorsByState(location.address.state, shouldIncludeTestVendors());
+    return await _getVendorsByState(state, shouldIncludeTestVendors());
   } catch (err) {
     console.error(err);
     return [];
@@ -137,13 +143,13 @@ const _getVendorsByCountry = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByCountry(location: LocationResult) {
-  if (!location.address?.country) {
-    console.warn("No country in location:", location);
+export async function getVendorsByCountry(country: string | undefined | null) {
+  if (!country) {
+    console.warn("No country provided");
     return [];
   }
   try {
-    return await _getVendorsByCountry(location.address.country, shouldIncludeTestVendors());
+    return await _getVendorsByCountry(country, shouldIncludeTestVendors());
   } catch (err) {
     console.error(err);
     return [];

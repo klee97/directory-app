@@ -55,13 +55,14 @@ export default async function LocationPage({ params }: LocationPageProps) {
     vendors = await getVendorsByDistanceWithFallback(
       location.lat,
       location.lon,
+      location.address?.country,
       SEARCH_RADIUS_MILES_DEFAULT,
       SEARCH_VENDORS_LIMIT_DEFAULT
     );
   } else if (location.type === LOCATION_TYPE_STATE) {
-    vendors = await getVendorsByState(location);
+    vendors = await getVendorsByState(location.address?.state);
   } else if (location.type === LOCATION_TYPE_COUNTRY) {
-    vendors = await getVendorsByCountry(location);
+    vendors = await getVendorsByCountry(location.address?.country);
   }
 
   // If no location found or no artists, redirect to home table
