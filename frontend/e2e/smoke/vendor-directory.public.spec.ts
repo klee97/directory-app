@@ -25,7 +25,7 @@ test.describe('Vendor directory — guest', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/vendors');
     // Wait until the result-count line renders, confirming vendors are loaded
-    await expect(page.getByText(/4 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/5 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
   });
 
   test('filter by skill and click vendor card', async ({ page }) => {

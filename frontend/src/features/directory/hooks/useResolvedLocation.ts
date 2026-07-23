@@ -16,14 +16,17 @@ export default function useResolvedLocation({
     // null = explicitly cleared,
     // LocationResult = user just picked one
     immediateLocation?: LocationResult | null,
-}): LocationResult | null {
+}): LocationResult | null | undefined {
+    // undefined = still resolving (loading state)
+    // null      = resolution completed but no location found (or lookup failed)
+    // LocationResult = resolved successfully
     console.debug('useResolvedLocation: Hook initialized with preselectedLocation:', preselectedLocation, 'immediateLocation:', immediateLocation);
     const [resolvedFromFetch, setResolvedFromFetch] = useState<{
         key: string;
         location: LocationResult | null;
     } | null>(null);
     const lastCoordsRef = useRef<string | null>(null);
-    const isResolvingRef = useRef<boolean>(false);
+    const resolvingKeyRef = useRef<string | null>(null);
 
     const { getParam } = useURLFiltersContext();
     const lat = getParam(LATITUDE_PARAM);
@@ -46,24 +49,32 @@ export default function useResolvedLocation({
     } else if (cached) {
         syncLocation = cached;
     } else {
-        syncLocation = undefined; // no synchronous location available, will need to fetch using effect
+        syncLocation = undefined;; // no synchronous location available, will need to fetch using effect
     }
 
-    // Only fetch/resolve from coords when there's no synchronous answer
     useEffect(() => {
-        if (syncLocation !== undefined) return; // handled synchronously above
+        if (syncLocation !== undefined) return;  // handled synchronously above
         if (!coords || !coordsKey) return;
 
         if (lastCoordsRef.current === coordsKey) return;
-        if (isResolvingRef.current) return;
+        if (resolvingKeyRef.current === coordsKey) return;
 
-        isResolvingRef.current = true;
+        resolvingKeyRef.current = coordsKey;
 
         (async () => {
             try {
                 const response = await fetchApi<LocationResult>(`/api/search/reverse?lat=${coords.lat}&lon=${coords.lon}`);
+
                 if (!response.ok) {
-                    throw new Error(response.error || 'Failed to resolve location');
+                    // A 404 (nothing resolvable at these coordinates) is an
+                    // expected, terminal outcome — not a transient error.
+                    // Settle state so downstream consumers stop waiting,
+                    // instead of leaving the hook looking identical to
+                    // "still loading" forever.
+                    console.warn('No location resolved for coords:', coords, response.error);
+                    setResolvedFromFetch({ key: coordsKey, location: null });
+                    lastCoordsRef.current = coordsKey;
+                    return;
                 }
 
                 const data = response.data;
@@ -74,17 +85,23 @@ export default function useResolvedLocation({
                 lastCoordsRef.current = coordsKey;
             } catch (error) {
                 console.error('Error resolving location:', error);
+                setResolvedFromFetch({ key: coordsKey, location: null });
+                lastCoordsRef.current = coordsKey;
             } finally {
-                isResolvingRef.current = false;
+                if (resolvingKeyRef.current === coordsKey) {
+                    resolvingKeyRef.current = null;
+                }
             }
         })();
     }, [coords, coordsKey, syncLocation]);
 
     // `resolvedFromFetch` can be stale if coords changed since the last fetch
     // completed — only trust it when its key matches the current coords.
-    return syncLocation !== undefined
-        ? syncLocation
-        : resolvedFromFetch?.key === coordsKey
-            ? resolvedFromFetch.location
-            : null;
+    if (syncLocation !== undefined) {
+        return syncLocation;
+    }
+    if (resolvedFromFetch?.key === coordsKey) {
+        return resolvedFromFetch.location; // fetch settled — success, not-found, or error; never undefined here
+    }
+    return undefined; // still resolving
 }

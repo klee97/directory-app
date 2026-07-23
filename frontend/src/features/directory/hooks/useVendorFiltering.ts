@@ -10,6 +10,7 @@ import { getVendorsByLocation } from "@/features/directory/api/fetchVendorsByLoc
 export const useVendorFiltering = ({
   vendors,
   selectedLocation,
+  isLocationResolving,
   travelsWorldwide,
   selectedSkills,
   selectedServices,
@@ -17,6 +18,7 @@ export const useVendorFiltering = ({
 }: {
   vendors: VendorByDistance[],
   selectedLocation: LocationResult | null,
+  isLocationResolving: boolean,
   travelsWorldwide: boolean,
   selectedSkills: string[],
   selectedServices: string[],
@@ -30,26 +32,30 @@ export const useVendorFiltering = ({
   const urlLat = getParam(LATITUDE_PARAM);
   const urlLon = getParam(LONGITUDE_PARAM);
 
-  // Load vendors based on location filter
   useEffect(() => {
-
     let cancelled = false;
 
     const fetchVendorsByDistance = async () => {
 
-
-      // If we have URL params but no resolved location yet, show loading
-      if ((urlLat && urlLon) && !selectedLocation) {
+      // Only show loading while the location is still resolving —
+      // NOT just because selectedLocation is null, since that's also the
+      // terminal "reverse-geocode found nothing" state. Relying on
+      // selectedLocation's nullness alone can never distinguish the two,
+      // which is what caused this to spin forever.
+      if (isLocationResolving) {
         setLoading(true);
         return;
       }
 
-      // Check if the current location matches the URL params to avoid stale fetches
-      if (urlLat && urlLon) {
+      // Guard against stale selectedLocation only when we actually have a
+      // selectedLocation to compare against. If it's null (genuinely
+      // resolved to "not found"), there's nothing to compare, so fall
+      // through to the hasValidLocation check below instead of bailing here.
+      if (urlLat && urlLon && selectedLocation) {
         const urlLatNum = parseFloat(urlLat);
         const urlLonNum = parseFloat(urlLon);
-        const locationLat = selectedLocation?.lat;
-        const locationLon = selectedLocation?.lon;
+        const locationLat = selectedLocation.lat;
+        const locationLon = selectedLocation.lon;
 
         // Only proceed if locationLat and locationLon are defined
         if (locationLat === undefined || locationLat === null || locationLon === undefined || locationLon === null) {
@@ -63,7 +69,7 @@ export const useVendorFiltering = ({
 
         if (!latMatch || !lonMatch) {
           console.debug('Location/URL mismatch, skipping fetch. URL:', { urlLatNum, urlLonNum }, 'Location:', { locationLat, locationLon });
-          return; // Skip fetch, location is still resolving
+          return; // Skip fetch, location is still resolving to a different point
         }
       }
 
@@ -99,7 +105,7 @@ export const useVendorFiltering = ({
         } catch (error) {
           console.error('Error loading vendors by location:', error);
           if (!cancelled) {
-            setVendorsInRadius(vendors); // fallback to all vendors
+            setVendorsInRadius(vendors); // Fallback to all vendors
           }
         } finally {
           if (!cancelled) {
@@ -113,7 +119,7 @@ export const useVendorFiltering = ({
     return () => {
       cancelled = true;
     };
-  }, [urlLat, urlLon, selectedLocation, vendors]);
+  }, [urlLat, urlLon, selectedLocation, isLocationResolving, vendors]);
 
   // Filter vendors based on all criteria
   const filteredVendors = useMemo(() => {

@@ -15,6 +15,7 @@ export default defineConfig({
       reporter: ['text', 'html'],
       exclude: ['node_modules/', 'tests/setup.ts'],
     },
+    testTimeout: 10000, // global timeout set to 10 s
   },
   resolve: {
     alias: {

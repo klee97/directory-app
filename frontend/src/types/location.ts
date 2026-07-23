@@ -20,6 +20,7 @@ export interface GeocodeResponse {
     city: string;
     state: string;
     country: string;
+    countrycode?: string;
     name: string;
     type: string;
   }
@@ -113,3 +114,5 @@ export const COUNTRY_ABBREVIATIONS: Record<string, string> = {
   "United States": "USA",
   "United States of America": "USA",
 };
+
+export const PRECISE_COUNTRY_CODES = new Set(["US", "CA"]);

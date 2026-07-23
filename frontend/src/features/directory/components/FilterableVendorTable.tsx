@@ -65,6 +65,7 @@ export function FilterableVendorTableContent({
   const vendorFiltering = useVendorFiltering({
     vendors,
     selectedLocation: locationManagement.selectedLocation,
+    isLocationResolving: locationManagement.isLocationResolving,
     travelsWorldwide,
     selectedSkills,
     selectedServices,
@@ -230,7 +231,7 @@ export function FilterableVendorTableContent({
           />
 
           {/* Loading Spinner */}
-          {(paginationIsLoading || vendorFiltering.loading) && (
+          {(paginationIsLoading || vendorFiltering.loading || locationManagement.isLocationResolving) && (
             <Box sx={{ display: 'flex', justifyContent: 'center', padding: 2 }}>
               <CircularProgress />
             </Box>

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { rawReversePhotonFetch } from "@/lib/location/reverseGeocode";
-import { LOCATION_TYPE_CITY, LOCATION_TYPE_STATE } from "@/types/location";
+import { LOCATION_TYPE_CITY, LOCATION_TYPE_STATE, LOCATION_TYPE_COUNTRY } from "@/types/location";
 
 
 vi.mock("@/lib/location/locationNames", () => ({
@@ -31,6 +31,24 @@ function houseFeature(overrides: Record<string, unknown> = {}) {
       ...overrides,
     },
     geometry: { type: "Point", coordinates: [-122.4189539, 37.7748879] },
+  };
+}
+
+// Distinct from houseFeature: represents Photon's nearest feature being the
+// country boundary itself (no house/city/state nearby at all) — the shape
+// that drives the precise-vs-non-precise-country fallback branch.
+function countryFeature(overrides: Record<string, unknown> = {}) {
+  return {
+    type: "Feature",
+    properties: {
+      osm_type: "R",
+      osm_id: 2,
+      type: LOCATION_TYPE_COUNTRY,
+      country: "United States",
+      countrycode: "US",
+      ...overrides,
+    },
+    geometry: { type: "Point", coordinates: [-98.35, 39.5] },
   };
 }
 
@@ -102,9 +120,17 @@ describe("rawReversePhotonFetch", () => {
     expect(result).toBeNull();
   });
 
-  it("returns null when the nearest feature has neither city nor state", async () => {
+  it("returns null when the nearest feature has neither city, state, nor country", async () => {
+    // NOTE: previously this test also left `country` at houseFeature's
+    // default ("United States") while expecting a null result. That
+    // stopped being valid once the country-level fallback landed: a
+    // feature with country="United States" but no countrycode is treated
+    // as non-precise (no code to check against PRECISE_COUNTRY_CODES), so
+    // it would now return a country-level result instead of null. This
+    // test explicitly clears `country` too, to isolate the true
+    // nothing-usable-at-all case.
     mockPhotonResponse([
-      houseFeature({ city: undefined, state: undefined }),
+      houseFeature({ city: undefined, state: undefined, country: undefined }),
     ]);
 
     const result = await rawReversePhotonFetch(10, 10);
@@ -137,5 +163,72 @@ describe("rawReversePhotonFetch", () => {
 
     expect(result!.lat).toBe(37.7748879);
     expect(result!.lon).toBe(-122.4189539);
+  });
+
+  // ── Country-level fallback (PRECISE_COUNTRY_CODES) ──────────────────────
+
+  it("returns null for a rural/unindexed area in a PRECISE country (US) with no city or state", async () => {
+    mockPhotonResponse([
+      countryFeature({ country: "United States", countrycode: "US" }),
+    ]);
+
+    const result = await rawReversePhotonFetch(44.0, -110.0);
+
+    expect(result).toBeNull();
+  });
+
+  it("returns null for a rural/unindexed area in a PRECISE country (Canada) with no city or state", async () => {
+    mockPhotonResponse([
+      countryFeature({ country: "Canada", countrycode: "CA" }),
+    ]);
+
+    const result = await rawReversePhotonFetch(60.0, -100.0);
+
+    expect(result).toBeNull();
+  });
+
+  it("falls back to a country-level result for a NON-precise country (Spain) with no city or state", async () => {
+    mockPhotonResponse([
+      countryFeature({ country: "Spain", countrycode: "ES" }),
+    ]);
+
+    const result = await rawReversePhotonFetch(40.0, -4.0);
+
+    expect(result).not.toBeNull();
+    expect(result!.type).toBe(LOCATION_TYPE_COUNTRY);
+    expect(result!.address).toEqual({ country: "Spain" });
+    expect(result!.address?.city).toBeUndefined();
+    expect(result!.address?.state).toBeUndefined();
+  });
+
+  it("treats country codes case-insensitively when checking PRECISE_COUNTRY_CODES", async () => {
+    mockPhotonResponse([
+      countryFeature({ country: "United States", countrycode: "us" }), // lowercase, as some providers send it
+    ]);
+
+    const result = await rawReversePhotonFetch(44.0, -110.0);
+
+    // Should still be treated as precise -> null, not a country-level fallback
+    expect(result).toBeNull();
+  });
+
+  it("uses the feature's own `name` for country when it IS the country-type feature and has no `country` prop", async () => {
+    mockPhotonResponse([
+      countryFeature({ country: undefined, name: "Spain", countrycode: "ES" }),
+    ]);
+
+    const result = await rawReversePhotonFetch(40.0, -4.0);
+
+    expect(result?.address?.country).toBe("Spain");
+  });
+
+  it("returns null when there's no city/state/country and no countrycode to evaluate", async () => {
+    mockPhotonResponse([
+      { type: "Feature", properties: { type: "unknown" }, geometry: { type: "Point", coordinates: [0, 0] } },
+    ]);
+
+    const result = await rawReversePhotonFetch(0, 0);
+
+    expect(result).toBeNull();
   });
 });
