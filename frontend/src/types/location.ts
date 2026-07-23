@@ -20,7 +20,7 @@ export interface GeocodeResponse {
     city: string;
     state: string;
     country: string;
-    countrycode: string;
+    countrycode?: string;
     name: string;
     type: string;
   }

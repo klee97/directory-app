@@ -23,7 +23,7 @@ export default function useResolvedLocation({
         location: LocationResult | null;
     } | null>(null);
     const lastCoordsRef = useRef<string | null>(null);
-    const isResolvingRef = useRef<boolean>(false);
+    const resolvingKeyRef = useRef<string | null>(null);
 
     const { getParam } = useURLFiltersContext();
     const lat = getParam(LATITUDE_PARAM);
@@ -51,9 +51,9 @@ export default function useResolvedLocation({
         if (!coords || !coordsKey) return;
 
         if (lastCoordsRef.current === coordsKey) return;
-        if (isResolvingRef.current) return;
+        if (resolvingKeyRef.current === coordsKey) return;
 
-        isResolvingRef.current = true;
+        resolvingKeyRef.current = coordsKey;
 
         (async () => {
             try {
@@ -82,7 +82,9 @@ export default function useResolvedLocation({
                 setResolvedFromFetch({ key: coordsKey, location: null });
                 lastCoordsRef.current = coordsKey;
             } finally {
-                isResolvingRef.current = false;
+                if (resolvingKeyRef.current === coordsKey) {
+                    resolvingKeyRef.current = null;
+                }
             }
         })();
     }, [coords, coordsKey, syncLocation]);

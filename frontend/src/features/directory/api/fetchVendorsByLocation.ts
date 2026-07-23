@@ -82,7 +82,10 @@ export async function getVendorsByDistanceWithFallback(
   }
 
   if (results.length < SEARCH_RESULTS_MINIMUM) {
-      return getVendorsByCountry(country); // Fallback to country-level search if not enough results
+    const countryResults = await getVendorsByCountry(country);
+    // Only replace the radius results if the country fallback actually
+    // found more/better matches; never trade partial real results for nothing.
+    return countryResults.length > results.length ? countryResults : results;
   }
 
   return results;
