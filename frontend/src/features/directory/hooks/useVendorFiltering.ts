@@ -57,11 +57,13 @@ export const useVendorFiltering = ({
         const locationLat = selectedLocation.lat;
         const locationLon = selectedLocation.lon;
 
+        // Only proceed if locationLat and locationLon are defined
         if (locationLat === undefined || locationLat === null || locationLon === undefined || locationLon === null) {
           console.debug('Location latitude or longitude is undefined, skipping fetch.');
           return;
         }
 
+        // Allow for small floating point differences
         const latMatch = Math.abs(urlLatNum - locationLat) < 0.0001;
         const lonMatch = Math.abs(urlLonNum - locationLon) < 0.0001;
 
@@ -71,12 +73,14 @@ export const useVendorFiltering = ({
         }
       }
 
+      // Check if we have a valid location with required properties
       const hasValidLocation = selectedLocation &&
         selectedLocation.display_name &&
         selectedLocation.lat !== undefined &&
         selectedLocation.lon !== undefined;
 
       if (!hasValidLocation) {
+        // If no valid location is selected, show all vendors by default
         console.debug('No valid location, showing all vendors');
         setVendorsInRadius(vendors);
         setLoading(false);
@@ -101,7 +105,7 @@ export const useVendorFiltering = ({
         } catch (error) {
           console.error('Error loading vendors by location:', error);
           if (!cancelled) {
-            setVendorsInRadius(vendors);
+            setVendorsInRadius(vendors); // Fallback to all vendors
           }
         } finally {
           if (!cancelled) {

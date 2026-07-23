@@ -12,6 +12,9 @@ export default function useResolvedLocation({
     immediateLocation
 }: {
     preselectedLocation: LocationResult | null,
+    // undefined = not set (fall through to URL coords)
+    // null = explicitly cleared,
+    // LocationResult = user just picked one
     immediateLocation?: LocationResult | null,
 }): LocationResult | null | undefined {
     // undefined = still resolving (loading state)
@@ -33,9 +36,12 @@ export default function useResolvedLocation({
     const coordsKey = coords ? createGeocodeKey(coords.lat, coords.lon) : null;
     const cached = coordsKey ? reverseGeocodeCache.get(coordsKey) : null;
 
+    // Handle location that can be calculated during rendering — covers every case that doesn't require a network call
+    // 
+    // Priority: immediateLocation (incl. explicit null) > preselectedLocation > cached reverse-geocode result > "need to fetch" (undefined).
     let syncLocation: LocationResult | null | undefined;
     if (immediateLocation !== undefined) {
-        syncLocation = immediateLocation;
+        syncLocation = immediateLocation; // covers both a real selection and explicit null
     } else if (preselectedLocation) {
         syncLocation = preselectedLocation;
     } else if (coords === null) {
@@ -43,11 +49,11 @@ export default function useResolvedLocation({
     } else if (cached) {
         syncLocation = cached;
     } else {
-        syncLocation = undefined;
+        syncLocation = undefined;; // no synchronous location available, will need to fetch using effect
     }
 
     useEffect(() => {
-        if (syncLocation !== undefined) return;
+        if (syncLocation !== undefined) return;  // handled synchronously above
         if (!coords || !coordsKey) return;
 
         if (lastCoordsRef.current === coordsKey) return;
@@ -89,6 +95,8 @@ export default function useResolvedLocation({
         })();
     }, [coords, coordsKey, syncLocation]);
 
+    // `resolvedFromFetch` can be stale if coords changed since the last fetch
+    // completed — only trust it when its key matches the current coords.
     if (syncLocation !== undefined) {
         return syncLocation;
     }
