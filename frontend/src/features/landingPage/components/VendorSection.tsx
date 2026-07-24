@@ -1,26 +1,15 @@
-import { getTodaySeed, shuffleVendorsWithSeed } from "@/lib/randomize";
-import { getCachedVendors } from "@/lib/vendor/fetchVendors";
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
-import { VendorPreviewGrid } from "@/features/directory/components/VendorPreviewGrid";
+import { Suspense } from "react";
+import { VendorGrid } from "./VendorGridData";
+import { VendorGridSkeleton } from "./VendorGridSkeleton";
 
 export const VENDOR_PREVIEW_COUNT = 6;
 
 export async function VendorSection() {
-
-  const vendors = await getCachedVendors();
-
-  // Only show verified vendors with photos on the landing page
-  const verifiedVendors = shuffleVendorsWithSeed(
-    vendors.filter((v) => v.verified_at != null && v.cover_image != null),
-    getTodaySeed()
-  ).slice(0, VENDOR_PREVIEW_COUNT);
-
-
-  if (verifiedVendors.length === 0) return null;
 
   return (
     <Box sx={{ backgroundColor: 'background.paper', py: { xs: 3, md: 10 } }}>
@@ -49,7 +38,9 @@ export async function VendorSection() {
             </Button>
           </Link>
         </Box>
-        <VendorPreviewGrid vendors={verifiedVendors} />
+        <Suspense fallback={<VendorGridSkeleton />}>
+          <VendorGrid />
+        </Suspense>
       </Container>
     </Box>
   );

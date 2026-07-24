@@ -6,9 +6,6 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
-import { Suspense } from 'react';
-import { BlogSectionSkeleton } from '@/features/landingPage/components/BlogSectionSkeleton';
-import { VendorSectionSkeleton } from '@/features/landingPage/components/VendorSectionSkeleton';
 import { VendorSection } from '@/features/landingPage/components/VendorSection';
 import { BlogSection } from '@/features/landingPage/components/BlogSection';
 
@@ -102,14 +99,10 @@ export default async function Home() {
       </Box>
 
       {/* Verified Vendors Preview */}
-      <Suspense fallback={<VendorSectionSkeleton />}>
-        <VendorSection />
-      </Suspense>
+      <VendorSection />
 
       {/* Recent Blog Posts */}
-      <Suspense fallback={<BlogSectionSkeleton />}>
-        <BlogSection />
-      </Suspense>
+      <BlogSection />
     </>
   );
 }

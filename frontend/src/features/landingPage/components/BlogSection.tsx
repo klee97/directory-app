@@ -3,22 +3,13 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
-import { getAllPosts, getValidPosts } from '@/features/blog/api/getBlogPosts';
-import { BlogPostCarousel } from '@/features/blog/components/BlogPostCarousel';
+import { Suspense } from 'react';
+import { BlogCarouselSkeleton } from './BlogCarouselSkeleton';
+import { BlogCarouselData } from './BlogCarouselData';
 
 export const FEATURED_CATEGORIES = ['vendor-spotlight', 'cultural-history', 'vendor-list'] as const;
 
 export async function BlogSection() {
-  const posts = await getAllPosts();
-  const publishedPosts = getValidPosts(posts).sort(
-    (a, b) => new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime()
-  );
-
-  const recentPosts = FEATURED_CATEGORIES
-    .map((category) => publishedPosts.find((post) => post.categoryList?.includes(category)))
-    .filter((post): post is NonNullable<typeof post> => post != null);
-
-  if (recentPosts.length === 0) return null;
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 10 } }}>
@@ -46,7 +37,9 @@ export async function BlogSection() {
           </Button>
         </Link>
       </Box>
-      <BlogPostCarousel posts={recentPosts} />
+      <Suspense fallback={<BlogCarouselSkeleton />}>
+        <BlogCarouselData />
+      </Suspense>
     </Container>
   );
 }
