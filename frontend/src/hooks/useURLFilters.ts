@@ -46,7 +46,7 @@ export function useURLFilters() {
       // so applying a filter never bounces the user to a different route.
       const targetPath = pathnameRef.current;
       const newUrl = search ? `${targetPath}?${search}` : targetPath;
-      router.push(newUrl, { scroll: false });
+      router.replace(newUrl, { scroll: false });
     },
     [router]
   );
@@ -69,7 +69,7 @@ export function useURLFilters() {
       const search = newParams.toString();
       const targetPath = pathnameRef.current;
       const newUrl = search ? `${targetPath}?${search}` : targetPath;
-      router.push(newUrl, { scroll: false });
+      router.replace(newUrl, { scroll: false });
     },
     [router]
   );
