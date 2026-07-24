@@ -3,7 +3,7 @@ import { GetAllBlogPostsQuery, GetAllBlogPostsDocument, GetBlogPostBySlugQuery, 
 import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import { unstable_cache } from 'next/cache';
 
-const CACHE_TTL = 900; // 15 minutes
+const CACHE_TTL = 21600; // 6 hours
 
 export type PageBlogPost = NonNullable<
   NonNullable<GetAllBlogPostsQuery['pageBlogPostCollection']>['items'][number]

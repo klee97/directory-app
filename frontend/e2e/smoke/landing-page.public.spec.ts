@@ -37,19 +37,21 @@ test.describe('Landing page — guest', () => {
   });
 
   test('verified vendors section shows vendor cards when present', async ({ page }) => {
-    const heading = page.getByRole('heading', {
-      name: 'The Best Makeup Artists for Asian Features',
-    });
+    const firstCard = page.locator('[data-testid^="vendor-card-"]').first();
 
-    // Section is conditional on there being verified vendors with cover images.
-    if (!(await heading.isVisible())) {
+    const hasVendors = await firstCard
+      .waitFor({ state: 'visible', timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+
+    if (!hasVendors) {
       test.skip(true, 'No verified vendors seeded');
     }
 
-    await expect(heading).toBeVisible();
     await expect(
-      page.locator('[data-testid^="vendor-card-"]').first()
+      page.getByRole('heading', { name: 'The Best Makeup Artists for Asian Features' })
     ).toBeVisible();
+    await expect(firstCard).toBeVisible();
   });
 
   test('blog section renders and "View all blog posts" navigates to /blog', async ({ page }) => {
