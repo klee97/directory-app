@@ -6,13 +6,11 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
-import { getCachedVendors } from '@/lib/vendor/fetchVendors';
-import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
-import { getAllPosts, getValidPosts } from '@/features/blog/api/getBlogPosts';
-import { BlogPostCarousel } from '@/features/blog/components/BlogPostCarousel';
-import { VendorPreviewGrid } from '@/features/directory/components/VendorPreviewGrid';
-
-const VENDOR_PREVIEW_COUNT = 6;
+import { Suspense } from 'react';
+import { BlogSectionSkeleton } from '@/features/landingPage/components/BlogSectionSkeleton';
+import { VendorSectionSkeleton } from '@/features/landingPage/components/VendorSectionSkeleton';
+import { VendorSection } from '@/features/landingPage/components/VendorSection';
+import { BlogSection } from '@/features/landingPage/components/BlogSection';
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
@@ -37,30 +35,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [vendors, posts] = await Promise.all([
-    getCachedVendors(),
-    getAllPosts(),
-  ]);
-
-  // Only show verified vendors with photos on the landing page
-  const verifiedVendors = shuffleVendorsWithSeed(
-    vendors.filter((v) => v.verified_at != null && v.cover_image != null),
-    getTodaySeed()
-  ).slice(0, VENDOR_PREVIEW_COUNT);
-
-  const publishedPosts = getValidPosts(posts)
-      .sort(
-      (a, b) =>
-        new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime()
-    );
-
-  const FEATURED_CATEGORIES = ['vendor-spotlight', 'cultural-history', 'vendor-list'] as const;
-  const recentPosts = FEATURED_CATEGORIES
-    .map((category) =>
-      publishedPosts.find((post) => post.categoryList?.includes(category))
-    )
-    .filter((post): post is NonNullable<typeof post> => post != null)
-
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -128,68 +102,14 @@ export default async function Home() {
       </Box>
 
       {/* Verified Vendors Preview */}
-      {verifiedVendors.length > 0 && (
-        <Box sx={{ backgroundColor: 'background.paper', py: { xs: 3, md: 10 } }}>
-          <Container maxWidth="lg">
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: { xs: 'flex-start', sm: 'center' },
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 2,
-                mb: 4,
-              }}
-            >
-              <Box>
-                <Typography variant="h2" component="h2" gutterBottom>
-                  The Best Makeup Artists for Asian Features
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                    Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
-                </Typography>
-              </Box>
-              <Link href="/vendors" style={{ textDecoration: 'none' }}>
-                <Button variant="contained" color="primary">
-                  Search all artists
-                </Button>
-              </Link>
-            </Box>
-            <VendorPreviewGrid vendors={verifiedVendors} />
-          </Container>
-        </Box>
-      )}
+      <Suspense fallback={<VendorSectionSkeleton />}>
+        <VendorSection />
+      </Suspense>
 
       {/* Recent Blog Posts */}
-      {recentPosts.length > 0 && (
-        <Container maxWidth="lg" sx={{ py: { xs: 3, md: 10 } }}>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', sm: 'center' },
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: 2,
-              mb: 4,
-            }}
-          >
-          <Box>
-              <Typography variant="h2" component="h2" gutterBottom>
-                Vendor Stories & Cultural Wedding Guides
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                  Read stories from our spotlighted vendors, learn cultural histories, and get inspired!
-              </Typography>
-          </Box>
-            <Link href="/blog" style={{ textDecoration: 'none' }}>
-              <Button variant="contained" color="primary">
-                View all blog posts
-              </Button>
-            </Link>
-          </Box>
-          <BlogPostCarousel posts={recentPosts} />
-        </Container>
-      )}
+      <Suspense fallback={<BlogSectionSkeleton />}>
+        <BlogSection />
+      </Suspense>
     </>
   );
 }
