@@ -47,32 +47,6 @@ export const useVendorFiltering = ({
         return;
       }
 
-      // Guard against stale selectedLocation only when we actually have a
-      // selectedLocation to compare against. If it's null (genuinely
-      // resolved to "not found"), there's nothing to compare, so fall
-      // through to the hasValidLocation check below instead of bailing here.
-      if (urlLat && urlLon && selectedLocation) {
-        const urlLatNum = parseFloat(urlLat);
-        const urlLonNum = parseFloat(urlLon);
-        const locationLat = selectedLocation.lat;
-        const locationLon = selectedLocation.lon;
-
-        // Only proceed if locationLat and locationLon are defined
-        if (locationLat === undefined || locationLat === null || locationLon === undefined || locationLon === null) {
-          console.debug('Location latitude or longitude is undefined, skipping fetch.');
-          return;
-        }
-
-        // Allow for small floating point differences
-        const latMatch = Math.abs(urlLatNum - locationLat) < 0.0001;
-        const lonMatch = Math.abs(urlLonNum - locationLon) < 0.0001;
-
-        if (!latMatch || !lonMatch) {
-          console.debug('Location/URL mismatch, skipping fetch. URL:', { urlLatNum, urlLonNum }, 'Location:', { locationLat, locationLon });
-          return; // Skip fetch, location is still resolving to a different point
-        }
-      }
-
       // Check if we have a valid location with required properties
       const hasValidLocation = selectedLocation &&
         selectedLocation.display_name &&
