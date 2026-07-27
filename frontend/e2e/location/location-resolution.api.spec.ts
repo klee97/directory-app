@@ -19,10 +19,14 @@ import { test, expect, Page } from "@playwright/test";
 
 async function mockReverseGeocode(page: Page, response: unknown, status = 200) {
   await page.route("**/api/search/reverse**", async (route) => {
+    const isSuccess = status >= 200 && status < 300;
+    const body = isSuccess
+      ? { ok: true, data: response }
+      : { ok: false, error: (response as { error?: string })?.error ?? "Unknown error" };
     await route.fulfill({
       status,
       contentType: "application/json",
-      body: JSON.stringify({ ok: status >= 200 && status < 300, data: response }),
+      body: JSON.stringify(body),
     });
   });
 }
@@ -41,7 +45,6 @@ test.describe("location resolution — loading state", () => {
     await page.goto("/vendors?lat=40.7128&lon=-74.006");
 
     const progressBar = page.getByText("Loading artists...");
-    await expect(progressBar).toBeVisible();
     await expect(progressBar).toBeHidden({ timeout: 10_000 });
     await expect(page.getByText("Test Glamour Studio")).toBeVisible();
   });

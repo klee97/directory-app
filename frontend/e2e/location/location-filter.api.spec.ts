@@ -87,6 +87,7 @@ test.describe('Vendor directory — location filter deletion behavior', () => {
 
     await expect(locationInput).toHaveValue('');
     await expect(page).not.toHaveURL(/lat=/);
+    await expect(page).not.toHaveURL(/lon=/);
   });
 
   test('selecting a new location after partial deletion updates the filter', async ({ page }) => {
@@ -103,16 +104,21 @@ test.describe('Vendor directory — location filter deletion behavior', () => {
       item.click(),
     ]);
 
+    const urlBeforeBostonSelection = page.url();
+
     // Partially delete, then type toward a different city
     await locationInput.click();
-    await locationInput.press('Control+A');
     await locationInput.fill('Boston');
 
     const bostonItem = dropdown.getByTestId('autocomplete-suggestion-item').filter({ hasText: 'Boston' }).first();
+
     await Promise.all([
-      page.waitForURL(/lat=/),
+      page.waitForURL((url) => url.href !== urlBeforeBostonSelection),
       bostonItem.click(),
     ]);
+
+    const urlAfterBostonSelection = page.url();
+    expect(urlAfterBostonSelection).not.toBe(urlBeforeBostonSelection);
 
     await expect(locationInput).toHaveValue(/Boston/);
   });
