@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import {
@@ -24,7 +23,7 @@ interface LocationAutocompleteProps {
   placeholder: string
 }
 
-export default function LocationAutocomplete({ 
+export default function LocationAutocomplete({
   inputValue,
   onInputChange,
   onDebouncedChange,
@@ -32,16 +31,26 @@ export default function LocationAutocomplete({
   onSelect,
   results,
   loading,
-  placeholder="Search for a location..."
+  placeholder = "Search for a location..."
 }: LocationAutocompleteProps) {
   // Consider it selected only if we have a location and the input exactly matches
   // But also check if input is empty (for clearing behavior)
   const hasSelected = Boolean(
-    selectedLocation && 
-    inputValue && 
-    inputValue.trim() !== '' && 
+    selectedLocation &&
+    inputValue &&
+    inputValue.trim() !== '' &&
     inputValue === selectedLocation.display_name
   );
+
+  // Partial deletion: just update the text, leave the active filter alone.
+  // Full deletion: clear the filter, same as the X button.
+  const handleInputChange = (val: string) => {
+    onInputChange(val);
+    if (val === '') {
+      onSelect(null);
+    }
+  };
+
   const renderResult = (result: LocationResult) => (
     <ListItemText
       primary={
@@ -81,9 +90,8 @@ export default function LocationAutocomplete({
   return (
     <InputWithDebounce
       value={inputValue}
-      onChange={onInputChange}
+      onChange={handleInputChange}
       onDebouncedChange={onDebouncedChange}
-      onClear={() => onSelect(null)}
       placeholder={placeholder}
       debounceMs={300}
       isLocationInput={true}

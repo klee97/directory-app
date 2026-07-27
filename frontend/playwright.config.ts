@@ -122,6 +122,7 @@ export default defineConfig({
     {
       name: 'api',
       testMatch: '**/e2e/**/*.api.spec.ts',
+      dependencies: ['supabase-setup'],
     }
   ],
 

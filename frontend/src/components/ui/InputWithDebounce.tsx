@@ -25,7 +25,6 @@ interface InputWithDebounceProps {
   onDebouncedChange?: (val: string, prev: string) => void;
   placeholder?: string;
   debounceMs?: number;
-  onClear?: () => void;
   isLocationInput?: boolean;
   withDropdown?: boolean;
   loading?: boolean;
@@ -41,7 +40,6 @@ export default function InputWithDebounce({
   onDebouncedChange,
   placeholder,
   debounceMs = 300,
-  onClear,
   isLocationInput = false,
   withDropdown = false,
   loading = false,
@@ -125,7 +123,6 @@ export default function InputWithDebounce({
       onDebouncedChange(clearedValue, prevValueRef.current);
     }
 
-    onClear?.();
     clearWasClickedRef.current = true;
     resultWasClickedRef.current = false; // Reset click state on focus
 
@@ -213,6 +210,7 @@ export default function InputWithDebounce({
       {withDropdown && isDropdownVisible && (
         <Paper
           elevation={4}
+          data-testid="autocomplete-suggestions"
           sx={{
             position: 'absolute',
             width: '100%',
@@ -228,6 +226,7 @@ export default function InputWithDebounce({
               {results.map((result: LocationResult, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemButton
+                    data-testid="autocomplete-suggestion-item"
                     onClick={() => {
                       resultWasClickedRef.current = true;
                       setInputValue(result.display_name);
