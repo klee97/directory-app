@@ -46,7 +46,7 @@ export default function LocationAutocomplete({
   // Full deletion: clear the filter, same as the X button.
   const handleInputChange = (val: string) => {
     onInputChange(val);
-    if (val === '') {
+    if (val.trim() === '') {
       onSelect(null);
     }
   };

@@ -111,4 +111,29 @@ describe('LocationAutocomplete - deletion behavior', () => {
 
     expect(onSelect).toHaveBeenCalledWith(newResult);
   });
+
+  it('clears the filter when the input is whitespace-only (not just empty string)', async () => {
+    const { input, onSelect } = setup({ inputValue: 'N' });
+    const user = userEvent.setup();
+
+    // Simulate backspacing the last character and typing a space —
+    // field looks "empty" to the user but val would be ' ', not ''
+    await user.click(input);
+    await user.keyboard('{Backspace}');
+    await user.keyboard(' ');
+
+    expect(onSelect).toHaveBeenCalledWith(null);
+  });
+
+  it('does NOT forward a trimmed value to onInputChange for whitespace-only input', async () => {
+    const { input, onInputChange } = setup({ inputValue: '' });
+    const user = userEvent.setup();
+
+    await user.click(input);
+    await user.keyboard(' ');
+
+    // The displayed text should reflect exactly what was typed, untrimmed —
+    // only the internal "should we clear the filter" check trims.
+    expect(onInputChange).toHaveBeenCalledWith(' ');
+  });
 });
