@@ -41,6 +41,7 @@ test.describe.serial('Settings — delete account', () => {
 
   test('delete account with wrong password shows error and keeps dialog open', async ({ page }) => {
     await page.goto('/settings');
+    await expect(page.getByRole('button', { name: 'Delete Account' })).toBeVisible();
     const deleteButton = page.getByRole('button').filter({ hasText: 'Delete Account' });
     await deleteButton.scrollIntoViewIfNeeded();
     await deleteButton.click();
@@ -68,6 +69,7 @@ test.describe.serial('Settings — change password', () => {
 
   test('change password dialog opens and closes without submitting', async ({ page }) => {
     await page.goto('/settings');
+    await expect(page.getByRole('button', { name: 'Change Password' })).toBeVisible();
     const changeButton = page.getByRole('button').filter({ hasText: 'Change Password' });
     await changeButton.scrollIntoViewIfNeeded();
     await changeButton.click();
@@ -78,6 +80,7 @@ test.describe.serial('Settings — change password', () => {
 
   test('changing password with wrong current password keeps dialog open', async ({ page }) => {
     await page.goto('/settings');
+    await expect(page.getByRole('button', { name: 'Change Password' })).toBeVisible();
     const changeButton = page.getByRole('button').filter({ hasText: 'Change Password' });
     await changeButton.scrollIntoViewIfNeeded();
     await changeButton.click();
