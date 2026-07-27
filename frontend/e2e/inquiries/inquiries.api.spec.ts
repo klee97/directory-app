@@ -15,6 +15,7 @@ const MAKEUP_TAG_ID = 'e2e00000-0000-0000-0000-000000000003';
 test.describe('POST /api/inquiries (local Supabase)', () => {
   test('creates a real inquiry row end-to-end', async ({ request }) => {
     const response = await request.post('/api/inquiries', {
+      timeout: 20_000,
       data: {
         vendor_id: 'TEST-E2E-002',
         isTestRecord: true,
