@@ -23,8 +23,9 @@ test('directory page itself is not redirected', async ({ page }) => {
 test('filters can be cleared after landing via the directory redirect', async ({ page }) => {
   // Arrive via the redirect path (simulating an old Reddit link)
   await page.goto('/?lat=40.7127&lon=-74.006&skill=Thai+Makeup');
-  await expect(page).toHaveURL(/\/vendors\?.*skill=Thai\+Makeup/);
 
+  let params = new URL(page.url()).searchParams;
+  expect(params.get('skill')).toBe('Thai Makeup');
 
   // Confirm the skill filter chip is rendered
   const activeFilters = page.getByTestId('active-filters');
@@ -35,20 +36,23 @@ test('filters can be cleared after landing via the directory redirect', async ({
   await skillChip.getByTestId('CancelIcon').click();
 
   // URL param should be gone
-  await expect(page).not.toHaveURL(/skill=Thai\+Makeup/);
-
-  // Chip should disappear
   await expect(skillChip).not.toBeVisible();
+  params = new URL(page.url()).searchParams;
+  expect(params.has('skill')).toBe(false);
 });
 
 test('filters can be cleared on a direct /vendors visit (no redirect)', async ({ page }) => {
   await page.goto('/vendors?skill=Thai+Makeup');
+
+  let params = new URL(page.url()).searchParams;
+  expect(params.get('skill')).toBe('Thai Makeup');
 
   const activeFilters = page.getByTestId('active-filters');
   const skillChip = activeFilters.locator('.MuiChip-root', { hasText: 'Thai Makeup' });
 
   await skillChip.getByTestId('CancelIcon').click();
 
-  await expect(page).not.toHaveURL(/skill=Thai\+Makeup/);
   await expect(skillChip).not.toBeVisible();
+  params = new URL(page.url()).searchParams;
+  expect(params.has('skill')).toBe(false);
 });

@@ -1,16 +1,15 @@
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo } from "react";
 
-
-function buildUrl(newParams: URLSearchParams): string {
+function buildUrl(pathname: string, newParams: URLSearchParams): string {
   const search = newParams.toString();
-  const pathname = window.location.pathname;
   return search ? `${pathname}?${search}` : pathname;
 }
 
 export function useURLFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname() || '';
 
   const paramsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
 
@@ -35,9 +34,9 @@ export function useURLFilters() {
           newParams.set(key, value);
         }
       });
-      router.replace(buildUrl(newParams), { scroll: false });
+      router.replace(buildUrl(pathname, newParams), { scroll: false });
     },
-    [router]
+    [router, pathname]
   );
 
   const setParam = useCallback(
@@ -55,9 +54,9 @@ export function useURLFilters() {
       if (values && values.length > 0) {
         values.forEach(value => newParams.append(key, value));
       }
-      router.replace(buildUrl(newParams), { scroll: false });
+      router.replace(buildUrl(pathname, newParams), { scroll: false });
     },
-    [router]
+    [router, pathname]
   );
 
   return {
