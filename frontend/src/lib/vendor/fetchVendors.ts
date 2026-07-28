@@ -145,10 +145,12 @@ export async function getCachedVendors() {
   }
 }
 
-export const getDirectoryPageVendors = unstable_cache(
-  async () => {
-    const vendors = await getCachedVendors();
-    const seed = getTodaySeed();
+const _getDirectoryPageVendors = unstable_cache(
+  async (seed: string) => {
+    // Use _getCachedVendors directly (not getCachedVendors) so a transient
+    // fetch failure propagates and this cache entry rejects rather than
+    // caching an empty vendors list / empty shuffledVendors.
+    const vendors = await _getCachedVendors();
     const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
     const uniqueTags = getUniqueVisibleTagNames(vendors);
     return { vendors, shuffledVendors, uniqueTags, seed };
@@ -156,3 +158,11 @@ export const getDirectoryPageVendors = unstable_cache(
   ['directory-page-data'],
   { revalidate: 3600, tags: ['all-vendors'] }
 );
+
+export async function getDirectoryPageVendors() {
+  // Passing seed as an argument (rather than baking it into the static key
+  // array) means unstable_cache folds it into the cache key automatically,
+  // so the cached entry naturally rolls over when the daily seed changes.
+  const seed = getTodaySeed();
+  return _getDirectoryPageVendors(seed);
+}
