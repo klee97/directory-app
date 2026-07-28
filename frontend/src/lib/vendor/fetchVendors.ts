@@ -2,6 +2,8 @@ import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 import { unstable_cache } from 'next/cache';
+import { getTodaySeed, shuffleVendorsWithSeed } from '../randomize';
+import { getUniqueVisibleTagNames } from '../directory/filterTags';
 
 export async function fetchVendorBySlug(slug: string) {
   console.debug("Fetching vendor with slug: %s", slug);
@@ -142,3 +144,15 @@ export async function getCachedVendors() {
     return [];
   }
 }
+
+export const getDirectoryPageVendors = unstable_cache(
+  async () => {
+    const vendors = await getCachedVendors();
+    const seed = getTodaySeed();
+    const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
+    const uniqueTags = getUniqueVisibleTagNames(vendors);
+    return { vendors, shuffledVendors, uniqueTags, seed };
+  },
+  ['directory-page-data'],
+  { revalidate: 3600, tags: ['all-vendors'] }
+);

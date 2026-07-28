@@ -1,10 +1,10 @@
 import { Directory } from '@/features/directory/components/Directory';
-import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
 import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import logo from '@/assets/logo.jpeg';
-import { getCachedVendors } from '@/lib/vendor/fetchVendors';
-import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
+import { getDirectoryPageVendors } from '@/lib/vendor/fetchVendors';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Directory | Asian Wedding Makeup Artists in NYC, Toronto & More',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export default async function VendorsPage() {
-  const vendors = await getCachedVendors();
+  const { vendors, shuffledVendors, uniqueTags } = await getDirectoryPageVendors();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -62,11 +62,6 @@ export default async function VendorsPage() {
       },
     }))
   };
-
-  const uniqueTags = getUniqueVisibleTagNames(vendors);
-
-  const seed = getTodaySeed();
-  const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
 
   return (
     <>

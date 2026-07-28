@@ -23,7 +23,7 @@ export const ResultsHeader = ({
   sortOption: SortOption,
   onSortChange: (sortOption: SortOption) => void,
 }) => {
-  const { getAllParams, setParams } = useURLFiltersContext();
+  const { getAllParams, setArrayParam } = useURLFiltersContext();
 
   // Get selected filters from URL params
   const selectedServices = getAllParams(SERVICE_PARAM) || [];
@@ -36,10 +36,7 @@ export const ResultsHeader = ({
   const handleRemoveFilter = (filterType: string, valueToRemove: string) => {
     const currentValues = getAllParams(filterType) || [];
     const newValues = currentValues.filter(value => value !== valueToRemove);
-
-    setParams({
-      [filterType]: newValues.length > 0 ? newValues.join(",") : null
-    });
+    setArrayParam(filterType, newValues.length > 0 ? newValues : null);
   };
 
   return (
