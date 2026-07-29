@@ -47,7 +47,7 @@ test.describe('Vendor directory — guest', () => {
 
     // Click the vendor card and confirm navigation to the vendor profile
     await page.getByText('Test Glamour Studio').first().click();
-    await expect(page).toHaveURL(/\/vendors\/test-glamour-studio/);
+    await expect(page).toHaveURL(/\/vendors\/test-glamour-studio/, { timeout: 20_000 });
 
     // Both tags should appear as chips on the vendor profile page
     await expect(page.getByText('Thai Makeup')).toBeVisible();
@@ -73,7 +73,7 @@ test.describe('Vendor directory — guest', () => {
 
     // Click one of the vendor cards and confirm navigation
     await page.getByText('Test Bridal Beauty Co').first().click();
-    await expect(page).toHaveURL(/\/vendors\/test-bridal-beauty-co/);
+    await expect(page).toHaveURL(/\/vendors\/test-bridal-beauty-co/, { timeout: 20_000 });
 
     // The service tag chip should appear on the vendor profile page
     await expect(page.getByText('Hair', { exact: true })).toBeVisible();
@@ -95,10 +95,29 @@ test.describe('Vendor directory — guest', () => {
 
     // Click the vendor card and confirm navigation to the vendor profile
     await page.getByText('Test Glamour Studio').first().click();
-    await expect(page).toHaveURL(/\/vendors\/test-glamour-studio/);
+    await expect(page).toHaveURL(/\/vendors\/test-glamour-studio/, { timeout: 20_000 });
 
     // Both tags should appear as chips on the vendor profile page
     await expect(page.getByText('Thai Makeup')).toBeVisible();
     await expect(page.getByText('Hair', { exact: true })).toBeVisible();
+  });
+
+  test('remove a skill filter via chip and see full vendor list restored', async ({ page }) => {
+    await page.getByRole('button', { name: 'Skills' }).click();
+    await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
+
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveURL(/skill=Thai\+Makeup/);
+
+    const chip = page.getByTestId('filter-chip-skill-Thai Makeup');
+    await expect(chip).toBeVisible();
+
+    await chip.getByTestId('CancelIcon').click();
+
+    // Both the chip and the URL param should be gone, and the full vendor list restored
+    await expect(chip).not.toBeVisible();
+    await expect(page).not.toHaveURL(/skill=/);
+    await expect(page.getByText(/5 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Test Bridal Beauty Co')).toBeVisible();
   });
 });

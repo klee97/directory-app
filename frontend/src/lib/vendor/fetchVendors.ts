@@ -2,6 +2,8 @@ import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { transformBackendVendorToFrontend } from '@/types/vendor';
 import { unstable_cache } from 'next/cache';
+import { getTodaySeed, shuffleVendorsWithSeed } from '../randomize';
+import { getUniqueVisibleTagNames } from '../directory/filterTags';
 
 export async function fetchVendorBySlug(slug: string) {
   console.debug("Fetching vendor with slug: %s", slug);
@@ -141,4 +143,26 @@ export async function getCachedVendors() {
     console.error('[Cache] Failed to fetch vendors:', err);
     return [];
   }
+}
+
+const _getDirectoryPageVendors = unstable_cache(
+  async (seed: string) => {
+    // Use _getCachedVendors directly (not getCachedVendors) so a transient
+    // fetch failure propagates and this cache entry rejects rather than
+    // caching an empty vendors list / empty shuffledVendors.
+    const vendors = await _getCachedVendors();
+    const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
+    const uniqueTags = getUniqueVisibleTagNames(vendors);
+    return { vendors, shuffledVendors, uniqueTags, seed };
+  },
+  ['directory-page-data'],
+  { revalidate: 3600, tags: ['all-vendors'] }
+);
+
+export async function getDirectoryPageVendors() {
+  // Passing seed as an argument (rather than baking it into the static key
+  // array) means unstable_cache folds it into the cache key automatically,
+  // so the cached entry naturally rolls over when the daily seed changes.
+  const seed = getTodaySeed();
+  return _getDirectoryPageVendors(seed);
 }
