@@ -76,6 +76,7 @@ export const ResultsHeader = ({
           {selectedServices.map((service) => (
             <FilterChip
               key={`service-${service}`}
+              data-testid={`filter-chip-service-${service}`}
               label={service}
               onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
               color={'primary'}
@@ -88,6 +89,7 @@ export const ResultsHeader = ({
           {selectedSkills.map((skill) => (
             <FilterChip
               key={`skill-${skill}`}
+              data-testid={`filter-chip-skill-${skill}`}
               label={skill}
               onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
               color={'info'}
