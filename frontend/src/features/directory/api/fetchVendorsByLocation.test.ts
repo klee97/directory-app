@@ -86,6 +86,16 @@ describe("getVendorsByDistanceWithFallback", () => {
     expect(results).toHaveLength(5);
   });
 
+  it("does not fall back to getVendorsByCountry of countries in PRECISE_COUNTRY_NAMES", async () => {
+    rpcMock.mockResolvedValue({ data: [], error: null });
+    ilikeMock.mockResolvedValue({ data: makeVendors(5), error: null });
+    const results = await getVendorsByDistanceWithFallback(37.7528, -100.0171, "United States");
+
+    expect(ilikeMock).not.toHaveBeenCalled();
+    expect(results).toHaveLength(0);
+  });
+
+
   it("returns an empty array (not a throw) when falling back with no country provided", async () => {
     rpcMock.mockResolvedValue({ data: [], error: null });
 
@@ -121,20 +131,20 @@ describe("getVendorsByDistance", () => {
 describe("getVendorsByState", () => {
   it("returns [] and warns without querying when state is undefined", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => { });
-    const result = await getVendorsByState(undefined);
+    const result = await getVendorsByState(undefined, { lat: 42.36, lon: -71.06 });
     expect(result).toEqual([]);
     expect(ilikeMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalled();
   });
 
   it("returns [] when state is null", async () => {
-    const result = await getVendorsByState(null);
+    const result = await getVendorsByState(null,  { lat: 42.36, lon: - 71.06 });
     expect(result).toEqual([]);
   });
 
   it("queries by state when a state string is provided", async () => {
     ilikeMock.mockResolvedValue({ data: makeVendors(3), error: null });
-    const result = await getVendorsByState("California");
+    const result = await getVendorsByState("California", { lat: 37.0, lon: -119.0 });
     expect(ilikeMock).toHaveBeenCalledWith("state", "California");
     expect(result).toHaveLength(3);
   });
@@ -142,21 +152,21 @@ describe("getVendorsByState", () => {
 
 describe("getVendorsByCountry", () => {
   it("returns [] without querying when country is undefined", async () => {
-    const result = await getVendorsByCountry(undefined);
+    const result = await getVendorsByCountry(undefined, { lat: 42.36, lon: -71.06 });
     expect(result).toEqual([]);
     expect(ilikeMock).not.toHaveBeenCalled();
   });
 
   it("queries by country when a country string is provided", async () => {
     ilikeMock.mockResolvedValue({ data: makeVendors(4), error: null });
-    const result = await getVendorsByCountry("Canada");
+    const result = await getVendorsByCountry("Canada", { lat: 62.0, lon: -96.0 });
     expect(ilikeMock).toHaveBeenCalledWith("country", "Canada");
     expect(result).toHaveLength(4);
   });
 
   it("swallows query errors and returns []", async () => {
     ilikeMock.mockResolvedValue({ data: null, error: { message: "fail" } });
-    const result = await getVendorsByCountry("Canada");
+    const result = await getVendorsByCountry("Canada", { lat: 62.0, lon: -96.0 });
     expect(result).toEqual([]);
   });
 });

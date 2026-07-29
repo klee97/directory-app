@@ -60,9 +60,9 @@ export default async function LocationPage({ params }: LocationPageProps) {
       SEARCH_VENDORS_LIMIT_DEFAULT
     );
   } else if (location.type === LOCATION_TYPE_STATE) {
-    vendors = await getVendorsByState(location.address?.state);
+    vendors = await getVendorsByState(location.address?.state, { lat: location.lat, lon: location.lon });
   } else if (location.type === LOCATION_TYPE_COUNTRY) {
-    vendors = await getVendorsByCountry(location.address?.country);
+    vendors = await getVendorsByCountry(location.address?.country, { lat: location.lat, lon: location.lon });
   }
 
   // If no location found or no artists, redirect to home table

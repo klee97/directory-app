@@ -4,12 +4,14 @@ import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { filterTestVendors } from "@/lib/vendor/testVendors";
 import {
   LocationResult,
+  PRECISE_COUNTRY_NAMES,
   SEARCH_RADIUS_MILES_DEFAULT,
   SEARCH_RESULTS_MINIMUM,
   SEARCH_VENDORS_LIMIT_DEFAULT,
 } from "@/types/location";
 import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
+import { annotateAndSortByDistance } from "@/lib/location/distance";
 
 const CACHE_TTL = 3600 * 24; // 24 hours
 const SEARCH_QUERY = `
@@ -77,12 +79,12 @@ export async function getVendorsByDistanceWithFallback(
 
   while (results.length < SEARCH_RESULTS_MINIMUM && attempts < 3) {
     results = await getVendorsByDistance(lat, lon, radiusMi, limit);
-    radiusMi += SEARCH_RADIUS_MILES_DEFAULT;
+    radiusMi = radiusMi * 2; // geometric series of radiuses to try
     attempts++;
   }
 
-  if (results.length < SEARCH_RESULTS_MINIMUM) {
-    const countryResults = await getVendorsByCountry(country);
+  if (results.length < SEARCH_RESULTS_MINIMUM && (country && !PRECISE_COUNTRY_NAMES.has(country))) {
+    const countryResults = await getVendorsByCountry(country, { lat, lon });
     // Only replace the radius results if the country fallback actually
     // found more/better matches; never trade partial real results for nothing.
     return countryResults.length > results.length ? countryResults : results;
@@ -119,13 +121,17 @@ const _getVendorsByState = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByState(state: string | undefined | null) {
+export async function getVendorsByState(
+  state: string | undefined | null,
+  target: { lat: number | undefined | null; lon: number | undefined | null }
+): Promise<VendorByDistance[]> {
   if (!state) {
     console.warn("No state provided");
     return [];
   }
   try {
-    return await _getVendorsByState(state, shouldIncludeTestVendors());
+    const vendors = await _getVendorsByState(state, shouldIncludeTestVendors());
+    return annotateAndSortByDistance(vendors, target);
   } catch (err) {
     console.error(err);
     return [];
@@ -146,13 +152,17 @@ const _getVendorsByCountry = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByCountry(country: string | undefined | null) {
+export async function getVendorsByCountry(
+  country: string | undefined | null,
+  target: { lat: number | undefined | null; lon: number | undefined | null }
+): Promise<VendorByDistance[]> {
   if (!country) {
     console.warn("No country provided");
     return [];
   }
   try {
-    return await _getVendorsByCountry(country, shouldIncludeTestVendors());
+    const vendors = await _getVendorsByCountry(country, shouldIncludeTestVendors());
+    return annotateAndSortByDistance(vendors, target);
   } catch (err) {
     console.error(err);
     return [];
