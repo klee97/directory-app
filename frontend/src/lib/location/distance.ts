@@ -14,7 +14,7 @@ export function annotateAndSortByDistance(
   vendors: Vendor[],
   target: { lat: number | undefined | null; lon: number | undefined | null }
 ): VendorByDistance[] {
-  if (!target || !target.lat || !target.lon) {
+  if (!target || target.lat == null || target.lon == null) {
     return vendors.map((v): VendorByDistance => ({ ...v, distance_miles: null }));
   }
 

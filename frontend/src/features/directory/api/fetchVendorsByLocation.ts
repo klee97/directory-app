@@ -3,6 +3,8 @@ import { supabaseStaticClient } from "@/lib/supabase/clients/staticClient";
 import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { filterTestVendors } from "@/lib/vendor/testVendors";
 import {
+  LOCATION_TYPE_COUNTRY,
+  LOCATION_TYPE_STATE,
   LocationResult,
   PRECISE_COUNTRY_NAMES,
   SEARCH_RADIUS_MILES_DEFAULT,
@@ -12,6 +14,7 @@ import {
 import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
 import { annotateAndSortByDistance } from "@/lib/location/distance";
+import { getUniqueVisibleTagNames } from "@/lib/directory/filterTags";
 
 const CACHE_TTL = 3600 * 24; // 24 hours
 const SEARCH_QUERY = `
@@ -94,6 +97,14 @@ export async function getVendorsByDistanceWithFallback(
 }
 
 export async function getVendorsByLocation(location: LocationResult): Promise<VendorByDistance[]> {
+  if (location.type === LOCATION_TYPE_STATE) {
+    return getVendorsByState(location.address?.state, { lat: location.lat, lon: location.lon });
+  }
+
+  if (location.type === LOCATION_TYPE_COUNTRY) {
+    return getVendorsByCountry(location.address?.country, { lat: location.lat, lon: location.lon });
+  }
+
   if (location.lat && location.lon) {
     return getVendorsByDistanceWithFallback(
       location.lat,
@@ -103,7 +114,8 @@ export async function getVendorsByLocation(location: LocationResult): Promise<Ve
       SEARCH_VENDORS_LIMIT_DEFAULT
     );
   }
-  console.warn("Location missing coordinates:", location);
+
+  console.warn("Location has no usable type/coordinates for vendor lookup:", location);
   return [];
 }
 
@@ -167,4 +179,20 @@ export async function getVendorsByCountry(
     console.error(err);
     return [];
   }
+}
+
+const _getLocationPageData = unstable_cache(
+  async (slug: string, location: LocationResult) => {
+    const vendors = await getVendorsByLocation(location);
+    const uniqueTags = getUniqueVisibleTagNames(vendors);
+    return { vendors, uniqueTags };
+  },
+  ['location-page-data'],
+  { revalidate: 3600, tags: ['all-vendors'] }
+);
+
+export async function getLocationPageData(slug: string, location: LocationResult) {
+  // pass location.id as the cache-key-relevant arg; unstable_cache folds
+  // it into the key, same reasoning as the seed arg in getDirectoryPageVendors
+  return _getLocationPageData(slug, location);
 }

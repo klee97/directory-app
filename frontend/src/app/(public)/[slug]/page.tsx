@@ -1,18 +1,19 @@
 import { Directory } from '@/features/directory/components/Directory';
-import { VendorByDistance } from '@/types/vendor';
 import { notFound, redirect } from 'next/navigation';
 import defaultImage from '@/assets/website_preview.jpeg';
-import { LOCATION_TYPE_CITY, LOCATION_TYPE_COUNTRY, LOCATION_TYPE_STATE, LocationResult, SEARCH_RADIUS_MILES_DEFAULT, SEARCH_VENDORS_LIMIT_DEFAULT } from '@/types/location';
+import { LocationResult } from '@/types/location';
 import { Metadata } from 'next';
-import { getUniqueVisibleTagNames } from '@/lib/directory/filterTags';
 import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
-import { getVendorsByCountry, getVendorsByDistanceWithFallback, getVendorsByState } from '@/features/directory/api/fetchVendorsByLocation';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
-import { getTodaySeed, shuffleVendorsWithSeed } from '@/lib/randomize';
+import { FilterTags } from '@/lib/directory/filterTags';
+import { VendorByDistance } from '@/types/vendor';
+import { getLocationPageData } from '@/features/directory/api/fetchVendorsByLocation';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
 }
+
+export const dynamic = 'force-dynamic';
 
 // Generate static params for locations with artists
 export async function generateStaticParams() {
@@ -50,30 +51,13 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  let vendors: VendorByDistance[] = [];
-  if (location.type === LOCATION_TYPE_CITY && location.lat && location.lon) {
-    vendors = await getVendorsByDistanceWithFallback(
-      location.lat,
-      location.lon,
-      location.address?.country,
-      SEARCH_RADIUS_MILES_DEFAULT,
-      SEARCH_VENDORS_LIMIT_DEFAULT
-    );
-  } else if (location.type === LOCATION_TYPE_STATE) {
-    vendors = await getVendorsByState(location.address?.state, { lat: location.lat, lon: location.lon });
-  } else if (location.type === LOCATION_TYPE_COUNTRY) {
-    vendors = await getVendorsByCountry(location.address?.country, { lat: location.lat, lon: location.lon });
-  }
+  const { vendors, uniqueTags } : { vendors: VendorByDistance[], uniqueTags: FilterTags} = await getLocationPageData(slug, location);
 
   // If no location found or no artists, redirect to home table
   if (!vendors || vendors.length === 0) {
     redirect(`/`);
   }
 
-  const seed = getTodaySeed();
-  const shuffledVendors = shuffleVendorsWithSeed(vendors, seed);
-
-  const uniqueTags = getUniqueVisibleTagNames(vendors);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -115,7 +99,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
         />
       </section>
       <Directory
-        vendors={shuffledVendors}
+        vendors={vendors}
         tags={uniqueTags}
         selectedLocation={location}
       />
