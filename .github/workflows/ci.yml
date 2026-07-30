@@ -103,6 +103,8 @@ jobs:
           CONTENTFUL_GRAPHQL_ENDPOINT: "http://localhost:3000/api/test/contentful-mock"
           ENABLE_TEST_MOCK_API: "true"
           BLOG_PREVIEW_PASSWORD: "test-preview-password"
+          CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
+          CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
 
       # Upload Playwright report as an artifact so you can download
       # and inspect it when a test fails in CI
