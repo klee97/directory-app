@@ -134,7 +134,7 @@ export default defineConfig({
   // Starts the Next.js dev server before tests run
   // Uses the mock Contentful API route instead of real Contentful data.
   webServer: {
-    command: process.env.CI ? 'npm run start' : 'npm run dev',
+    command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

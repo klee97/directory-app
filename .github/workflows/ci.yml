@@ -46,9 +46,6 @@ jobs:
     defaults:
       run:
         working-directory: frontend
-    env:
-      CONTENTFUL_SPACE_ID: ${{ secrets.CONTENTFUL_SPACE_ID }}
-      CONTENTFUL_ACCESS_TOKEN: ${{ secrets.CONTENTFUL_ACCESS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -86,9 +83,6 @@ jobs:
       - name: Install Playwright OS deps
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium webkit
-
-      - name: Build app
-        run: npm run build
 
       - name: Run E2E tests
         run: npm run test:e2e
