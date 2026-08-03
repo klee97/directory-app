@@ -194,7 +194,7 @@ test.describe('Blog page layout', { tag: '@mobile' }, () => {
   });
 });
 
-test.describe('Featured post image layout', () => {
+test.describe('Featured post image layout', { tag: '@mobile' }, () => {
   test('featured post with landscape image uses column layout on mobile', async ({ page }) => {
     // Set a mobile viewport
     await page.setViewportSize({ width: 375, height: 812 });
