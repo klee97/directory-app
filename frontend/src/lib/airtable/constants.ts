@@ -1,29 +1,49 @@
 import Airtable from "airtable";
 
-export const leadsBase = new Airtable({ apiKey: process.env.AIRTABLE_API_TOKEN! }).base(process.env.AIRTABLE_APP_ID!);
-export const feedbackBase = new Airtable({ apiKey: process.env.AIRTABLE_FEEDBACK_API_TOKEN! }).base(process.env.AIRTABLE_FEEDBACK_APP_ID!);
-export const vendorInterestBase = new Airtable({ apiKey: process.env.AIRTABLE_VENDOR_INTEREST_API_TOKEN! }).base(process.env.AIRTABLE_VENDOR_INTEREST_APP_ID!);
+let _leadsBase: Airtable.Base | null = null;
+function getLeadsBase() {
+  if (!_leadsBase) {
+    _leadsBase = new Airtable({ apiKey: process.env.AIRTABLE_API_TOKEN! }).base(process.env.AIRTABLE_APP_ID!);
+  }
+  return _leadsBase;
+}
+
+let _feedbackBase: Airtable.Base | null = null;
+function getFeedbackBase() {
+  if (!_feedbackBase) {
+    _feedbackBase = new Airtable({ apiKey: process.env.AIRTABLE_FEEDBACK_API_TOKEN! }).base(process.env.AIRTABLE_FEEDBACK_APP_ID!);
+  }
+  return _feedbackBase;
+}
+
+let _vendorInterestBase: Airtable.Base | null = null;
+function getVendorInterestBase() {
+  if (!_vendorInterestBase) {
+    _vendorInterestBase = new Airtable({ apiKey: process.env.AIRTABLE_VENDOR_INTEREST_API_TOKEN! }).base(process.env.AIRTABLE_VENDOR_INTEREST_APP_ID!);
+  }
+  return _vendorInterestBase;
+}
 
 export function getLeadsTable() {
-  return leadsBase('Leads');
+  return getLeadsBase()('Leads');
 }
 
 export function getPartialLeadsTable() {
-  return leadsBase('Partial Leads');
+  return getLeadsBase()('Partial Leads');
 }
 
 export function getVendorsTable() {
-  return leadsBase('Hubspot Vendors');
+  return getLeadsBase()('Hubspot Vendors');
 }
 
 export function getVendorFeedbackTable() {
-  return feedbackBase('Feedback');
+  return getFeedbackBase()('Feedback');
 }
 
 export function getWebsiteInterestTable() {
-  return vendorInterestBase('Website');
+  return getVendorInterestBase()('Website');
 }
 
 export function getPremiumInterestTable() {
-  return vendorInterestBase('Premium');
+  return getVendorInterestBase()('Premium');
 }
