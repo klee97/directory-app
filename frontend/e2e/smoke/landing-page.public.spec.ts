@@ -71,6 +71,13 @@ test.describe('Landing page — guest', () => {
     await viewAll.click();
     await expect(page).toHaveURL('/blog');
   });
+});
+
+
+test.describe('Landing page — carousel overflow', { tag: '@mobile' }, () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
 
   test('carousel scroll arrow advances content when overflowing', async ({ page }) => {
     // The generic Carousel exposes arrows via aria-label. They only appear when
@@ -81,8 +88,8 @@ test.describe('Landing page — guest', () => {
       test.skip(true, 'No overflowing carousel on this viewport / dataset');
     }
 
-    await scrollRight.click();
     // After scrolling right, the left-scroll affordance should appear.
+    await scrollRight.click();
     await expect(
       page.getByRole('button', { name: 'Scroll left' }).first()
     ).toBeVisible();

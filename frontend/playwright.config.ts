@@ -80,6 +80,7 @@ export default defineConfig({
       },
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.auth.spec.ts',
+      grep: /@mobile/,   // only run tests explicitly tagged for mobile
     },
 
     // -----------------------------------------------------------------
@@ -102,6 +103,7 @@ export default defineConfig({
       },
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.vendor.protected.spec.ts',
+      grep: /@mobile/,   // only run tests explicitly tagged for mobile
     },
 
     // -----------------------------------------------------------------
@@ -118,6 +120,7 @@ export default defineConfig({
       use: { ...devices['iPhone 15'] },
       dependencies: ['supabase-setup'],
       testMatch: '**/e2e/**/*.public.spec.ts',
+      grep: /@mobile/,   // only run tests explicitly tagged for mobile
     },
     {
       name: 'api',

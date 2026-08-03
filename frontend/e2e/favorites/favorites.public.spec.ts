@@ -12,7 +12,7 @@ import { refreshVendors } from '../fixtures/devToolHelpers';
 
 const GLAMOUR_SLUG = 'test-glamour-studio';
 
-test.describe('Favorites — guest', () => {
+test.describe('Favorites — guest', { tag: '@mobile' }, () => {
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
     await page.goto('/');

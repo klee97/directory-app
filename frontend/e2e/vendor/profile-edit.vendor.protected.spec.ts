@@ -15,7 +15,7 @@ import { DESKTOP_ONLY_DESCRIPTION } from '../constants';
 // eslint-disable-next-line react-hooks/rules-of-hooks
 test.use({ storageState: ({ vendorWorkerStorageState }, use) => use(vendorWorkerStorageState) });
 
-test.describe('Vendor Profile Editor', () => {
+test.describe('Vendor Profile Editor', { tag: '@mobile' }, () => {
   test.beforeEach(async ({ page, isMobile }) => {
     // Dismiss the "Use desktop for best experience" overlay on mobile
     // before it can block interactions. The overlay checks sessionStorage,

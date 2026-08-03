@@ -14,7 +14,7 @@ import { test, expect } from '@playwright/test';
  *   4. "Test Portrait Bridal Shoot"        — wedding-inspo, vietnamese, california           (portrait 600x900)
  */
 
-test.describe('Blog page layout', () => {
+test.describe('Blog page layout', { tag: '@mobile' }, () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/blog');
     await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
@@ -194,7 +194,7 @@ test.describe('Blog page layout', () => {
   });
 });
 
-test.describe('Featured post image layout', () => {
+test.describe('Featured post image layout', { tag: '@mobile' }, () => {
   test('featured post with landscape image uses column layout on mobile', async ({ page }) => {
     // Set a mobile viewport
     await page.setViewportSize({ width: 375, height: 812 });

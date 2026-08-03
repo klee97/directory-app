@@ -42,7 +42,7 @@ async function clickFavoriteAndPersist(page: Page, button: Locator): Promise<voi
 // eslint-disable-next-line react-hooks/rules-of-hooks
 test.use({ storageState: ({ userWorkerStorageState }, use) => use(userWorkerStorageState) });
 
-test.describe.serial('Favorites — authenticated', () => {
+test.describe.serial('Favorites — authenticated', { tag: '@mobile' }, () => {
   test.beforeAll(async ({ browser, userWorkerStorageState }) => {
     const context = await browser.newContext({
       storageState: userWorkerStorageState,

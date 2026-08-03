@@ -11,7 +11,7 @@ import { refreshVendors } from '../fixtures/devToolHelpers';
  *       tags: Hair (service, style=primary)
  */
 
-test.describe('Vendor directory — guest', () => {
+test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   test.beforeAll(async ({ browser }) => {
     // After supabase db reset the Next.js unstable_cache is stale.
     // Click the DevTools "Refresh Vendors" button (dev-only) to revalidate it
