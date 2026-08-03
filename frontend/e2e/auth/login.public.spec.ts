@@ -4,7 +4,7 @@ import { userWorkerAccounts } from '../fixtures/testUsers';
 
 const { email, password } = userWorkerAccounts[0];
 
-test.describe('Login — guest', () => {
+test.describe('Login — guest', { tag: '@mobile' }, () => {
   test('login page renders with email, password, and submit button', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByLabel('Email Address')).toBeVisible();
