@@ -246,6 +246,10 @@ VALUES (
   timezone('utc'::text, now()), timezone('utc'::text, now()), false, false
 );
 
+UPDATE vendors
+SET gis = ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
+WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+
 -- Test tags  (style='primary' → Service chip; anything else → Skill chip)
 INSERT INTO public.tags (id, name, display_name, is_visible, style, type)
 VALUES

@@ -38,14 +38,14 @@ test.describe("location resolution — loading state", () => {
       display_name: "New York, New York",
       lat: 40.7128,
       lon: -74.006,
-      address: { city: "New York", state: "New York", country: "United States" },
+      address: { city: "New York City", state: "New York", country: "United States" },
       type: "city",
     });
 
     await page.goto("/vendors?lat=40.7128&lon=-74.006");
 
     const progressBar = page.getByText("Loading artists...");
-    await expect(progressBar).toBeHidden({ timeout: 10_000 });
+    await expect(progressBar).toBeHidden();
     await expect(page.getByText("Test Glamour Studio")).toBeVisible();
   });
 
@@ -72,7 +72,7 @@ test.describe("location resolution — loading state", () => {
 
 
     const progressBar = page.getByText("Loading artists...");
-    await expect(progressBar).toBeHidden({ timeout: 10_000 });
+    await expect(progressBar).toBeHidden();
   });
 });
 
@@ -94,7 +94,7 @@ test.describe("country-level fallback for sparse, non-precise countries", () => 
 
 
     const progressBar = page.getByText("Loading artists...");
-    await expect(progressBar).toBeHidden({ timeout: 10_000 });
+    await expect(progressBar).toBeHidden();
     await expect(page.getByText("Test Madrid Beauty")).toBeVisible();
     // Shouldn't be showing the broaden-search empty state alongside a
     // successful country-level fallback.
@@ -118,7 +118,7 @@ test.describe("country-level fallback for sparse, non-precise countries", () => 
 
 
     const progressBar = page.getByText("Loading artists...");
-    await expect(progressBar).toBeHidden({ timeout: 10_000 });
+    await expect(progressBar).toBeHidden();
     // Precise-country + empty radius result should show the genuine empty
     // state (see FilterableVendorTableContent's "broaden your search"
     // prompt), not silently broaden to every US vendor in the country.

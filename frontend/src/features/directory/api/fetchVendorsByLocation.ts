@@ -99,13 +99,9 @@ export async function getVendorsByDistanceWithFallback(
 export async function getVendorsByLocation(location: LocationResult): Promise<VendorByDistance[]> {
   if (location.type === LOCATION_TYPE_STATE) {
     return getVendorsByState(location.address?.state, { lat: location.lat, lon: location.lon });
-  }
-
-  if (location.type === LOCATION_TYPE_COUNTRY) {
+  } else if (location.type === LOCATION_TYPE_COUNTRY) {
     return getVendorsByCountry(location.address?.country, { lat: location.lat, lon: location.lon });
-  }
-
-  if (location.lat && location.lon) {
+  } else if (location.lat && location.lon) {
     return getVendorsByDistanceWithFallback(
       location.lat,
       location.lon,
@@ -115,7 +111,7 @@ export async function getVendorsByLocation(location: LocationResult): Promise<Ve
     );
   }
 
-  console.warn("Location has no usable type/coordinates for vendor lookup:", location);
+  console.warn("[getVendorsByLocation] Location has no usable type/coordinates for vendor lookup:", location);
   return [];
 }
 
