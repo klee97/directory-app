@@ -533,11 +533,10 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Box>
           </Box>
-          {/* Low-key ownership affordance. Claimed listings send the owner
+          {/* Claim/Edit Profile CTA. Claimed listings send the owner
               straight to login; unclaimed listings with an email on file open
-              the claim-link flow. Shown regardless of the content-transition
-              pause: managing a listing is independent of displayed content. */}
-          {vendor.business_name && (vendor.verified_at || vendor.email) && (
+              the claim-link flow. */}
+          {process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true' && vendor.business_name && (vendor.verified_at || vendor.email) && (
             <ManageProfilePrompt
               slug={vendor.slug ?? ''}
               businessName={vendor.business_name}

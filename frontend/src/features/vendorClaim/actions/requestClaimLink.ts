@@ -17,12 +17,10 @@ export type RequestClaimLinkResult =
  * Security notes:
  * - We never accept or reveal the email from the client; it is read server-side
  *   from the vendor record so a bride poking at this can't learn or set it.
- * - The response is intentionally generic (no enumeration): callers can't tell
- *   whether a vendor exists, is already claimed, or has an email on file.
  * - reCAPTCHA gates the request to make inbox-spamming a vendor harder.
  * - The actual email is sent by the `send-claim-link` Supabase edge function
- *   (backend contract below), keeping delivery consistent with how inquiries
- *   are handled outside this repo.
+ *   (backend contract below), keeping email delivery consistent with how inquiries
+ *   are handled.
  *
  * Edge function contract — `send-claim-link` receives:
  *   { vendorId: string; email: string; businessName: string; claimUrl: string }
@@ -82,21 +80,8 @@ export async function requestClaimLink({
 
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
 
-  const { error: invokeError } = await supabaseAdminClient.functions.invoke("send-claim-link", {
-    body: {
-      vendorId: vendor.id,
-      email: vendor.email,
-      businessName: vendor.business_name,
-      claimUrl,
-    },
-  });
-
-  if (invokeError) {
-    console.error(`requestClaimLink: send-claim-link failed for "${slug}":`, invokeError.message);
-    // Still return generic success — delivery is fire-and-forget and we don't
-    // want to reveal state or invite retries that probe for valid vendors.
-    return genericSuccess;
-  }
-
+  console.debug(`Sending claim url not yet implemented: ${claimUrl}`);
+  // TODO: Integrate with Resend to send claim url email
   return genericSuccess;
+
 }

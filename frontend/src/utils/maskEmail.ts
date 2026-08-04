@@ -1,6 +1,6 @@
 /**
  * Produces a privacy-preserving hint of an email address for display, e.g.
- * "jane@gmail.com" -> "j•••@g•••.com". Enough for the owner to recognize their
+ * "jane@gmail.com" -> "j•••@•••.com". Enough for the owner to recognize their
  * inbox without revealing the full address to onlookers.
  */
 export function maskEmail(email: string): string {
@@ -12,7 +12,6 @@ export function maskEmail(email: string): string {
   const dotIndex = domain.lastIndexOf(".");
   if (dotIndex <= 0) return `${maskedLocal}@•••`;
 
-  const domainName = domain.slice(0, dotIndex);
   const tld = domain.slice(dotIndex); // includes the leading dot
-  return `${maskedLocal}@${domainName[0]}•••${tld}`;
+  return `${maskedLocal}@•••${tld}`;
 }

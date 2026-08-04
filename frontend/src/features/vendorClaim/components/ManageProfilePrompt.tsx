@@ -22,7 +22,7 @@ interface ManageProfilePromptProps {
   businessName: string;
   /** Whether the listing has already been claimed (has a vendor account). */
   isClaimed: boolean;
-  /** Pre-masked hint of the email on file, e.g. "j•••@g•••.com". */
+  /** Pre-masked hint of the email on file, e.g. "j•••@•••.com". */
   emailHint: string;
 }
 
