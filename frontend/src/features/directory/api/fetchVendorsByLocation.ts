@@ -3,13 +3,18 @@ import { supabaseStaticClient } from "@/lib/supabase/clients/staticClient";
 import { shouldIncludeTestVendors } from "@/lib/env/env";
 import { filterTestVendors } from "@/lib/vendor/testVendors";
 import {
+  LOCATION_TYPE_COUNTRY,
+  LOCATION_TYPE_STATE,
   LocationResult,
+  PRECISE_COUNTRY_NAMES,
   SEARCH_RADIUS_MILES_DEFAULT,
   SEARCH_RESULTS_MINIMUM,
   SEARCH_VENDORS_LIMIT_DEFAULT,
 } from "@/types/location";
 import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
+import { annotateAndSortByDistance } from "@/lib/location/distance";
+import { getUniqueVisibleTagNames } from "@/lib/directory/filterTags";
 
 const CACHE_TTL = 3600 * 24; // 24 hours
 const SEARCH_QUERY = `
@@ -77,12 +82,12 @@ export async function getVendorsByDistanceWithFallback(
 
   while (results.length < SEARCH_RESULTS_MINIMUM && attempts < 3) {
     results = await getVendorsByDistance(lat, lon, radiusMi, limit);
-    radiusMi += SEARCH_RADIUS_MILES_DEFAULT;
+    radiusMi = radiusMi * 2; // geometric series of radiuses to try
     attempts++;
   }
 
-  if (results.length < SEARCH_RESULTS_MINIMUM) {
-    const countryResults = await getVendorsByCountry(country);
+  if (results.length < SEARCH_RESULTS_MINIMUM && (country && !PRECISE_COUNTRY_NAMES.has(country))) {
+    const countryResults = await getVendorsByCountry(country, { lat, lon });
     // Only replace the radius results if the country fallback actually
     // found more/better matches; never trade partial real results for nothing.
     return countryResults.length > results.length ? countryResults : results;
@@ -92,7 +97,11 @@ export async function getVendorsByDistanceWithFallback(
 }
 
 export async function getVendorsByLocation(location: LocationResult): Promise<VendorByDistance[]> {
-  if (location.lat && location.lon) {
+  if (location.type === LOCATION_TYPE_STATE) {
+    return getVendorsByState(location.address?.state, { lat: location.lat, lon: location.lon });
+  } else if (location.type === LOCATION_TYPE_COUNTRY) {
+    return getVendorsByCountry(location.address?.country, { lat: location.lat, lon: location.lon });
+  } else if (location.lat && location.lon) {
     return getVendorsByDistanceWithFallback(
       location.lat,
       location.lon,
@@ -101,7 +110,8 @@ export async function getVendorsByLocation(location: LocationResult): Promise<Ve
       SEARCH_VENDORS_LIMIT_DEFAULT
     );
   }
-  console.warn("Location missing coordinates:", location);
+
+  console.warn("[getVendorsByLocation] Location has no usable type/coordinates for vendor lookup:", location);
   return [];
 }
 
@@ -119,13 +129,17 @@ const _getVendorsByState = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByState(state: string | undefined | null) {
+export async function getVendorsByState(
+  state: string | undefined | null,
+  target: { lat: number | undefined | null; lon: number | undefined | null }
+): Promise<VendorByDistance[]> {
   if (!state) {
     console.warn("No state provided");
     return [];
   }
   try {
-    return await _getVendorsByState(state, shouldIncludeTestVendors());
+    const vendors = await _getVendorsByState(state, shouldIncludeTestVendors());
+    return annotateAndSortByDistance(vendors, target);
   } catch (err) {
     console.error(err);
     return [];
@@ -146,15 +160,35 @@ const _getVendorsByCountry = unstable_cache(
   { revalidate: CACHE_TTL, tags: ["all-vendors"] }
 );
 
-export async function getVendorsByCountry(country: string | undefined | null) {
+export async function getVendorsByCountry(
+  country: string | undefined | null,
+  target: { lat: number | undefined | null; lon: number | undefined | null }
+): Promise<VendorByDistance[]> {
   if (!country) {
     console.warn("No country provided");
     return [];
   }
   try {
-    return await _getVendorsByCountry(country, shouldIncludeTestVendors());
+    const vendors = await _getVendorsByCountry(country, shouldIncludeTestVendors());
+    return annotateAndSortByDistance(vendors, target);
   } catch (err) {
     console.error(err);
     return [];
   }
+}
+
+const _getLocationPageData = unstable_cache(
+  async (slug: string, location: LocationResult) => {
+    const vendors = await getVendorsByLocation(location);
+    const uniqueTags = getUniqueVisibleTagNames(vendors);
+    return { vendors, uniqueTags };
+  },
+  ['location-page-data'],
+  { revalidate: 3600, tags: ['all-vendors'] }
+);
+
+export async function getLocationPageData(slug: string, location: LocationResult) {
+  // pass location.id as the cache-key-relevant arg; unstable_cache folds
+  // it into the key, same reasoning as the seed arg in getDirectoryPageVendors
+  return _getLocationPageData(slug, location);
 }

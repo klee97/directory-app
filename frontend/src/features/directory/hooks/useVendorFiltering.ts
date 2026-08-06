@@ -62,7 +62,7 @@ export const useVendorFiltering = ({
       }
 
       setLoading(true);
-      console.debug('Fetching vendors for location:', selectedLocation.display_name);
+      console.debug('[useVendorFiltering] Fetching vendors for location:', selectedLocation.display_name);
       if (isStateSelection(selectedLocation) || isCountrySelection(selectedLocation)) {
         const results = filterVendorsByLocation(selectedLocation, vendors);
         if (!cancelled) {
@@ -73,7 +73,7 @@ export const useVendorFiltering = ({
         try {
           const results = await getVendorsByLocation(selectedLocation);
           if (!cancelled) {
-            console.debug('Vendors loaded:', results.length);
+            console.debug('[useVendorFiltering] Vendors loaded:', results.length);
             setVendorsInRadius(results);
           }
         } catch (error) {

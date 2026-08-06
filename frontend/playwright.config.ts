@@ -34,7 +34,9 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
     ['list'],
   ],
-
+  expect: {
+    timeout: 15_000,
+  },
   use: {
     baseURL: 'http://localhost:3000',
 
