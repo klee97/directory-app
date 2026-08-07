@@ -14,7 +14,7 @@ export function LocationFAQ({
     {
       q: `Are there makeup artists near ${location.display_name} who specialize in South Asian or Thai makeup?`,
       a: stats.southAsianMakeupCount || stats.thaiMakeupCount
-        ? `Yes — near ${location.display_name}, ${stats.southAsianMakeupCount} artist${stats.southAsianMakeupCount === 1 ? '' : 's'} specialize in South Asian makeup and ${stats.thaiMakeupCount} in Thai makeup, in addition to broader Asian-features expertise.`
+        ? `Yes! Near ${location.display_name}, ${stats.southAsianMakeupCount} artist${stats.southAsianMakeupCount === 1 ? '' : 's'} specialize in South Asian makeup and ${stats.thaiMakeupCount} in Thai makeup, in addition to broader Asian-features expertise.`
         : `While specific Thai and South Asian makeup specialists near ${location.display_name} may be limited, all listed artists are recommended by the Asian diaspora community for experience with Asian skin tones and features.`,
     },
     {
@@ -24,8 +24,8 @@ export function LocationFAQ({
         : `Pricing varies by artist — contact vendors near ${location.display_name} directly for a quote.`,
     },
     {
-      q: `Are the makeup artists near ${location.display_name} verified?`,
-      a: `${stats.verifiedCount} of the ${stats.vendorCount} artist${stats.vendorCount === 1 ? '' : 's'} listed near ${location.display_name} ${stats.verifiedCount === 1 ? 'has' : 'have'} been verified by our team.`,
+      q: `Are the profiles of these makeup artists ${location.display_name} verified by the HMUAs?`,
+      a: `${stats.verifiedCount} of the ${stats.vendorCount} artist${stats.vendorCount === 1 ? '' : 's'} listed near ${location.display_name} ${stats.verifiedCount === 1 ? 'has' : 'have'} been verified by the HMUA. Our team does its best to keep information up to date, but we cannot guarantee accuracy.`,
     },
   ];
 
@@ -40,7 +40,7 @@ export function LocationFAQ({
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4 }} data-testid="location-faq">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

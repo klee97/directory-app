@@ -1,5 +1,7 @@
 import { supabaseStaticClient } from './src/lib/supabase/clients/staticClient.ts';
 
+const MIN_VENDORS_FOR_SITEMAP = 3;
+
 export async function fetchVendorSlugs() {
   const { data } = await supabaseStaticClient.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
@@ -50,7 +52,8 @@ let locationSlugsCache = null;
 
 async function getLocationSlugs() {
   if (!locationSlugsCache) {
-    locationSlugsCache = await fetchLocationSlugs();
+    const allSlugs = await fetchLocationSlugs();
+    locationSlugsCache = allSlugs.filter(l => l.vendor_count >= MIN_VENDORS_FOR_SITEMAP);
   }
   return locationSlugsCache;
 }

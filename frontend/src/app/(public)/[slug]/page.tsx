@@ -11,6 +11,9 @@ import { getLocationPageData } from '@/features/directory/api/fetchVendorsByLoca
 import { LocationFAQ } from '@/features/locationPage/components/LocationFAQ';
 import { LocationIntro } from '@/features/locationPage/components/LocationIntro';
 import { LocationStats } from '@/lib/location/computeLocationStats';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Divider from '@mui/material/Divider/Divider';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -116,9 +119,15 @@ export default async function LocationPage({ params }: LocationPageProps) {
         tags={uniqueTags}
         selectedLocation={location}
       >
-        <LocationIntro location={location} stats={stats} />
-        <LocationFAQ location={location} stats={stats} />
       </Directory>
+
+      <Box >
+        <Container maxWidth="lg">
+          <Divider sx={{ my: 6 }} />
+          <LocationIntro location={location} stats={stats} />
+          <LocationFAQ location={location} stats={stats} />
+        </Container>
+      </Box>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "@/features/directory/api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
@@ -24,9 +24,15 @@ export const useVendorFiltering = ({
   selectedServices: string[],
   searchQuery: string,
 }) => {
-  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
+  // Seed from the server-provided `vendors` prop instead of an empty array.
+  // `vendors` is already correctly filtered for the initial/preselected
+  // location (see getLocationPageData server-side), so there's no reason
+  // the first paint should show zero results while an effect re-fetches
+  // data the server already computed.
+  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>(vendors);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
+  const isFirstRun = useRef(true);
 
   const { getParam } = useURLFiltersContext();
   const urlLat = getParam(LATITUDE_PARAM);
@@ -56,6 +62,19 @@ export const useVendorFiltering = ({
       if (!hasValidLocation) {
         // If no valid location is selected, show all vendors by default
         console.debug('No valid location, showing all vendors');
+        setVendorsInRadius(vendors);
+        setLoading(false);
+        isFirstRun.current = false;
+        return;
+      }
+
+
+      // Skip the redundant client-side fetch on first mount — `vendors`
+      // was already fetched server-side for this exact selectedLocation
+      // (see page.tsx / getLocationPageData). Only re-fetch once the user
+      // actively changes location after the initial load.
+      if (isFirstRun.current) {
+        isFirstRun.current = false;
         setVendorsInRadius(vendors);
         setLoading(false);
         return;

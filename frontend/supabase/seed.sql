@@ -271,7 +271,7 @@ VALUES
 INSERT INTO public.location_slugs (slug, city, state, country, vendor_count, lat, lon)
 VALUES
   -- City level
-  ('new-york-new-york-united-states', 'New York', 'New York', 'United States', 1, 40.7128, -74.0060),
+  ('city-of-new-york-new-york-united-states', 'New York', 'New York', 'United States', 1, 40.7128, -74.0060),
   ('los-angeles-california-united-states', 'Los Angeles', 'California', 'United States', 1, 34.0522, -118.2437),
   ('boston-massachusetts-united-states', 'Boston', 'Massachusetts', 'United States', 1, 42.3601, -71.0589),
   ('houston-texas-united-states', 'Houston', 'Texas', 'United States', 1, 29.7604, -95.3698),

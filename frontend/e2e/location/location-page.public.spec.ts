@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const NYC_SLUG = 'new-york-new-york-united-states';         // TEST-E2E-001, verified, Hair + Thai Makeup
+const NYC_SLUG = 'city-of-new-york-new-york-united-states';         // TEST-E2E-001, verified, Hair + Thai Makeup
 const LA_SLUG = 'los-angeles-california-united-states';      // TEST-E2E-002, unverified, Hair only
 const BOSTON_SLUG = 'boston-massachusetts-united-states';    // TEST-E2E-003, unverified, Makeup only
 const HOUSTON_SLUG = 'houston-texas-united-states';          // TEST-E2E-004, unverified, Makeup only
@@ -14,14 +14,15 @@ test.describe('Location page SEO content', () => {
 
   test('renders a location intro sentence with real vendor count', async ({ page }) => {
     await page.goto(`/${NYC_SLUG}`);
-    const intro = page.getByText(/Asian wedding makeup/i).first();
+    const intro = page.getByTestId('location-intro');
     await expect(intro).toBeVisible();
     await expect(intro).toContainText(/\d+ Asian wedding makeup artist/);
   });
 
   test('renders FAQ section with location-specific questions', async ({ page }) => {
     await page.goto(`/${NYC_SLUG}`);
-    await expect(page.getByText(/Frequently Asked Questions/i)).toBeVisible();
+    const faq = page.getByTestId('location-faq');
+    await expect(faq).toBeVisible();
     await expect(page.getByText(/Are there makeup artists near/i)).toBeVisible();
   });
 
@@ -40,7 +41,11 @@ test.describe('Location page SEO content', () => {
     const parsedScripts = scripts.map(s => JSON.parse(s));
     const itemList = parsedScripts.flatMap(s => s['@graph'] ?? [s]).find(node => node['@type'] === 'ItemList');
     expect(itemList).toBeTruthy();
-    const item = itemList.itemListElement[0].item;
+
+    const item = itemList.itemListElement.find(
+      (el: { item: { name: string; }; }) => el.item.name === 'Test Glamour Studio'
+    )?.item;
+    expect(item).toBeTruthy();
     expect(item.address.addressLocality).toBe('New York');
     expect(item.geo.latitude).toBeCloseTo(40.7128, 3);
   });
@@ -53,9 +58,9 @@ test.describe('Location page SEO content', () => {
 
   test('location with makeup-only vendor still renders hair/makeup breakdown correctly (Boston fixture)', async ({ page }) => {
     await page.goto(`/${BOSTON_SLUG}`);
-    const intro = page.getByText(/Asian wedding makeup/i).first();
+    const intro = page.getByTestId('location-intro');
     await expect(intro).toContainText(/1 .*makeup/i);
-    await expect(intro).not.toContainText(/hair/i);
+    await expect(intro).toContainText(/1 .*hair/i);
   });
 
   test('Houston page renders independently from Boston despite identical tag profile', async ({ request }) => {

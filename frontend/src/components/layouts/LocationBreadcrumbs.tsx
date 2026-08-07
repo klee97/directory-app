@@ -11,7 +11,7 @@ export function LocationBreadcrumbs({
   breadcrumbs: { label: string; href: string }[]
 }) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
+    <Box component="nav" aria-label="breadcrumb" sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', mb: 2 }}>
       {breadcrumbs.map((crumb, index) => (
         <Box key={crumb.href} sx={{ display: 'flex', alignItems: 'center' }}>
           <Link component={NextLink}

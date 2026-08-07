@@ -36,7 +36,7 @@ function buildVendorQuery() {
 const _getVendorsByDistance = unstable_cache(
   async (lat: number, lon: number, radiusMi: number, limit: number, _includeTestVendors: boolean): Promise<VendorByDistance[]> => {
     const { data, error } = await supabaseStaticClient.rpc(
-      "get_vendors_by_location_with_distinct_tags_and_media_v2",
+      "get_vendors_by_location_with_distinct_tags_and_media_v3",
       { lat, lon, radius_miles: radiusMi, limit_results: limit }
     );
 

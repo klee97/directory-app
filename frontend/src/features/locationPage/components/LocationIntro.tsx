@@ -22,15 +22,15 @@ export function LocationIntro({
           : null;
 
   const pricePhrase = priceRange
-    ? ` Prices for bridal services range from $${priceRange.min} to $${priceRange.max}.`
+    ? ` Prices for hair or makeup wedding services range from $${priceRange.min} to $${priceRange.max}.`
     : '';
 
   const verifiedPhrase = verifiedCount
-    ? ` ${verifiedCount} ${verifiedCount === 1 ? 'is' : 'are'} verified by our team.`
+    ? ` ${verifiedCount} ${verifiedCount === 1 ? 'is' : 'are'} verified by the wedding beauty artist.`
     : '';
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2 }} data-testid="location-intro">
       <Typography>
         There {vendorCount === 1 ? 'is' : 'are'} {vendorCount} Asian wedding makeup
         {vendorCount === 1 ? ' artist' : ' artists'} near {location.display_name}
