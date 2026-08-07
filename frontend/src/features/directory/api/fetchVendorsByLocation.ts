@@ -14,7 +14,8 @@ import {
 import { BackendVendor, transformBackendVendorToFrontend, VendorByDistance } from "@/types/vendor";
 import { unstable_cache } from "next/cache";
 import { annotateAndSortByDistance } from "@/lib/location/distance";
-import { getUniqueVisibleTagNames } from "@/lib/directory/filterTags";
+import { FilterTags, getUniqueVisibleTagNames } from "@/lib/directory/filterTags";
+import { computeLocationStats, LocationStats } from "@/lib/location/computeLocationStats";
 
 const CACHE_TTL = 3600 * 24; // 24 hours
 const SEARCH_QUERY = `
@@ -181,13 +182,18 @@ const _getLocationPageData = unstable_cache(
   async (slug: string, location: LocationResult) => {
     const vendors = await getVendorsByLocation(location);
     const uniqueTags = getUniqueVisibleTagNames(vendors);
-    return { vendors, uniqueTags };
+    const stats = computeLocationStats(vendors);
+    return { vendors, uniqueTags, stats };
   },
   ['location-page-data'],
   { revalidate: 3600, tags: ['all-vendors'] }
 );
 
-export async function getLocationPageData(slug: string, location: LocationResult) {
+export async function getLocationPageData(slug: string, location: LocationResult): Promise<{
+  vendors: VendorByDistance[],
+  uniqueTags: FilterTags,
+  stats: LocationStats
+}> {
   // pass location.id as the cache-key-relevant arg; unstable_cache folds
   // it into the key, same reasoning as the seed arg in getDirectoryPageVendors
   return _getLocationPageData(slug, location);

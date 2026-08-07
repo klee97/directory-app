@@ -197,8 +197,8 @@ INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city,
 VALUES
   ('TEST-E2E-001', 'Test Glamour Studio',   'test-glamour-studio',   true, 'New York',    'New York',   'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
   ('TEST-E2E-002', 'Test Bridal Beauty Co', 'test-bridal-beauty-co', true, 'Los Angeles', 'California', 'United States', null, null, false, false),
-  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States of America', null, null, false, false),
-  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States of America', null, null, false, false),
+  ('TEST-E2E-003', 'Test Vendor 3', 'test-vendor-3', true, 'Boston', 'Massachusetts', 'United States', null, null, false, false),
+  ('TEST-E2E-004', 'Test Vendor 4', 'test-vendor-4', true, 'Houston', 'Texas', 'United States', null, null, false, false),
   ('TEST-E2E-005', 'Test Throwaway Vendor', 'test-throwaway-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false),
   ('TEST-E2E-006', 'Test Website Interest Vendor', 'test-website-interest-vendor', false, 'Chicago', 'Illinois', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), true, true)
   ;
@@ -266,6 +266,35 @@ VALUES
   ('TEST-E2E-002', 'e2e00000-0000-0000-0000-000000000001'), -- Test Bridal Beauty Co → Hair (service) only
   ('TEST-E2E-003', 'e2e00000-0000-0000-0000-000000000003'), -- Test Vendor 3 → Makeup (service) only
   ('TEST-E2E-004', 'e2e00000-0000-0000-0000-000000000003'); -- Test Vendor 4 → Makeup (service) only
+
+
+INSERT INTO public.location_slugs (slug, city, state, country, vendor_count, lat, lon)
+VALUES
+  -- City level
+  ('new-york-new-york-united-states', 'New York', 'New York', 'United States', 1, 40.7128, -74.0060),
+  ('los-angeles-california-united-states', 'Los Angeles', 'California', 'United States', 1, 34.0522, -118.2437),
+  ('boston-massachusetts-united-states', 'Boston', 'Massachusetts', 'United States', 1, 42.3601, -71.0589),
+  ('houston-texas-united-states', 'Houston', 'Texas', 'United States', 1, 29.7604, -95.3698),
+  ('madrid-spain', 'Madrid', null, 'Spain', 1, 40.4168, -3.7038),
+
+  -- Chicago intentionally has NO city-level slug row, even though
+  -- TEST-E2E-005/006 have city='Chicago' — exercises the "vendor exists
+  -- but no page was generated for their city" gap. Both Chicago vendors
+  -- also have include_in_directory=false, so kept separate on purpose.
+
+  -- State level
+  ('new-york-united-states', null, 'New York', 'United States', 1, 40.7128, -74.0060),
+  ('california-united-states', null, 'California', 'United States', 1, 34.0522, -118.2437),
+  ('massachusetts-united-states', null, 'Massachusetts', 'United States', 1, 42.3601, -71.0589),
+  ('texas-united-states', null, 'Texas', 'United States', 1, 29.7604, -95.3698),
+
+  -- Country level — now a single row since all US vendors share one country string
+  ('united-states', null, null, 'United States', 4, 39.8283, -98.5795),
+  ('spain', null, null, 'Spain', 1, 40.4168, -3.7038)
+ON CONFLICT (slug) DO UPDATE SET
+  vendor_count = EXCLUDED.vendor_count,
+  lat = EXCLUDED.lat,
+  lon = EXCLUDED.lon;
 
 -- Create matching profile
 INSERT INTO public.profiles (

@@ -8,6 +8,9 @@ import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 import { FilterTags } from '@/lib/directory/filterTags';
 import { VendorByDistance } from '@/types/vendor';
 import { getLocationPageData } from '@/features/directory/api/fetchVendorsByLocation';
+import { LocationFAQ } from '@/features/locationPage/components/LocationFAQ';
+import { LocationIntro } from '@/features/locationPage/components/LocationIntro';
+import { LocationStats } from '@/lib/location/computeLocationStats';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -51,7 +54,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
     notFound();
   }
 
-  const { vendors, uniqueTags } : { vendors: VendorByDistance[], uniqueTags: FilterTags} = await getLocationPageData(slug, location);
+  const { vendors, uniqueTags, stats }: { vendors: VendorByDistance[], uniqueTags: FilterTags, stats: LocationStats } = await getLocationPageData(slug, location);
 
   // If no location found or no artists, redirect to home table
   if (!vendors || vendors.length === 0) {
@@ -60,34 +63,44 @@ export default async function LocationPage({ params }: LocationPageProps) {
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    "itemListElement": vendors.map((vendor, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "Local Business",
-        "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-        "additionalType": "https://schema.org/BeautySalon",
-        "name": vendor.business_name,
-        "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-        "image": vendor.cover_image?.media_url || defaultImage.src,
-        "description": "Trusted wedding makeup artist for Asian features.",
-        "areaServed": {
-          "@type": "Place",
-          "name": location.display_name || "Various Locations"
-        },
-        "provider": {
-          "@type": "Organization",
-          "name": "Asian Wedding Makeup",
-          "url": "https://www.asianweddingmakeup.com",
-          "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
-          "sameAs": [
-            "https://www.instagram.com/asianweddingmkup",
-          ],
-          "logo": defaultImage.src
-        },
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.asianweddingmakeup.com/#organization",
+        "name": "Asian Wedding Makeup",
+        "url": "https://www.asianweddingmakeup.com",
+        "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+        "sameAs": ["https://www.instagram.com/asianweddingmkup"],
+        "logo": defaultImage.src,
       },
-    }))
+      {
+        "@type": "ItemList",
+        "itemListElement": vendors.map((vendor, index) => ({
+          "@type": "ListItem",
+          "position": index + 1,
+          "item": {
+            "@type": ["LocalBusiness", "BeautySalon"],
+            "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+            "name": vendor.business_name,
+            "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+            ...(vendor.cover_image?.media_url && { "image": vendor.cover_image.media_url }),
+            "description": vendor.description || `Wedding makeup artist serving ${location.display_name}.`,
+            "areaServed": { "@type": "Place", "name": location.display_name || "Various Locations" },
+            ...(vendor.city && vendor.state && {
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": vendor.city,
+                "addressRegion": vendor.state,
+                "addressCountry": vendor.country || undefined,
+              }
+            }),
+            ...(vendor.latitude && vendor.longitude && {
+              "geo": { "@type": "GeoCoordinates", "latitude": vendor.latitude, "longitude": vendor.longitude }
+            }),
+          },
+        })),
+      },
+    ],
   };
 
   return (
@@ -102,7 +115,10 @@ export default async function LocationPage({ params }: LocationPageProps) {
         vendors={vendors}
         tags={uniqueTags}
         selectedLocation={location}
-      />
+      >
+        <LocationIntro location={location} stats={stats} />
+        <LocationFAQ location={location} stats={stats} />
+      </Directory>
     </>
   );
 }
@@ -113,31 +129,26 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
   const generator = new LocationPageGenerator();
   const location: LocationResult | null = await generator.getLocationBySlug(slug);
   if (!slug || !location) {
-    return {
-      title: 'Location Not Found'
-    };
+    return { title: 'Location Not Found' };
   }
-  const title = `Asian Wedding Makeup in ${location.display_name} | The Best Artists for Asian Features`;
+
+  const { stats } = await getLocationPageData(slug, location);
+
+  const title = `Asian Wedding Makeup in ${location.display_name} | ${stats.vendorCount} Artists for Asian Features`;
+  const description = `${stats.vendorCount} wedding makeup ${stats.vendorCount === 1 ? 'artist' : 'artists'} near ${location.display_name} experienced with Asian features` +
+    (stats.priceRange ? ` · Bridal services from $${stats.priceRange.min}–$${stats.priceRange.max}` : '') +
+    ` · Experts in monolids, Asian skin tones & bridal glam`;
 
   return {
-    title: title,
-    description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
+    title,
+    description,
     openGraph: {
-      title: title,
-      description: `Discover wedding makeup artists in ${location.display_name} experienced with Asian features · Experts in monolids, Asian skin tones, natural makeup & bridal glam`,
+      title,
+      description,
       url: `https://www.asianweddingmakeup.com/${slug}`,
       type: 'website',
-      images: [
-        {
-          url: defaultImage.src,
-          width: 1200,
-          height: 630,
-          alt: `Asian Wedding Makeup Artists in ${location.display_name}`,
-        },
-      ],
+      images: [{ url: defaultImage.src, width: 1200, height: 630, alt: `Asian Wedding Makeup Artists in ${location.display_name}` }],
     },
-    alternates: {
-      canonical: `https://www.asianweddingmakeup.com/${slug}`,
-    },
+    alternates: { canonical: `https://www.asianweddingmakeup.com/${slug}` },
   };
 }

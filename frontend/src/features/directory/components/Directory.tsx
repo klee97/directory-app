@@ -16,9 +16,10 @@ interface DirectoryProps {
   vendors: Vendor[];
   tags: FilterTags;
   selectedLocation?: LocationResult;
+  children?: React.ReactNode;
 }
 
-export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
+export function Directory({ vendors, tags, selectedLocation, children }: DirectoryProps) {
   const [favoriteVendorIds, setFavoriteVendorIds] = useState<string[]>([]);
   const pathname = usePathname();
   const { isLoggedIn } = useAuth();
@@ -51,6 +52,9 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
+
+      {children}
+
       <FilterableVendorTable
         vendors={vendors}
         favoriteVendorIds={favoriteVendorIds}

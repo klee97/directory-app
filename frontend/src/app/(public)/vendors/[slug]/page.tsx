@@ -29,36 +29,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const isHairStylist = hasTagByName(vendor.tags, VendorSpecialty.SPECIALTY_HAIR);
   const specialtyTitle = isHairStylist ? 'Wedding Hair Stylist' : 'Wedding Makeup Artist';
   const locationString = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
-  const title = `${vendor.business_name} - Wedding ${vendor.tags
+
+  const serviceNames = vendor.tags
     .filter((tag) => tag.type === 'SERVICE')
-    .map((tag) => tag.display_name)
-    .join(' & ')
-    } Artist for Asian Brides ${locationString && ` in ${locationString}`}`;
+    .map((tag) => tag.display_name);
+  const serviceLabel = serviceNames.length ? serviceNames.join(' & ') : 'Makeup';
+
+  const title = `${vendor.business_name} - Wedding ${serviceLabel} Artist for Asian Brides${locationString ? ` in ${locationString}` : ''}`;
+  const description = `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.\n${vendor.description ?? ''}`;
+
   return {
-    title: title,
-    description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.\n` + vendor.description,
+    title,
+    description,
     openGraph: {
-      title: title,
-      description: `Book ${vendor.business_name}, a trusted ${specialtyTitle} in ${vendor.metro ?? vendor.metro_region ?? vendor.state ?? vendor.region}, experienced in Asian bridal beauty.\n` + vendor.description,
+      title,
+      description,
       url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
-      images: [
-        {
-          url: vendor.cover_image?.media_url || previewImage.src,
-          width: 1200,
-          height: 630,
-          alt: `${vendor.business_name} Preview`,
-        },
-      ],
+      images: [{ url: vendor.cover_image?.media_url || previewImage.src, width: 1200, height: 630, alt: `${vendor.business_name} Preview` }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: title,
+      title,
       description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
       images: [vendor.cover_image?.media_url || previewImage.src],
     },
-    alternates: {
-      canonical: `https://www.asianweddingmakeup.com/vendors/${slug}`,
-    },
+    alternates: { canonical: `https://www.asianweddingmakeup.com/vendors/${slug}` },
   };
 }
 
@@ -98,23 +93,64 @@ export default async function VendorPage({ params }: PageProps) {
   const breadcrumbs = await generateBreadcrumbSlugs(address);
 
 
+  const serviceTags = vendor.tags.filter((t) => t.type === 'SERVICE').map((t) => t.display_name);
+
+  const prices = [vendor.bridal_hair_price, vendor.bridal_makeup_price, vendor.bridal_hair_makeup_price]
+    .filter((p): p is number => typeof p === 'number' && p > 0);
+  const priceRange = prices.length ? `$${Math.min(...prices)}-$${Math.max(...prices)}` : undefined;
+
   // Define JSON-LD schema for the vendor
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-    "additionalType": "https://schema.org/BeautySalon",
-    "name": vendor.business_name,
-    "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-    "image": vendor.cover_image?.media_url || previewImage.src,
-    "provider": {
-      "@type": "Organization",
-      "name": "Asian Wedding Makeup",
-      "url": "https://www.asianweddingmakeup.com/",
-    },
-    "serviceType": "Hair and Makeup",
-    "priceRange": vendor.bridal_hair_price,
-    "sameAs": vendor.instagram,
+    "@graph": [
+      {
+        "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        "@type": ["LocalBusiness", "BeautySalon"],
+        "name": vendor.business_name,
+        "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
+        ...(vendor.cover_image?.media_url && { "image": vendor.cover_image.media_url }),
+        "description": vendor.description || `Wedding ${serviceTags.join(' & ') || 'makeup'} artist for Asian brides.`,
+        ...(serviceTags.length && { "serviceType": serviceTags.join(' and ') }),
+        ...(priceRange && { "priceRange": priceRange }),
+        ...(vendor.instagram && { "sameAs": [`https://www.instagram.com/${vendor.instagram}`] }),
+        ...(vendor.city && vendor.state && {
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": vendor.city,
+            "addressRegion": vendor.state,
+            "addressCountry": vendor.country || undefined,
+          }
+        }),
+        ...(vendor.latitude && vendor.longitude && {
+          "geo": { "@type": "GeoCoordinates", "latitude": vendor.latitude, "longitude": vendor.longitude }
+        }),
+        "memberOf": { "@id": "https://www.asianweddingmakeup.com/#organization" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://www.asianweddingmakeup.com/",
+          },
+          ...breadcrumbs.map((crumb, index) => ({
+            "@type": "ListItem",
+            "position": index + 2,
+            "name": crumb.label,
+            "item": `https://www.asianweddingmakeup.com${crumb.href}`,
+          })),
+          {
+            "@type": "ListItem",
+            "position": breadcrumbs.length + 2,
+            "name": vendor.business_name,
+            // Current page — no "item" URL per Google's breadcrumb guidelines,
+            // since it's not a link to elsewhere.
+          },
+        ],
+      },
+    ],
   };
 
   return (
