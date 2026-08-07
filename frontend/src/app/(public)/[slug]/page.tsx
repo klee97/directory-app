@@ -3,7 +3,6 @@ import { notFound, redirect } from 'next/navigation';
 import defaultImage from '@/assets/website_preview.jpeg';
 import { LocationResult } from '@/types/location';
 import { Metadata } from 'next';
-import { supabaseStaticClient } from '@/lib/supabase/clients/staticClient';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
 import { FilterTags } from '@/lib/directory/filterTags';
 import { VendorByDistance } from '@/types/vendor';
@@ -20,28 +19,6 @@ interface LocationPageProps {
 }
 
 export const dynamic = 'force-dynamic';
-
-// Generate static params for locations with artists
-export async function generateStaticParams() {
-
-  // skip static generation in test
-  if (process.env.NODE_ENV === 'test') return [];
-
-  const { data: slugs, error } = await supabaseStaticClient
-    .from('location_slugs')
-    .select(`
-      slug
-    `);
-
-  if (error || !slugs) {
-    throw new Error('Failed to load location slugs');
-  }
-  return slugs.map(({
-    slug
-  }) => ({
-    slug
-  } as { slug: string }));
-}
 
 // Page component
 export default async function LocationPage({ params }: LocationPageProps) {
