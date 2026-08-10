@@ -15,7 +15,7 @@ import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { UserContextTracker } from "@/components/analytics/UserContextTracker";
 import type { Organization, WebSite } from 'schema-dts';
-import { sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
+import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from "@/seo/jsonLdHtml";
 import logo from '@/assets/logo.jpeg';
 
 const alice = Alice({
@@ -51,29 +51,26 @@ export const metadata: Metadata = {
 };
 const organization: Organization = {
   "@type": "Organization",
-  "@id": "https://www.asianweddingmakeup.com/#organization",
+  "@id": ORG_ID,
   name: "Asian Wedding Makeup",
-  url: "https://www.asianweddingmakeup.com",
+  url: SITE_URL,
   description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
   sameAs: ["https://www.instagram.com/asianweddingmkup"],
   logo: {
     "@type": "ImageObject",
-    url: `https://www.asianweddingmakeup.com${logo.src}`,
+    url: toAbsoluteUrl(logo.src),
   },
 };
 
 const website: WebSite = {
   "@type": "WebSite",
-  "@id": "https://www.asianweddingmakeup.com/#website",
-  url: "https://www.asianweddingmakeup.com",
+  "@id": WEBSITE_ID,
+  url: SITE_URL,
   name: "Asian Wedding Makeup",
-  publisher: { "@id": "https://www.asianweddingmakeup.com/#organization" },
+  publisher: { "@id": ORG_ID },
 };
 
-const globalJsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [organization, website],
-};
+const globalJsonLd = jsonLdGraph([organization, website]);
 
 export default function RootLayout({
   children,

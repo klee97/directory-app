@@ -35,7 +35,7 @@ export default async function VendorsPage() {
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",
-    "@id": WEBSITE_ID,
+    "@id": `${pageUrl}#webpage`,
     url: pageUrl,
     name: "Directory | Asian Wedding Makeup Artists in NYC, Toronto & More",
     description: "Browse our curated directory of wedding makeup artists experienced with Asian features. Search by price, skill, and location.",

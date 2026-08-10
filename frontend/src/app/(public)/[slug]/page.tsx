@@ -47,7 +47,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",
-    "@id": WEBSITE_ID,
+    "@id": `${pageUrl}#webpage`,
     url: pageUrl,
     name: `Wedding Makeup Artists in ${location.display_name}`,
     description: `Browse wedding makeup and hair artists serving ${location.display_name}.`,
