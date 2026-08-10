@@ -10,6 +10,7 @@ import { getVendorsByLocation } from "@/features/directory/api/fetchVendorsByLoc
 export const useVendorFiltering = ({
   vendors,
   selectedLocation,
+  initialVendorsLocation,
   isLocationResolving,
   travelsWorldwide,
   selectedSkills,
@@ -18,6 +19,7 @@ export const useVendorFiltering = ({
 }: {
   vendors: VendorByDistance[],
   selectedLocation: LocationResult | null,
+  initialVendorsLocation: LocationResult | null, // The location that the server-provided `vendors` prop was actually fetched for
   isLocationResolving: boolean,
   travelsWorldwide: boolean,
   selectedSkills: string[],
@@ -32,7 +34,19 @@ export const useVendorFiltering = ({
   const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>(vendors);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
-  const isFirstRun = useRef(true);
+
+  // Keyed to what the server data actually describes (an explicit prop),
+  // not to whatever `selectedLocation`/`isLocationResolving` state happens
+  // to be true on "the first effect run" — run order is not a reliable
+  // proxy for "this is the location `vendors` was fetched for".
+  const serverLocationKey = useRef(
+    initialVendorsLocation &&
+      initialVendorsLocation.lat !== undefined &&
+      initialVendorsLocation.lon !== undefined
+      ? `${initialVendorsLocation.lat},${initialVendorsLocation.lon}`
+      : null
+  );
+  const hasUsedServerData = useRef(false);
 
   const { getParam } = useURLFiltersContext();
   const urlLat = getParam(LATITUDE_PARAM);
@@ -64,17 +78,20 @@ export const useVendorFiltering = ({
         console.debug('No valid location, showing all vendors');
         setVendorsInRadius(vendors);
         setLoading(false);
-        isFirstRun.current = false;
         return;
       }
 
-
-      // Skip the redundant client-side fetch on first mount — `vendors`
-      // was already fetched server-side for this exact selectedLocation
-      // (see page.tsx / getLocationPageData). Only re-fetch once the user
-      // actively changes location after the initial load.
-      if (isFirstRun.current) {
-        isFirstRun.current = false;
+      // Skip the redundant client-side fetch only when: (a) we know what
+      // location the server data describes (serverLocationKey is non-null,
+      // i.e. the caller told us), (b) the resolved location matches it
+      // exactly, and (c) we haven't already consumed this pass.
+      const currentKey = `${selectedLocation.lat},${selectedLocation.lon}`;
+      if (
+        !hasUsedServerData.current &&
+        serverLocationKey.current !== null &&
+        currentKey === serverLocationKey.current
+      ) {
+        hasUsedServerData.current = true;
         setVendorsInRadius(vendors);
         setLoading(false);
         return;

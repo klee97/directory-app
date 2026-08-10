@@ -60,7 +60,7 @@ test.describe('Location page SEO content', () => {
     await page.goto(`/${BOSTON_SLUG}`);
     const intro = page.getByTestId('location-intro');
     await expect(intro).toContainText(/1 .*makeup/i);
-    await expect(intro).toContainText(/1 .*hair/i);
+    await expect(intro).toContainText(/1 .*hair/i); // since there's only 1 result, radius expands to include the new york vendor
   });
 
   test('Houston page renders independently from Boston despite identical tag profile', async ({ request }) => {

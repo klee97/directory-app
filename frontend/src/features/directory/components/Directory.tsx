@@ -16,7 +16,6 @@ interface DirectoryProps {
   vendors: Vendor[];
   tags: FilterTags;
   selectedLocation?: LocationResult;
-  children?: React.ReactNode;
 }
 
 export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {

@@ -51,7 +51,7 @@ export default async function LocationPage({ params }: LocationPageProps) {
         "url": "https://www.asianweddingmakeup.com",
         "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
         "sameAs": ["https://www.instagram.com/asianweddingmkup"],
-        "logo": defaultImage.src,
+        "logo": `https://www.asianweddingmakeup.com${defaultImage.src}`,
       },
       {
         "@type": "ItemList",
@@ -83,12 +83,18 @@ export default async function LocationPage({ params }: LocationPageProps) {
     ],
   };
 
-  return (
+  // guard against XSS by escaping special characters in the JSON-LD string
+  const jsonLdHtml = JSON.stringify(jsonLd)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+    return (
     <>
       <section>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
         />
       </section>
       <Directory
@@ -119,6 +125,10 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
   }
 
   const { stats } = await getLocationPageData(slug, location);
+
+  if (stats.vendorCount === 0) {
+    return { title: 'Location Not Found' };
+  }
 
   const title = `Asian Wedding Makeup in ${location.display_name} | ${stats.vendorCount} Artists for Asian Features`;
   const description = `${stats.vendorCount} wedding makeup ${stats.vendorCount === 1 ? 'artist' : 'artists'} near ${location.display_name} experienced with Asian features` +

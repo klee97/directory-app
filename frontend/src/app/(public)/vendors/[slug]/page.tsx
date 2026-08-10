@@ -116,12 +116,12 @@ export default async function VendorPage({ params }: PageProps) {
         ...(vendor.city && vendor.state && {
           "address": {
             "@type": "PostalAddress",
-            "addressLocality": vendor.city,
-            "addressRegion": vendor.state,
+            "addressLocality": vendor.city || undefined,
+            "addressRegion": vendor.state || undefined,
             "addressCountry": vendor.country || undefined,
           }
         }),
-        ...(vendor.latitude && vendor.longitude && {
+        ...(vendor.latitude != null && vendor.longitude != null && {
           "geo": { "@type": "GeoCoordinates", "latitude": vendor.latitude, "longitude": vendor.longitude }
         }),
         "memberOf": { "@id": "https://www.asianweddingmakeup.com/#organization" },

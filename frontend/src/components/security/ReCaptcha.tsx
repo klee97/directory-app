@@ -55,7 +55,7 @@ const ReCaptcha = forwardRef<ReCaptchaRef, ReCaptchaProps>((props, ref) => {
 
   // Handle case where siteKey is not provided
   if (!siteKey) {
-    console.warn('ReCAPTCHA site key is missing. Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your environment variables.');
+    console.debug('ReCAPTCHA site key is missing. Set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your environment variables.');
     return null;
   }
 
