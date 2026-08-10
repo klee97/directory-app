@@ -16,7 +16,7 @@ test.describe('Location page SEO content', () => {
     await page.goto(`/${NYC_SLUG}`);
     const intro = page.getByTestId('location-intro');
     await expect(intro).toBeVisible();
-    await expect(intro).toContainText(/\d+ Asian wedding makeup artist/);
+    await expect(intro).toContainText(/\d+ wedding makeup artists specializing/);
   });
 
   test('renders FAQ section with location-specific questions', async ({ page }) => {
