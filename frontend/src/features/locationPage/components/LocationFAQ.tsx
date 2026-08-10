@@ -23,7 +23,7 @@ export function LocationFAQ({
             : null,
         ].filter(Boolean);
         return parts.length
-          ? `Yes! Near ${location.display_name}, ${parts.join(' and ')}, in addition to broader Asian-features expertise.`
+          ? `Yes! Near ${location.display_name}, ${parts.join(' and ')}, in addition to broader expertise in Asian features.`
           : `While specific Thai and South Asian makeup specialists near ${location.display_name} may be limited, all listed artists are recommended by the Asian diaspora community for experience with Asian skin tones and features.`;
       })(),
     },
@@ -35,7 +35,7 @@ export function LocationFAQ({
     },
     {
       q: `Is the directory information for makeup artists near ${location.display_name} verified by the HMUAs?`,
-      a: `${stats.verifiedCount} of the ${stats.vendorCount} artist${stats.vendorCount === 1 ? '' : 's'} listed near ${location.display_name} ${stats.verifiedCount === 1 ? 'has' : 'have'} been verified by the HMUA. Our team does its best to keep information up to date, but we cannot guarantee accuracy.`,
+      a: `${stats.verifiedCount} of the ${stats.vendorCount} artist${stats.vendorCount === 1 ? '' : 's'} listed near ${location.display_name} ${stats.verifiedCount === 1 ? 'has' : 'have'} been verified by the HMUA. Our team does its best to keep information up to date, but we can't guarantee accuracy.`,
     },
   ];
 
