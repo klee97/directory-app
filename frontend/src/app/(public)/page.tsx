@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   const webPage: WebPage = {
     "@type": "WebPage",
-    "@id": WEBSITE_ID,
+    "@id": `${SITE_URL}#webpage`,
     url: SITE_URL,
     name: "Asian Wedding Makeup | Trusted Artists for Asian Features",
     description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",

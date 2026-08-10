@@ -72,15 +72,15 @@ export default async function LocationPage({ params }: LocationPageProps) {
         ...(vendor.cover_image?.media_url && { image: vendor.cover_image.media_url }),
         description: vendor.description || `Wedding makeup artist serving ${location.display_name}.`,
         areaServed: { "@type": "Place", name: location.display_name || "Various Locations" },
-        ...(vendor.city && vendor.state && {
+        ...(vendor.city || vendor.state || vendor.country ? {
           address: {
             "@type": "PostalAddress",
-            addressLocality: vendor.city,
-            addressRegion: vendor.state,
-            addressCountry: vendor.country || undefined,
+            ...(vendor.city && { addressLocality: vendor.city }),
+            ...(vendor.state && { addressRegion: vendor.state }),
+            ...(vendor.country && { addressCountry: vendor.country }),
           }
-        }),
-        ...(vendor.latitude && vendor.longitude && {
+        } : {}),
+        ...(vendor.latitude != null && vendor.longitude != null && {
           geo: { "@type": "GeoCoordinates", latitude: vendor.latitude, longitude: vendor.longitude }
         }),
       },

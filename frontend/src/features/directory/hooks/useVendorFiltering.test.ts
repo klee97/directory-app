@@ -81,6 +81,18 @@ describe("useVendorFiltering — isLocationResolving contract", () => {
     expect(getVendorsByLocationMock).not.toHaveBeenCalled();
   });
 
+  it("keeps the server-provided vendors visible while isLocationResolving is true, even with a known initialVendorsLocation", () => {
+    const { result } = setup({
+      isLocationResolving: true,
+      selectedLocation: null,
+      initialVendorsLocation: cityLocation,
+    });
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.vendorsInRadius).toEqual(allVendors);
+    expect(getVendorsByLocationMock).not.toHaveBeenCalled();
+  });
+
   it("shows the default vendor list once resolution completes to null (terminal 'not found', not loading)", async () => {
     const { result } = setup({ isLocationResolving: false, selectedLocation: null });
 
