@@ -15,7 +15,7 @@ import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
 import LoadingPage from '@/components/layouts/LoadingPage';
 import { BreadcrumbList, ListItem, LocalBusiness, ProfilePage } from 'schema-dts';
-import { jsonLdGraph, sanitizeJsonLdHtml, toAbsoluteUrl, SITE_URL } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, sanitizeJsonLdHtml, toAbsoluteUrl, SITE_URL, WEBSITE_ID, ORG_ID } from '@/seo/jsonLdHtml';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -154,8 +154,8 @@ export default async function VendorPage({ params }: PageProps) {
     name: vendor.business_name || "Wedding Makeup Artist",
     description: vendorDescription,
     mainEntity: { "@id": vendorUrl },
-    isPartOf: { "@id": `${SITE_URL}#website` },
-    publisher: { "@id": `${SITE_URL}#organization` },
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": ORG_ID },
     breadcrumb: { "@id": `${vendorUrl}#breadcrumb` },
   };
 

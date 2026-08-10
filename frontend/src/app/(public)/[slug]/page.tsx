@@ -14,7 +14,7 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider/Divider';
 import { CollectionPage, ItemList, ListItem } from 'schema-dts';
-import { jsonLdGraph, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -47,12 +47,12 @@ export default async function LocationPage({ params }: LocationPageProps) {
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",
-    "@id": `${pageUrl}#webpage`,
+    "@id": WEBSITE_ID,
     url: pageUrl,
     name: `Wedding Makeup Artists in ${location.display_name}`,
     description: `Browse wedding makeup and hair artists serving ${location.display_name}.`,
-    isPartOf: { "@id": `${SITE_URL}#website` },
-    publisher: { "@id": `${SITE_URL}#organization` },
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": ORG_ID },
     about: { "@type": "Place", name: location.display_name },
     mainEntity: { "@id": `${pageUrl}#vendorlist` },
   };

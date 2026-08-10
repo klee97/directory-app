@@ -8,7 +8,7 @@ import defaultImage from '@/assets/photo_website_preview.jpg';
 import { VendorSection } from '@/features/landingPage/components/VendorSection';
 import { BlogSection } from '@/features/landingPage/components/BlogSection';
 import type { WebPage } from 'schema-dts';
-import { jsonLdGraph, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
@@ -35,12 +35,12 @@ export const metadata: Metadata = {
 export default async function Home() {
   const webPage: WebPage = {
     "@type": "WebPage",
-    "@id": "https://www.asianweddingmakeup.com/#webpage",
-    url: "https://www.asianweddingmakeup.com",
+    "@id": WEBSITE_ID,
+    url: SITE_URL,
     name: "Asian Wedding Makeup | Trusted Artists for Asian Features",
     description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
-    isPartOf: { "@id": "https://www.asianweddingmakeup.com/#website" },
-    about: { "@id": "https://www.asianweddingmakeup.com/#organization" },
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": ORG_ID },
   };
 
   const jsonLd = jsonLdGraph([webPage]);

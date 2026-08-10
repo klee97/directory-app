@@ -3,7 +3,7 @@ import { Metadata } from 'next';
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import { getDirectoryPageVendors } from '@/lib/vendor/fetchVendors';
 import { CollectionPage, ItemList, ListItem } from 'schema-dts';
-import { jsonLdGraph, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,12 +35,12 @@ export default async function VendorsPage() {
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",
-    "@id": `${pageUrl}#webpage`,
+    "@id": WEBSITE_ID,
     url: pageUrl,
     name: "Directory | Asian Wedding Makeup Artists in NYC, Toronto & More",
     description: "Browse our curated directory of wedding makeup artists experienced with Asian features. Search by price, skill, and location.",
-    isPartOf: { "@id": `${SITE_URL}#website` },
-    publisher: { "@id": `${SITE_URL}#organization` },
+    isPartOf: { "@id": WEBSITE_ID },
+    publisher: { "@id": ORG_ID },
     mainEntity: { "@id": `${pageUrl}#vendorlist` },
   };
 

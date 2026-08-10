@@ -2,6 +2,9 @@
 
 export const SITE_URL = "https://www.asianweddingmakeup.com";
 
+export const ORG_ID = SITE_URL + "#organization";
+export const WEBSITE_ID = SITE_URL + "#website";
+
 export function toAbsoluteUrl(path: string): string {
   return path.startsWith("http") ? path : `${SITE_URL}${path}`;
 }
