@@ -41,8 +41,8 @@ export const useVendorFiltering = ({
   // proxy for "this is the location `vendors` was fetched for".
   const serverLocationKey = useRef(
     initialVendorsLocation &&
-      initialVendorsLocation.lat !== undefined &&
-      initialVendorsLocation.lon !== undefined
+      initialVendorsLocation.lat !== null &&
+      initialVendorsLocation.lon !== null
       ? `${initialVendorsLocation.lat},${initialVendorsLocation.lon}`
       : null
   );
@@ -70,8 +70,8 @@ export const useVendorFiltering = ({
       // Check if we have a valid location with required properties
       const hasValidLocation = selectedLocation &&
         selectedLocation.display_name &&
-        selectedLocation.lat !== undefined &&
-        selectedLocation.lon !== undefined;
+        selectedLocation.lat !== null &&
+        selectedLocation.lon !== null;
 
       if (!hasValidLocation) {
         // If no valid location is selected, show all vendors by default
