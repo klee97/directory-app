@@ -64,6 +64,7 @@ export function FilterableVendorTableContent({
 
   const vendorFiltering = useVendorFiltering({
     vendors,
+    initialVendorsLocation: preselectedLocation,
     selectedLocation: locationManagement.selectedLocation,
     isLocationResolving: locationManagement.isLocationResolving,
     travelsWorldwide,
