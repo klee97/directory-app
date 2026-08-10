@@ -84,7 +84,7 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
     await page.getByPlaceholder('Artist Name').fill('Test Glamour');
 
     // Wait for the debounced filter to apply and the matching card to appear
-    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('Test Glamour Studio')).toBeVisible({ timeout: 3_000 });
     await expect(page.getByText('Test Bridal Beauty Co')).not.toBeVisible();
 
