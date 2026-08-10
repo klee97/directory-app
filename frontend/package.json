@@ -73,6 +73,7 @@
     "react-intersection-observer": "^9.16.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "schema-dts": "^2.0.0",
     "sharp": "^0.34.5",
     "supabase": "^2.6.8",
     "swiper": "^12.1.2"

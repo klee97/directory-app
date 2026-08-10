@@ -14,6 +14,8 @@ import Container from '@mui/material/Container';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
 import LoadingPage from '@/components/layouts/LoadingPage';
+import { BreadcrumbList, ListItem, LocalBusiness, ProfilePage } from 'schema-dts';
+import { jsonLdGraph, sanitizeJsonLdHtml, toAbsoluteUrl, SITE_URL } from '@/seo/jsonLdHtml';
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -44,16 +46,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description,
-      url: `https://www.asianweddingmakeup.com/vendors/${slug}`,
-      images: [{ url: vendor.cover_image?.media_url || previewImage.src, width: 1200, height: 630, alt: `${vendor.business_name} Preview` }],
+      url: `${SITE_URL}/vendors/${slug}`,
+      images: [{ url: vendor.cover_image?.media_url
+        || toAbsoluteUrl(previewImage.src), width: 1200, height: 630, alt: `${vendor.business_name} Preview` }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
-      images: [vendor.cover_image?.media_url || previewImage.src],
+      images: [vendor.cover_image?.media_url || toAbsoluteUrl(previewImage.src)],
     },
-    alternates: { canonical: `https://www.asianweddingmakeup.com/vendors/${slug}` },
+    alternates: { canonical: `${SITE_URL}/vendors/${slug}` },
   };
 }
 
@@ -99,59 +102,64 @@ export default async function VendorPage({ params }: PageProps) {
     .filter((p): p is number => typeof p === 'number' && p > 0);
   const priceRange = prices.length ? `$${Math.min(...prices)}-$${Math.max(...prices)}` : undefined;
 
-  // Define JSON-LD schema for the vendor
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
+  const vendorUrl = `${SITE_URL}/vendors/${vendor.slug}`;
+  const vendorDescription = vendor.description || `Wedding ${serviceTags.join(' & ') || 'makeup'} artist for Asian brides.`;
+
+  const localBusiness: LocalBusiness = {
+    "@id": vendorUrl,
+    "@type": "BeautySalon",
+    name: vendor.business_name || 'Wedding Makeup Artist',
+    url: vendorUrl,
+    ...(vendor.cover_image?.media_url && { image: vendor.cover_image.media_url }),
+    description: vendorDescription,
+    ...(serviceTags.length && { serviceType: serviceTags.join(' and ') }),
+    ...(priceRange && { priceRange }),
+    ...(vendor.instagram && { sameAs: [`https://www.instagram.com/${vendor.instagram}`] }),
+    ...(vendor.city && vendor.state && {
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: vendor.city || undefined,
+        addressRegion: vendor.state || undefined,
+        addressCountry: vendor.country || undefined,
+      }
+    }),
+    ...(vendor.latitude != null && vendor.longitude != null && {
+      geo: { "@type": "GeoCoordinates", latitude: vendor.latitude, longitude: vendor.longitude }
+    }),
+  };
+
+  const breadcrumbList: BreadcrumbList = {
+    "@type": "BreadcrumbList",
+    "@id": `${vendorUrl}#breadcrumb`,
+    itemListElement: [
+      ...breadcrumbs.map((crumb, index): ListItem => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: crumb.label,
+        item: `${SITE_URL}${crumb.href}`,
+      })),
       {
-        "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-        "@type": ["LocalBusiness", "BeautySalon"],
-        "name": vendor.business_name,
-        "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-        ...(vendor.cover_image?.media_url && { "image": vendor.cover_image.media_url }),
-        "description": vendor.description || `Wedding ${serviceTags.join(' & ') || 'makeup'} artist for Asian brides.`,
-        ...(serviceTags.length && { "serviceType": serviceTags.join(' and ') }),
-        ...(priceRange && { "priceRange": priceRange }),
-        ...(vendor.instagram && { "sameAs": [`https://www.instagram.com/${vendor.instagram}`] }),
-        ...(vendor.city && vendor.state && {
-          "address": {
-            "@type": "PostalAddress",
-            "addressLocality": vendor.city || undefined,
-            "addressRegion": vendor.state || undefined,
-            "addressCountry": vendor.country || undefined,
-          }
-        }),
-        ...(vendor.latitude != null && vendor.longitude != null && {
-          "geo": { "@type": "GeoCoordinates", "latitude": vendor.latitude, "longitude": vendor.longitude }
-        }),
-        "memberOf": { "@id": "https://www.asianweddingmakeup.com/#organization" },
-      },
-      {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://www.asianweddingmakeup.com/",
-          },
-          ...breadcrumbs.map((crumb, index) => ({
-            "@type": "ListItem",
-            "position": index + 2,
-            "name": crumb.label,
-            "item": `https://www.asianweddingmakeup.com${crumb.href}`,
-          })),
-          {
-            "@type": "ListItem",
-            "position": breadcrumbs.length + 2,
-            "name": vendor.business_name,
-            // Current page — no "item" URL per Google's breadcrumb guidelines,
-            // since it's not a link to elsewhere.
-          },
-        ],
-      },
+        "@type": "ListItem",
+        position: breadcrumbs.length + 1,
+        name: vendor.business_name,
+        // Current page — no "item" URL per Google's breadcrumb guidelines.
+      } as ListItem,
     ],
   };
+
+  const profilePage: ProfilePage = {
+    "@type": "ProfilePage",
+    "@id": `${vendorUrl}#webpage`,
+    url: vendorUrl,
+    name: vendor.business_name || "Wedding Makeup Artist",
+    description: vendorDescription,
+    mainEntity: { "@id": vendorUrl },
+    isPartOf: { "@id": `${SITE_URL}#website` },
+    publisher: { "@id": `${SITE_URL}#organization` },
+    breadcrumb: { "@id": `${vendorUrl}#breadcrumb` },
+  };
+
+  const jsonLd = jsonLdGraph([localBusiness, breadcrumbList, profilePage]);
 
   return (
     <>
@@ -159,7 +167,7 @@ export default async function VendorPage({ params }: PageProps) {
         {/* Add JSON-LD to your page */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
         />
         {/* ... */}
       </section>

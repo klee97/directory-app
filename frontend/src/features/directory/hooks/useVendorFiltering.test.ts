@@ -57,6 +57,7 @@ function setup(overrides: Partial<Parameters<typeof useVendorFiltering>[0]> = {}
     useVendorFiltering({
       vendors: allVendors,
       selectedLocation: null,
+      initialVendorsLocation: null,
       isLocationResolving: false,
       travelsWorldwide: false,
       selectedSkills: [],
@@ -113,6 +114,7 @@ describe("useVendorFiltering — isLocationResolving contract", () => {
       (props: { isLocationResolving: boolean; selectedLocation: LocationResult | null }) =>
         useVendorFiltering({
           vendors: allVendors,
+          initialVendorsLocation: null,
           travelsWorldwide: false,
           selectedSkills: [],
           selectedServices: [],

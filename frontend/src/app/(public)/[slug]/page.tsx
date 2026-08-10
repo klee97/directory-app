@@ -13,6 +13,8 @@ import { LocationStats } from '@/lib/location/computeLocationStats';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider/Divider';
+import { CollectionPage, ItemList, ListItem } from 'schema-dts';
+import { jsonLdGraph, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl } from '@/seo/jsonLdHtml';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -41,60 +43,58 @@ export default async function LocationPage({ params }: LocationPageProps) {
     redirect(`/`);
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://www.asianweddingmakeup.com/#organization",
-        "name": "Asian Wedding Makeup",
-        "url": "https://www.asianweddingmakeup.com",
-        "description": "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
-        "sameAs": ["https://www.instagram.com/asianweddingmkup"],
-        "logo": `https://www.asianweddingmakeup.com${defaultImage.src}`,
-      },
-      {
-        "@type": "ItemList",
-        "itemListElement": vendors.map((vendor, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "item": {
-            "@type": ["LocalBusiness", "BeautySalon"],
-            "@id": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-            "name": vendor.business_name,
-            "url": `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
-            ...(vendor.cover_image?.media_url && { "image": vendor.cover_image.media_url }),
-            "description": vendor.description || `Wedding makeup artist serving ${location.display_name}.`,
-            "areaServed": { "@type": "Place", "name": location.display_name || "Various Locations" },
-            ...(vendor.city && vendor.state && {
-              "address": {
-                "@type": "PostalAddress",
-                "addressLocality": vendor.city,
-                "addressRegion": vendor.state,
-                "addressCountry": vendor.country || undefined,
-              }
-            }),
-            ...(vendor.latitude && vendor.longitude && {
-              "geo": { "@type": "GeoCoordinates", "latitude": vendor.latitude, "longitude": vendor.longitude }
-            }),
-          },
-        })),
-      },
-    ],
+  const pageUrl = `${SITE_URL}/${slug}`;
+
+  const collectionPage: CollectionPage = {
+    "@type": "CollectionPage",
+    "@id": `${pageUrl}#webpage`,
+    url: pageUrl,
+    name: `Wedding Makeup Artists in ${location.display_name}`,
+    description: `Browse wedding makeup and hair artists serving ${location.display_name}.`,
+    isPartOf: { "@id": `${SITE_URL}#website` },
+    publisher: { "@id": `${SITE_URL}#organization` },
+    about: { "@type": "Place", name: location.display_name },
+    mainEntity: { "@id": `${pageUrl}#vendorlist` },
   };
 
-  // guard against XSS by escaping special characters in the JSON-LD string
-  const jsonLdHtml = JSON.stringify(jsonLd)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026');
+  const itemList: ItemList = {
+    "@type": "ItemList",
+    "@id": `${pageUrl}#vendorlist`,
+    numberOfItems: vendors.length,
+    itemListElement: vendors.map((vendor, index): ListItem => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "BeautySalon",
+        "@id": `${SITE_URL}/vendors/${vendor.slug}`,
+        name: vendor.business_name || "Wedding Makeup Artist",
+        url: `${SITE_URL}/vendors/${vendor.slug}`,
+        ...(vendor.cover_image?.media_url && { image: vendor.cover_image.media_url }),
+        description: vendor.description || `Wedding makeup artist serving ${location.display_name}.`,
+        areaServed: { "@type": "Place", name: location.display_name || "Various Locations" },
+        ...(vendor.city && vendor.state && {
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: vendor.city,
+            addressRegion: vendor.state,
+            addressCountry: vendor.country || undefined,
+          }
+        }),
+        ...(vendor.latitude && vendor.longitude && {
+          geo: { "@type": "GeoCoordinates", latitude: vendor.latitude, longitude: vendor.longitude }
+        }),
+      },
+    })),
+  };
 
-    return (
+  const jsonLd = jsonLdGraph([collectionPage, itemList]);
+
+  return (
     <>
       <section>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
+          dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
         />
       </section>
       <Directory
@@ -141,10 +141,10 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
     openGraph: {
       title,
       description,
-      url: `https://www.asianweddingmakeup.com/${slug}`,
+      url: `${SITE_URL}/${slug}`,
       type: 'website',
-      images: [{ url: defaultImage.src, width: 1200, height: 630, alt: `Asian Wedding Makeup Artists in ${location.display_name}` }],
+      images: [{ url: toAbsoluteUrl(defaultImage.src), width: 1200, height: 630, alt: `Asian Wedding Makeup Artists in ${location.display_name}` }],
     },
-    alternates: { canonical: `https://www.asianweddingmakeup.com/${slug}` },
+    alternates: { canonical: `${SITE_URL}/${slug}` },
   };
 }

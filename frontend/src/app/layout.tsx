@@ -14,6 +14,9 @@ import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constan
 import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { UserContextTracker } from "@/components/analytics/UserContextTracker";
+import type { Organization, WebSite } from 'schema-dts';
+import { sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
+import logo from '@/assets/logo.jpeg';
 
 const alice = Alice({
   weight: ['400'],
@@ -46,6 +49,31 @@ export const metadata: Metadata = {
     images: [previewImage.src],
   },
 };
+const organization: Organization = {
+  "@type": "Organization",
+  "@id": "https://www.asianweddingmakeup.com/#organization",
+  name: "Asian Wedding Makeup",
+  url: "https://www.asianweddingmakeup.com",
+  description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+  sameAs: ["https://www.instagram.com/asianweddingmkup"],
+  logo: {
+    "@type": "ImageObject",
+    url: `https://www.asianweddingmakeup.com${logo.src}`,
+  },
+};
+
+const website: WebSite = {
+  "@type": "WebSite",
+  "@id": "https://www.asianweddingmakeup.com/#website",
+  url: "https://www.asianweddingmakeup.com",
+  name: "Asian Wedding Makeup",
+  publisher: { "@id": "https://www.asianweddingmakeup.com/#organization" },
+};
+
+const globalJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [organization, website],
+};
 
 export default function RootLayout({
   children,
@@ -60,6 +88,7 @@ export default function RootLayout({
         <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
         {/* Pinterest site verification */}
         <meta name="p:domain_verify" content="b243038277499f92ffdf12ffbecd514f" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(globalJsonLd) }} />
       </head>
       <body>
         <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />

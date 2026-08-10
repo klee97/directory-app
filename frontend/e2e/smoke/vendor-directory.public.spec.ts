@@ -81,11 +81,11 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
 
   test('search by vendor name and click vendor card', async ({ page }) => {
     // Type in the artist-name search input (500 ms debounce)
-    await page.getByPlaceholder('Artist Name').fill('Test Glamour');
+    await page.getByPlaceholder('Artist Name').pressSequentially('Test Glamour', { delay: 100 });
 
     // Wait for the debounced filter to apply and the matching card to appear
-    await expect(page.getByText(/Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByText('Test Glamour Studio')).toBeVisible({ timeout: 3_000 });
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Test Glamour Studio')).toBeVisible();
     await expect(page.getByText('Test Bridal Beauty Co')).not.toBeVisible();
 
     // Both tags should appear as chips on the vendor card
