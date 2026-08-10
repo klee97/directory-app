@@ -4,11 +4,11 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/photo_website_preview.jpg';
 import { VendorSection } from '@/features/landingPage/components/VendorSection';
 import { BlogSection } from '@/features/landingPage/components/BlogSection';
 import type { WebPage } from 'schema-dts';
-import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
@@ -20,9 +20,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: toAbsoluteUrl(defaultImage.src),
-        width: 800,
-        height: 421,
+        url: PHOTO_WEBSITE_PREVIEW_URL,
         alt: 'Asian Wedding Makeup',
       },
     ],

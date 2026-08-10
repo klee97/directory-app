@@ -1,6 +1,5 @@
 import { Directory } from '@/features/directory/components/Directory';
 import { notFound, redirect } from 'next/navigation';
-import defaultImage from '@/assets/website_preview.jpeg';
 import { LocationResult } from '@/types/location';
 import { Metadata } from 'next';
 import { LocationPageGenerator } from '@/lib/location/LocationPageGenerator';
@@ -14,7 +13,8 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider/Divider';
 import { CollectionPage, ItemList, ListItem } from 'schema-dts';
-import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { PHOTO_WEBSITE_PREVIEW_URL, ORG_ID, SITE_URL, WEBSITE_ID } from '@/seo/constants';
 
 interface LocationPageProps {
   params: Promise<{ slug: string }>;
@@ -143,7 +143,7 @@ export async function generateMetadata({ params }: LocationPageProps): Promise<M
       description,
       url: `${SITE_URL}/${slug}`,
       type: 'website',
-      images: [{ url: toAbsoluteUrl(defaultImage.src), width: 1200, height: 630, alt: `Asian Wedding Makeup Artists in ${location.display_name}` }],
+      images: [{ url: PHOTO_WEBSITE_PREVIEW_URL, alt: `Asian Wedding Makeup Artists in ${location.display_name}` }],
     },
     alternates: { canonical: `${SITE_URL}/${slug}` },
   };

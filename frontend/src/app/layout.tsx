@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
-import previewImage from '@/assets/photo_website_preview.jpg';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
@@ -15,8 +14,8 @@ import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { UserContextTracker } from "@/components/analytics/UserContextTracker";
 import type { Organization, WebSite } from 'schema-dts';
-import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from "@/seo/jsonLdHtml";
-import logo from '@/assets/logo.jpeg';
+import { jsonLdGraph, sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
+import { LOGO_URL, ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from "@/seo/constants";
 
 const alice = Alice({
   weight: ['400'],
@@ -35,9 +34,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: previewImage.src,
-        width: 800,
-        height: 421,
+        url: PHOTO_WEBSITE_PREVIEW_URL,
         alt: 'Asian Wedding Makeup Preview',
       },
     ],
@@ -46,7 +43,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
     description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
-    images: [previewImage.src],
+    images: [PHOTO_WEBSITE_PREVIEW_URL],
   },
 };
 const organization: Organization = {
@@ -58,7 +55,7 @@ const organization: Organization = {
   sameAs: ["https://www.instagram.com/asianweddingmkup"],
   logo: {
     "@type": "ImageObject",
-    url: toAbsoluteUrl(logo.src),
+    url: LOGO_URL,
   },
 };
 

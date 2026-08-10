@@ -4,7 +4,6 @@ import { getCachedVendor } from '@/lib/vendor/fetchVendors';
 import { notFound } from 'next/navigation';
 import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
-import previewImage from '@/assets/website_preview.jpeg';
 import { Suspense } from 'react';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
 import { getVendorsByDistanceWithFallback } from '@/features/directory/api/fetchVendorsByLocation';
@@ -15,7 +14,9 @@ import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
 import LoadingPage from '@/components/layouts/LoadingPage';
 import { BreadcrumbList, ListItem, LocalBusiness, ProfilePage } from 'schema-dts';
-import { jsonLdGraph, sanitizeJsonLdHtml, toAbsoluteUrl, SITE_URL, WEBSITE_ID, ORG_ID } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { SITE_URL, WEBSITE_ID, ORG_ID, WEBSITE_PREVIEW_URL } from '@/seo/constants';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -47,14 +48,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: `${SITE_URL}/vendors/${slug}`,
-      images: [{ url: vendor.cover_image?.media_url
-        || toAbsoluteUrl(previewImage.src), width: 1200, height: 630, alt: `${vendor.business_name} Preview` }],
+      images: [{
+        url: vendor.cover_image?.media_url
+          || WEBSITE_PREVIEW_URL, alt: `${vendor.business_name} Preview`
+      }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description: `Book ${vendor.business_name} for expert Asian bridal beauty services.`,
-      images: [vendor.cover_image?.media_url || toAbsoluteUrl(previewImage.src)],
+      images: [vendor.cover_image?.media_url || WEBSITE_PREVIEW_URL],
     },
     alternates: { canonical: `${SITE_URL}/vendors/${slug}` },
   };

@@ -1,9 +1,9 @@
 import { Directory } from '@/features/directory/components/Directory';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/photo_website_preview.jpg';
 import { getDirectoryPageVendors } from '@/lib/vendor/fetchVendors';
 import { CollectionPage, ItemList, ListItem } from 'schema-dts';
-import { jsonLdGraph, ORG_ID, sanitizeJsonLdHtml, SITE_URL, toAbsoluteUrl, WEBSITE_ID } from '@/seo/jsonLdHtml';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,13 +13,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Directory | Asian Wedding Makeup Artists in NYC, Toronto & More',
     description: 'Discover wedding makeup artists experienced with Asian features · Experts in monolids, Asian skin tones & bridal glam · Search by price, skill & location.',
-    url:  `${SITE_URL}/vendors`,
+    url: `${SITE_URL}/vendors`,
     type: 'website',
     images: [
       {
-        url: toAbsoluteUrl(defaultImage.src),
-        width: 800,
-        height: 421,
+        url: PHOTO_WEBSITE_PREVIEW_URL,
         alt: 'Asian Wedding Makeup Artist Directory',
       },
     ],
@@ -56,7 +54,7 @@ export default async function VendorsPage() {
         "@id": `${SITE_URL}/vendors/${vendor.slug}`,
         name: vendor.business_name || "Wedding Makeup Artist",
         url: `${SITE_URL}/vendors/${vendor.slug}`,
-        image: vendor.cover_image?.media_url || toAbsoluteUrl(defaultImage.src),
+        ...(vendor.cover_image?.media_url && { image: vendor.cover_image.media_url }),
         description: vendor.description || "Trusted wedding makeup artist for Asian features.",
         areaServed: {
           "@type": "Place",
