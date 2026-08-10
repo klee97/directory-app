@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import ThemeProvider from '@/components/theme/ThemeProvider';
-import previewImage from '@/assets/photo_website_preview.jpg';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
@@ -14,6 +13,9 @@ import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constan
 import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { UserContextTracker } from "@/components/analytics/UserContextTracker";
+import type { Organization, WebSite } from 'schema-dts';
+import { jsonLdGraph, sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
+import { LOGO_URL, ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from "@/seo/constants";
 
 const alice = Alice({
   weight: ['400'],
@@ -32,9 +34,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: previewImage.src,
-        width: 800,
-        height: 421,
+        url: PHOTO_WEBSITE_PREVIEW_URL,
         alt: 'Asian Wedding Makeup Preview',
       },
     ],
@@ -43,9 +43,31 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Asian Wedding Makeup – Find artists in NYC, LA & more',
     description: 'Find talented wedding makeup artists in NYC, LA, and more. Discover artists experienced with Asian skin tones, monolids, and hair texture.',
-    images: [previewImage.src],
+    images: [PHOTO_WEBSITE_PREVIEW_URL],
   },
 };
+const organization: Organization = {
+  "@type": "Organization",
+  "@id": ORG_ID,
+  name: "Asian Wedding Makeup",
+  url: SITE_URL,
+  description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+  sameAs: ["https://www.instagram.com/asianweddingmkup"],
+  logo: {
+    "@type": "ImageObject",
+    url: LOGO_URL,
+  },
+};
+
+const website: WebSite = {
+  "@type": "WebSite",
+  "@id": WEBSITE_ID,
+  url: SITE_URL,
+  name: "Asian Wedding Makeup",
+  publisher: { "@id": ORG_ID },
+};
+
+const globalJsonLd = jsonLdGraph([organization, website]);
 
 export default function RootLayout({
   children,
@@ -60,6 +82,7 @@ export default function RootLayout({
         <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
         {/* Pinterest site verification */}
         <meta name="p:domain_verify" content="b243038277499f92ffdf12ffbecd514f" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(globalJsonLd) }} />
       </head>
       <body>
         <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />

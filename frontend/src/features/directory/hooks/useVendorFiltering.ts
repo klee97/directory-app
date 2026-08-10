@@ -1,5 +1,5 @@
 import { LATITUDE_PARAM, LONGITUDE_PARAM } from "@/lib/constants";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { filterVendorsByLocation, isCountrySelection, isStateSelection, searchVendors } from "@/features/directory/api/searchVendors";
 import { VendorByDistance, VendorTag } from "@/types/vendor";
 import { LocationResult } from "@/types/location";
@@ -10,6 +10,7 @@ import { getVendorsByLocation } from "@/features/directory/api/fetchVendorsByLoc
 export const useVendorFiltering = ({
   vendors,
   selectedLocation,
+  initialVendorsLocation,
   isLocationResolving,
   travelsWorldwide,
   selectedSkills,
@@ -18,15 +19,34 @@ export const useVendorFiltering = ({
 }: {
   vendors: VendorByDistance[],
   selectedLocation: LocationResult | null,
+  initialVendorsLocation: LocationResult | null, // The location that the server-provided `vendors` prop was actually fetched for
   isLocationResolving: boolean,
   travelsWorldwide: boolean,
   selectedSkills: string[],
   selectedServices: string[],
   searchQuery: string,
 }) => {
-  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>([]);
+  // Seed from the server-provided `vendors` prop instead of an empty array.
+  // `vendors` is already correctly filtered for the initial/preselected
+  // location (see getLocationPageData server-side), so there's no reason
+  // the first paint should show zero results while an effect re-fetches
+  // data the server already computed.
+  const [vendorsInRadius, setVendorsInRadius] = useState<VendorByDistance[]>(vendors);
   const [loading, setLoading] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>(SORT_OPTIONS.DEFAULT);
+
+  // Keyed to what the server data actually describes (an explicit prop),
+  // not to whatever `selectedLocation`/`isLocationResolving` state happens
+  // to be true on "the first effect run" — run order is not a reliable
+  // proxy for "this is the location `vendors` was fetched for".
+  const serverLocationKey = useRef(
+    initialVendorsLocation &&
+      initialVendorsLocation.lat !== null &&
+      initialVendorsLocation.lon !== null
+      ? `${initialVendorsLocation.lat},${initialVendorsLocation.lon}`
+      : null
+  );
+  const hasUsedServerData = useRef(false);
 
   const { getParam } = useURLFiltersContext();
   const urlLat = getParam(LATITUDE_PARAM);
@@ -50,12 +70,28 @@ export const useVendorFiltering = ({
       // Check if we have a valid location with required properties
       const hasValidLocation = selectedLocation &&
         selectedLocation.display_name &&
-        selectedLocation.lat !== undefined &&
-        selectedLocation.lon !== undefined;
+        selectedLocation.lat !== null &&
+        selectedLocation.lon !== null;
 
       if (!hasValidLocation) {
         // If no valid location is selected, show all vendors by default
         console.debug('No valid location, showing all vendors');
+        setVendorsInRadius(vendors);
+        setLoading(false);
+        return;
+      }
+
+      // Skip the redundant client-side fetch only when: (a) we know what
+      // location the server data describes (serverLocationKey is non-null,
+      // i.e. the caller told us), (b) the resolved location matches it
+      // exactly, and (c) we haven't already consumed this pass.
+      const currentKey = `${selectedLocation.lat},${selectedLocation.lon}`;
+      if (
+        !hasUsedServerData.current &&
+        serverLocationKey.current !== null &&
+        currentKey === serverLocationKey.current
+      ) {
+        hasUsedServerData.current = true;
         setVendorsInRadius(vendors);
         setLoading(false);
         return;

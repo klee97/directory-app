@@ -51,6 +51,7 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       <Typography>
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
+
       <FilterableVendorTable
         vendors={vendors}
         favoriteVendorIds={favoriteVendorIds}

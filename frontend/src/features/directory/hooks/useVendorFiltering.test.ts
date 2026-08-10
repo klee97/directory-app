@@ -57,6 +57,7 @@ function setup(overrides: Partial<Parameters<typeof useVendorFiltering>[0]> = {}
     useVendorFiltering({
       vendors: allVendors,
       selectedLocation: null,
+      initialVendorsLocation: null,
       isLocationResolving: false,
       travelsWorldwide: false,
       selectedSkills: [],
@@ -77,6 +78,18 @@ describe("useVendorFiltering — isLocationResolving contract", () => {
     const { result } = setup({ isLocationResolving: true, selectedLocation: null });
 
     expect(result.current.loading).toBe(true);
+    expect(getVendorsByLocationMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the server-provided vendors visible while isLocationResolving is true, even with a known initialVendorsLocation", () => {
+    const { result } = setup({
+      isLocationResolving: true,
+      selectedLocation: null,
+      initialVendorsLocation: cityLocation,
+    });
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.vendorsInRadius).toEqual(allVendors);
     expect(getVendorsByLocationMock).not.toHaveBeenCalled();
   });
 
@@ -113,6 +126,7 @@ describe("useVendorFiltering — isLocationResolving contract", () => {
       (props: { isLocationResolving: boolean; selectedLocation: LocationResult | null }) =>
         useVendorFiltering({
           vendors: allVendors,
+          initialVendorsLocation: null,
           travelsWorldwide: false,
           selectedSkills: [],
           selectedServices: [],

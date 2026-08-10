@@ -1,13 +1,25 @@
 import { supabaseStaticClient } from './src/lib/supabase/clients/staticClient.ts';
 
+const MIN_VENDORS_FOR_SITEMAP = 1;
+
 export async function fetchVendorSlugs() {
   const { data } = await supabaseStaticClient.from('vendors').select('slug').not('id', 'like', 'TEST-%');;
   return data || [];
 }
 
 export async function fetchLocationSlugs() {
-  const { data } = await supabaseStaticClient.from('location_slugs').select('slug').not('id', 'like', 'TEST-%');;
+  const { data } = await supabaseStaticClient.from('location_slugs')
+    .select('slug, vendor_count')
+    .gte('vendor_count', MIN_VENDORS_FOR_SITEMAP);
   return data || [];
+}
+
+function getPriorityForVendorCount(count) {
+  if (count >= 20) return 1.0;
+  if (count >= 10) return 0.9;
+  if (count >= 5) return 0.8;
+  if (count >= 3) return 0.6;
+  return 0.5;
 }
 
 async function fetchBlogSlugs() {
@@ -45,16 +57,6 @@ async function fetchBlogSlugs() {
   }
 }
 
-// Cache location slugs to avoid multiple database calls
-let locationSlugsCache = null;
-
-async function getLocationSlugs() {
-  if (!locationSlugsCache) {
-    locationSlugsCache = await fetchLocationSlugs();
-  }
-  return locationSlugsCache;
-}
-
 const config = {
   siteUrl: 'https://www.asianweddingmakeup.com',
   generateRobotsTxt: true,
@@ -75,8 +77,6 @@ const config = {
   ],
 
   async transform(config, path) {
-    const locationSlugs = await getLocationSlugs();
-    const locationSlugSet = new Set(locationSlugs.map(l => `/${l.slug}`));
 
     // Override priorities for specific pages
     const priorityMap = {
@@ -86,16 +86,6 @@ const config = {
       '/contact': 0.3,
       '/faq': 0.8
     };
-
-    // Check if this is a location page
-    if (locationSlugSet.has(path)) {
-      return {
-        loc: `${config.siteUrl}${path}`,
-        lastmod: new Date().toISOString(),
-        priority: 0.9,
-        changefreq: config.changefreq
-      };
-    }
 
     // Check if this is a page with custom priority
     if (priorityMap[path]) {
@@ -117,7 +107,7 @@ const config = {
   },
 
   async additionalPaths() {
-    // Only add vendor pages since location and static pages are handled by transform
+    // Only add vendor pages, blog pages, and location pages. Static pages are handled by transform
     const vendorData = await fetchVendorSlugs();
     const vendorPages = vendorData.map((vendor) => ({
       loc: `https://www.asianweddingmakeup.com/vendors/${vendor.slug}`,
@@ -131,7 +121,15 @@ const config = {
       lastmod: new Date().toISOString(),
       priority: 0.9,
     }));
-    return [...vendorPages, ...blogPages];
+
+    const locationSlugs = await fetchLocationSlugs();
+    const locationPages = locationSlugs.map((location) => ({
+      loc: `https://www.asianweddingmakeup.com/${location.slug}`,
+      lastmod: new Date().toISOString(),
+      priority: getPriorityForVendorCount(location.vendor_count),
+      changefreq: config.changefreq,
+    }));
+    return [...vendorPages, ...blogPages, ...locationPages];
   },
 };
 

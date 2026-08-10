@@ -4,10 +4,11 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import defaultImage from '@/assets/photo_website_preview.jpg';
-import logo from '@/assets/logo.jpeg';
 import { VendorSection } from '@/features/landingPage/components/VendorSection';
 import { BlogSection } from '@/features/landingPage/components/BlogSection';
+import type { WebPage } from 'schema-dts';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
@@ -15,39 +16,38 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
     description: 'A curated directory of wedding makeup artists experienced with Asian features — recommended by real Asian brides.',
-    url: 'https://www.asianweddingmakeup.com',
+    url: SITE_URL,
     type: 'website',
     images: [
       {
-        url: defaultImage.src,
-        width: 800,
-        height: 421,
+        url: PHOTO_WEBSITE_PREVIEW_URL,
         alt: 'Asian Wedding Makeup',
       },
     ],
   },
   alternates: {
-    canonical: 'https://www.asianweddingmakeup.com',
+    canonical: SITE_URL,
   },
 };
 
 export default async function Home() {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Asian Wedding Makeup',
-    url: 'https://www.asianweddingmakeup.com',
-    logo: logo.src,
-    description:
-      'A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.',
-    sameAs: ['https://www.instagram.com/asianweddingmkup'],
+  const webPage: WebPage = {
+    "@type": "WebPage",
+    "@id": `${SITE_URL}#webpage`,
+    url: SITE_URL,
+    name: "Asian Wedding Makeup | Trusted Artists for Asian Features",
+    description: "A curated directory of wedding makeup and hair artists recommended for the Asian diaspora.",
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": ORG_ID },
   };
+
+  const jsonLd = jsonLdGraph([webPage]);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
       />
 
       {/* Hero */}
