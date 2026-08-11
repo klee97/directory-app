@@ -62,26 +62,22 @@ export async function requestClaimLink({
     return genericSuccess;
   }
 
-  // Reuse the existing access token if the listing already has one (e.g. a
-  // magic link was minted earlier); otherwise generate and persist a new one.
-  let accessToken = vendor.access_token;
-  if (!accessToken) {
-    accessToken = crypto.randomUUID();
-    const { error: tokenError } = await supabaseAdminClient
-      .from("vendors")
-      .update({ access_token: accessToken })
-      .eq("id", vendor.id);
+  // Re-generate the access token to invalidate earlier magic links.
+  let accessToken = crypto.randomUUID();
+  const { error: tokenError } = await supabaseAdminClient
+    .from("vendors")
+    .update({ access_token: accessToken })
+    .eq("id", vendor.id);
 
-    if (tokenError) {
-      console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
-      return genericSuccess;
-    }
-
-    // The vendor detail page reads this vendor via getCachedVendor (for the
-    // claim CTA's isClaimed/emailHint), so bust it now or the freshly minted
-    // token won't be reflected there for up to 24h.
-    await revalidateVendor(slug);
+  if (tokenError) {
+    console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
+    return genericSuccess;
   }
+
+  // The vendor detail page reads this vendor via getCachedVendor (for the
+  // claim CTA's isClaimed/emailHint), so bust it now or the freshly minted
+  // token won't be reflected there for up to 24h.
+  await revalidateVendor(slug);
 
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
 
