@@ -5,6 +5,7 @@ import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
 import { getBaseUrl } from "@/lib/env/env";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import { revalidateVendor } from "@/lib/actions/revalidate";
+import { sendClaimLinkEmail } from "@/lib/resend/resend";
 
 export type RequestClaimLinkResult =
   | { success: true }
@@ -18,13 +19,8 @@ export type RequestClaimLinkResult =
  * - We never accept or reveal the email from the client; it is read server-side
  *   from the vendor record so a bride poking at this can't learn or set it.
  * - reCAPTCHA gates the request to make inbox-spamming a vendor harder.
- * - The actual email is sent by the `send-claim-link` Supabase edge function
- *   (backend contract below), keeping email delivery consistent with how inquiries
- *   are handled.
- *
- * Edge function contract — `send-claim-link` receives:
- *   { vendorId: string; email: string; businessName: string; claimUrl: string }
- * and is responsible for emailing `claimUrl` to `email`.
+ * - The email itself is sent via a Resend template (see `sendClaimLinkEmail`),
+ *   populated with the vendor's business name and the generated claim URL.
  */
 export async function requestClaimLink({
   slug,
@@ -63,7 +59,7 @@ export async function requestClaimLink({
   }
 
   // Re-generate the access token to invalidate earlier magic links.
-  let accessToken = crypto.randomUUID();
+  const accessToken = crypto.randomUUID();
   const { error: tokenError } = await supabaseAdminClient
     .from("vendors")
     .update({ access_token: accessToken })
@@ -81,8 +77,15 @@ export async function requestClaimLink({
 
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
 
-  console.debug(`Sending claim url not yet implemented: ${claimUrl}`);
-  // TODO: Integrate with Resend to send claim url email
-  return genericSuccess;
+  const emailSent = await sendClaimLinkEmail({
+    email: vendor.email,
+    businessName: vendor.business_name,
+    claimUrl,
+  });
 
+  if (!emailSent) {
+    console.error(`requestClaimLink: failed to send claim link email for "${slug}"`);
+  }
+
+  return genericSuccess;
 }
