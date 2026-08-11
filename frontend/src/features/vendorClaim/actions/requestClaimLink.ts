@@ -4,7 +4,7 @@ import { supabaseAdminClient } from "@/lib/supabase/clients/adminClient";
 import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
 import { getBaseUrl } from "@/lib/env/env";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
-import { randomUUID } from "crypto";
+import { revalidateVendor } from "@/lib/actions/revalidate";
 
 export type RequestClaimLinkResult =
   | { success: true }
@@ -66,7 +66,7 @@ export async function requestClaimLink({
   // magic link was minted earlier); otherwise generate and persist a new one.
   let accessToken = vendor.access_token;
   if (!accessToken) {
-    accessToken = randomUUID();
+    accessToken = crypto.randomUUID();
     const { error: tokenError } = await supabaseAdminClient
       .from("vendors")
       .update({ access_token: accessToken })
@@ -76,6 +76,11 @@ export async function requestClaimLink({
       console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
       return genericSuccess;
     }
+
+    // The vendor detail page reads this vendor via getCachedVendor (for the
+    // claim CTA's isClaimed/emailHint), so bust it now or the freshly minted
+    // token won't be reflected there for up to 24h.
+    await revalidateVendor(slug);
   }
 
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
