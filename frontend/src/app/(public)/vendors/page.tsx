@@ -4,6 +4,7 @@ import { getDirectoryPageVendors } from '@/lib/vendor/fetchVendors';
 import { CollectionPage, ItemList, ListItem } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
+import { getDefaultBio } from '@/features/profile/common/utils/bio';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,7 @@ export default async function VendorsPage() {
     mainEntity: { "@id": `${pageUrl}#vendorlist` },
   };
 
+
   const itemList: ItemList = {
     "@type": "ItemList",
     "@id": `${pageUrl}#vendorlist`,
@@ -55,8 +57,11 @@ export default async function VendorsPage() {
         name: vendor.business_name || "Wedding Makeup Artist",
         url: `${SITE_URL}/vendors/${vendor.slug}`,
         ...(vendor.cover_image?.media_url && { image: vendor.cover_image.media_url }),
-        description: vendor.description || "Trusted wedding makeup artist for Asian features.",
-        areaServed: {
+        description: vendor.description || getDefaultBio({
+          businessName: vendor.business_name,
+          tags: vendor.tags,
+          location: vendor.city || vendor.state || vendor.country || null,
+        }), areaServed: {
           "@type": "Place",
           name: vendor.city || vendor.state || vendor.country || "Various Locations",
         },

@@ -31,7 +31,6 @@ import FilterChip from '@/components/ui/FilterChip';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { getTodaySeed, shuffleMediaWithSeed } from '@/lib/randomize';
-import { getDefaultBio } from '@/features/profile/common/utils/bio';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import PlaceholderImage from '@/assets/placeholder_cover_img.jpeg';
 import PlaceholderImageGray from '@/assets/placeholder_cover_img_gray.jpeg';
@@ -132,10 +131,11 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
 
 interface VendorDetailsProps {
   vendor: Vendor;
+  vendorDescription: string;
   nearbyVendors?: Vendor[];
 }
 
-export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsProps) {
+export default function VendorDetails({ vendor, vendorDescription, nearbyVendors }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(true)
@@ -176,14 +176,6 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
 
   const hasPricing = prices.length > 0;
   const resolvedLowestPrice = hasPricing ? Math.min(...prices) : 0;
-
-  const description = vendor.description
-    ? vendor.description
-    : getDefaultBio({
-      businessName: vendor.business_name,
-      tags: vendor.tags,
-      location: resolvedLocation || '',
-    });
 
   useEffect(() => {
     startTime.current = performance.now();
@@ -328,7 +320,7 @@ export default function VendorDetails({ vendor, nearbyVendors }: VendorDetailsPr
                   </Typography>
                   {/* Description */}
                   <Typography variant="body1" component="p" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
-                    {description}
+                    {vendorDescription}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     {vendor.website && (
