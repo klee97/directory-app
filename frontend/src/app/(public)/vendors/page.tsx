@@ -43,7 +43,6 @@ export default async function VendorsPage() {
     mainEntity: { "@id": `${pageUrl}#vendorlist` },
   };
 
-
   const itemList: ItemList = {
     "@type": "ItemList",
     "@id": `${pageUrl}#vendorlist`,
@@ -61,7 +60,8 @@ export default async function VendorsPage() {
           businessName: vendor.business_name,
           tags: vendor.tags,
           location: vendor.city || vendor.state || vendor.country || null,
-        }), areaServed: {
+        }),
+        areaServed: {
           "@type": "Place",
           name: vendor.city || vendor.state || vendor.country || "Various Locations",
         },
