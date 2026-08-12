@@ -295,7 +295,7 @@ export default function VendorEditProfile({ vendor, tags, userId }: VendorEditPr
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                 p: 2
               }}>
-                <VendorProfile vendor={previewVendor} />
+                <VendorProfile vendor={previewVendor} vendorDescription={previewVendor.description || ''} />
               </Box>
             </Box>
 

@@ -16,6 +16,8 @@ import LoadingPage from '@/components/layouts/LoadingPage';
 import { BreadcrumbList, ListItem, LocalBusiness, ProfilePage } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { SITE_URL, WEBSITE_ID, ORG_ID, WEBSITE_PREVIEW_URL } from '@/seo/constants';
+import { toIsoCountryCode } from '@/lib/location/getCountryCode';
+import { getDefaultBio } from '@/features/profile/common/utils/bio';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -106,7 +108,11 @@ export default async function VendorPage({ params }: PageProps) {
   const priceRange = prices.length ? `$${Math.min(...prices)}-$${Math.max(...prices)}` : undefined;
 
   const vendorUrl = `${SITE_URL}/vendors/${vendor.slug}`;
-  const vendorDescription = vendor.description || `Wedding ${serviceTags.join(' & ') || 'makeup'} artist for Asian brides.`;
+  const vendorDescription = vendor.description || getDefaultBio({
+    businessName: vendor.business_name,
+    tags: vendor.tags,
+    location: getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country), // or whatever produces the location string used elsewhere
+  });
 
   const localBusiness: LocalBusiness = {
     "@id": vendorUrl,
@@ -123,7 +129,7 @@ export default async function VendorPage({ params }: PageProps) {
         "@type": "PostalAddress",
         addressLocality: vendor.city || undefined,
         addressRegion: vendor.state || undefined,
-        addressCountry: vendor.country || undefined,
+        ...(toIsoCountryCode(vendor.country) && { addressCountry: toIsoCountryCode(vendor.country) }),
       }
     }),
     ...(vendor.latitude != null && vendor.longitude != null && {
@@ -180,7 +186,7 @@ export default async function VendorPage({ params }: PageProps) {
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
         </Container>
       </Suspense>
-      <VendorProfile vendor={vendor} nearbyVendors={nearbyVendors} />
+      <VendorProfile vendor={vendor} vendorDescription={vendorDescription} nearbyVendors={nearbyVendors} />
     </>
   );
 }
