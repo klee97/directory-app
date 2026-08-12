@@ -3,6 +3,10 @@ import Typography from "@mui/material/Typography";
 import { Metadata } from "next";
 import defaultImage from '@/assets/photo_website_preview.jpg';
 import FaqList from "@/components/layouts/FaqList";
+import { SITE_URL } from "@/seo/constants";
+import { FAQPage as FAQPageSchema } from 'schema-dts';
+import { stripMarkdownLinks } from "@/seo/markdownPlaintext";
+import { jsonLdGraph, sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
 
 const faqs = [
   {
@@ -109,15 +113,40 @@ export const metadata: Metadata = {
   },
 };
 
+
 const FAQPage = () => {
+  const allFaqItems = faqs.flatMap((group) => group.items);
+
+  const faqSchema: FAQPageSchema = {
+    "@type": "FAQPage",
+    "@id": `${SITE_URL}/faq#faq`,
+    "url": `${SITE_URL}/faq`,
+    "mainEntity": allFaqItems.map((item) => ({
+      "@type": "Question",
+      "name": stripMarkdownLinks(item.question),
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": stripMarkdownLinks(item.answer),
+      },
+    })),
+  };
+
+  const jsonLd = jsonLdGraph([faqSchema]);
+
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <br />
-      <Typography variant="h1" gutterBottom>
-        Frequently Asked Questions
-      </Typography>
-      <FaqList faqs={faqs} />  
-    </Container>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
+      />
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <br />
+        <Typography variant="h1" gutterBottom>
+          Frequently Asked Questions
+        </Typography>
+        <FaqList faqs={faqs} />
+      </Container>
+    </>
   );
 };
 

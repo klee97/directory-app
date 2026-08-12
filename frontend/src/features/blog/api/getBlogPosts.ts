@@ -14,15 +14,17 @@ export type SinglePageBlogPost = NonNullable<GetBlogPostBySlugQuery['pageBlogPos
 export type Content = NonNullable<SinglePageBlogPost>['content'];
 
 const _getAllPosts = unstable_cache(
-  async () => {
+  async (): Promise<PageBlogPost[]> => {
     const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
-    return pageBlogPostCollection?.items || [];
+    return (pageBlogPostCollection?.items ?? []).filter(
+      (item): item is PageBlogPost => item !== null
+    );
   },
   ['all-posts'],
   { revalidate: CACHE_TTL, tags: ['all-posts'] }
 )
 
-export async function getAllPosts() {
+export async function getAllPosts(): Promise<PageBlogPost[]> {
   try {
     return await _getAllPosts()
   } catch (err) {
