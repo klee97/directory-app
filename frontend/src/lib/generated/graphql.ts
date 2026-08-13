@@ -2175,6 +2175,13 @@ export type GetBlogPostBySlugQuery = { pageBlogPostCollection: { items: Array<{ 
               | { __typename: 'PageLanding', sys: { id: string } }
              | null> } } } | null, featuredImage: { url: string | null, title: string | null, width: number | null, height: number | null, description: string | null, contentType: string | null } | null, author: { name: string | null, avatar: { url: string | null, title: string | null, width: number | null, height: number | null, contentType: string | null } | null } | null, seoFields: { pageTitle: string | null, pageDescription: string | null } | null } | null> } | null };
 
+export type GetBlogPostStatusQueryVariables = Exact<{
+  slug: string;
+}>;
+
+
+export type GetBlogPostStatusQuery = { pageBlogPostCollection: { items: Array<{ publishedDate: string | null } | null> } | null };
+
 
 export const GetAllBlogPostsDocument = gql`
     query GetAllBlogPosts {
@@ -2309,6 +2316,15 @@ export const GetBlogPostBySlugDocument = gql`
   }
 }
     `;
+export const GetBlogPostStatusDocument = gql`
+    query GetBlogPostStatus($slug: String!) {
+  pageBlogPostCollection(where: {slug: $slug}, limit: 1) {
+    items {
+      publishedDate
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -2322,6 +2338,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetBlogPostBySlug(variables: GetBlogPostBySlugQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetBlogPostBySlugQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetBlogPostBySlugQuery>({ document: GetBlogPostBySlugDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetBlogPostBySlug', 'query', variables);
+    },
+    GetBlogPostStatus(variables: GetBlogPostStatusQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetBlogPostStatusQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetBlogPostStatusQuery>({ document: GetBlogPostStatusDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetBlogPostStatus', 'query', variables);
     }
   };
 }

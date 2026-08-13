@@ -1,11 +1,15 @@
 import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { guardBlogPreview } from './lib/blogPreview/passwordGuard';
 
 
 /**
  * Next.js middleware entry point — runs on every matched request before any route renders.
  */
 export async function proxy(request: NextRequest) {
+  const blogGate = await guardBlogPreview(request);
+  if (blogGate) return blogGate;
+
   return await updateSession(request);
 }
 

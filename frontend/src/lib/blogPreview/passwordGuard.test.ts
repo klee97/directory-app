@@ -1,0 +1,127 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { NextRequest } from 'next/server';
+import { guardBlogPreview } from './passwordGuard';
+import { getBlogPublishStatus } from '@/features/blog/api/getBlogPublishStatus';
+
+vi.mock('@/features/blog/api/getBlogPublishStatus', () => ({
+  getBlogPublishStatus: vi.fn(),
+}));
+
+const mockGetStatus = vi.mocked(getBlogPublishStatus);
+const ORIGINAL_ENV = process.env;
+
+function makeRequest(path: string, opts: { cookie?: string } = {}) {
+  const headers = new Headers();
+  if (opts.cookie) headers.set('cookie', `preview-auth=${opts.cookie}`);
+  return new NextRequest(new URL(path, 'https://example.com'), { headers });
+}
+
+describe('guardBlogPreview', () => {
+  beforeEach(() => {
+    mockGetStatus.mockReset();
+    process.env = { ...ORIGINAL_ENV, BLOG_PREVIEW_PASSWORD: 'correct-password' };
+  });
+
+  afterEach(() => {
+    process.env = ORIGINAL_ENV;
+  });
+
+  it('passes through non-blog routes untouched', async () => {
+    const result = await guardBlogPreview(makeRequest('/about'));
+    expect(result).toBeNull();
+    expect(mockGetStatus).not.toHaveBeenCalled();
+  });
+
+  it('passes through published posts', async () => {
+    mockGetStatus.mockResolvedValue('published');
+    const result = await guardBlogPreview(makeRequest('/blog/my-post'));
+    expect(result).toBeNull();
+  });
+
+  it('passes through not-found slugs (lets the page 404 naturally)', async () => {
+    mockGetStatus.mockResolvedValue('not-found');
+    const result = await guardBlogPreview(makeRequest('/blog/nonexistent'));
+    expect(result).toBeNull();
+  });
+
+  it('redirects unauthorized visitors away from unpublished posts', async () => {
+    mockGetStatus.mockResolvedValue('unpublished');
+    const result = await guardBlogPreview(makeRequest('/blog/future-post'));
+
+    expect(result).not.toBeNull();
+    const location = new URL(result!.headers.get('location')!);
+    expect(location.pathname).toBe('/blog-preview-auth');
+    expect(location.searchParams.get('redirectTo')).toBe('/blog/future-post');
+  });
+
+  it('preserves query params in redirectTo', async () => {
+    mockGetStatus.mockResolvedValue('unpublished');
+    const result = await guardBlogPreview(makeRequest('/blog/future-post?foo=bar'));
+
+    const location = new URL(result!.headers.get('location')!);
+    expect(location.searchParams.get('redirectTo')).toBe('/blog/future-post?foo=bar');
+  });
+
+  it('lets authorized visitors through to unpublished posts', async () => {
+    mockGetStatus.mockResolvedValue('unpublished');
+    const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'correct-password' }));
+    expect(result).toBeNull();
+  });
+
+  it('does not authorize with the wrong cookie value', async () => {
+    mockGetStatus.mockResolvedValue('unpublished');
+    const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'wrong-password' }));
+    expect(result).not.toBeNull();
+  });
+
+  it('does not authorize when BLOG_PREVIEW_PASSWORD is unset', async () => {
+    delete process.env.BLOG_PREVIEW_PASSWORD;
+    mockGetStatus.mockResolvedValue('unpublished');
+    const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'anything' }));
+    expect(result).not.toBeNull();
+  });
+
+  describe('on /blog-preview-auth', () => {
+    it('shows the form when not authorized', async () => {
+      const result = await guardBlogPreview(makeRequest('/blog-preview-auth'));
+      expect(result).toBeNull();
+      expect(mockGetStatus).not.toHaveBeenCalled();
+    });
+
+    it('redirects to /blog by default when already authorized with no redirectTo', async () => {
+      const result = await guardBlogPreview(makeRequest('/blog-preview-auth', { cookie: 'correct-password' }));
+
+      const location = new URL(result!.headers.get('location')!);
+      expect(location.pathname).toBe('/blog');
+    });
+
+    it('redirects to redirectTo when already authorized', async () => {
+      const result = await guardBlogPreview(
+        makeRequest('/blog-preview-auth?redirectTo=%2Fblog%2Ffuture-post', { cookie: 'correct-password' })
+      );
+
+      const location = new URL(result!.headers.get('location')!);
+      expect(location.pathname).toBe('/blog/future-post');
+    });
+
+    it('falls back to /blog for an absolute-URL redirectTo (open redirect guard)', async () => {
+      const result = await guardBlogPreview(
+        makeRequest('/blog-preview-auth?redirectTo=https%3A%2F%2Fevil.com', { cookie: 'correct-password' })
+      );
+
+      const location = new URL(result!.headers.get('location')!);
+      expect(location.pathname).toBe('/blog');
+      expect(location.hostname).toBe('example.com');
+    });
+
+    it('falls back to /blog for a protocol-relative redirectTo (open redirect guard)', async () => {
+      const result = await guardBlogPreview(
+        makeRequest('/blog-preview-auth?redirectTo=%2F%2Fevil.com', { cookie: 'correct-password' })
+      );
+
+      const location = new URL(result!.headers.get('location')!);
+      expect(location.pathname).toBe('/blog');
+      expect(location.hostname).toBe('example.com');
+    });
+  });
+});
