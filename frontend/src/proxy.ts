@@ -1,11 +1,17 @@
 import { type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { getDirectoryRedirect } from './lib/redirect/directoryRedirect';
 
 
 /**
  * Next.js middleware entry point — runs on every matched request before any route renders.
  */
 export async function proxy(request: NextRequest) {
+  const redirect = getDirectoryRedirect(request);
+  if (redirect) {
+    return redirect;
+  }
+
   return await updateSession(request);
 }
 
