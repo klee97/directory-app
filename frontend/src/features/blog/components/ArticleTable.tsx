@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { getAllPosts, getValidPosts } from '@/features/blog/api/getBlogPosts';
+import { PageBlogPost } from '@/features/blog/api/getBlogPosts';
 import { isDevOrPreview } from '@/lib/env/env';
 import { RefreshButton } from './RefreshButton';
 import { BlogContent } from './BlogContent';
@@ -13,18 +13,19 @@ export interface FilterGroup {
   options: string[];
 }
 
-export async function ArticleTable() {
-  const posts = await getAllPosts();
-  const validPosts = getValidPosts(posts);
+interface ArticleTableProps {
+  posts: PageBlogPost[];
+}
 
-  const featuredIndex = validPosts.findIndex((p) =>
+export function ArticleTable({ posts }: ArticleTableProps) {
+  const featuredIndex = posts.findIndex((p) =>
     p.contentfulMetadata?.tags?.some((t) => t?.id === FEATURED_POST_TAG_ID)
   );
-  const featuredPost = featuredIndex !== -1 ? validPosts[featuredIndex] : (validPosts[0] ?? null);
+  const featuredPost = featuredIndex !== -1 ? posts[featuredIndex] : (posts[0] ?? null);
   const remainingPosts =
     featuredIndex !== -1
-      ? validPosts.filter((_, i) => i !== featuredIndex)
-      : validPosts.slice(1);
+      ? posts.filter((_, i) => i !== featuredIndex)
+      : posts.slice(1);
 
   const categorySet = new Set<string>();
   const cultureSet = new Set<string>();
@@ -35,7 +36,7 @@ export async function ArticleTable() {
     return lower === 'uncategorized' || extra.includes(lower);
   };
 
-  for (const post of validPosts) {
+  for (const post of posts) {
     for (const val of post[FILTER_KEY_CATEGORY] ?? []) {
       if (val && !isExcluded(val)) categorySet.add(val);
     }

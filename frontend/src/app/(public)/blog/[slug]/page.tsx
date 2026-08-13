@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
-import previewImage from '@/assets/website_preview.jpeg';
 import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
@@ -9,6 +8,11 @@ import Spotlight from '@/features/blog/components/Spotlight';
 import PasswordGate from '@/components/ui/PasswordGate';
 import { graphQLClient } from '@/lib/contentful/graphqlClient';
 import { GetAllBlogPostsDocument, GetAllBlogPostsQuery } from '@/lib/generated/graphql';
+import { ORG_ID, PHOTO_WEBSITE_PREVIEW_URL, SITE_URL } from '@/seo/constants';
+import { richTextToPlainText } from '@/seo/articlePlaintext';
+import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
+import { BlogPosting } from 'schema-dts';
+import { notFound } from 'next/dist/client/components/navigation';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -36,8 +40,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const isFuture = !isPublishedInEasternTime(post.publishedDate);
-  const fullUrl = `https://www.asianweddingmakeup.com/blog/${post.slug}`;
-  const imageUrl = post.featuredImage?.url || previewImage.src;
+  const fullUrl = `${SITE_URL}/blog/${post.slug}`;
+  const imageUrl = post.featuredImage?.url || PHOTO_WEBSITE_PREVIEW_URL;
 
   return {
     title: `${post.title} | Asian Wedding Makeup`,
@@ -79,8 +83,12 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
 
+  if (!post) {
+    notFound();
+  }
+
   // Gate future posts
-  if (post && !isPublishedInEasternTime(post.publishedDate)) {
+  if (!isPublishedInEasternTime(post.publishedDate)) {
     // Must be inside the component to run at request time for only future posts
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
@@ -95,52 +103,52 @@ export default async function BlogPostPage({ params }: Props) {
   let jsonLd = {};
 
   if (post) {
-    jsonLd = {
-      "@context": "https://schema.org",
+    const blogPosting: BlogPosting = {
       "@type": "BlogPosting",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": `https://www.asianweddingmakeup.com/blog/${slug}`
+        "@id": `${SITE_URL}/blog/${slug}`
       },
-      "headline": post.title,
+      "headline": post.title ?? "",
       "description": post.shortDescription ?? "",
-      "url": `https://www.asianweddingmakeup.com/blog/${slug}`,
-      "datePublished": post.publishedDate,
+      "url": `${SITE_URL}/blog/${slug}`,
+      "datePublished": post.publishedDate ?? undefined,
       "author": {
         "@type": "Person",
         "name": post.author?.name ?? "Unknown",
         "image": post.author?.avatar?.url ? `https:${post.author.avatar.url}` : undefined
       },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Asian Wedding Makeup",
-        "logo": {
-          "@type": "ImageObject",
-          "url": previewImage.src
-        }
+      "isPartOf": {
+        "@id": `${SITE_URL}/blog#webpage`
       },
-      "image": post.featuredImage?.url ?? previewImage.src,
-      "articleBody": post.content?.json ? post.content.json : ""
+      "publisher": {
+        "@id": ORG_ID
+      },
+      "image": post.featuredImage?.url ?? PHOTO_WEBSITE_PREVIEW_URL,
+      "articleBody": richTextToPlainText(post.content?.json)
     };
-  }
-  const isSpotlight = post?.contentfulMetadata?.tags?.some(tag => tag?.id === "makeupArtistSpotlight");
-  return (
-    <>
-      <section>
-        {post && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
+
+    jsonLd = jsonLdGraph([blogPosting]);
+
+    const isSpotlight = post?.contentfulMetadata?.tags?.some(tag => tag?.id === "makeupArtistSpotlight");
+    return (
+      <>
+        <section>
+          {post && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
+            />
+          )}
+        </section>
+        <BackButton fallbackHref="/blog" />
+        {isSpotlight ? (
+          <Spotlight post={post} />
+        ) : (
+          <Article post={post} />
         )}
-      </section>
-      <BackButton fallbackHref="/blog" />
-      {isSpotlight ? (
-        <Spotlight post={post} />
-      ) : (
-        <Article post={post} />
-      )}
-      <Scroll showBelow={300} />
-    </>
-  )
+        <Scroll showBelow={300} />
+      </>
+    )
+  }
 }
