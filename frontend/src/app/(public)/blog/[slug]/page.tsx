@@ -12,6 +12,7 @@ import { ORG_ID, PHOTO_WEBSITE_PREVIEW_URL, SITE_URL } from '@/seo/constants';
 import { richTextToPlainText } from '@/seo/articlePlaintext';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { BlogPosting } from 'schema-dts';
+import { notFound } from 'next/dist/client/components/navigation';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -82,8 +83,12 @@ export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
 
+  if (!post) {
+    notFound();
+  }
+
   // Gate future posts
-  if (post && !isPublishedInEasternTime(post.publishedDate)) {
+  if (!isPublishedInEasternTime(post.publishedDate)) {
     // Must be inside the component to run at request time for only future posts
     const { cookies } = await import('next/headers');
     const cookieStore = await cookies();
