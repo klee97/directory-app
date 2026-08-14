@@ -128,3 +128,11 @@ query GetBlogPostBySlug($slug: String!) {
     }
   }
 }
+
+query GetBlogPostStatus($slug: String!) {
+  pageBlogPostCollection(where: { slug: $slug }, limit: 1) {
+    items {
+      publishedDate
+    }
+  }
+}

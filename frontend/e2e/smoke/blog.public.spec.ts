@@ -268,10 +268,12 @@ test.describe('Future blog posts and password gating', () => {
     await expect(page.getByText('Test Portrait Bridal Shoot')).toBeVisible();
   });
 
-  test('accessing a future post directly shows password gate', async ({ page }) => {
+  test('accessing a future post redirects to the password gate', async ({ page }) => {
     await page.goto('/blog/test-future-exclusive-preview');
 
-    // Password gate should appear
+    // Middleware redirect — URL should change to the gate page
+    await expect(page).toHaveURL(/\/blog-preview-auth\?redirectTo=/);
+
     const passwordInput = page.getByPlaceholder('Password');
     const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
 
@@ -282,8 +284,9 @@ test.describe('Future blog posts and password gating', () => {
     await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).not.toBeVisible();
   });
 
-  test('wrong password on future post shows error', async ({ page }) => {
+  test('wrong password on future post shows error and stays on the gate', async ({ page }) => {
     await page.goto('/blog/test-future-exclusive-preview');
+    await expect(page).toHaveURL(/\/blog-preview-auth/);
 
     const passwordInput = page.getByPlaceholder('Password');
     const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
@@ -295,13 +298,28 @@ test.describe('Future blog posts and password gating', () => {
 
     // Error message should appear
     await expect(page.getByText('Incorrect password. Please try again.')).toBeVisible();
-
-    // Content should still not be visible
-    await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).not.toBeVisible();
+    await expect(page).toHaveURL(/\/blog-preview-auth/);
   });
 
-  test('correct password grants access to future post', async ({ page }) => {
-    // Set the preview auth cookie with the correct password
+  test('correct password redirects back to the original future post', async ({ page }) => {
+    await page.goto('/blog/test-future-exclusive-preview');
+    await expect(page).toHaveURL(/\/blog-preview-auth\?redirectTo=/);
+
+    const passwordInput = page.getByPlaceholder('Password');
+    const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
+
+    await passwordInput.click();
+    await passwordInput.pressSequentially(previewPassword);
+    await submitButton.click();
+
+    // Hard nav back to the originally-requested post, middleware re-checks and lets it through
+    await expect(page).toHaveURL(/\/blog\/test-future-exclusive-preview$/);
+    await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).toBeVisible();
+    await expect(page.getByText('An exclusive preview of an upcoming collection.')).toBeVisible();
+  });
+
+  test('correct cookie grants direct access without hitting the gate', async ({ page }) => {
     const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
     await page.context().addCookies([
       {
@@ -313,13 +331,30 @@ test.describe('Future blog posts and password gating', () => {
 
     await page.goto('/blog/test-future-exclusive-preview');
 
-    // Password gate should not appear
+    // No redirect this time — middleware lets it straight through
+    await expect(page).toHaveURL(/\/blog\/test-future-exclusive-preview$/);
     const passwordInput = page.getByPlaceholder('Password');
     await expect(passwordInput).not.toBeVisible();
 
     // Future post content should be visible
     await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).toBeVisible();
-    await expect(page.getByText('An exclusive preview of an upcoming collection.')).toBeVisible();
+  });
+
+  test('already-authenticated visit to the gate page bounces straight through', async ({ page }) => {
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
+    await page.context().addCookies([
+      {
+        name: 'preview-auth',
+        value: previewPassword,
+        url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+      }
+    ]);
+
+    await page.goto('/blog-preview-auth');
+
+    // No redirectTo given -> falls back to /blog, no password form shown
+    await expect(page).toHaveURL(/\/blog$/);
+    await expect(page.getByRole('heading', { name: 'Blog', level: 1 })).toBeVisible();
   });
 
   test('published posts are not password-gated even without preview cookie', async ({ page }) => {
@@ -332,5 +367,41 @@ test.describe('Future blog posts and password gating', () => {
     // Published post content should be visible
     await expect(page.getByRole('heading', { name: 'Test Featured Wedding Guide' })).toBeVisible();
     await expect(page.getByText('A comprehensive guide to planning your dream wedding.')).toBeVisible();
+  });
+
+  test('rejects an external redirectTo and lands on /blog instead', async ({ page }) => {
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
+    await page.context().addCookies([
+      {
+        name: 'preview-auth',
+        value: previewPassword,
+        url: process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000',
+      }
+    ]);
+
+    await page.goto('/blog-preview-auth?redirectTo=https%3A%2F%2Fevil.com');
+
+    // Already authenticated -> middleware redirects immediately, but must
+    // fall back to same-origin /blog rather than honoring the external target.
+    await expect(page).toHaveURL(/\/blog$/);
+    const currentUrl = new URL(page.url());
+    expect(currentUrl.hostname).not.toBe('evil.com');
+  });
+
+  test('rejects an external redirectTo on manual password submission', async ({ page }) => {
+    await page.goto('/blog-preview-auth?redirectTo=https%3A%2F%2Fevil.com');
+
+    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD || 'test-preview-password';
+    const passwordInput = page.getByPlaceholder('Password');
+    const submitButton = page.locator('button').filter({ has: page.locator('svg[data-testid*="ArrowForwardIcon"]') });
+
+    await passwordInput.click();
+    await passwordInput.pressSequentially(previewPassword);
+    await submitButton.click();
+
+    // PasswordGate's client-side redirect must also refuse the external target.
+    await expect(page).toHaveURL(/\/blog$/);
+    const currentUrl = new URL(page.url());
+    expect(currentUrl.hostname).not.toBe('evil.com');
   });
 });

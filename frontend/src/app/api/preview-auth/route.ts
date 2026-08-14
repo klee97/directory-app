@@ -1,6 +1,7 @@
 import { isProduction } from '@/lib/env/env'
 import { apiError, apiSuccess } from '@/lib/api/respond'
 import { NextRequest } from 'next/server'
+import { PREVIEW_COOKIE } from '@/lib/blogPreview/constants'
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
@@ -10,7 +11,7 @@ export async function POST(req: NextRequest) {
   }
 
   const response = apiSuccess({})
-  response.cookies.set('preview-auth', process.env.BLOG_PREVIEW_PASSWORD!, {
+  response.cookies.set(PREVIEW_COOKIE, process.env.BLOG_PREVIEW_PASSWORD!, {
     httpOnly: true,
     secure: isProduction(),
     sameSite: 'lax',

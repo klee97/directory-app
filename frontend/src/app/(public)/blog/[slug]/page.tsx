@@ -3,9 +3,8 @@ import { getPostBySlug } from '@/features/blog/api/getBlogPosts';
 import { isPublishedInEasternTime } from '@/lib/dateUtils';
 import Article from '@/features/blog/components/Article';
 import Scroll from '@/components/ui/Scroll';
-import BackButton from '@/components/ui/BackButton';
+import BackToBlogsButton from '@/components/ui/BackToBlogsButton';
 import Spotlight from '@/features/blog/components/Spotlight';
-import PasswordGate from '@/components/ui/PasswordGate';
 import { graphQLClient } from '@/lib/contentful/graphqlClient';
 import { GetAllBlogPostsDocument, GetAllBlogPostsQuery } from '@/lib/generated/graphql';
 import { ORG_ID, PHOTO_WEBSITE_PREVIEW_URL, SITE_URL } from '@/seo/constants';
@@ -17,8 +16,6 @@ import { notFound } from 'next/dist/client/components/navigation';
 type Props = {
   params: Promise<{ slug: string }>
 }
-
-export const dynamic = 'force-dynamic';
 
 export async function generateStaticParams() {
   const { pageBlogPostCollection } = await graphQLClient.request<GetAllBlogPostsQuery>(GetAllBlogPostsDocument);
@@ -87,19 +84,6 @@ export default async function BlogPostPage({ params }: Props) {
     notFound();
   }
 
-  // Gate future posts
-  if (!isPublishedInEasternTime(post.publishedDate)) {
-    // Must be inside the component to run at request time for only future posts
-    const { cookies } = await import('next/headers');
-    const cookieStore = await cookies();
-    const previewCookie = cookieStore.get('preview-auth');
-    const previewPassword = process.env.BLOG_PREVIEW_PASSWORD;
-    const authorized = Boolean(previewPassword) && previewCookie?.value === previewPassword;
-    if (!authorized) {
-      return <PasswordGate redirectTo={`/blog/${slug}`} />
-    }
-  }
-
   let jsonLd = {};
 
   if (post) {
@@ -141,7 +125,7 @@ export default async function BlogPostPage({ params }: Props) {
             />
           )}
         </section>
-        <BackButton fallbackHref="/blog" />
+        <BackToBlogsButton />
         {isSpotlight ? (
           <Spotlight post={post} />
         ) : (
