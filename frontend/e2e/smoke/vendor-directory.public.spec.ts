@@ -11,6 +11,14 @@ import { refreshVendors } from '../fixtures/devToolHelpers';
  *       tags: Hair (service, style=primary)
  */
 
+
+test.beforeAll(async ({ browser }) => {
+  const page = await browser.newPage();
+  await page.goto('/');
+  await refreshVendors(page);
+  await page.close();
+});
+
 test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   test.beforeAll(async ({ browser }) => {
     // After supabase db reset the Next.js unstable_cache is stale.

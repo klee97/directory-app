@@ -7,7 +7,7 @@ import NearbyVendorsClient from './NearbyVendorsClient';
 export default async function NearbyVendors({ vendor, resolvedLocation }: { vendor: Vendor, resolvedLocation: string }) {
   let nearbyVendors: Vendor[] = [];
 
-  if (vendor.latitude && vendor.longitude) {
+  if (vendor.latitude != null && vendor.longitude != null) {
     const allNearbyVendors = await getVendorsByDistanceWithFallback(
       vendor.latitude,
       vendor.longitude,

@@ -5,6 +5,7 @@ import { Vendor } from '@/types/vendor';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
+import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 
 interface NearbyVendorsClientProps {
   vendors: Vendor[];
@@ -15,12 +16,12 @@ export default function NearbyVendorsClient({ vendors, resolvedLocation }: Nearb
   const searchParams = useSearchParams();
 
   const filterContext = {
-    lat: searchParams.get('lat') ? parseFloat(searchParams.get('lat')!) : null,
-    lon: searchParams.get('lon') ? parseFloat(searchParams.get('lon')!) : null,
-    selectedSkills: searchParams.get('skills')?.split(',') ?? [],
-    selectedServices: searchParams.get('services')?.split(',') ?? [],
-    travelsWorldwide: searchParams.get('travelsWorldwide') === 'true',
-    searchQuery: searchParams.get('q') || null,
+    lat: searchParams.get(LATITUDE_PARAM) ? parseFloat(searchParams.get(LATITUDE_PARAM)!) : null,
+    lon: searchParams.get(LONGITUDE_PARAM) ? parseFloat(searchParams.get(LONGITUDE_PARAM)!) : null,
+    selectedSkills: searchParams.get(SKILL_PARAM)?.split(',') ?? [],
+    selectedServices: searchParams.get(SERVICE_PARAM)?.split(',') ?? [],
+    travelsWorldwide: searchParams.get(TRAVEL_PARAM) === 'true',
+    searchQuery: searchParams.get(SEARCH_PARAM) || null,
   };
 
   return (
