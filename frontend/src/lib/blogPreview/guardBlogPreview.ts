@@ -42,9 +42,15 @@ export function safeRedirectTarget(
 }
 
 export async function guardBlogPreview(request: NextRequest): Promise<NextResponse | null> {
+  const isLoginPath = request.nextUrl.pathname === PREVIEW_LOGIN_PATH;
+  const match = request.nextUrl.pathname.match(BLOG_SLUG_PATTERN);
+
+  // Neither the gate page nor a blog post — nothing for this guard to do.
+  if (!isLoginPath && !match) return null;
+
   const authorized = isAuthorized(request);
 
-  if (request.nextUrl.pathname === PREVIEW_LOGIN_PATH) {
+  if (isLoginPath) {
     if (!authorized) return null;
     const url = request.nextUrl.clone();
     const { pathname, search } = safeRedirectTarget(request.nextUrl.searchParams.get('redirectTo'));
@@ -53,10 +59,8 @@ export async function guardBlogPreview(request: NextRequest): Promise<NextRespon
     return NextResponse.redirect(url);
   }
 
-  const match = request.nextUrl.pathname.match(BLOG_SLUG_PATTERN);
-  if (!match) return null;
-
-  const status = await getBlogPublishStatus(match[1]);
+  // match is guaranteed non-null here since isLoginPath was false and the early-return covered the other case.
+  const status = await getBlogPublishStatus(match![1]);
   if (status !== 'unpublished') return null;
   if (authorized) return null;
 
