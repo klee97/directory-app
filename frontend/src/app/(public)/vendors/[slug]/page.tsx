@@ -6,8 +6,6 @@ import { Vendor } from '@/types/vendor';
 import BackButton from '@/components/ui/BackButton';
 import { Suspense } from 'react';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
-import { getVendorsByDistanceWithFallback } from '@/features/directory/api/fetchVendorsByLocation';
-import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
@@ -18,6 +16,8 @@ import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { SITE_URL, WEBSITE_ID, ORG_ID, WEBSITE_PREVIEW_URL } from '@/seo/constants';
 import { toIsoCountryCode } from '@/lib/location/getCountryCode';
 import { getDefaultBio } from '@/features/profile/common/utils/bio';
+import { NearbyVendorsSkeleton } from '@/features/profile/common/components/NearbyVendorsSkeleton';
+import NearbyVendors from '@/features/profile/common/components/NearbyVendors';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -72,24 +72,6 @@ export default async function VendorPage({ params }: PageProps) {
   if (!vendor) {
     console.error(`Vendor with slug ${slug} not found in cache.`);
     notFound(); // Return 404 if vendor is not found
-  }
-
-  // Get nearby vendors using your existing function
-  let nearbyVendors: Vendor[] = [];
-
-  if (vendor.latitude && vendor.longitude) {
-    const allNearbyVendors = await getVendorsByDistanceWithFallback(
-      vendor.latitude,
-      vendor.longitude,
-      vendor.country,
-      SEARCH_RADIUS_MILES_DEFAULT,
-      10  // Get more results to filter from
-    );
-
-    // Filter out the current vendor and sort by premium status
-    nearbyVendors = allNearbyVendors
-      .filter(v => v.id !== vendor.id)
-      .sort((a, b) => Number(b.is_premium || b.verified_at) - Number(a.is_premium || a.verified_at))
   }
 
   const address = {
@@ -169,6 +151,7 @@ export default async function VendorPage({ params }: PageProps) {
   };
 
   const jsonLd = jsonLdGraph([localBusiness, breadcrumbList, profilePage]);
+  const resolvedLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
 
   return (
     <>
@@ -186,7 +169,11 @@ export default async function VendorPage({ params }: PageProps) {
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
         </Container>
       </Suspense>
-      <VendorProfile vendor={vendor} vendorDescription={vendorDescription} nearbyVendors={nearbyVendors} />
+      <VendorProfile vendor={vendor} vendorDescription={vendorDescription}>
+        <Suspense fallback={<NearbyVendorsSkeleton resolvedLocation={resolvedLocation} />}>
+          <NearbyVendors vendor={vendor} resolvedLocation={resolvedLocation} />
+        </Suspense>
+      </VendorProfile>
     </>
   );
 }

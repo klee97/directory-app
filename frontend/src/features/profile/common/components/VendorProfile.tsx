@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useMemo } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -22,11 +22,8 @@ import { Vendor } from '@/types/vendor';
 import { getFavoriteVendorIds } from '@/features/favorites/api/getUserFavorites';
 import FavoriteButton from '@/features/favorites/components/FavoriteButton';
 import { hasTagByName, VendorSpecialty } from '@/types/tag';
-import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { Divider } from '@mui/material';
 import { PhotoCarousel } from '@/components/layouts/PhotoCarousel';
-import { useSearchParams } from 'next/navigation';
-import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
 import FilterChip from '@/components/ui/FilterChip';
 import LeadCaptureForm from '@/features/contact/components/LeadCaptureForm';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -132,10 +129,10 @@ const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boole
 interface VendorDetailsProps {
   vendor: Vendor;
   vendorDescription: string;
-  nearbyVendors?: Vendor[];
+  children?: React.ReactNode;
 }
 
-export default function VendorDetails({ vendor, vendorDescription, nearbyVendors }: VendorDetailsProps) {
+export default function VendorDetails({ vendor, vendorDescription, children }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(true)
@@ -146,13 +143,6 @@ export default function VendorDetails({ vendor, vendorDescription, nearbyVendors
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
   const { array: randomizedImageList } = shuffleMediaWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
-  const searchParams = useSearchParams();
-  const lat = searchParams?.get(LATITUDE_PARAM);
-  const lon = searchParams?.get(LONGITUDE_PARAM);
-  const travelsWorldwide = searchParams?.get(TRAVEL_PARAM) === "true";
-  const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
-  const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
-  const searchQuery = searchParams?.get(SEARCH_PARAM);
 
   const allowlistIds = process.env.NEXT_PUBLIC_ALLOWLIST_VENDOR_SLUGS?.split(',') || [];
   const isAllowlisted = vendor.slug ? allowlistIds.includes(vendor.slug) : false;
@@ -537,24 +527,7 @@ export default function VendorDetails({ vendor, vendorDescription, nearbyVendors
               <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Grid>
           </Grid>
-          {nearbyVendors && nearbyVendors.length > 0 && (
-            <Box>
-              <Divider sx={{ mt: 20, mb: 4 }} />
-              <VendorCarousel
-                vendors={nearbyVendors}
-                title={`More wedding makeup artists for Asian features near ${resolvedLocation}`}
-                filterContext={{
-                  lat: lat ? parseFloat(lat) : null,
-                  lon: lon ? parseFloat(lon) : null,
-                  selectedSkills: selectedSkills,
-                  selectedServices: selectedServices,
-                  travelsWorldwide: travelsWorldwide,
-                  searchQuery: searchQuery || null
-                }}
-              >
-              </VendorCarousel>
-            </Box>
-          )}
+          {children}
         </Container >
       </Box >
     </>
