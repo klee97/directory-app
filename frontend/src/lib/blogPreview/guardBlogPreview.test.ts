@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
-import { guardBlogPreview } from './passwordGuard';
+import { guardBlogPreview, safeRedirectTarget } from './guardBlogPreview';
 import { getBlogPublishStatus } from '@/features/blog/api/getBlogPublishStatus';
 
 vi.mock('@/features/blog/api/getBlogPublishStatus', () => ({
@@ -68,6 +68,12 @@ describe('guardBlogPreview', () => {
     expect(result).toBeNull();
   });
 
+  it('does not redirect an authorized visitor away from an actual blog post', async () => {
+    mockGetStatus.mockResolvedValue('published');
+    const result = await guardBlogPreview(makeRequest('/blog/some-published-post', { cookie: 'correct-password' }));
+    expect(result).toBeNull();
+  });
+
   it('does not authorize with the wrong cookie value', async () => {
     mockGetStatus.mockResolvedValue('unpublished');
     const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'wrong-password' }));
@@ -122,6 +128,43 @@ describe('guardBlogPreview', () => {
       const location = new URL(result!.headers.get('location')!);
       expect(location.pathname).toBe('/blog');
       expect(location.hostname).toBe('example.com');
+    });
+  });
+
+  describe('safeRedirectTarget', () => {
+    it('preserves the query string of a safe relative path', () => {
+      const result = safeRedirectTarget('/blog/future-post?foo=bar&baz=qux');
+      expect(result).toEqual({ pathname: '/blog/future-post', search: '?foo=bar&baz=qux' });
+    });
+
+    it('falls back to /blog for a backslash-prefixed target', () => {
+      const result = safeRedirectTarget('/\\evil.com');
+      expect(result).toEqual({ pathname: '/blog', search: '' });
+    });
+
+    it('falls back to /blog for a double-backslash target', () => {
+      const result = safeRedirectTarget('\\\\evil.com');
+      expect(result).toEqual({ pathname: '/blog', search: '' });
+    });
+
+    it('falls back to /blog for a backslash embedded mid-path', () => {
+      const result = safeRedirectTarget('/blog\\@evil.com');
+      expect(result).toEqual({ pathname: '/blog', search: '' });
+    });
+
+    it('falls back to /blog for a protocol-relative target', () => {
+      const result = safeRedirectTarget('//evil.com');
+      expect(result).toEqual({ pathname: '/blog', search: '' });
+    });
+
+    it('falls back to /blog for an absolute external URL', () => {
+      const result = safeRedirectTarget('https://evil.com/phishing');
+      expect(result).toEqual({ pathname: '/blog', search: '' });
+    });
+
+    it('falls back to /blog for null or empty input', () => {
+      expect(safeRedirectTarget(null)).toEqual({ pathname: '/blog', search: '' });
+      expect(safeRedirectTarget('')).toEqual({ pathname: '/blog', search: '' });
     });
   });
 });

@@ -1,14 +1,25 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
-import { guardBlogPreview } from './lib/blogPreview/passwordGuard';
+import { guardBlogPreview } from './lib/blogPreview/guardBlogPreview';
 
 
 /**
  * Next.js middleware entry point — runs on every matched request before any route renders.
  */
 export async function proxy(request: NextRequest) {
-  const blogGate = await guardBlogPreview(request);
+  let blogGate: NextResponse | null;
+  try {
+    blogGate = await guardBlogPreview(request);
+  } catch (error) {
+    console.error('guardBlogPreview failed, failing closed:', error);
+    return new NextResponse('Service temporarily unavailable', {
+      status: 503,
+      headers: { 'Retry-After': '30' },
+    });
+  }
+
   if (blogGate) return blogGate;
+
 
   return await updateSession(request);
 }

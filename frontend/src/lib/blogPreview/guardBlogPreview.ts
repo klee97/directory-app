@@ -11,10 +11,34 @@ function isAuthorized(request: NextRequest): boolean {
   return Boolean(previewPassword) && cookie === previewPassword;
 }
 
-function safeRedirectTarget(request: NextRequest): string {
-  const redirectTo = request.nextUrl.searchParams.get('redirectTo');
-  const isSafeRelativePath = Boolean(redirectTo) && redirectTo!.startsWith('/') && !redirectTo!.startsWith('//');
-  return isSafeRelativePath ? redirectTo! : '/blog';
+const SAFE_BASE_ORIGIN = 'http://localhost';
+
+export function safeRedirectTarget(
+  rawRedirectTo: string | null | undefined
+): { pathname: string; search: string } {
+  const fallback = { pathname: '/blog', search: '' };
+
+  if (!rawRedirectTo) return fallback;
+
+  // Backslashes are normalized to forward slashes by URL parsers for special
+  // schemes (http/https). "/\evil.com" would otherwise slip past a naive
+  // startsWith('/') check and resolve to protocol-relative "//evil.com".
+  // Reject outright rather than relying on parser normalization alone.
+  if (rawRedirectTo.includes('\\')) return fallback;
+
+  let parsed: URL;
+  try {
+    parsed = new URL(rawRedirectTo, SAFE_BASE_ORIGIN);
+  } catch {
+    return fallback;
+  }
+
+  // Parsing against a fixed placeholder origin means anything that changes
+  // origin — absolute URL, protocol-relative "//host", embedded scheme —
+  // fails this check. Only true same-origin relative paths survive.
+  if (parsed.origin !== SAFE_BASE_ORIGIN) return fallback;
+
+  return { pathname: parsed.pathname, search: parsed.search };
 }
 
 export async function guardBlogPreview(request: NextRequest): Promise<NextResponse | null> {
@@ -23,8 +47,9 @@ export async function guardBlogPreview(request: NextRequest): Promise<NextRespon
   if (request.nextUrl.pathname === PREVIEW_LOGIN_PATH) {
     if (!authorized) return null;
     const url = request.nextUrl.clone();
-    url.pathname = safeRedirectTarget(request);
-    url.search = '';
+    const { pathname, search } = safeRedirectTarget(request.nextUrl.searchParams.get('redirectTo'));
+    url.pathname = pathname;
+    url.search = search;
     return NextResponse.redirect(url);
   }
 
