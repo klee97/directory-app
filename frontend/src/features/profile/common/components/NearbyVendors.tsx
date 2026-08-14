@@ -21,8 +21,6 @@ export default async function NearbyVendors({ vendor, resolvedLocation }: { vend
       .sort((a, b) => Number(b.is_premium || b.verified_at) - Number(a.is_premium || a.verified_at));
   }
 
-  console.log(`Found ${nearbyVendors.length} nearby vendors for ${vendor.business_name} (${vendor.slug})`);
-
   if (nearbyVendors.length === 0) return null;
 
   return <NearbyVendorsClient vendors={nearbyVendors} resolvedLocation={resolvedLocation} />;
