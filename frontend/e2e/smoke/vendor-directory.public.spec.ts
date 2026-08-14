@@ -121,3 +121,22 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
     await expect(page.getByText('Test Bridal Beauty Co')).toBeVisible();
   });
 });
+
+test.describe('Vendor profile — nearby vendors', { tag: '@mobile' }, () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/vendors/test-glamour-studio');
+  });
+
+  test('nearby vendors carousel streams in below the fold', async ({ page }) => {
+    // Fold content (hero/profile) should be visible immediately
+    await expect(page.getByRole('heading', { name: 'Test Glamour Studio' })).toBeVisible();
+
+    // Carousel title renders once resolvedLocation is known — no fetch wait needed
+    // for the heading itself, only the cards inside it
+    await expect(page.getByText(/More wedding makeup artists for Asian features near/)).toBeVisible();
+
+    // The other seeded vendor should appear as a nearby card once streamed
+    const carousel = page.locator('[href*="test-vendor-3"]');
+    await expect(carousel).toBeVisible();
+  });
+});
