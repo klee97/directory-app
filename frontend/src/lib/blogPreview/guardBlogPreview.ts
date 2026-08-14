@@ -13,6 +13,16 @@ function isAuthorized(request: NextRequest): boolean {
 
 const SAFE_BASE_ORIGIN = 'http://localhost';
 
+function safeDecodeSlug(rawSlug: string): string {
+  try {
+    return decodeURIComponent(rawSlug);
+  } catch {
+    // Malformed percent-encoding — fall back to the raw value rather than
+    // throwing; getBlogPublishStatus will simply find no match for it.
+    return rawSlug;
+  }
+}
+
 export function safeRedirectTarget(
   rawRedirectTo: string | null | undefined
 ): { pathname: string; search: string } {
@@ -59,10 +69,14 @@ export async function guardBlogPreview(request: NextRequest): Promise<NextRespon
     return NextResponse.redirect(url);
   }
 
-  // match is guaranteed non-null here since isLoginPath was false and the early-return covered the other case.
-  const status = await getBlogPublishStatus(match![1]);
-  if (status !== 'unpublished') return null;
+  // Authorized visitors don't need a publish-status lookup at all — skip the
+  // Contentful call entirely rather than checking `authorized` after the fact.
   if (authorized) return null;
+
+  // match is guaranteed non-null here since isLoginPath was false and the early-return covered the other case.
+  const slug = safeDecodeSlug(match![1]);
+  const status = await getBlogPublishStatus(slug);
+  if (status !== 'unpublished') return null;
 
   const url = request.nextUrl.clone();
   const redirectTo = request.nextUrl.pathname + request.nextUrl.search;

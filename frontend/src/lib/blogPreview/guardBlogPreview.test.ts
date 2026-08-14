@@ -44,6 +44,26 @@ describe('guardBlogPreview', () => {
     expect(result).toBeNull();
   });
 
+  it('decodes a percent-encoded unpublished slug before lookup', async () => {
+    mockGetStatus.mockImplementation(async (slug) =>
+      slug === 'café-wedding' ? 'unpublished' : 'published'
+    );
+    const result = await guardBlogPreview(makeRequest('/blog/caf%C3%A9-wedding'));
+
+    expect(result).not.toBeNull();
+    expect(mockGetStatus).toHaveBeenCalledWith('café-wedding');
+  });
+
+  it('falls back to the raw slug when percent-encoding is malformed', async () => {
+    mockGetStatus.mockResolvedValue('not-found');
+    // "%E0%A4%A" is a truncated/invalid UTF-8 percent sequence — decodeURIComponent
+    // would throw on this; guardBlogPreview should catch it and use the raw string.
+    const result = await guardBlogPreview(makeRequest('/blog/bad-%E0%A4%A-slug'));
+
+    expect(result).toBeNull(); // not-found -> passes through, doesn't crash
+    expect(mockGetStatus).toHaveBeenCalledWith('bad-%E0%A4%A-slug');
+  });
+
   it('redirects unauthorized visitors away from unpublished posts', async () => {
     mockGetStatus.mockResolvedValue('unpublished');
     const result = await guardBlogPreview(makeRequest('/blog/future-post'));
@@ -63,9 +83,15 @@ describe('guardBlogPreview', () => {
   });
 
   it('lets authorized visitors through to unpublished posts', async () => {
-    mockGetStatus.mockResolvedValue('unpublished');
     const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'correct-password' }));
     expect(result).toBeNull();
+    expect(mockGetStatus).not.toHaveBeenCalled();
+  });
+
+  it('skips the publish-status lookup entirely for authorized visitors', async () => {
+    const result = await guardBlogPreview(makeRequest('/blog/future-post', { cookie: 'correct-password' }));
+    expect(result).toBeNull();
+    expect(mockGetStatus).not.toHaveBeenCalled();
   });
 
   it('does not redirect an authorized visitor away from an actual blog post', async () => {
