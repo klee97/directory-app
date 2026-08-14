@@ -280,6 +280,7 @@ test.describe('Future blog posts and password gating', () => {
     await expect(passwordInput).toBeVisible();
     await expect(submitButton).toBeVisible();
 
+    // Future post content should not be visible
     await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).not.toBeVisible();
   });
 
@@ -295,6 +296,7 @@ test.describe('Future blog posts and password gating', () => {
     await expect(submitButton).toBeEnabled();
     await submitButton.click();
 
+    // Error message should appear
     await expect(page.getByText('Incorrect password. Please try again.')).toBeVisible();
     await expect(page).toHaveURL(/\/blog-preview-auth/);
   });
@@ -333,6 +335,8 @@ test.describe('Future blog posts and password gating', () => {
     await expect(page).toHaveURL(/\/blog\/test-future-exclusive-preview$/);
     const passwordInput = page.getByPlaceholder('Password');
     await expect(passwordInput).not.toBeVisible();
+
+    // Future post content should be visible
     await expect(page.getByRole('heading', { name: 'Test Future Exclusive Preview' })).toBeVisible();
   });
 

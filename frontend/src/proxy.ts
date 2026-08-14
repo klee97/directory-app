@@ -20,7 +20,6 @@ export async function proxy(request: NextRequest) {
 
   if (blogGate) return blogGate;
 
-
   return await updateSession(request);
 }
 
