@@ -118,6 +118,7 @@ export function NewsletterForm() {
                 color="primary"
                 sx={{ flexShrink: 0 }}
                 disabled={isSubmitting}
+                onFocus={() => setRecaptchaLoaded(true)}
                 onMouseEnter={() => setRecaptchaLoaded(true)}
                 onTouchStart={() => setRecaptchaLoaded(true)}
               >
