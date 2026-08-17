@@ -3,15 +3,10 @@
 import { useEffect } from 'react'
 import Script from 'next/script'
 import { GoogleTagManager } from '@next/third-parties/google'
-import { GoogleAnalytics } from '@next/third-parties/google'
 import { getAnalyticsConfig, getEnvironment, isDevOrPreview } from '@/lib/env/env'
 
 interface ConditionalAnalyticsProps {
   gtmId?: string
-}
-
-interface ConditionalGAProps {
-  gaId?: string
 }
 
 interface ConditionalClarityProps {
@@ -26,16 +21,6 @@ const ConditionalGTM: React.FC<ConditionalAnalyticsProps> = ({ gtmId }) => {
   }
   
   return <GoogleTagManager gtmId={gtmId} />
-}
-
-const ConditionalGA: React.FC<ConditionalGAProps> = ({ gaId }) => {
-  const analyticsConfig = getAnalyticsConfig()
-  
-  if (!analyticsConfig.enabled || !gaId) {
-    return null
-  }
-  
-  return <GoogleAnalytics gaId={gaId} />
 }
 
 const ConditionalClarity: React.FC<ConditionalClarityProps> = ({ clarityId }) => {
@@ -115,7 +100,7 @@ const AnalyticsLogger: React.FC = () => {
 }
 
 // Export individual components for use in layout
-export { ConditionalGTM, ConditionalGA, ConditionalClarity, ConditionalGTMNoScript }
+export { ConditionalGTM, ConditionalClarity, ConditionalGTMNoScript }
 
 // Main Analytics component for backward compatibility
 const Analytics: React.FC = () => {

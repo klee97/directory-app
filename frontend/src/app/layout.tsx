@@ -8,8 +8,8 @@ import { NotificationManager } from '@/components/common/NotificationManager';
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
 import { Suspense } from "react";
-import { ConditionalClarity, ConditionalGA, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
-import { DEFAULT_CLARITY_ID, DEFAULT_GA_ID, DEFAULT_GTM_ID } from "@/lib/constants";
+import { ConditionalClarity, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
+import { DEFAULT_CLARITY_ID, DEFAULT_GTM_ID } from "@/lib/constants";
 import { prewarmLocationSlugCache } from "@/lib/location/locationSlugs";
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { UserContextTracker } from "@/components/analytics/UserContextTracker";
@@ -103,7 +103,6 @@ export default function RootLayout({
         </AuthProvider>
         <Analytics />
       </body>
-      <ConditionalGA gaId={process.env.NEXT_PUBLIC_GA_ID || DEFAULT_GA_ID} />
     </html>
   );
 }
