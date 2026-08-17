@@ -19,12 +19,23 @@ export function NewsletterForm() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError("");
     setSubmitted(false);
+
+    // reCAPTCHA is lazy-mounted (see recaptchaLoaded below) — if it somehow
+    // hasn't finished loading by submit time (e.g. instant autofill + submit),
+    // mount it now and bail so the user can resubmit once it's ready.
+    if (!recaptchaRef.current) {
+      setRecaptchaLoaded(true);
+      setError("Please try submitting again.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -32,7 +43,7 @@ export function NewsletterForm() {
         (await recaptchaRef.current?.executeAsync()) ??
         (isDevOrPreview() ? "test-bypass" : null);
 
-      if (!recaptchaToken) {
+        if (!recaptchaToken) {
         setError("CAPTCHA verification failed. Please try again.");
         return;
       }
@@ -89,43 +100,30 @@ export function NewsletterForm() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onFocus={() => setRecaptchaLoaded(true)}
                 required
                 fullWidth
               />
-              <ReCaptcha
-                ref={recaptchaRef}
-                size="invisible"
-                onExpired={() => console.warn("reCAPTCHA expired")}
-                onErrored={() => console.warn("reCAPTCHA errored")}
-              />
+              {recaptchaLoaded && (
+                <ReCaptcha
+                  ref={recaptchaRef}
+                  size="invisible"
+                  onExpired={() => console.warn("reCAPTCHA expired")}
+                  onErrored={() => console.warn("reCAPTCHA errored")}
+                />
+              )}
               <Button
                 type="submit"
                 variant="contained"
                 color="primary"
                 sx={{ flexShrink: 0 }}
                 disabled={isSubmitting}
+                onMouseEnter={() => setRecaptchaLoaded(true)}
+                onTouchStart={() => setRecaptchaLoaded(true)}
               >
                 Sign up
               </Button>
             </Box>
-
-            {/* <Typography variant="subtitle1">I am interested in...</Typography> */}
-            {/* <FormGroup sx={{ display: "flex", alignItems: "left" }}>
-              {reasons.map((option) => (
-                <FormControlLabel
-                  key={option.value}
-                  control={
-                    <Checkbox
-                      checked={formData.reasons.includes(option.value)}
-                      onChange={() => handleCheckboxChange(option.value)}
-                    />
-                  }
-                  label={option.label}
-                />
-              ))}
-            </FormGroup> */}
-
-
           </Box>
         )}
       </Container>
