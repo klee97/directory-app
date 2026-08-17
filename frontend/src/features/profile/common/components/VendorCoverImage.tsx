@@ -35,7 +35,8 @@ export function VendorCoverImage({
           sizes="(max-width: 768px) 100vw, 600px"
           style={{ objectFit: 'cover' }}
           quality={80}
-          priority={true}
+          loading="eager"
+          fetchPriority="high"
         />
         {coverImage.credits && (
           <Box

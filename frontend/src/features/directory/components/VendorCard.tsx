@@ -163,6 +163,7 @@ export const VendorCard = ({
                 <VendorCardImage
                   key={index}
                   cardPosition={positionIndex}
+                  imageIndex={index}
                   vendorImage={image}
                   vendorBusinessName={vendor.business_name}
                   placeholderImage={placeholderImage}

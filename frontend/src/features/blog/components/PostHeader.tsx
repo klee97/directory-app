@@ -20,7 +20,8 @@ const PostHeader = ({ post }: { post: PageBlogPost }) => {
               alt={`Cover Image: ${post.featuredImage.title}`}
               src={post.featuredImage.url}
               fill
-              priority
+              loading="eager"
+              fetchPriority="high"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
               style={{
                 objectPosition: 'center',

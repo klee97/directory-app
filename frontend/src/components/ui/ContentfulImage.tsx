@@ -14,7 +14,7 @@ export default function ContentfulImage(
       fill?: boolean;
       loader?: import("next/dist/shared/lib/get-img-props").ImageLoader;
       quality?: number | `${number}`;
-      priority?: boolean;
+      fetchPriority?: "high" | "low" | "auto";
       loading?: "eager" | "lazy" | undefined;
       placeholder?: PlaceholderValue;
       blurDataURL?: string;

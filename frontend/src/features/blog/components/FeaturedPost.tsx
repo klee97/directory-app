@@ -54,7 +54,8 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
               alt={post.featuredImage.description ?? `Cover image for ${post.title}`}
               src={post.featuredImage.url}
               fill
-              priority
+              loading="eager"
+              fetchPriority="high"
               sizes={isLandscape ? '(max-width: 900px) 100vw, 55vw' : '(max-width: 900px) 40vw, 45vw'}
               style={{ objectFit: 'cover', objectPosition: isLandscape ? 'center' : 'center top' }}
             />
