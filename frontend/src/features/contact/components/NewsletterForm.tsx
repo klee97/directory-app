@@ -29,7 +29,7 @@ export function NewsletterForm() {
 
     // reCAPTCHA is lazy-mounted (see recaptchaLoaded below) — if it somehow
     // hasn't finished loading by submit time (e.g. instant autofill + submit),
-    // mount it now and bail so the user can resubmit once it's ready.
+    // mount it now and bail so the user can resubmit once it's ready
     if (!recaptchaRef.current) {
       setRecaptchaLoaded(true);
       setError("Please try submitting again.");
@@ -43,7 +43,7 @@ export function NewsletterForm() {
         (await recaptchaRef.current?.executeAsync()) ??
         (isDevOrPreview() ? "test-bypass" : null);
 
-        if (!recaptchaToken) {
+      if (!recaptchaToken) {
         setError("CAPTCHA verification failed. Please try again.");
         return;
       }
