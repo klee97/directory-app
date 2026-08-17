@@ -138,6 +138,7 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
+  const hasSidebarImage = !showImageCarousel && !!vendor.cover_image;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
   const { array: randomizedImageList } = shuffleMediaWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
@@ -224,22 +225,27 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               display: 'grid',
               gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
               columnGap: { md: 4 },
-              gridTemplateAreas: {
-                xs: `"image" "details" "contact"`,
-                md: `"details image" "details contact"`,
-              },
+              gridTemplateAreas: hasSidebarImage
+                ? {
+                  xs: `"image" "details" "contact"`,
+                  md: `"details image" "details contact"`,
+                }
+                : {
+                  xs: `"details" "contact"`,
+                  md: `"details contact"`,
+                },
             }}
           >
             {/* Cover Image */}
-            <Box sx={{ gridArea: 'image' }}>
-              {!showImageCarousel && vendor.cover_image && (
+            {hasSidebarImage && (
+              <Box sx={{ gridArea: 'image' }}>
                 <VendorCoverImage
-                  coverImage={vendor.cover_image}
+                  coverImage={vendor.cover_image!}
                   businessName={vendor.business_name}
                   placeholderImage={placeholderImage}
                 />
-              )}
-            </Box>
+              </Box>
+            )}
             {/* Details */}
             <Box sx={{ gridArea: 'details' }}>
               {/* Vendor Info */}
