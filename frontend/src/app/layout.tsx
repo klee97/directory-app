@@ -23,6 +23,7 @@ const alice = Alice({
   display: 'optional',
   variable: '--font-alice',
   fallback: ['Georgia', 'serif'],
+  preload: false, // Disable preloading to avoid render-blocking
 });
 
 export const metadata: Metadata = {
