@@ -10,7 +10,6 @@ import { LocationBreadcrumbs } from '@/components/layouts/LocationBreadcrumbs';
 import Container from '@mui/material/Container';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { generateBreadcrumbSlugs } from '@/lib/location/locationSlugs';
-import LoadingPage from '@/components/layouts/LoadingPage';
 import { BreadcrumbList, ListItem, LocalBusiness, ProfilePage } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { SITE_URL, WEBSITE_ID, ORG_ID, WEBSITE_PREVIEW_URL } from '@/seo/constants';
@@ -18,6 +17,7 @@ import { toIsoCountryCode } from '@/lib/location/getCountryCode';
 import { getDefaultBio } from '@/features/profile/common/utils/bio';
 import { NearbyVendorsSkeleton } from '@/features/profile/common/components/NearbyVendorsSkeleton';
 import NearbyVendors from '@/features/profile/common/components/NearbyVendors';
+import LocationBreadcrumbsSkeleton from '@/components/layouts/LocationBreadcrumbsSkeleton';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -161,9 +161,8 @@ export default async function VendorPage({ params }: PageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(jsonLd) }}
         />
-        {/* ... */}
       </section>
-      <Suspense fallback={<LoadingPage />}>
+      <Suspense fallback={<LocationBreadcrumbsSkeleton />}>
         <BackButton fallbackHref="/vendors" />
         <Container sx={{ py: 4 }}>
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
