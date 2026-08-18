@@ -22,7 +22,7 @@ interface ManageProfilePromptProps {
   businessName: string;
   /** Whether the listing has already been claimed (has a vendor account). */
   isClaimed: boolean;
-  /** Pre-masked hint of the email on file, e.g. "j•••@•••.com". */
+  /** Pre-masked hint of the email on file. */
   emailHint: string;
 }
 
@@ -92,7 +92,7 @@ export default function ManageProfilePrompt({
           underline="hover"
           sx={{ color: "text.secondary", fontSize: "0.875rem" }}
         >
-          Are you {businessName}? Manage this profile
+          Is this your business? Manage this profile.
         </Link>
       </Box>
 
