@@ -1,13 +1,13 @@
 const typography = {
   fontFamily: '"Lato", "Roboto", "Helvetica", "Arial", sans-serif',
   h1: {
-    fontFamily: '"Alice", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: 'var(--font-alice), "Georgia", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '3rem',
     fontWeight: 500,
     color: 'primary'
   },
   h2: {
-    fontFamily: '"Alice", "Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: 'var(--font-alice), "Georgia", "Roboto", "Helvetica", "Arial", sans-serif',
     fontSize: '2rem',
     fontWeight: 500,
   },

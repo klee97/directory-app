@@ -20,7 +20,9 @@ import { LOGO_URL, ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } fro
 const alice = Alice({
   weight: ['400'],
   subsets: ['latin'],
-  display: 'swap',
+  display: 'optional',
+  variable: '--font-alice',
+  fallback: ['Georgia', 'serif'],
 });
 
 export const metadata: Metadata = {
@@ -76,15 +78,15 @@ export default function RootLayout({
 }>) {
   prewarmLocationSlugCache();
   return (
-    <html lang="en" className={alice.className}>
+    <html lang="en" className={alice.variable}>
       <head>
-        <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
-        <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
         {/* Pinterest site verification */}
         <meta name="p:domain_verify" content="b243038277499f92ffdf12ffbecd514f" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: sanitizeJsonLdHtml(globalJsonLd) }} />
       </head>
       <body>
+        <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
+        <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
         <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
         <AuthProvider>
           <NotificationProvider>

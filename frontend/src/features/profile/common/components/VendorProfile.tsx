@@ -10,7 +10,6 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import { useTheme } from '@mui/material/styles';
 import { styled } from '@mui/material/styles';
-import Grid from '@mui/system/Grid';
 import PublicIcon from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
 import Dialog from '@mui/material/Dialog';
@@ -135,11 +134,11 @@ interface VendorDetailsProps {
 export default function VendorDetails({ vendor, vendorDescription, children }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [isSmallScreen, setIsSmallScreen] = useState(true)
 
   const tags = vendor.tags.filter((tag) => tag.is_visible);
   const showImageCarousel = vendor.is_premium && vendor.images.length > 1;
   const showProfileImage = vendor.is_premium && vendor.profile_image !== null;
+  const hasSidebarImage = !showImageCarousel && !!vendor.cover_image;
   const resolvedImageCount = showImageCarousel ? vendor.images.length : (vendor.cover_image ? 1 : 0);
   const { array: randomizedImageList } = shuffleMediaWithSeed(vendor.images, getTodaySeed() + vendor.slug);
 
@@ -202,20 +201,6 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
     fetchFavoriteStatus();
   }, [vendor.id, isLoggedIn]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < theme.breakpoints.values.md) {
-        setIsSmallScreen(true);
-      } else {
-        setIsSmallScreen(false);
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [theme.breakpoints.values.md]);
-
   return (
     <>
       <Box data-has-photo={!!vendor.cover_image}>
@@ -226,17 +211,43 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
             placeholderImage={placeholderImage}
           />
           )}
-          {isSmallScreen && !showImageCarousel && vendor.cover_image && (
-            <VendorCoverImage
-              coverImage={vendor.cover_image}
-              businessName={vendor.business_name}
-              placeholderImage={placeholderImage}
-            />
-          )}
           {/* Main Content */}
-          <Grid container flexDirection={{ xs: 'column-reverse', md: 'row' }} spacing={{ md: 4 }} >
-            {/* Left Column - Details */}
-            <Grid size={{ xs: 12, md: 8 }} sx={{ order: { xs: 2, md: 1 } }}>
+          {/*
+            Instead of MUI Grid, we use CSS Grid with named areas to have more
+            flexible layout depending on screen size.
+            small screen stacks image -> details -> contact top to bottom;
+            md+ places details in a full-height left column,
+            with image stacked above
+            contact in the right column.
+          */}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+              columnGap: { md: 4 },
+              gridTemplateAreas: hasSidebarImage
+                ? {
+                  xs: `"image" "details" "contact"`,
+                  md: `"details image" "details contact"`,
+                }
+                : {
+                  xs: `"details" "contact"`,
+                  md: `"details contact"`,
+                },
+            }}
+          >
+            {/* Cover Image */}
+            {hasSidebarImage && (
+              <Box sx={{ gridArea: 'image' }}>
+                <VendorCoverImage
+                  coverImage={vendor.cover_image!}
+                  businessName={vendor.business_name}
+                  placeholderImage={placeholderImage}
+                />
+              </Box>
+            )}
+            {/* Details */}
+            <Box sx={{ gridArea: 'details' }}>
               {/* Vendor Info */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Typography variant="h2" component="h1">
@@ -507,16 +518,9 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                   </Box>
                 </>
               )}
-            </Grid>
-            {/* Image & Contact Card */}
-            <Grid size={{ xs: 12, md: 4 }} sx={{ order: { xs: 1, md: 2 } }}>
-              {!isSmallScreen && !showImageCarousel && vendor.cover_image && (
-                <VendorCoverImage
-                  coverImage={vendor.cover_image}
-                  businessName={vendor.business_name}
-                  placeholderImage={placeholderImage}
-                />
-              )}
+            </Box>
+            {/* Contact */}
+            <Box sx={{ gridArea: 'contact' }}>
               <Divider
                 sx={{
                   mt: 4,
@@ -525,8 +529,8 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                 }}
               />
               <ContactCard vendor={vendor} isFavorite={isFavorite} />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
           {children}
         </Container >
       </Box >
