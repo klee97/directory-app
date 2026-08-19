@@ -34,7 +34,7 @@ export function VendorCoverImage({
           fill
           sizes="(max-width: 768px) 100vw, 600px"
           style={{ objectFit: 'cover' }}
-          quality={80}
+          quality={75}
           loading="eager"
           fetchPriority="high"
         />

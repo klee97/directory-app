@@ -34,8 +34,9 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
             target="_blank"
             rel="noopener"
             underline="none"
+            aria-label="Follow Asian Wedding Makeup on Instagram"
           >
-            <IconButton color="primary">
+            <IconButton color="primary" aria-label="Instagram" tabIndex={-1}>
               <InstagramIcon fontSize="large" />
             </IconButton>
           </Link>

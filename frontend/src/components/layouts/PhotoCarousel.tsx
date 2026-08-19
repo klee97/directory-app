@@ -42,7 +42,7 @@ export const PhotoCarousel = ({ photos, vendorSlug, placeholderImage }: {
               style={{
                 objectFit: 'cover',
               }}
-              quality={85}
+              quality={75}
               loading={index === 0 ? "eager" : "lazy"}
               fetchPriority={index === 0 ? "high" : "auto"}
             />

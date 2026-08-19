@@ -21,7 +21,7 @@ test.describe('/recommend page', () => {
     await expect(page.getByLabel('Artist or Business Name')).toBeVisible();
     await expect(page.getByLabel('Location')).toBeVisible();
     await expect(page.getByLabel('Website')).toBeVisible();
-    await expect(page.getByLabel('Instagram')).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Instagram' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Submit Recommendation' })).toBeVisible();
   });
 
