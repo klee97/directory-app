@@ -3,6 +3,7 @@ import IconButton from "@mui/material/IconButton";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import Pinterest from "@mui/icons-material/Pinterest";
 import { CallToAction } from "./CallToAction";
 
 export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
@@ -29,17 +30,26 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
             mb: 4
           }}
         >
-          <Link
+          <IconButton
+            component="a"
             href="https://www.instagram.com/asianweddingmkup"
             target="_blank"
             rel="noopener"
-            underline="none"
+            color="primary"
             aria-label="Follow Asian Wedding Makeup on Instagram"
           >
-            <IconButton color="primary" aria-label="Instagram" tabIndex={-1}>
-              <InstagramIcon fontSize="large" />
-            </IconButton>
-          </Link>
+            <InstagramIcon fontSize="large" />
+          </IconButton>
+          <IconButton
+            component="a"
+            href="https://www.pinterest.com/asianweddingmkup/"
+            target="_blank"
+            rel="noopener"
+            color="primary"
+            aria-label="Follow Asian Wedding Makeup on Pinterest"
+          >
+            <Pinterest fontSize="large" />
+          </IconButton>
         </Box>
 
 
