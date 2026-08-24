@@ -10,12 +10,30 @@ import { submitForm } from "@/features/contact/api/submitForm";
 import ReCaptcha, { ReCaptchaRef } from "@/components/security/ReCaptcha";
 import { isDevOrPreview } from "@/lib/env/env";
 
-export function EmailForm() {
+export enum ContactReason {
+  GENERAL = "general",
+  RECOMMEND = "recommend",
+  CLAIM = "claim",
+  EDIT = "edit",
+}
+
+export const CONTACT_REASONS: { value: ContactReason; label: string }[] = [
+  { value: ContactReason.GENERAL, label: "General Inquiry" },
+  { value: ContactReason.RECOMMEND, label: "Recommend a Vendor" },
+  { value: ContactReason.CLAIM, label: "Claim a Listing" },
+  { value: ContactReason.EDIT, label: "Update or Remove My Listing" },
+];
+
+export function isContactReason(value: string | undefined): value is ContactReason {
+  return Object.values(ContactReason).includes(value as ContactReason);
+}
+
+export function EmailForm({ reason }: { reason?: string }) {
   const [formData, setFormData] = useState({
     firstname: "",
     lastname: "",
     email: "",
-    reason: "",
+    reason: isContactReason(reason) ? reason : "",
     message: "",
   });
 
@@ -23,12 +41,6 @@ export function EmailForm() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const recaptchaRef = useRef<ReCaptchaRef>(null);
-
-  const reasons = [
-    { value: "general", label: "General Inquiry" },
-    { value: "recommend", label: "Recommend a Vendor" },
-    { value: "edit", label: "Update or Remove My Listing" },
-  ];
 
   const handleChange = (e: { target: { name: string; value: string; }; }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,7 +86,7 @@ export function EmailForm() {
           Thank you! We&apos;ll get back to you soon.
         </Alert>
       ) : (
-        <Box component="form" data-testid="email-form"onSubmit={handleSubmit} sx={{ mt: 2 }}>
+        <Box component="form" data-testid="email-form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
           <TextField
             fullWidth
             label="First Name"
@@ -113,7 +125,7 @@ export function EmailForm() {
             required
             sx={{ mb: 2 }}
           >
-            {reasons.map((option) => (
+            {CONTACT_REASONS.map((option) => (
               <MenuItem key={option.value} value={option.value}>
                 {option.label}
               </MenuItem>
