@@ -14,6 +14,7 @@ export async function revalidateVendors() {
 
 export async function revalidateBlog() {
   revalidateTag('all-posts', { expire: 0 })
+  revalidatePath('/')             // refreshes the blog carousel on the landing page
   revalidatePath('/blog')         // refreshes the article table
   revalidatePath('/blog/[slug]', 'page')  // refreshes all post pages
 }
