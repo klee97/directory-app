@@ -535,12 +535,15 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
           </Box>
           {/* Claim/Edit Profile CTA. Claimed listings send the owner
               straight to login; unclaimed listings with an email on file open
-              the claim-link flow. */}
-          {process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true' && vendor.business_name && (vendor.verified_at || vendor.email) && (
+              the claim-link flow; unclaimed listings with no email on file
+              go to the contact form instead, since there's nowhere to send a
+              link. */}
+          {process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true' && vendor.business_name && (
             <ManageProfilePrompt
               slug={vendor.slug ?? ''}
               businessName={vendor.business_name}
               isClaimed={!!vendor.verified_at}
+              hasEmail={!!vendor.email}
               emailHint={vendor.email ? maskEmail(vendor.email) : ''}
             />
           )}

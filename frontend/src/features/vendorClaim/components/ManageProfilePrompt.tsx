@@ -22,6 +22,8 @@ interface ManageProfilePromptProps {
   businessName: string;
   /** Whether the listing has already been claimed (has a vendor account). */
   isClaimed: boolean;
+  /** Whether there's an email on file to send a claim link to. */
+  hasEmail: boolean;
   /** Pre-masked hint of the email on file. */
   emailHint: string;
 }
@@ -30,6 +32,7 @@ export default function ManageProfilePrompt({
   slug,
   businessName,
   isClaimed,
+  hasEmail,
   emailHint,
 }: ManageProfilePromptProps) {
   const theme = useTheme();
@@ -47,6 +50,12 @@ export default function ManageProfilePrompt({
     // login rather than through the claim-link flow. No dialog.
     if (isClaimed) {
       router.push("/partner/login");
+      return;
+    }
+    // No email on file means there's nowhere to send a claim link — hand off
+    // to the contact form (pre-selected to the claim reason) instead.
+    if (!hasEmail) {
+      router.push("/partner/contact?reason=claim");
       return;
     }
     setOpen(true);
