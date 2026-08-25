@@ -20,8 +20,6 @@ interface LocationPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const dynamic = 'force-dynamic';
-
 // Page component
 export default async function LocationPage({ params }: LocationPageProps) {
   const { slug } = await params;
