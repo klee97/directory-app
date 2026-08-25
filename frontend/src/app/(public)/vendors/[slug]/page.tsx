@@ -83,7 +83,8 @@ export default async function VendorPage({ params }: PageProps) {
   const breadcrumbs = await generateBreadcrumbSlugs(address);
 
 
-  const serviceTags = vendor.tags.filter((t) => t.type === 'SERVICE').map((t) => t.display_name);
+  const serviceTags = vendor.tags.filter((t) => t.type === 'SERVICE').map((t) => t.display_name).filter((name): name is string => name !== null);
+  const skillTags = vendor.tags.filter((t) => t.type === 'SKILL').map((t) => t.display_name).filter((name): name is string => name !== null);
 
   const prices = [vendor.bridal_hair_price, vendor.bridal_makeup_price, vendor.bridal_hair_makeup_price]
     .filter((p): p is number => typeof p === 'number' && p > 0);
@@ -170,7 +171,7 @@ export default async function VendorPage({ params }: PageProps) {
       </Suspense>
       <VendorProfile vendor={vendor} vendorDescription={vendorDescription}>
         <Suspense fallback={<NearbyVendorsSkeleton resolvedLocation={resolvedLocation} />}>
-          <NearbyVendors vendor={vendor} resolvedLocation={resolvedLocation} />
+          <NearbyVendors vendor={vendor} resolvedLocation={resolvedLocation} serviceTags={serviceTags} skillTags={skillTags} />
         </Suspense>
       </VendorProfile>
     </>

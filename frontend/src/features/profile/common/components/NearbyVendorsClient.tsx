@@ -6,21 +6,24 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { VendorCarousel } from '@/components/layouts/VendorCarousel';
 import { LATITUDE_PARAM, LONGITUDE_PARAM, SEARCH_PARAM, SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from '@/lib/constants';
+import { sanitizeFilterBoolean, sanitizeFilterValues } from '@/lib/directory/sanitizeFilterParams';
 
 interface NearbyVendorsClientProps {
   vendors: Vendor[];
   resolvedLocation?: string;
+  serviceTags: string[];
+  skillTags: string[];
 }
 
-export default function NearbyVendorsClient({ vendors, resolvedLocation }: NearbyVendorsClientProps) {
+export default function NearbyVendorsClient({ vendors, resolvedLocation, serviceTags, skillTags }: NearbyVendorsClientProps) {
   const searchParams = useSearchParams();
 
   const filterContext = {
     lat: searchParams.get(LATITUDE_PARAM) ? parseFloat(searchParams.get(LATITUDE_PARAM)!) : null,
     lon: searchParams.get(LONGITUDE_PARAM) ? parseFloat(searchParams.get(LONGITUDE_PARAM)!) : null,
-    selectedSkills: searchParams.get(SKILL_PARAM)?.split(',') ?? [],
-    selectedServices: searchParams.get(SERVICE_PARAM)?.split(',') ?? [],
-    travelsWorldwide: searchParams.get(TRAVEL_PARAM) === 'true',
+    selectedSkills: sanitizeFilterValues(searchParams.get(SKILL_PARAM)?.split(',') ?? [], skillTags),
+    selectedServices: sanitizeFilterValues(searchParams.get(SERVICE_PARAM)?.split(',') ?? [], serviceTags),
+    travelsWorldwide: sanitizeFilterBoolean(searchParams.get(TRAVEL_PARAM)),
     searchQuery: searchParams.get(SEARCH_PARAM) || null,
   };
 
