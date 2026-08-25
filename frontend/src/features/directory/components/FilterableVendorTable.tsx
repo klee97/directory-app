@@ -25,6 +25,7 @@ import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 import { useURLFilters } from '@/hooks/useURLFilters';
 import { FilterTags } from '@/lib/directory/filterTags';
 import LoadingPage from '@/components/layouts/LoadingPage';
+import { sanitizeFilterBoolean, sanitizeFilterValues } from '@/lib/directory/sanitizeFilterParams';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -50,9 +51,18 @@ export function FilterableVendorTableContent({
 
   // Extract search parameters
   const searchQuery = searchParams?.get(SEARCH_PARAM) || "";
-  const travelsWorldwide = searchParams?.get(TRAVEL_PARAM) === "true";
-  const selectedSkills = useMemo(() => searchParams?.getAll(SKILL_PARAM) || [], [searchParams]);
-  const selectedServices = useMemo(() => searchParams?.getAll(SERVICE_PARAM) || [], [searchParams]);
+  const travelsWorldwide = useMemo(
+    () => sanitizeFilterBoolean(searchParams?.get(TRAVEL_PARAM)),
+    [searchParams]
+  );
+  const selectedSkills = useMemo(
+    () => sanitizeFilterValues(searchParams?.getAll(SKILL_PARAM) || [], tags.skills),
+    [searchParams, tags.skills]
+  );
+  const selectedServices = useMemo(
+    () => sanitizeFilterValues(searchParams?.getAll(SERVICE_PARAM) || [], tags.services),
+    [searchParams, tags.services]
+  );
 
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);

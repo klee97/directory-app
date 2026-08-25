@@ -1,6 +1,6 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { sanitizeFilterValues } from "@/lib/directory/sanitizeFilterParams";
+import { sanitizeFilterBoolean, sanitizeFilterValues } from "@/lib/directory/sanitizeFilterParams";
 
 export function useURLFilters() {
   const searchParams = useSearchParams();
@@ -31,7 +31,7 @@ export function useURLFilters() {
   );
 
   const getBooleanParam = useCallback(
-    (key: string) => searchParams?.get(key)?.toLowerCase() === "true",
+    (key: string) => sanitizeFilterBoolean(searchParams?.get(key)),
     [searchParams]
   );
 

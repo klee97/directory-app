@@ -19,3 +19,7 @@ export function sanitizeFilterValues(rawValues: string[], validValues: string[])
 
   return result;
 }
+
+export function sanitizeFilterBoolean(rawValue: string | null): boolean {
+  return rawValue?.toLowerCase() === "true";
+}
