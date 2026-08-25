@@ -5,6 +5,7 @@ import { ResultsHeader } from './ResultsHeader';
 import { useURLFiltersContext } from '@/contexts/URLFiltersContext';
 import { SORT_OPTIONS } from '@/types/sort';
 import { SKILL_PARAM, SERVICE_PARAM } from '@/lib/constants';
+import { sanitizeFilterValues } from '@/lib/directory/sanitizeFilterParams';
 
 vi.mock('@/contexts/URLFiltersContext', () => ({
   useURLFiltersContext: vi.fn(),
@@ -23,6 +24,9 @@ describe('ResultsHeader — filter chip removal', () => {
       getAllParams: (key: string) => params[key] ?? [],
       setParams: setParamsMock,
       setArrayParam: setArrayParamMock,
+      getSanitizedArrayParam: (key: string, validValues: string[]) =>
+        sanitizeFilterValues(params[key] ?? [], validValues),
+      getBooleanParam: (key: string) => params[key]?.[0] === 'true',
     });
   }
 
@@ -34,6 +38,8 @@ describe('ResultsHeader — filter chip removal', () => {
         selectedLocation={null}
         sortOption={Object.values(SORT_OPTIONS)[0]}
         onSortChange={vi.fn()}
+        serviceTags={['Hair', 'Makeup']}
+        skillTags={['Thai Makeup', 'South Asian Makeup']}
       />
     );
   }
@@ -62,7 +68,7 @@ describe('ResultsHeader — filter chip removal', () => {
     await userEvent.click(deleteIcon);
 
     expect(setArrayParamMock).toHaveBeenCalledWith(SERVICE_PARAM, null);
-  }); 
+  });
 
   it('never passes a comma-joined string for any filter type', async () => {
     mockContext({ [SKILL_PARAM]: ['Thai Makeup', 'South Asian Makeup', 'Bridal'] });

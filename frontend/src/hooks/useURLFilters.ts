@@ -1,5 +1,6 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef } from "react";
+import { sanitizeFilterValues } from "@/lib/directory/sanitizeFilterParams";
 
 export function useURLFilters() {
   const searchParams = useSearchParams();
@@ -29,12 +30,39 @@ export function useURLFilters() {
     [searchParams]
   );
 
+  const getBooleanParam = useCallback(
+    (key: string) => searchParams?.get(key)?.toLowerCase() === "true",
+    [searchParams]
+  );
+
+  // Case-insensitively matches raw param values against a known-valid list
+  // Use sanitized params wherever the value drives UI state (checkboxes, chips) or filtering
+  // logic, rather than treating the URL as inherently trustworthy.
+  const getSanitizedParam = useCallback(
+    (key: string, validValues: string[]) => {
+      const raw = searchParams?.get(key);
+      if (raw == null) return null;
+      const [sanitized] = sanitizeFilterValues([raw], validValues);
+      return sanitized ?? null;
+    },
+    [searchParams]
+  );
+
+  const getSanitizedArrayParam = useCallback(
+    (key: string, validValues: string[]) => {
+      const raw = searchParams?.getAll(key) ?? [];
+      return sanitizeFilterValues(raw, validValues);
+    },
+    [searchParams]
+  );
+
   // Shared helper: update the URL via the native History API instead of
   // router.push/replace. Next.js patches window.history so useSearchParams()
   // still picks this up reactively, but it skips the App Router's
   // navigation pipeline entirely — which is what was silently no-op'ing on
   // search-param-only navigations on statically rendered routes.
   const pushUrl = useCallback((newParams: URLSearchParams) => {
+    if (typeof window === 'undefined') return;
     const search = newParams.toString();
     const targetPath = pathnameRef.current;
     const newUrl = search ? `${targetPath}?${search}` : targetPath;
@@ -82,6 +110,9 @@ export function useURLFilters() {
     paramsString,
     getParam,
     getAllParams,
+    getSanitizedParam,
+    getSanitizedArrayParam,
+    getBooleanParam,
     setParam,
     setParams,
     setArrayParam

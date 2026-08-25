@@ -147,4 +147,67 @@ test.describe('Vendor profile — nearby vendors', { tag: '@mobile' }, () => {
     const carousel = page.locator('[href*="test-vendor-3"]');
     await expect(carousel).toBeVisible();
   });
+  test('removing a filter chip works after a hard page load, not just client-side nav', async ({ page }) => {
+    // Regression test for the bug where router.push silently no-op'd on
+    // search-param-only navigation on a statically rendered page — this
+    // only reproduced in production builds after a hard navigation, not
+    // during in-app client-side navigation, so the test needs to start
+    // from a direct URL load rather than clicking through the UI.
+    await page.goto('/vendors?skill=Thai+Makeup');
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+
+    const chip = page.getByTestId('filter-chip-skill-Thai Makeup');
+    await expect(chip).toBeVisible();
+
+    await chip.getByTestId('CancelIcon').click();
+
+    await expect(chip).not.toBeVisible();
+    await expect(page).not.toHaveURL(/skill=/);
+    await expect(page.getByText(/5 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('filter state stays in sync with browser back/forward', async ({ page }) => {
+    await page.getByRole('button', { name: 'Skills' }).click();
+    await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
+    await expect(page).toHaveURL(/skill=Thai\+Makeup/);
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+
+    await page.goBack();
+    await expect(page).not.toHaveURL(/skill=/);
+    await expect(page.getByText(/5 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+
+    await page.goForward();
+    await expect(page).toHaveURL(/skill=Thai\+Makeup/);
+    await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('a filter param loaded with different casing than the tag data still matches on hard refresh', async ({ page }) => {
+    // Regression test for the case-mismatch bug: loading a URL with a
+    // differently-cased value than the canonical tag ("hair" vs "Hair")
+    // used to produce a chip in the wrong casing with its checkbox
+    // unchecked, even though the vendor list was still (correctly) filtered.
+    await page.goto('/vendors?service=hair');
+    await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+
+    // Chip renders with the canonical casing, not the raw URL casing
+    const chip = page.getByTestId('filter-chip-service-Hair');
+    await expect(chip).toBeVisible();
+    await expect(page.getByTestId('filter-chip-service-hair')).not.toBeVisible();
+
+    // Checkbox reflects the same canonical match
+    await page.getByRole('button', { name: 'Services' }).click();
+    await expect(page.locator('label').filter({ hasText: /^Hair$/ }).locator('input')).toBeChecked();
+  });
+
+  test('an unrecognized filter value in the URL is dropped, not rendered as a phantom chip', async ({ page }) => {
+    await page.goto('/vendors?service=nonsense');
+
+    // Full, unfiltered vendor list — the invalid value should not have
+    // been applied as a filter
+    await expect(page.getByText(/5 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+
+    // No chip for the garbage value, and no filter-pills row at all
+    // since there's nothing valid selected
+    await expect(page.getByTestId('filter-chip-service-nonsense')).not.toBeVisible();
+  });
 });

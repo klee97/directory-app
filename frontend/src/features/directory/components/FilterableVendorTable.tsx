@@ -164,6 +164,8 @@ export function FilterableVendorTableContent({
             selectedLocation={locationManagement.selectedLocation}
             sortOption={vendorFiltering.sortOption}
             onSortChange={vendorFiltering.setSortOption}
+            serviceTags={tags.services}
+            skillTags={tags.skills}
           />
 
           {vendorFiltering.searchedAndSortedVendors.length === 0 && (

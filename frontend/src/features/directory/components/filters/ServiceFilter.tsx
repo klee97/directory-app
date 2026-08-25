@@ -15,10 +15,10 @@ export function ServiceFilter({ tags, filterMinWidth }:
     filterMinWidth: number;
   }
 ) {
-  const { getAllParams, setArrayParam } = useURLFiltersContext();
+  const { getSanitizedArrayParam, setArrayParam } = useURLFiltersContext();
 
   // Get the selected services from URL params
-  const selectedServices = useMemo(() => getAllParams(SERVICE_PARAM) || [], [getAllParams]);
+  const selectedServices = useMemo(() => getSanitizedArrayParam(SERVICE_PARAM, tags) || [], [getSanitizedArrayParam, tags]);
   const services = useMemo(
     () => tags.map((service) => selectedServices.includes(service)),
     [tags, selectedServices]
