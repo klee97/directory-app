@@ -3,7 +3,8 @@ import { execSync } from 'child_process';
 export default function globalSetup() {
   try {
     const status = execSync('npx supabase status', { stdio: 'pipe' }).toString();
-    if (!status.includes('Project URL')) {
+    // Older CLIs print a "Project URL" table; newer ones emit JSON with API_URL.
+    if (!status.includes('Project URL') && !status.includes('API_URL')) {
       throw new Error();
     }
   } catch {
