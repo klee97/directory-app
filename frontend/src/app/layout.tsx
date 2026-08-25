@@ -20,10 +20,10 @@ import { LOGO_URL, ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } fro
 const alice = Alice({
   weight: ['400'],
   subsets: ['latin'],
-  display: 'swap',
+  display: 'optional',
   variable: '--font-alice',
   fallback: ['Georgia', 'serif'],
-  preload: true,
+  preload: false, // Disable preloading to avoid render-blocking
 });
 
 export const metadata: Metadata = {
