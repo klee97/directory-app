@@ -12,6 +12,8 @@ import { richTextToPlainText } from '@/seo/articlePlaintext';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { BlogPosting } from 'schema-dts';
 import { notFound } from 'next/dist/client/components/navigation';
+import ReactDOM from 'react-dom';
+import { CONTENTFUL_ASSET_ORIGIN } from '@/lib/contentful/constants';
 
 type Props = {
   params: Promise<{ slug: string }>
@@ -83,6 +85,9 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) {
     notFound();
   }
+
+  // Preconnect to the image CDN
+  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
 
   let jsonLd = {};
 

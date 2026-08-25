@@ -7,6 +7,8 @@ import { Metadata } from 'next';
 import { CollectionPage } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { ORG_ID, SITE_URL, WEBSITE_ID } from '@/seo/constants';
+import { CONTENTFUL_ASSET_ORIGIN } from '@/lib/contentful/constants';
+import ReactDOM from 'react-dom';
 
 export const metadata: Metadata = {
   title: 'Wedding Planning Resources for Asian Couples | Asian Wedding Makeup',
@@ -29,6 +31,9 @@ export const metadata: Metadata = {
 export default async function BlogIndex() {
   const posts: PageBlogPost[] = await getAllPosts();
   const validPosts = getValidPosts(posts);
+
+  // Preconnect to the image CDN
+  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",

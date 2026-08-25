@@ -1,0 +1,1 @@
+export const CONTENTFUL_ASSET_ORIGIN = 'https://images.ctfassets.net';
