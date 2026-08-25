@@ -9,8 +9,6 @@ import { BlogSection } from '@/features/landingPage/components/BlogSection';
 import type { WebPage } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
-import { CONTENTFUL_ASSET_ORIGIN } from '@/lib/contentful/constants';
-import ReactDOM from 'react-dom';
 
 export const metadata: Metadata = {
   title: 'Asian Wedding Makeup | Trusted Artists for Asian Features',
@@ -33,9 +31,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  // Preconnect to the image CDN
-  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
-
   const webPage: WebPage = {
     "@type": "WebPage",
     "@id": `${SITE_URL}#webpage`,

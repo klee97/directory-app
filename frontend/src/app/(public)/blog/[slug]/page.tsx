@@ -79,15 +79,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // Page component - will be statically generated with the data
 export default async function BlogPostPage({ params }: Props) {
+  // Preconnect to the image CDN
+  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
+
   const { slug } = await params;
   const post = await getPostBySlug(slug);
 
   if (!post) {
     notFound();
   }
-
-  // Preconnect to the image CDN
-  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
 
   let jsonLd = {};
 

@@ -29,11 +29,11 @@ export const metadata: Metadata = {
 }
 
 export default async function BlogIndex() {
-  const posts: PageBlogPost[] = await getAllPosts();
-  const validPosts = getValidPosts(posts);
-
   // Preconnect to the image CDN
   ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
+
+  const posts: PageBlogPost[] = await getAllPosts();
+  const validPosts = getValidPosts(posts);
 
   const collectionPage: CollectionPage = {
     "@type": "CollectionPage",
