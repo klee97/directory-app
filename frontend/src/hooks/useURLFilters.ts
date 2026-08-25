@@ -1,8 +1,7 @@
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export function useURLFilters() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname() || ''; // SSR-safe
 
@@ -30,6 +29,18 @@ export function useURLFilters() {
     [searchParams]
   );
 
+  // Shared helper: update the URL via the native History API instead of
+  // router.push/replace. Next.js patches window.history so useSearchParams()
+  // still picks this up reactively, but it skips the App Router's
+  // navigation pipeline entirely — which is what was silently no-op'ing on
+  // search-param-only navigations on statically rendered routes.
+  const pushUrl = useCallback((newParams: URLSearchParams) => {
+    const search = newParams.toString();
+    const targetPath = pathnameRef.current;
+    const newUrl = search ? `${targetPath}?${search}` : targetPath;
+    window.history.pushState(null, '', newUrl);
+  }, []);
+
   const setParams = useCallback(
     (updates: Record<string, string | null>) => {
       const currentParams = searchParamsRef.current?.toString() ?? "";
@@ -41,14 +52,9 @@ export function useURLFilters() {
           newParams.set(key, value);
         }
       });
-      const search = newParams.toString();
-      // Always stay on the current page (e.g. /vendors or a /[location] page)
-      // so applying a filter never bounces the user to a different route.
-      const targetPath = pathnameRef.current;
-      const newUrl = search ? `${targetPath}?${search}` : targetPath;
-      router.push(newUrl, { scroll: false });
+      pushUrl(newParams);
     },
-    [router]
+    [pushUrl]
   );
 
   const setParam = useCallback(
@@ -66,12 +72,9 @@ export function useURLFilters() {
       if (values && values.length > 0) {
         values.forEach(value => newParams.append(key, value));
       }
-      const search = newParams.toString();
-      const targetPath = pathnameRef.current;
-      const newUrl = search ? `${targetPath}?${search}` : targetPath;
-      router.push(newUrl, { scroll: false });
+      pushUrl(newParams);
     },
-    [router]
+    [pushUrl]
   );
 
   return {

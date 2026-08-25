@@ -6,8 +6,6 @@ import { jsonLdGraph, sanitizeJsonLdHtml } from '@/seo/jsonLdHtml';
 import { ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from '@/seo/constants';
 import { getDefaultBio } from '@/features/profile/common/utils/bio';
 
-export const dynamic = 'force-dynamic';
-
 export const metadata: Metadata = {
   title: 'Directory | Asian Wedding Makeup Artists in NYC, Toronto & More',
   description: 'Browse our curated directory of wedding makeup artists experienced with Asian features. Search by price, skill, and location.',
