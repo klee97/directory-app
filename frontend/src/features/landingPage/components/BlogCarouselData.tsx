@@ -14,7 +14,8 @@ export async function BlogCarouselData() {
       if (!post || !post.slug || selectedSlugs.has(post.slug)) return false;
       selectedSlugs.add(post.slug);
       return true;
-    });
+    })
+    .sort((a, b) => new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime());
   if (recentPosts.length === 0) return null;
 
   return <BlogPostCarousel posts={recentPosts} />;

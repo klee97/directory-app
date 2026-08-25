@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 import { BlogCarouselSkeleton } from './BlogCarouselSkeleton';
 import { BlogCarouselData } from './BlogCarouselData';
 
-export const FEATURED_CATEGORIES = ['vendor-spotlight', 'cultural-history', 'vendor-list'] as const;
+export const FEATURED_CATEGORIES = ['vendor-spotlight', 'cultural-history', 'vendor-list', 'editorial', 'wedding-inspo'] as const;
 
 export async function BlogSection() {
 
