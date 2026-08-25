@@ -24,8 +24,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function VendorContactUs() {
+export default function VendorContactUs({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
   return (
-    <ContactUs />
+    <ContactUs searchParams={searchParams} />
   );
 }

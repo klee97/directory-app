@@ -27,7 +27,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ContactUs() {
+export default async function ContactUs({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
+  const { reason } = await searchParams;
+
   return (
     <Container maxWidth="sm">
       <br />
@@ -41,7 +47,7 @@ export default function ContactUs() {
       <Typography variant="body1" gutterBottom>
         Have other questions? Fill out the form below.
       </Typography>
-      <EmailForm />
+      <EmailForm reason={reason} />
     </Container>
   );
 }
