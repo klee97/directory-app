@@ -1,8 +1,12 @@
 import { getAllPosts, getValidPosts } from "@/features/blog/api/getBlogPosts";
 import { FEATURED_CATEGORIES } from "./BlogSection";
 import { BlogPostCarousel } from "@/features/blog/components/BlogPostCarousel";
+import { CONTENTFUL_ASSET_ORIGIN } from "@/lib/contentful/constants";
+import ReactDOM from "react-dom";
 
 export async function BlogCarouselData() {
+  // Preconnect to the image CDN
+  ReactDOM.preconnect(CONTENTFUL_ASSET_ORIGIN);
   const posts = await getAllPosts();
   const publishedPosts = getValidPosts(posts).sort(
     (a, b) => new Date(b.publishedDate!).getTime() - new Date(a.publishedDate!).getTime()
