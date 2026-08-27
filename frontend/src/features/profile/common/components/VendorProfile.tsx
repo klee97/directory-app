@@ -34,6 +34,8 @@ import VerifiedBadge from '@/components/ui/VerifiedBadge';
 import { VendorCoverImage } from './VendorCoverImage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getInquiryState } from '../utils/getInquiryState';
+import ManageProfilePrompt from '@/features/vendorClaim/components/ManageProfilePrompt';
+import { maskEmail } from '@/utils/maskEmail';
 
 const DEFAULT_PRICE = "Contact for Pricing";
 
@@ -531,6 +533,20 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               <ContactCard vendor={vendor} isFavorite={isFavorite} />
             </Box>
           </Box>
+          {/* Claim/Edit Profile CTA. Claimed listings send the owner
+              straight to login; unclaimed listings with an email on file open
+              the claim-link flow; unclaimed listings with no email on file
+              go to the contact form instead, since there's nowhere to send a
+              link. */}
+          {process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true' && vendor.business_name && (
+            <ManageProfilePrompt
+              slug={vendor.slug ?? ''}
+              businessName={vendor.business_name}
+              isClaimed={!!vendor.verified_at}
+              hasEmail={!!vendor.email}
+              emailHint={vendor.email ? maskEmail(vendor.email) : ''}
+            />
+          )}
           {children}
         </Container >
       </Box >

@@ -2,6 +2,7 @@
 
 import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
+import { revalidateVendor } from '@/lib/actions/revalidate';
 
 export async function claimVendor(accessToken: string, userId: string) {
 
@@ -10,7 +11,7 @@ export async function claimVendor(accessToken: string, userId: string) {
   // Verify the vendor exists with this access token
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
-    .select('id, email')
+    .select('id, slug, email')
     .eq('access_token', accessToken)
     .single();
 
@@ -65,7 +66,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
-    .select('id, email')
+    .select('id, slug, email')
     .eq('access_token', accessToken)
     .single();
 
@@ -161,6 +162,8 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
       error: 'Failed to finalize vendor claim: ' + vendorUpdateError.message
     };
   }
+
+  await revalidateVendor(vendor.slug);
 
   return {
     success: true,
