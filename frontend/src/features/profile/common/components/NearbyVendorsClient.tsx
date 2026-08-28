@@ -21,8 +21,8 @@ export default function NearbyVendorsClient({ vendors, resolvedLocation, service
   const filterContext = {
     lat: searchParams.get(LATITUDE_PARAM) ? parseFloat(searchParams.get(LATITUDE_PARAM)!) : null,
     lon: searchParams.get(LONGITUDE_PARAM) ? parseFloat(searchParams.get(LONGITUDE_PARAM)!) : null,
-    selectedSkills: sanitizeFilterValues(searchParams.get(SKILL_PARAM)?.split(',') ?? [], skillTags),
-    selectedServices: sanitizeFilterValues(searchParams.get(SERVICE_PARAM)?.split(',') ?? [], serviceTags),
+    selectedSkills: sanitizeFilterValues(searchParams.getAll(SKILL_PARAM), skillTags),
+    selectedServices: sanitizeFilterValues(searchParams.getAll(SERVICE_PARAM), serviceTags),
     travelsWorldwide: sanitizeFilterBoolean(searchParams.get(TRAVEL_PARAM)),
     searchQuery: searchParams.get(SEARCH_PARAM) || null,
   };
