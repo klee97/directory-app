@@ -14,13 +14,11 @@ import { useAuth } from '@/contexts/AuthContext';
 export function FavoritesContent() {
   const [favoriteVendors, setFavoriteVendors] = useState<Vendor[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-
-    if (isAuthLoading) return; // wait for auth to resolve before checking
 
     if (!isLoggedIn) {
       router.push('/login');
@@ -54,7 +52,7 @@ export function FavoritesContent() {
     return () => {
       mounted = false;
     };
-  }, [router, isLoggedIn, isAuthLoading]);
+  }, [router, isLoggedIn]);
 
   return (
     <Container maxWidth="lg">

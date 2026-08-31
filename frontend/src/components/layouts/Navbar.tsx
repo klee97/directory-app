@@ -56,9 +56,8 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   });
 
   const hasMounted = useHasMounted();
-  const { isLoggedIn, isLoading: isAuthLoading, isRoleLoading, role } = useAuth();
+  const { isLoggedIn, isRoleLoading, role } = useAuth();
   const isVendor = isVendorRole(role);
-  const isAuthOrRoleLoading = isAuthLoading || isRoleLoading
   const router = useRouter();
 
   const theme = useTheme();
@@ -79,7 +78,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   /* eslint-enable react-hooks/set-state-in-effect */
 
 
-  if (!hasMounted || isAuthLoading) {
+  if (!hasMounted) {
     return (
       <>
         <AppBar
@@ -145,9 +144,6 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   const renderAuthButtons = () => {
-    if (isAuthLoading) {
-      return null; // Don't show anything while loading
-    }
     if (!isLoggedIn) {
       return (
         <Button
@@ -167,7 +163,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   };
 
   const renderProfileMenu = () => {
-    if (isAuthOrRoleLoading) {
+    if (isRoleLoading) {
       return null; // Don't show anything while loading
     }
     if (isLoggedIn) {
@@ -312,7 +308,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     </Collapse>
                   </Box>
                 )}
-                {!isAuthOrRoleLoading && (
+                {!isRoleLoading && (
                   <Box sx={{ width: '100%' }}>
                     <Divider />
                     {!isLoggedIn ? (

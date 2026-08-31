@@ -59,15 +59,15 @@ export const VendorSettings = ({
   const [isUpdatingInquiry, setIsUpdatingInquiry] = useState(false);
 
   const router = useRouter();
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const isUserEmailVerified = userEmail.trim() !== '';
 
   useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
+    if (!isLoggedIn) {
       router.push('/partner/login');
     }
-  }, [isLoading, isLoggedIn, router]);
+  }, [isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
     if (newPassword !== confirmPassword) {

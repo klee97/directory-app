@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function useRequireAdmin() {
-  const { role, isLoading, isRoleLoading, isLoggedIn } = useAuth();
+  const { role, isRoleLoading, isLoggedIn } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading || isRoleLoading) return;
+    if (isRoleLoading) return;
 
     if (!isLoggedIn) {
       router.push(`/login?redirectTo=${encodeURIComponent('/admin')}`);
@@ -18,10 +18,10 @@ export function useRequireAdmin() {
       router.push('/unauthorized');
       return;
     }
-  }, [isLoading, isRoleLoading, isLoggedIn, role, router]);
+  }, [isRoleLoading, isLoggedIn, role, router]);
 
   return {
     isAdmin: isAdminRole(role),
-    isLoading: isLoading || isRoleLoading,
+    isLoading: isRoleLoading,
   };
 }

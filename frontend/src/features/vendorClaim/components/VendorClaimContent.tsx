@@ -27,7 +27,7 @@ const supabaseBrowserClient = createBrowserClient();
 export default function VendorClaimContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { isLoggedIn, isLoading: isAuthLoading, user } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
@@ -44,9 +44,6 @@ export default function VendorClaimContent() {
   // Initialize page: verify token → load vendor info
   useEffect(() => {
     const init = async () => {
-      // Wait for auth context to resolve first
-      if (isAuthLoading) return;
-
       if (isLoggedIn) {
         setExistingUserEmail(user?.email ?? null);
         setIsLoading(false);
@@ -89,7 +86,7 @@ export default function VendorClaimContent() {
     };
 
     init();
-  }, [token, email, slug, router, isLoggedIn, isAuthLoading, user]);
+  }, [token, email, slug, router, isLoggedIn, user]);
 
   const handleSignOutAndReload = async () => {
     await supabaseBrowserClient.auth.signOut();

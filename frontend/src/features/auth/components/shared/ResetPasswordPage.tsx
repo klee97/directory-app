@@ -40,13 +40,13 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
   const supabaseBrowserClient = createBrowserClient();
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
+    if (!isLoggedIn) {
       router.push(loginUrl);
     }
-  }, [isLoggedIn, isLoading, router, loginUrl]);
+  }, [isLoggedIn, router, loginUrl]);
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();

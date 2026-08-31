@@ -5,7 +5,6 @@ import ThemeProvider from '@/components/theme/ThemeProvider';
 import { Alice } from 'next/font/google';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { NotificationManager } from '@/components/common/NotificationManager';
-import { AuthProvider } from "@/contexts/AuthContext";
 import { GTMRouteTracker } from "@/contexts/GTMRouteTracker";
 import { Suspense } from "react";
 import { ConditionalClarity, ConditionalGTM, ConditionalGTMNoScript } from "@/components/analytics/Analytics";
@@ -16,6 +15,7 @@ import { UserContextTracker } from "@/components/analytics/UserContextTracker";
 import type { Organization, WebSite } from 'schema-dts';
 import { jsonLdGraph, sanitizeJsonLdHtml } from "@/seo/jsonLdHtml";
 import { LOGO_URL, ORG_ID, SITE_URL, WEBSITE_ID, PHOTO_WEBSITE_PREVIEW_URL } from "@/seo/constants";
+import { AuthContextServer } from "@/contexts/AuthContextServer";
 
 const alice = Alice({
   weight: ['400'],
@@ -72,7 +72,7 @@ const website: WebSite = {
 
 const globalJsonLd = jsonLdGraph([organization, website]);
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -89,7 +89,7 @@ export default function RootLayout({
         <ConditionalGTM gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
         <ConditionalClarity clarityId={process.env.NEXT_PUBLIC_CLARITY_ID || DEFAULT_CLARITY_ID} />
         <ConditionalGTMNoScript gtmId={process.env.NEXT_PUBLIC_GTM_ID || DEFAULT_GTM_ID} />
-        <AuthProvider>
+        <AuthContextServer>
           <NotificationProvider>
             <NotificationManager />
             <AppRouterCacheProvider>
@@ -103,7 +103,7 @@ export default function RootLayout({
               </ThemeProvider>
             </AppRouterCacheProvider>
           </NotificationProvider>
-        </AuthProvider>
+        </AuthContextServer>
         <Analytics />
       </body>
     </html>

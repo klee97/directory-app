@@ -44,15 +44,15 @@ export const UserSettings = ({ userEmail, userId }: UserSettingsProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const router = useRouter();
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   const isUserEmailVerified = userEmail !== '';
 
   useEffect(() => {
-    if (!isLoading && !isLoggedIn) {
+    if (!isLoggedIn) {
       router.push('/login');
     }
-  }, [isLoading, isLoggedIn, router]);
+  }, [isLoggedIn, router]);
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
     if (newPassword !== confirmPassword) {
