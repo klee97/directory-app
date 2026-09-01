@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, Suspense } from 'react';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -539,13 +539,18 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               go to the contact form instead, since there's nowhere to send a
               link. */}
           {process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true' && vendor.business_name && (
-            <ManageProfilePrompt
-              slug={vendor.slug ?? ''}
-              businessName={vendor.business_name}
-              isClaimed={!!vendor.verified_at}
-              hasEmail={!!vendor.email}
-              emailHint={vendor.email ? maskEmail(vendor.email) : ''}
-            />
+            // Suspense keeps the rest of this statically generated page static:
+            // ManageProfilePrompt reads ?claim=1 via useSearchParams, so only
+            // this subtree defers to the client.
+            <Suspense fallback={null}>
+              <ManageProfilePrompt
+                slug={vendor.slug ?? ''}
+                businessName={vendor.business_name}
+                isClaimed={!!vendor.verified_at}
+                hasEmail={!!vendor.email}
+                emailHint={vendor.email ? maskEmail(vendor.email) : ''}
+              />
+            </Suspense>
           )}
           {children}
         </Container >

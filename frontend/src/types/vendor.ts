@@ -59,7 +59,6 @@ export type Vendor = Pick<BackendVendor, 'id'
   | 'description'
   | 'latitude'
   | 'longitude'
-  | 'access_token'
   | 'inquiries_opted_out_at'
   | 'verified_at'
 > & {
@@ -120,7 +119,6 @@ export function transformBackendVendorToFrontend(vendor: BackendVendor): VendorB
       && isAllowedPrefix(vendor.profile_image)
       ? vendor.profile_image : null,
     cover_image: coverImage,
-    access_token: vendor.access_token,
     inquiries_opted_out_at: vendor.inquiries_opted_out_at,
     verified_at: vendor.verified_at,
   }

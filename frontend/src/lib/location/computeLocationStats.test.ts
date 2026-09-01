@@ -43,7 +43,6 @@ function makeVendor(overrides: Partial<VendorByDistance> = {}): VendorByDistance
     description: null,
     latitude: 40.7128,
     longitude: -74.0060,
-    access_token: null,
     inquiries_opted_out_at: null,
     verified_at: null,
     metro: null,

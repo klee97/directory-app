@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Box from "@mui/material/Box";
 import Link from "@mui/material/Link";
 import Dialog from "@mui/material/Dialog";
@@ -16,6 +16,7 @@ import { useTheme } from "@mui/material/styles";
 import ReCaptcha, { ReCaptchaRef } from "@/components/security/ReCaptcha";
 import { useNotification } from "@/contexts/NotificationContext";
 import { requestClaimLink } from "@/features/vendorClaim/actions/requestClaimLink";
+import { CLAIM_PARAM } from "@/lib/constants";
 
 interface ManageProfilePromptProps {
   slug: string;
@@ -41,7 +42,13 @@ export default function ManageProfilePrompt({
   const { addNotification } = useNotification();
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
-  const [open, setOpen] = useState(false);
+  // Deep link from the expired-claim-link error page: ?claim=1 opens the dialog
+  // straight away, so requesting a fresh link is one click from the dead one.
+  // Only honoured when there's actually a link to send, mirroring handleClick.
+  const searchParams = useSearchParams();
+  const [open, setOpen] = useState(
+    () => searchParams?.get(CLAIM_PARAM) === "1" && !isClaimed && hasEmail
+  );
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
 

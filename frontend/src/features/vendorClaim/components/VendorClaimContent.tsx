@@ -40,6 +40,11 @@ export default function VendorClaimContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
   const [errorType, setErrorType] = useState<ErrorType>(null);
+  // Context from a failed verification, used to pick the error page's CTA.
+  const [linkContext, setLinkContext] = useState<{ hasEmailOnFile: boolean; isClaimed: boolean }>({
+    hasEmailOnFile: false,
+    isClaimed: false,
+  });
 
   // Initialize page: verify token → load vendor info
   useEffect(() => {
@@ -76,7 +81,12 @@ export default function VendorClaimContent() {
       const verification = await verifyVendorMagicLink(slug, email, token);
 
       if (!verification.success) {
-        // Determine if link is expired or invalid based on error message if available
+        // Invalid and expired are deliberately indistinguishable here — the
+        // error page's copy covers both.
+        setLinkContext({
+          hasEmailOnFile: verification.hasEmailOnFile,
+          isClaimed: verification.isClaimed,
+        });
         setErrorType("invalid_link");
       } else {
         setVendorInfo({
@@ -142,7 +152,12 @@ export default function VendorClaimContent() {
           {/* Body */}
           {errorType ? (
             <CardContent sx={{ px: 8, py: 3 }}>
-              <VendorClaimError errorType={errorType} />
+              <VendorClaimError
+                errorType={errorType}
+                slug={slug}
+                hasEmailOnFile={linkContext.hasEmailOnFile}
+                isClaimed={linkContext.isClaimed}
+              />
             </CardContent>
           ) : vendorInfo ? (
             <>

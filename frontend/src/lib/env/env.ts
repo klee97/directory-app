@@ -131,3 +131,23 @@ export const getBaseUrl = () => {
   console.log("Base URL:", baseUrl);
   return baseUrl
 };
+/**
+ * Lifetime of a vendor claim link (`vendors.access_token`), in seconds.
+ * Defaults to 7 days; override with ACCESS_TOKEN_VALID_DURATION for testing.
+ * Server-only on purpose — this must not be inlined into the client bundle.
+ */
+export const DEFAULT_ACCESS_TOKEN_VALID_DURATION_SECONDS = 7 * 24 * 60 * 60
+
+export const getAccessTokenValidDurationSeconds = (): number => {
+  const raw = Number(process.env.ACCESS_TOKEN_VALID_DURATION)
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_ACCESS_TOKEN_VALID_DURATION_SECONDS
+}
+
+/**
+ * Claim-profile feature flag. Also gates claim-link expiry enforcement: with the
+ * flag off, a missing `access_token_valid_until` is not treated as expired.
+ * The `process.env.NEXT_PUBLIC_*` read must stay a literal expression so Next
+ * can inline it at build time.
+ */
+export const isClaimProfileEnabled = () =>
+  process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true'
