@@ -6,6 +6,7 @@ import Alert from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
 import AlertTitle from "@mui/material/AlertTitle";
 import { CLAIM_PARAM } from "@/lib/constants";
+import { isClaimProfileEnabled } from "@/lib/env/env";
 
 export type ErrorType =
   | "invalid_link"
@@ -42,13 +43,12 @@ const ERROR_CONTENT: Record<
 /**
  * Copy for an invalid link once claim links can expire. We can't tell the two
  * apart without leaking whether a token ever existed, so the message covers
- * both. Deliberately vague about the lifetime — it's env-configurable.
+ * both. Deliberately silent on the lifetime — it's env-configurable.
  */
 const EXPIRABLE_INVALID_LINK = {
   title: "Invalid or expired claim link",
   message:
-    "This link is invalid, has expired, or has already been used. Claim links can only be used " +
-    "once and expire after a while — request a new one to continue.",
+    "This link is invalid, has expired, or has already been used. Log in or request a new claim link to continue.",
 };
 
 interface VendorClaimErrorProps {
@@ -68,11 +68,9 @@ export default function VendorClaimError({
   isClaimed,
 }: VendorClaimErrorProps) {
   const router = useRouter();
-  const isClaimProfileEnabled =
-    process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === "true";
 
   const base = ERROR_CONTENT[errorType];
-  const isExpirableInvalidLink = isClaimProfileEnabled && errorType === "invalid_link";
+  const isExpirableInvalidLink = isClaimProfileEnabled() && errorType === "invalid_link";
 
   const { title, message } = isExpirableInvalidLink ? EXPIRABLE_INVALID_LINK : base;
 
