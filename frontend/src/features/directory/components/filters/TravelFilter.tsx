@@ -17,10 +17,10 @@ export default function TravelFilter({
 }: {
   filterMinWidth: number
 }) {
-  const { getParam, setParams } = useURLFiltersContext();
+  const { getBooleanParam, setParams } = useURLFiltersContext();
 
   // Get the current value from URL (default to false if not set)
-  const travelsWorldwideDefault = getParam(TRAVEL_PARAM)?.toLowerCase() === "true";
+  const travelsWorldwideDefault = getBooleanParam(TRAVEL_PARAM);
   const [prevDefault, setPrevDefault] = useState(travelsWorldwideDefault);
   const [travelsWorldwide, setTravelsWorldwide] = useState<boolean>(travelsWorldwideDefault);
 

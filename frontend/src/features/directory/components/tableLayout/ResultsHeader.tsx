@@ -16,28 +16,37 @@ export const ResultsHeader = ({
   selectedLocation,
   sortOption,
   onSortChange,
+  serviceTags,
+  skillTags
 }: {
   loading: boolean,
   resultCount: number,
   selectedLocation: LocationResult | null,
   sortOption: SortOption,
   onSortChange: (sortOption: SortOption) => void,
+  serviceTags: string[],
+  skillTags: string[],
 }) => {
-  const { getAllParams, setArrayParam } = useURLFiltersContext();
+  const { getSanitizedArrayParam, getBooleanParam, setArrayParam, setParam } = useURLFiltersContext();
 
   // Get selected filters from URL params
-  const selectedServices = getAllParams(SERVICE_PARAM) || [];
-  const selectedSkills = getAllParams(SKILL_PARAM) || [];
-  const selectedTravel = getAllParams(TRAVEL_PARAM) || [];
+  const selectedServices = getSanitizedArrayParam(SERVICE_PARAM, serviceTags) || [];
+  const selectedSkills = getSanitizedArrayParam(SKILL_PARAM, skillTags) || [];
+  const selectedTravel = getBooleanParam(TRAVEL_PARAM) || false;
 
-  const hasFilters = selectedServices.length > 0 || selectedSkills.length > 0 || selectedTravel.length > 0;
+  const hasFilters = selectedServices.length > 0 || selectedSkills.length > 0 || selectedTravel;
 
-  // Function to remove a specific filter
-  const handleRemoveFilter = (filterType: string, valueToRemove: string) => {
-    const currentValues = getAllParams(filterType) || [];
+  // Remove one value from a multi-value filter (skill/service)
+  const handleRemoveArrayFilter = (filterType: string, currentValues: string[], valueToRemove: string) => {
     const newValues = currentValues.filter(value => value !== valueToRemove);
     setArrayParam(filterType, newValues.length > 0 ? newValues : null);
   };
+
+  // Clear the single boolean travel filter
+  const handleRemoveTravelFilter = () => {
+    setParam(TRAVEL_PARAM, null);
+  };
+
 
   return (
     <Box
@@ -78,7 +87,7 @@ export const ResultsHeader = ({
               key={`service-${service}`}
               data-testid={`filter-chip-service-${service}`}
               label={service}
-              onDelete={() => handleRemoveFilter(SERVICE_PARAM, service)}
+              onDelete={() => handleRemoveArrayFilter(SERVICE_PARAM, selectedServices, service)}
               color={'primary'}
               size={'small'}
               disabled={loading}
@@ -91,24 +100,23 @@ export const ResultsHeader = ({
               key={`skill-${skill}`}
               data-testid={`filter-chip-skill-${skill}`}
               label={skill}
-              onDelete={() => handleRemoveFilter(SKILL_PARAM, skill)}
+              onDelete={() => handleRemoveArrayFilter(SKILL_PARAM, selectedSkills, skill)}
               color={'info'}
               size={'small'}
               disabled={loading}
             />
           ))}
 
-          {/* Travel Pills */}
-          {selectedTravel.map((travel) => (
+          {/* Travel Pill */}
+          {selectedTravel && (
             <FilterChip
-              key={`travel-${travel}`}
               label={'Travels Worldwide'}
-              onDelete={() => handleRemoveFilter(TRAVEL_PARAM, travel)}
+              onDelete={handleRemoveTravelFilter}
               color={'default'}
               size={'small'}
               disabled={loading}
             />
-          ))}
+          )}
         </Box>
       )}
     </Box>

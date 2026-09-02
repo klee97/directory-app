@@ -4,7 +4,7 @@ import { SEARCH_RADIUS_MILES_DEFAULT } from '@/types/location';
 import NearbyVendorsClient from './NearbyVendorsClient';
 
 
-export default async function NearbyVendors({ vendor, resolvedLocation }: { vendor: Vendor, resolvedLocation: string }) {
+export default async function NearbyVendors({ vendor, resolvedLocation, serviceTags, skillTags }: { vendor: Vendor, resolvedLocation: string, serviceTags: string[], skillTags: string[] }) {
   let nearbyVendors: Vendor[] = [];
 
   if (vendor.latitude != null && vendor.longitude != null) {
@@ -23,5 +23,5 @@ export default async function NearbyVendors({ vendor, resolvedLocation }: { vend
 
   if (nearbyVendors.length === 0) return null;
 
-  return <NearbyVendorsClient vendors={nearbyVendors} resolvedLocation={resolvedLocation} />;
+  return <NearbyVendorsClient vendors={nearbyVendors} resolvedLocation={resolvedLocation} serviceTags={serviceTags} skillTags={skillTags} />;
 }
