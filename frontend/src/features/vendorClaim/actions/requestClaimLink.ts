@@ -2,7 +2,7 @@
 
 import { supabaseAdminClient } from "@/lib/supabase/clients/adminClient";
 import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
-import { getBaseUrl } from "@/lib/env/env";
+import { getAccessTokenValidDurationSeconds, getBaseUrl } from "@/lib/env/env";
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import { sendClaimLinkEmail } from "@/lib/resend/resend";
@@ -58,11 +58,15 @@ export async function requestClaimLink({
     return genericSuccess;
   }
 
-  // Re-generate the access token to invalidate earlier magic links.
+  // Re-generate the access token to invalidate earlier magic links, and stamp
+  // the expiry the claim + verification paths check against.
   const accessToken = crypto.randomUUID();
+  const accessTokenValidUntil = new Date(
+    Date.now() + getAccessTokenValidDurationSeconds() * 1000
+  ).toISOString();
   const { error: tokenError } = await supabaseAdminClient
     .from("vendors")
-    .update({ access_token: accessToken })
+    .update({ access_token: accessToken, access_token_valid_until: accessTokenValidUntil })
     .eq("id", vendor.id);
 
   if (tokenError) {

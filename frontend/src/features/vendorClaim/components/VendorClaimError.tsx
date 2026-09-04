@@ -5,6 +5,8 @@ import Button from "@mui/material/Button";
 import Alert from "@mui/material/Alert";
 import { useRouter } from "next/navigation";
 import AlertTitle from "@mui/material/AlertTitle";
+import { CLAIM_PARAM } from "@/lib/constants";
+import { isClaimProfileEnabled } from "@/lib/env/env";
 
 export type ErrorType =
   | "invalid_link"
@@ -38,13 +40,50 @@ const ERROR_CONTENT: Record<
   },
 };
 
+/**
+ * Copy for an invalid link once claim links can expire. We can't tell the two
+ * apart without leaking whether a token ever existed, so the message covers
+ * both. Deliberately silent on the lifetime — it's env-configurable.
+ */
+const EXPIRABLE_INVALID_LINK = {
+  title: "Invalid or expired claim link",
+  message:
+    "This link is invalid, has expired, or has already been used. Log in or request a new claim link to continue.",
+};
+
 interface VendorClaimErrorProps {
   errorType: NonNullable<ErrorType>;
+  /** Vendor slug from the link, used to route back to the listing's claim CTA. */
+  slug?: string;
+  /** Whether the listing has an email on file a fresh link could go to. */
+  hasEmailOnFile?: boolean;
+  /** Already-claimed listings have an account — a new link won't help. */
+  isClaimed?: boolean;
 }
 
-export default function VendorClaimError({ errorType }: VendorClaimErrorProps) {
+export default function VendorClaimError({
+  errorType,
+  slug,
+  hasEmailOnFile,
+  isClaimed,
+}: VendorClaimErrorProps) {
   const router = useRouter();
-  const { title, message, primaryLabel, primaryHref } = ERROR_CONTENT[errorType];
+
+  const base = ERROR_CONTENT[errorType];
+  const isExpirableInvalidLink = isClaimProfileEnabled() && errorType === "invalid_link";
+
+  const { title, message } = isExpirableInvalidLink ? EXPIRABLE_INVALID_LINK : base;
+
+  // Send the vendor back to the listing's "Manage this profile" CTA so they can
+  // mint a fresh link. Claimed listings already have an account, and a listing
+  // with no email on file has nowhere to send one — both keep the login button.
+  const canRequestNewLink = isExpirableInvalidLink && !!slug && !isClaimed;
+  const primaryLabel = canRequestNewLink ? "Request a new link" : base.primaryLabel;
+  const primaryHref = canRequestNewLink
+    ? hasEmailOnFile
+      ? `/vendors/${slug}?${CLAIM_PARAM}=1`
+      : `/vendors/${slug}`
+    : base.primaryHref;
 
   const handlePrimary = () => {
     if (errorType === "recaptcha_failed") {

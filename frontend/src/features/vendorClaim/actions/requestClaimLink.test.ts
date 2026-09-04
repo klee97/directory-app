@@ -13,7 +13,9 @@ const {
   const selectEqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
   const selectMock = vi.fn(() => ({ eq: selectEqMock }));
   const updateEqMock = vi.fn();
-  const updateMock = vi.fn((_values: { access_token: string }) => ({ eq: updateEqMock }));
+  const updateMock = vi.fn(
+    (_values: { access_token: string; access_token_valid_until: string }) => ({ eq: updateEqMock })
+  );
   return {
     verifyRecaptchaTokenMock: vi.fn(),
     revalidateVendorMock: vi.fn(),
@@ -110,6 +112,34 @@ describe('requestClaimLink', () => {
         `https://example.com/partner/claim?slug=${SLUG}` +
         `&email=claim%2Bvendor%40example.com&token=${newToken}`,
     });
+  });
+
+  it('stamps a 7-day expiry on the new token by default', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'));
+    try {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      const [{ access_token_valid_until: validUntil }] = updateMock.mock.calls[0];
+      expect(validUntil).toBe('2026-03-08T00:00:00.000Z');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('honours ACCESS_TOKEN_VALID_DURATION so the expiry can be shortened for testing', async () => {
+    vi.stubEnv('ACCESS_TOKEN_VALID_DURATION', '60');
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'));
+    try {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      const [{ access_token_valid_until: validUntil }] = updateMock.mock.calls[0];
+      expect(validUntil).toBe('2026-03-01T00:01:00.000Z');
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllEnvs();
+    }
   });
 
   it('busts the cached vendor so the new token is reflected on the profile page', async () => {
