@@ -9,7 +9,7 @@ import { AddAPhoto, Diversity3, Verified } from "@mui/icons-material";
 
 const PERKS = [
   { label: "Receive inquiries", detail: "from real brides. Preview for free, then only pay for leads you want.", icon: <Diversity3 sx={{ fontSize: 24, color: "primary.main" }} /> },
-  { label: "Get discovered", detail: "with a verified checkmark and better search ranking", icon: <Verified sx={{ fontSize: 24, color: "primary.main" }} /> },
+  { label: "Get discovered", detail: "on our front page with a verified checkmark", icon: <Verified sx={{ fontSize: 24, color: "primary.main" }} /> },
   { label: "Add a photo", detail: "for increased profile views", icon: <AddAPhoto sx={{ fontSize: 24, color: "primary.main" }} /> },
 ];
 
