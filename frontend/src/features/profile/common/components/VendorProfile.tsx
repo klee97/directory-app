@@ -218,9 +218,16 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
             Instead of MUI Grid, we use CSS Grid with named areas to have more
             flexible layout depending on screen size.
             small screen stacks image -> details -> contact top to bottom;
-            md+ places details in a full-height left column,
-            with image stacked above
-            contact in the right column.
+            md+ places details in a full-height left column, with image and
+            contact grouped in a single right-hand grid area ("right").
+
+            The image/contact pairing lives in a wrapper Box that is
+            `display: contents` on mobile (so it disappears from the box
+            tree and lets `image`/`contact` act as independent, individually
+            placed grid items in the mobile area order) and a normal block
+            container on md+ (so image and contact simply stack via block
+            flow inside the single "right" track, instead of needing a
+            second grid row sized with gridTemplateRows tricks).
           */}
           <Box
             sx={{
@@ -230,24 +237,14 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               gridTemplateAreas: hasSidebarImage
                 ? {
                   xs: `"image" "details" "contact"`,
-                  md: `"details image" "details contact"`,
+                  md: `"details right"`,
                 }
                 : {
                   xs: `"details" "contact"`,
-                  md: `"details contact"`,
+                  md: `"details right"`,
                 },
             }}
           >
-            {/* Cover Image */}
-            {hasSidebarImage && (
-              <Box sx={{ gridArea: 'image' }}>
-                <VendorCoverImage
-                  coverImage={vendor.cover_image!}
-                  businessName={vendor.business_name}
-                  placeholderImage={placeholderImage}
-                />
-              </Box>
-            )}
             {/* Details */}
             <Box sx={{ gridArea: 'details' }}>
               {/* Vendor Info */}
@@ -521,16 +518,40 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                 </>
               )}
             </Box>
-            {/* Contact */}
-            <Box sx={{ gridArea: 'contact' }}>
-              <Divider
-                sx={{
-                  mt: 4,
-                  mb: 4,
-                  display: { xs: 'block', md: 'none' }, // show only when stacked
-                }}
-              />
-              <ContactCard vendor={vendor} isFavorite={isFavorite} />
+            {/* Image + Contact group. `display: contents` on mobile removes
+                this wrapper from the box tree entirely, so its children fall
+                back to being independently-placed grid items using their
+                own gridArea ("image" / "contact") in the mobile stacking
+                order. On md+, the wrapper becomes a normal block box placed
+                in the single "right" grid area, so image and contact simply
+                stack via block flow rather than separate grid rows. */}
+            <Box
+              sx={{
+                display: { xs: 'contents', md: 'block' },
+                gridArea: { md: 'right' },
+              }}
+            >
+              {/* Cover Image */}
+              {hasSidebarImage && (
+                <Box sx={{ gridArea: { xs: 'image', md: 'auto' } }}>
+                  <VendorCoverImage
+                    coverImage={vendor.cover_image!}
+                    businessName={vendor.business_name}
+                    placeholderImage={placeholderImage}
+                  />
+                </Box>
+              )}
+              {/* Contact */}
+              <Box sx={{ gridArea: { xs: 'contact', md: 'auto' } }}>
+                <Divider
+                  sx={{
+                    mt: 4,
+                    mb: 4,
+                    display: { xs: 'block', md: 'none' }, // show only when stacked
+                  }}
+                />
+                <ContactCard vendor={vendor} isFavorite={isFavorite} />
+              </Box>
             </Box>
           </Box>
           {/* Claim/Edit Profile CTA. Claimed listings send the owner
