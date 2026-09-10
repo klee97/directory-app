@@ -19,13 +19,16 @@ import { useLocationManagement } from '@/features/directory/hooks/useLocationMan
 import { useSearchManagement } from '@/features/directory/hooks/useSearchManagement';
 import { usePagination } from '@/features/directory/hooks/usePagination';
 import { useAnalyticsTracking } from '@/features/directory/hooks/useAnalyticsTracking';
-import { FilterSection } from './tableLayout/FilterSection';
 import { ResultsHeader } from './tableLayout/ResultsHeader';
 import { URLFiltersProvider } from '@/contexts/URLFiltersContext';
 import { useURLFilters } from '@/hooks/useURLFilters';
 import { FilterTags } from '@/lib/directory/filterTags';
 import LoadingPage from '@/components/layouts/LoadingPage';
 import { sanitizeFilterBoolean, sanitizeFilterValues } from '@/lib/directory/sanitizeFilterParams';
+import { Fab, useMediaQuery, useTheme } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import { MobileFilterDrawer } from './tableLayout/MobileFilterDrawer';
+import { FilterSection } from './tableLayout/FilterSection';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -48,6 +51,9 @@ export function FilterableVendorTableContent({
   const searchParamsString = useMemo(() => searchParams?.toString() ?? "", [searchParams]);
   const router = useRouter();
   const pathname = usePathname() || '/vendors';
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Extract search parameters
   const searchQuery = searchParams?.get(SEARCH_PARAM) || "";
@@ -124,7 +130,7 @@ export function FilterableVendorTableContent({
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: 2 }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, paddingTop: { xs: 0, md: 2 } }}>
       {/* Filters and Search Section */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
 
@@ -133,7 +139,7 @@ export function FilterableVendorTableContent({
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            gap: 2,
+            gap: { xs: 1 },
             alignItems: { xs: 'stretch', md: 'center' },
           }}
         >
@@ -159,16 +165,50 @@ export function FilterableVendorTableContent({
         display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2
       }}>
         {/* Other Filters */}
-        <FilterSection
-          tags={tags}
-          onClearFilters={handleClearFilters}
-          filterMinWidth={FILTER_MIN_WIDTH}
-        />
-        <Divider />
+        {isMobile ? (
+          <>
+            <Fab
+              variant="extended"
+              color="primary"
+              onClick={() => setFiltersOpen(true)}
+              sx={{
+                position: 'fixed',
+                bottom: 'max(16px, env(safe-area-inset-bottom))',
+                right: 16,
+                px: 3,
+                textTransform: 'none'
+              }}
+              aria-label="Open filters"
+            >
+              <FilterListIcon sx={{ mr: 1 }} />
+              Filter
+            </Fab>
+
+            <MobileFilterDrawer
+              open={filtersOpen}
+              onClose={() => setFiltersOpen(false)}
+              tags={tags}
+              onClearFilters={handleClearFilters}
+              filterMinWidth={FILTER_MIN_WIDTH}
+              sortOption={vendorFiltering.sortOption}
+              onSortChange={vendorFiltering.setSortOption}
+            />
+          </>
+        ) : (
+          <>
+            <FilterSection
+              tags={tags}
+              onClearFilters={handleClearFilters}
+              filterMinWidth={FILTER_MIN_WIDTH}
+            />
+            <Divider />
+          </>
+
+        )}
 
         {/* Results Count and Sorting */}
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
-          <ResultsHeader
+          {!isMobile && <ResultsHeader
             loading={vendorFiltering.loading}
             resultCount={vendorFiltering.searchedAndSortedVendors.length}
             selectedLocation={locationManagement.selectedLocation}
@@ -177,6 +217,7 @@ export function FilterableVendorTableContent({
             serviceTags={tags.services}
             skillTags={tags.skills}
           />
+          }
 
           {vendorFiltering.searchedAndSortedVendors.length === 0 && (
             <Box sx={{ textAlign: 'center', padding: 4 }}>

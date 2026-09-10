@@ -10,6 +10,7 @@ import { LocationResult } from '@/types/location';
 import Scroll from '@/components/ui/Scroll';
 import { FilterTags } from '@/lib/directory/filterTags';
 import { useAuth } from '@/contexts/AuthContext';
+import Box from '@mui/material/Box/Box';
 
 
 interface DirectoryProps {
@@ -42,16 +43,20 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
     <Container
       maxWidth="lg"
       component="main"
-      sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4, sm: 8, md: 12 }, gap: 2 }}
+      sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4 }, gap: 2 }}
     >
-      <Scroll showBelow={250} />
-      <Typography variant="h2" component="h1" gutterBottom>
+      <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+        <Scroll showBelow={250} />
+      </Box>
+      <Typography variant="h2" component="h1">
         The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
       </Typography>
-      <Typography>
+      <Typography
+        variant="body1"
+        sx={{ display: { xs: 'none', md: 'block' } }} // hide entirely on mobile
+      >
         Find talented makeup artists and hair stylists who are recommended by the Asian diaspora community.
       </Typography>
-
       <FilterableVendorTable
         vendors={vendors}
         favoriteVendorIds={favoriteVendorIds}

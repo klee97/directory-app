@@ -3,12 +3,13 @@ import { SORT_OPTIONS, SortOption } from "@/types/sort";
 import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import Typography from "@mui/material/Typography";
 import { SERVICE_PARAM, SKILL_PARAM, TRAVEL_PARAM } from "@/lib/constants";
 import FilterChip from "@/components/ui/FilterChip";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+
 
 export const ResultsHeader = ({
   loading,
@@ -78,7 +79,6 @@ export const ResultsHeader = ({
             display: 'flex',
             flexWrap: 'wrap',
             gap: 1,
-            paddingBottom: 1
           }}
         >
           {/* Service Pills */}
