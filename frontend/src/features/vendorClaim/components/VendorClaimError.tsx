@@ -8,14 +8,16 @@ import AlertTitle from "@mui/material/AlertTitle";
 import { CLAIM_PARAM } from "@/lib/constants";
 import { isClaimProfileEnabled } from "@/lib/env/env";
 
-export type ErrorType =
-  | "invalid_link"
-  | "missing_params"
-  | "recaptcha_failed"
-  | null;
+export const ErrorTypes = {
+  InvalidLink: "invalid_link",
+  MissingParams: "missing_params",
+  RecaptchaFailed: "recaptcha_failed",
+} as const;
+
+export type ErrorType = (typeof ErrorTypes)[keyof typeof ErrorTypes];
 
 const ERROR_CONTENT: Record<
-  NonNullable<ErrorType>,
+  ErrorType,
   { title: string; message: string; primaryLabel: string; primaryHref: string }
 > = {
   invalid_link: {
@@ -52,7 +54,7 @@ const EXPIRABLE_INVALID_LINK = {
 };
 
 interface VendorClaimErrorProps {
-  errorType: NonNullable<ErrorType>;
+  errorType: ErrorType;
   /** Vendor slug from the link, used to route back to the listing's claim CTA. */
   slug?: string;
   /** Whether the listing has an email on file a fresh link could go to. */
@@ -70,7 +72,7 @@ export default function VendorClaimError({
   const router = useRouter();
 
   const base = ERROR_CONTENT[errorType];
-  const isExpirableInvalidLink = isClaimProfileEnabled() && errorType === "invalid_link";
+  const isExpirableInvalidLink = isClaimProfileEnabled() && errorType === ErrorTypes.InvalidLink;
 
   const { title, message } = isExpirableInvalidLink ? EXPIRABLE_INVALID_LINK : base;
 
@@ -86,7 +88,7 @@ export default function VendorClaimError({
     : base.primaryHref;
 
   const handlePrimary = () => {
-    if (errorType === "recaptcha_failed") {
+    if (errorType === ErrorTypes.RecaptchaFailed) {
       window.location.reload();
     } else {
       router.push(primaryHref);

@@ -42,7 +42,7 @@ function cooldownError(
     : cooldownMs;
   const wait = formatWait(Math.ceil(Math.min(Math.max(remainingMs, 0), cooldownMs) / 1000));
 
-  return `We already sent a link for this listing. Check your inbox — you can request another in ${wait}.`;
+  return `Check your inbox and spam folder for the link. Still don't see it? Request a new link in ${wait}.`;
 }
 
 /**
@@ -53,7 +53,7 @@ function cooldownError(
  * - We never accept or reveal the email from the client; it is read server-side
  *   from the vendor record so a bride poking at this can't learn or set it.
  * - reCAPTCHA gates the request to make inbox-spamming a vendor harder.
- * - A per-listing cooldown (CLAIM_LINK_REQUEST_COOLDOWN) refuses repeat
+ * - A per-listing cooldown (CLAIM_LINK_REQUEST_COOLDOWN_SECONDS) refuses repeat
  *   requests, so neither a script nor an impatient human can flood the
  *   vendor's inbox — or keep rotating the token out from under a link the
  *   vendor is already trying to use.
@@ -112,7 +112,7 @@ export async function requestClaimLink({
   //   in cooldown  <=>  access_token_valid_until > now + validMs - cooldownMs
   //
   // A `valid_until` beyond `now + validMs` can't have been minted under the
-  // current ACCESS_TOKEN_VALID_DURATION, so the derivation is meaningless and
+  // current ACCESS_TOKEN_VALID_DURATION_SECONDS, so the derivation is meaningless and
   // we fail open rather than locking the listing out until the token expires.
   let updateQuery = supabaseAdminClient
     .from("vendors")

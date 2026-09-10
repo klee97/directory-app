@@ -152,8 +152,8 @@ describe('requestClaimLink', () => {
     }
   });
 
-  it('honours ACCESS_TOKEN_VALID_DURATION so the expiry can be shortened for testing', async () => {
-    vi.stubEnv('ACCESS_TOKEN_VALID_DURATION', '60');
+  it('honours ACCESS_TOKEN_VALID_DURATION_SECONDS so the expiry can be shortened for testing', async () => {
+    vi.stubEnv('ACCESS_TOKEN_VALID_DURATION_SECONDS', '60');
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'));
     try {
@@ -262,7 +262,7 @@ describe('requestClaimLink', () => {
       expect(result).toEqual({
         success: false,
         error:
-          'We already sent a link for this listing. Check your inbox — you can request another in 4 minutes.',
+          "Check your inbox and spam folder for the link. Still don't see it? Request a new link in 4 minutes.",
       });
     });
 
@@ -285,8 +285,8 @@ describe('requestClaimLink', () => {
       expect((result as { error: string }).error).toContain('5 minutes');
     });
 
-    it('drops the cooldown clause entirely when CLAIM_LINK_REQUEST_COOLDOWN is 0', async () => {
-      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN', '0');
+    it('drops the cooldown clause entirely when CLAIM_LINK_REQUEST_COOLDOWN_SECONDS is 0', async () => {
+      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '0');
 
       const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
@@ -295,7 +295,7 @@ describe('requestClaimLink', () => {
     });
 
     it('honours a shortened cooldown from the env var', async () => {
-      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN', '60');
+      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '60');
 
       await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
@@ -306,8 +306,8 @@ describe('requestClaimLink', () => {
     });
 
     it('clamps a cooldown longer than the token validity window', async () => {
-      vi.stubEnv('ACCESS_TOKEN_VALID_DURATION', '600');
-      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN', '99999');
+      vi.stubEnv('ACCESS_TOKEN_VALID_DURATION_SECONDS', '600');
+      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '99999');
 
       await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
@@ -321,7 +321,7 @@ describe('requestClaimLink', () => {
     it('fails open for a token minted under a longer validity duration', async () => {
       // Stored expiry is further out than the current duration could produce,
       // so the derived request time would be in the future and meaningless.
-      vi.stubEnv('ACCESS_TOKEN_VALID_DURATION', '600');
+      vi.stubEnv('ACCESS_TOKEN_VALID_DURATION_SECONDS', '600');
       const farFuture = new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
       maybeSingleMock.mockResolvedValue({
         data: { ...UNCLAIMED_VENDOR, access_token_valid_until: farFuture },

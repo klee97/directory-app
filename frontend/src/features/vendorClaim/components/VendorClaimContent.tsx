@@ -15,7 +15,7 @@ import Link from "@mui/material/Link";
 import NextLink from "next/link";
 import AlreadyLoggedIn from "@/features/vendorClaim/components/VendorLoggedIn";
 import BusinessStrip from "@/components/ui/BusinessStrip";
-import VendorClaimError, { ErrorType } from "@/features/vendorClaim/components/VendorClaimError";
+import VendorClaimError, { ErrorType, ErrorTypes } from "@/features/vendorClaim/components/VendorClaimError";
 import VendorClaimForm from "@/features/vendorClaim/components/VendorClaimForm";
 import VendorClaimPerks from "@/features/vendorClaim/components/VendorClaimPerks";
 import { Divider } from "@mui/material";
@@ -39,7 +39,7 @@ export default function VendorClaimContent() {
   const [existingUserEmail, setExistingUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [vendorInfo, setVendorInfo] = useState<{ name: string; email: string } | null>(null);
-  const [errorType, setErrorType] = useState<ErrorType>(null);
+  const [errorType, setErrorType] = useState<ErrorType | null>(null);
   // Context from a failed verification, used to pick the error page's CTA.
   const [linkContext, setLinkContext] = useState<{ hasEmailOnFile: boolean; isClaimed: boolean }>({
     hasEmailOnFile: false,
@@ -61,7 +61,7 @@ export default function VendorClaimContent() {
       const areAllParamsValid = !!email && !!token && email.trim() !== "" && token.trim() !== "" && slug.trim() !== "";
 
       if (!areAllParamsValid) {
-        setErrorType("missing_params");
+        setErrorType(ErrorTypes.MissingParams);
         setIsLoading(false);
         return;
       }
@@ -72,7 +72,7 @@ export default function VendorClaimContent() {
         console.debug("reCAPTCHA executed successfully");
       } catch (error) {
         console.error("Error executing reCAPTCHA: ", error);
-        setErrorType("recaptcha_failed");
+        setErrorType(ErrorTypes.RecaptchaFailed);
         setIsLoading(false);
         return;
       }
@@ -87,7 +87,7 @@ export default function VendorClaimContent() {
           hasEmailOnFile: verification.hasEmailOnFile,
           isClaimed: verification.isClaimed,
         });
-        setErrorType("invalid_link");
+        setErrorType(ErrorTypes.InvalidLink);
       } else {
         setVendorInfo({
           name: verification.vendorBusinessName || "Your Vendor",
