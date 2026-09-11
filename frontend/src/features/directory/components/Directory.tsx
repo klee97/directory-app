@@ -43,7 +43,7 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
     <Container
       maxWidth="lg"
       component="main"
-      sx={{ display: 'flex', flexDirection: 'column', my: { xs: 4 }, gap: 2 }}
+      sx={{ display: 'flex', flexDirection: 'column', my: 4, gap: 2 }}
     >
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
         <Scroll showBelow={250} />

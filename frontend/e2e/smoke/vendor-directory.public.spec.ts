@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { refreshVendors } from '../fixtures/devToolHelpers';
 
 /**
@@ -9,8 +9,21 @@ import { refreshVendors } from '../fixtures/devToolHelpers';
  *       tags: Thai Makeup (skill, style=default), Hair (service, style=primary)
  *   - TEST-E2E-002 "Test Bridal Beauty Co" slug: test-bridal-beauty-co
  *       tags: Hair (service, style=primary)
+ *
+ * On mobile, Skills/Services/Sort/Travel live inside a bottom-sheet Drawer
+ * opened via the "Filter" FAB. Filter chips and the result count remain on
+ * the main page. Any test that needs to click something behind the drawer
+ * (a vendor card, a chip) must close it first, since the Drawer's backdrop
+ * blocks pointer events on the page underneath.
  */
 
+async function openFilterDrawer(page: Page) {
+  await page.getByRole('button', { name: 'Filter' }).click();
+}
+
+async function closeFilterDrawer(page: Page) {
+  await page.getByRole('button', { name: 'Done' }).click();
+}
 
 test.beforeAll(async ({ browser }) => {
   const page = await browser.newPage();
@@ -37,7 +50,8 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   });
 
   test('filter by skill and click vendor card', async ({ page }) => {
-    // Expand the Skills accordion
+    // Expand the Skills accordion (now inside the mobile filter drawer)
+    await openFilterDrawer(page);
     await page.getByRole('button', { name: 'Skills' }).click();
 
     // Select the Thai Makeup skill (style=default → appears in Skills filter)
@@ -45,6 +59,8 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
 
     // Only the vendor with this skill should be visible
     await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+    await closeFilterDrawer(page);
+
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
     await expect(page.getByText('Test Bridal Beauty Co')).not.toBeVisible();
 
@@ -63,7 +79,8 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   });
 
   test('filter by service and click vendor card', async ({ page }) => {
-    // Expand the Services accordion
+    // Expand the Services accordion (now inside the mobile filter drawer)
+    await openFilterDrawer(page);
     await page.getByRole('button', { name: 'Services' }).click();
 
     // Select the Hair service (style=primary → appears in Services filter)
@@ -72,6 +89,8 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
 
     // Both test vendors offer this service
     await expect(page.getByText(/2 Wedding Beauty Artists found/)).toBeVisible({ timeout: 15_000 });
+    await closeFilterDrawer(page);
+
     await expect(page.getByText('Test Glamour Studio')).toBeVisible();
     await expect(page.getByText('Test Bridal Beauty Co')).toBeVisible();
 
@@ -89,6 +108,7 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
 
   test('search by vendor name and click vendor card', async ({ page }) => {
     // Type in the artist-name search input (500 ms debounce)
+    // Search bar remains on the main page, unaffected by the drawer change
     await page.getByPlaceholder('Artist Name').pressSequentially('Test Glamour', { delay: 100 });
 
     // Wait for the debounced filter to apply and the matching card to appear
@@ -111,11 +131,13 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   });
 
   test('remove a skill filter via chip and see full vendor list restored', async ({ page }) => {
+    await openFilterDrawer(page);
     await page.getByRole('button', { name: 'Skills' }).click();
     await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
 
     await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveURL(/skill=Thai\+Makeup/);
+    await closeFilterDrawer(page);
 
     const chip = page.getByTestId('filter-chip-skill-Thai Makeup');
     await expect(chip).toBeVisible();
@@ -149,10 +171,12 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
   });
 
   test('filter state stays in sync with browser back/forward', async ({ page }) => {
+    await openFilterDrawer(page);
     await page.getByRole('button', { name: 'Skills' }).click();
     await page.locator('label').filter({ hasText: 'Thai Makeup' }).click();
     await expect(page).toHaveURL(/skill=Thai\+Makeup/);
     await expect(page.getByText(/1 Wedding Beauty Artist found/)).toBeVisible({ timeout: 15_000 });
+    await closeFilterDrawer(page);
 
     await page.goBack();
     await expect(page).not.toHaveURL(/skill=/);
@@ -176,7 +200,8 @@ test.describe('Vendor directory — guest', { tag: '@mobile' }, () => {
     await expect(chip).toBeVisible();
     await expect(page.getByTestId('filter-chip-service-hair')).not.toBeVisible();
 
-    // Checkbox reflects the same canonical match
+    // Checkbox reflects the same canonical match (now inside the filter drawer)
+    await openFilterDrawer(page);
     await page.getByRole('button', { name: 'Services' }).click();
     await expect(page.locator('label').filter({ hasText: /^Hair$/ }).locator('input')).toBeChecked();
   });

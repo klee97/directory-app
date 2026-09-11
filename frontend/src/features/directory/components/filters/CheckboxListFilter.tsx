@@ -23,7 +23,7 @@ export function CheckboxListFilter({
   const { getSanitizedArrayParam, setArrayParam } = useURLFiltersContext();
   const scrollToTopOnMobile = useScrollToTopOnMobile();
 
-  const selected = useMemo(() => getSanitizedArrayParam(paramKey, tags) || [], [getSanitizedArrayParam, paramKey]);
+  const selected = useMemo(() => getSanitizedArrayParam(paramKey, tags) || [], [getSanitizedArrayParam, paramKey, tags]);
   const checkedFlags = useMemo(
     () => tags.map((tag) => selected.includes(tag)),
     [tags, selected]
