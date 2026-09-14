@@ -48,7 +48,11 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
       <Box sx={{ display: { xs: 'none', md: 'block' } }}>
         <Scroll showBelow={250} />
       </Box>
-      <Typography variant="h2" component="h1">
+      <Typography
+        variant="h2"
+        component="h1"
+        sx={{ display: { xs: 'none', md: 'block' } }} // hide entirely on mobile
+      >
         The Best Wedding Makeup Artists for Asian Features {selectedLocation ? `in ${selectedLocation.display_name}` : ''}
       </Typography>
       <Typography
@@ -63,6 +67,6 @@ export function Directory({ vendors, tags, selectedLocation }: DirectoryProps) {
         tags={tags}
         preselectedLocation={selectedLocation}
       />
-    </Container>
+    </Container >
   );
 }

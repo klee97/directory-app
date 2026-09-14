@@ -8,6 +8,7 @@ import { ServiceFilter } from "@/features/directory/components/filters/ServiceFi
 import { SortFilter } from "@/features/directory/components/filters/SortFilter";
 import { FilterTags } from "@/lib/directory/filterTags";
 import { SortOption } from "@/types/sort";
+import { FilterPillsRow } from "./FilterPillsRow";
 
 interface MobileFilterDrawerProps {
   open: boolean;
@@ -17,6 +18,8 @@ interface MobileFilterDrawerProps {
   filterMinWidth: number;
   sortOption: SortOption;
   onSortChange: (sortOption: SortOption) => void;
+  selectedSkills: string[];
+  selectedServices: string[];
 }
 
 export const MobileFilterDrawer = ({
@@ -27,6 +30,8 @@ export const MobileFilterDrawer = ({
   filterMinWidth,
   sortOption,
   onSortChange,
+  selectedSkills,
+  selectedServices,
 }: MobileFilterDrawerProps) => (
   <Drawer
     anchor="bottom"
@@ -44,7 +49,7 @@ export const MobileFilterDrawer = ({
       }
     }}
   >
-    <Box sx={{ overflowY: 'auto', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <Box sx={{ overflowY: 'auto', p: 2, display: 'flex', flexDirection: 'column'}}>
       <SortFilter
         sortOption={sortOption}
         onChange={onSortChange}

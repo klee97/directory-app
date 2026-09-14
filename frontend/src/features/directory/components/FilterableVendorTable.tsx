@@ -29,6 +29,7 @@ import { Fab, useMediaQuery, useTheme } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { MobileFilterDrawer } from './tableLayout/MobileFilterDrawer';
 import { FilterSection } from './tableLayout/FilterSection';
+import { ResultsCount } from './tableLayout/ResultsCount';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -192,6 +193,8 @@ export function FilterableVendorTableContent({
               filterMinWidth={FILTER_MIN_WIDTH}
               sortOption={vendorFiltering.sortOption}
               onSortChange={vendorFiltering.setSortOption}
+              selectedSkills={selectedSkills}
+              selectedServices={selectedServices}
             />
           </>
         ) : (
@@ -208,15 +211,21 @@ export function FilterableVendorTableContent({
 
         {/* Results Count and Sorting */}
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
-          {!isMobile && <ResultsHeader
-            loading={vendorFiltering.loading}
-            resultCount={vendorFiltering.searchedAndSortedVendors.length}
-            selectedLocation={locationManagement.selectedLocation}
-            sortOption={vendorFiltering.sortOption}
-            onSortChange={vendorFiltering.setSortOption}
-            serviceTags={tags.services}
-            skillTags={tags.skills}
-          />
+          {!isMobile ?
+            <ResultsHeader
+              loading={vendorFiltering.loading}
+              resultCount={vendorFiltering.searchedAndSortedVendors.length}
+              selectedLocation={locationManagement.selectedLocation}
+              sortOption={vendorFiltering.sortOption}
+              onSortChange={vendorFiltering.setSortOption}
+              serviceTags={tags.services}
+              skillTags={tags.skills}
+            />
+            : <ResultsCount
+              loading={vendorFiltering.loading}
+              count={vendorFiltering.searchedAndSortedVendors.length}
+              location={locationManagement.selectedLocation}
+            />
           }
 
           {vendorFiltering.searchedAndSortedVendors.length === 0 && (

@@ -18,7 +18,20 @@ export function FilterAccordion({
   const id = title.toLowerCase().replace(/\s+/g, '-');
 
   return (
-    <Accordion disableGutters={true} sx={{ minWidth: filterMinWidth }}>
+    <Accordion
+      disableGutters={true}
+      sx={{
+        minWidth: filterMinWidth,
+        '&:before': {
+          display: 'none', // kill MUI's animated divider pseudo-element
+        },
+        border: '1px solid',
+        borderColor: 'divider',
+        '&:not(:last-child)': {
+          borderBottom: 0, // avoid doubled borders between stacked accordions
+        },
+      }}
+    >
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`${id}-panel-content`}
