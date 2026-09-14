@@ -527,7 +527,8 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                 stack via block flow rather than separate grid rows. */}
             <Box
               sx={{
-                display: { xs: 'contents', md: 'block' },
+                display: { xs: 'contents', md: 'flex' },
+                flexDirection: { md: 'column' },
                 gridArea: { md: 'right' },
               }}
             >
@@ -542,7 +543,7 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                 </Box>
               )}
               {/* Contact */}
-              <Box sx={{ gridArea: { xs: 'contact', md: 'auto' } }}>
+              <Box sx={{ gridArea: { xs: 'contact', md: 'auto' }, flexGrow: { md: 1 } }}>
                 <Divider
                   sx={{
                     mt: 4,
