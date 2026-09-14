@@ -25,11 +25,10 @@ import { useURLFilters } from '@/hooks/useURLFilters';
 import { FilterTags } from '@/lib/directory/filterTags';
 import LoadingPage from '@/components/layouts/LoadingPage';
 import { sanitizeFilterBoolean, sanitizeFilterValues } from '@/lib/directory/sanitizeFilterParams';
-import { Fab, useMediaQuery, useTheme } from '@mui/material';
+import { Fab, useTheme } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { MobileFilterDrawer } from './tableLayout/MobileFilterDrawer';
 import { FilterSection } from './tableLayout/FilterSection';
-import { ResultsCount } from './tableLayout/ResultsCount';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -53,7 +52,6 @@ export function FilterableVendorTableContent({
   const router = useRouter();
   const pathname = usePathname() || '/vendors';
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   // Extract search parameters
@@ -165,68 +163,59 @@ export function FilterableVendorTableContent({
       <Box sx={{
         display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2
       }}>
-        {/* Other Filters */}
-        {isMobile ? (
-          <>
-            <Fab
-              variant="extended"
-              color="primary"
-              onClick={() => setFiltersOpen(true)}
-              sx={{
-                position: 'fixed',
-                bottom: 'max(16px, env(safe-area-inset-bottom))',
-                right: 16,
-                px: 3,
-                textTransform: 'none'
-              }}
-              aria-label="Open filters"
-            >
-              <FilterListIcon sx={{ mr: 1 }} />
-              Filter
-            </Fab>
+        {/* Mobile: FAB + Drawer */}
+        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+          <Fab
+            variant="extended"
+            color="primary"
+            onClick={() => setFiltersOpen(true)}
+            sx={{
+              position: 'fixed',
+              bottom: 'max(16px, env(safe-area-inset-bottom))',
+              right: 16,
+              px: 3,
+              textTransform: 'none'
+            }}
+            aria-label="Open filters"
+          >
+            <FilterListIcon sx={{ mr: 1 }} />
+            Filter
+          </Fab>
 
-            <MobileFilterDrawer
-              open={filtersOpen}
-              onClose={() => setFiltersOpen(false)}
-              tags={tags}
-              onClearFilters={handleClearFilters}
-              filterMinWidth={FILTER_MIN_WIDTH}
-              sortOption={vendorFiltering.sortOption}
-              onSortChange={vendorFiltering.setSortOption}
-              selectedSkills={selectedSkills}
-              selectedServices={selectedServices}
-            />
-          </>
-        ) : (
-          <>
-            <FilterSection
-              tags={tags}
-              onClearFilters={handleClearFilters}
-              filterMinWidth={FILTER_MIN_WIDTH}
-            />
-            <Divider />
-          </>
+          <MobileFilterDrawer
+            open={filtersOpen}
+            onClose={() => setFiltersOpen(false)}
+            tags={tags}
+            onClearFilters={handleClearFilters}
+            filterMinWidth={FILTER_MIN_WIDTH}
+            sortOption={vendorFiltering.sortOption}
+            onSortChange={vendorFiltering.setSortOption}
+            selectedSkills={selectedSkills}
+            selectedServices={selectedServices}
+          />
+        </Box>
 
-        )}
+        {/* Desktop: inline filter section */}
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'row', gap: 2, width: '100%' }}>
+          <FilterSection
+            tags={tags}
+            onClearFilters={handleClearFilters}
+            filterMinWidth={FILTER_MIN_WIDTH}
+          />
+          <Divider />
+        </Box>
 
         {/* Results Count and Sorting */}
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
-          {!isMobile ?
-            <ResultsHeader
-              loading={vendorFiltering.loading}
-              resultCount={vendorFiltering.searchedAndSortedVendors.length}
-              selectedLocation={locationManagement.selectedLocation}
-              sortOption={vendorFiltering.sortOption}
-              onSortChange={vendorFiltering.setSortOption}
-              serviceTags={tags.services}
-              skillTags={tags.skills}
-            />
-            : <ResultsCount
-              loading={vendorFiltering.loading}
-              count={vendorFiltering.searchedAndSortedVendors.length}
-              location={locationManagement.selectedLocation}
-            />
-          }
+          <ResultsHeader
+            loading={vendorFiltering.loading}
+            resultCount={vendorFiltering.searchedAndSortedVendors.length}
+            selectedLocation={locationManagement.selectedLocation}
+            sortOption={vendorFiltering.sortOption}
+            onSortChange={vendorFiltering.setSortOption}
+            serviceTags={tags.services}
+            skillTags={tags.skills}
+          />
 
           {vendorFiltering.searchedAndSortedVendors.length === 0 && (
             <Box sx={{ textAlign: 'center', padding: 4 }}>

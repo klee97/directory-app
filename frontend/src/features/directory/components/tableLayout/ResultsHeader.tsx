@@ -15,7 +15,7 @@ export const ResultsHeader = ({
   sortOption,
   onSortChange,
   serviceTags,
-  skillTags
+  skillTags,
 }: {
   loading: boolean,
   resultCount: number,
@@ -45,7 +45,9 @@ export const ResultsHeader = ({
         }}
       >
         <ResultsCount count={resultCount} loading={loading} location={selectedLocation} />
-        <SortDropdown sortOption={sortOption} onChange={onSortChange} />
+        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <SortDropdown sortOption={sortOption} onChange={onSortChange} />
+        </Box>
       </Box>
       {/* Filter Pills Row */}
       <FilterPillsRow

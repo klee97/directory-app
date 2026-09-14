@@ -8,7 +8,6 @@ import { ServiceFilter } from "@/features/directory/components/filters/ServiceFi
 import { SortFilter } from "@/features/directory/components/filters/SortFilter";
 import { FilterTags } from "@/lib/directory/filterTags";
 import { SortOption } from "@/types/sort";
-import { FilterPillsRow } from "./FilterPillsRow";
 
 interface MobileFilterDrawerProps {
   open: boolean;
