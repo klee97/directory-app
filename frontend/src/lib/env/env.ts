@@ -131,3 +131,40 @@ export const getBaseUrl = () => {
   console.log("Base URL:", baseUrl);
   return baseUrl
 };
+/**
+ * Lifetime of a vendor claim link (`vendors.access_token`), in seconds.
+ * Defaults to 7 days; override with ACCESS_TOKEN_VALID_DURATION_SECONDS for testing.
+ * Server-only on purpose — this must not be inlined into the client bundle.
+ */
+export const DEFAULT_ACCESS_TOKEN_VALID_DURATION_SECONDS = 7 * 24 * 60 * 60
+
+export const getAccessTokenValidDurationSeconds = (): number => {
+  const raw = Number(process.env.ACCESS_TOKEN_VALID_DURATION_SECONDS)
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_ACCESS_TOKEN_VALID_DURATION_SECONDS
+}
+
+/**
+ * How long to refuse repeat claim-link requests for the same listing, in
+ * seconds. Defaults to 5 minutes; override with CLAIM_LINK_REQUEST_COOLDOWN_SECONDS
+ * for testing, where 0 disables the cooldown entirely.
+ *
+ * Clamped to the token validity window: a cooldown longer than the link's own
+ * lifetime would lock a listing out until its token expired. Server-only.
+ */
+export const DEFAULT_CLAIM_LINK_COOLDOWN_SECONDS = 5 * 60
+
+export const getClaimLinkCooldownSeconds = (): number => {
+  const raw = Number(process.env.CLAIM_LINK_REQUEST_COOLDOWN_SECONDS)
+  // `>= 0` so an explicit 0 disables rather than falling back to the default.
+  const cooldown = Number.isFinite(raw) && raw >= 0 ? raw : DEFAULT_CLAIM_LINK_COOLDOWN_SECONDS
+  return Math.min(cooldown, getAccessTokenValidDurationSeconds())
+}
+
+/**
+ * Claim-profile feature flag. Also gates claim-link expiry enforcement: with the
+ * flag off, a missing `access_token_valid_until` is not treated as expired.
+ * The `process.env.NEXT_PUBLIC_*` read must stay a literal expression so Next
+ * can inline it at build time.
+ */
+export const isClaimProfileEnabled = () =>
+  process.env.NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED === 'true'

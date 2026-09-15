@@ -17,6 +17,9 @@ export const SLUG_PARAM = 'slug';
 export const EMAIL_PARAM = 'email';
 export const TOKEN_PARAM = 'token';
 
+// Opens the "Manage this profile" dialog on a vendor page (see ManageProfilePrompt)
+export const CLAIM_PARAM = 'claim';
+
 export type SearchParam = {
   query?: string;
   region?: string;

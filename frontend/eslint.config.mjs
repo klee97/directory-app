@@ -14,7 +14,7 @@ const config = [
     },
   },
   {
-    ignores: ["**/generated/**", ".next/**", "coverage/**"],
+    ignores: ["**/generated/**", ".next/**", "coverage/**", "supabase/.temp/**"],
   },
 ];
 

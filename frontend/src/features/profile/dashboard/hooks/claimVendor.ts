@@ -3,6 +3,18 @@
 import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
 import { revalidateVendor } from '@/lib/actions/revalidate';
+import { isClaimProfileEnabled } from '@/lib/env/env';
+
+/**
+ * Verification happens when the claim page loads, but the form posts the token
+ * separately — a tab left open past the expiry would otherwise still submit.
+ * Mirrors the rule in `verifyVendorMagicLink`: NULL counts as expired, and the
+ * check only applies while the claim-profile flag is on.
+ */
+function isAccessTokenExpired(validUntil: string | null): boolean {
+  if (!isClaimProfileEnabled()) return false;
+  return !validUntil || new Date(validUntil).getTime() <= Date.now();
+}
 
 export async function claimVendor(accessToken: string, userId: string) {
 
@@ -11,12 +23,16 @@ export async function claimVendor(accessToken: string, userId: string) {
   // Verify the vendor exists with this access token
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
-    .select('id, slug, email')
+    .select('id, slug, email, access_token_valid_until')
     .eq('access_token', accessToken)
     .single();
 
   if (vendorError || !vendor) {
     throw new Error('Invalid access token or vendor not found');
+  }
+
+  if (isAccessTokenExpired(vendor.access_token_valid_until)) {
+    throw new Error('This claim link has expired');
   }
 
   // Check if vendor is already claimed by someone
@@ -66,7 +82,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   // Verify the vendor exists with this access token FIRST
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
-    .select('id, slug, email')
+    .select('id, slug, email, access_token_valid_until')
     .eq('access_token', accessToken)
     .single();
 
@@ -74,6 +90,16 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     return {
       success: false,
       error: 'Invalid access token or vendor not found',
+      type: 'invalid_token'
+    };
+  }
+
+  // Reuses the invalid_token branch so the caller needs no new case; the claim
+  // page already renders "invalid or expired" for it.
+  if (isAccessTokenExpired(vendor.access_token_valid_until)) {
+    return {
+      success: false,
+      error: 'This claim link has expired',
       type: 'invalid_token'
     };
   }
@@ -151,6 +177,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .from('vendors')
     .update({
       access_token: null,
+      access_token_valid_until: null,
       verified_at: now
     })
     .eq('id', vendor.id);

@@ -204,16 +204,22 @@ VALUES
   ;
 
 -- Unclaimed vendor for magic-link claim tests (no auth user yet)
-INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, verified_at, approved_inquiries_at)
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, access_token_valid_until, verified_at, approved_inquiries_at)
 VALUES
-  ('TEST-E2E-CLAIM', 'Test Claim Vendor', 'test-claim-vendor', false, 'Seattle', 'Washington', 'United States', 'claim-vendor@example.com', '11111111-1111-1111-1111-111111111111', null, null);
+  ('TEST-E2E-CLAIM', 'Test Claim Vendor', 'test-claim-vendor', false, 'Seattle', 'Washington', 'United States', 'claim-vendor@example.com', '11111111-1111-1111-1111-111111111111', timezone('utc'::text, now()) + interval '7 days', null, null);
 
 -- Unclaimed vendor dedicated to the "request a claim link" flow. Kept separate
 -- from TEST-E2E-CLAIM because requesting a link regenerates access_token, which
 -- would invalidate the fixed magic-link token the claim tests rely on.
-INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, verified_at, approved_inquiries_at)
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, access_token_valid_until, verified_at, approved_inquiries_at)
 VALUES
-  ('TEST-E2E-CLAIM-LINK', 'Test Claim Link Vendor', 'test-claim-link-vendor', false, 'Portland', 'Oregon', 'United States', 'claim-link-vendor@example.com', '22222222-2222-2222-2222-222222222222', null, null);
+  ('TEST-E2E-CLAIM-LINK', 'Test Claim Link Vendor', 'test-claim-link-vendor', false, 'Portland', 'Oregon', 'United States', 'claim-link-vendor@example.com', '22222222-2222-2222-2222-222222222222', timezone('utc'::text, now()) + interval '7 days', null, null);
+
+-- Unclaimed vendor whose claim token has already expired. Backs the
+-- "Invalid or expired claim link" e2e path.
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, email, access_token, access_token_valid_until, verified_at, approved_inquiries_at)
+VALUES
+  ('TEST-E2E-CLAIM-EXPIRED', 'Test Claim Expired Vendor', 'test-claim-expired-vendor', false, 'Denver', 'Colorado', 'United States', 'claim-expired-vendor@example.com', '33333333-3333-3333-3333-333333333333', timezone('utc'::text, now()) - interval '1 day', null, null);
 
 
 
