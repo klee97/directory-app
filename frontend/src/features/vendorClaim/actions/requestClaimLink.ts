@@ -26,6 +26,36 @@ function formatWait(seconds: number): string {
 }
 
 /**
+ * Whether a listing is still inside its cooldown.
+ *
+ * There is no dedicated "last requested at" column: the request time is
+ * recovered from `access_token_valid_until`, which is stamped as
+ * `requestedAt + validMs`. An expiry beyond `now + validMs` cannot have been
+ * set under the current ACCESS_TOKEN_VALID_DURATION_SECONDS, so we fail the cooldown
+ * rather than wait
+ */
+function isWithinCooldown(
+  validUntil: string | null,
+  nowMs: number,
+  validMs: number,
+  cooldownMs: number
+): boolean {
+  if (!validUntil) {
+    // never requested
+    return false;
+  }
+  const validUntilMs = new Date(validUntil).getTime();
+  if (!Number.isFinite(validUntilMs)) {
+    return false;
+  }
+  if (validUntilMs > nowMs + validMs) {
+    // not valid with current configured cooldown so false
+    return false;
+  }
+  return nowMs < validUntilMs - validMs + cooldownMs;
+}
+
+/**
  * Message for a request refused by the cooldown. `validUntil` is the value read
  * before the update; when it is missing or not derivable we lost a race rather
  * than hitting the cooldown, so fall back to the full cooldown length.
@@ -104,45 +134,54 @@ export async function requestClaimLink({
   const accessToken = crypto.randomUUID();
   const accessTokenValidUntil = new Date(nowMs + validMs).toISOString();
 
-  // The cooldown is enforced by folding its condition into the UPDATE itself,
-  // so check-and-set is a single statement two concurrent requests can't slip
-  // between. We have no dedicated "last requested at" column: the request time
-  // is recovered as `access_token_valid_until - validMs`, which makes
-  //
-  //   in cooldown  <=>  access_token_valid_until > now + validMs - cooldownMs
-  //
-  // A `valid_until` beyond `now + validMs` can't have been minted under the
-  // current ACCESS_TOKEN_VALID_DURATION_SECONDS, so the derivation is meaningless and
-  // we fail open rather than locking the listing out until the token expires.
-  let updateQuery = supabaseAdminClient
-    .from("vendors")
-    .update({ access_token: accessToken, access_token_valid_until: accessTokenValidUntil })
-    .eq("id", vendor.id);
+  const previousValidUntil = vendor.access_token_valid_until;
 
-  if (cooldownMs > 0) {
-    const cutoff = new Date(nowMs + validMs - cooldownMs).toISOString();
-    const underivable = new Date(nowMs + validMs).toISOString();
-    updateQuery = updateQuery.or(
-      `access_token_valid_until.is.null,` +
-      `access_token_valid_until.lte.${cutoff},` +
-      `access_token_valid_until.gt.${underivable}`
-    );
+  // Refusing here reports a real error rather than the generic success used by
+  // the branches above. That is safe: this is only reachable for a listing that
+  // exists, is unclaimed and has an email on file, all of which the public
+  // profile page already discloses by opening this dialog with a masked hint.
+  if (cooldownMs > 0 && isWithinCooldown(previousValidUntil, nowMs, validMs, cooldownMs)) {
+    return {
+      success: false,
+      error: cooldownError(previousValidUntil, nowMs, validMs, cooldownMs),
+    };
   }
 
-  const { data: updated, error: tokenError } = await updateQuery.select("id");
+  // Compare-and-swap on the value we just read, so the decision above and this
+  // write can't be split by a concurrent request: if anything else rotated the
+  // token in between, `access_token_valid_until` no longer matches and we
+  // update nothing.
+  //
+  // This deliberately uses only simple filters. Expressing the whole predicate
+  // as a single `.or(...)` on the UPDATE is rejected by the PostgREST version
+  // Supabase currently runs — logical operators on a mutation fail with
+  // "column vendors.<name> does not exist", regardless of the column.
+  const updateValues = {
+    access_token: accessToken,
+    access_token_valid_until: accessTokenValidUntil,
+  };
+  const updateQuery = supabaseAdminClient
+    .from("vendors")
+    .update(updateValues)
+    .eq("id", vendor.id);
+
+  const { data: updated, error: tokenError } = await (
+    previousValidUntil === null
+      ? updateQuery.is("access_token_valid_until", null)
+      : updateQuery.eq("access_token_valid_until", previousValidUntil)
+  ).select("id");
 
   if (tokenError) {
     console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
     return genericSuccess;
   }
 
-  // No row matched: the listing is inside its cooldown, or a concurrent request
-  // just claimed the window. Unlike the branches above this reports a real
-  // error, which is safe — it is only reachable for a listing that exists, is
-  // unclaimed and has an email on file, and the public profile page already
-  // discloses all three by opening this dialog with a masked email hint.
+  // Lost the race — another request rotated the token first, so a link is
+  // already on its way. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
-    return { success: false, error: cooldownError(vendor.access_token_valid_until, nowMs, validMs, cooldownMs) };
+    return cooldownMs > 0
+      ? { success: false, error: cooldownError(previousValidUntil, nowMs, validMs, cooldownMs) }
+      : genericSuccess;
   }
 
   // The vendor detail page reads this vendor via getCachedVendor (for the

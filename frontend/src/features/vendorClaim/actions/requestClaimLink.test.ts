@@ -6,7 +6,7 @@ const {
   sendClaimLinkEmailMock,
   maybeSingleMock,
   updateSelectMock,
-  updateOrMock,
+  updateIsMock,
   updateEqMock,
   updateMock,
   fromMock,
@@ -15,12 +15,18 @@ const {
   const selectEqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
   const selectMock = vi.fn(() => ({ eq: selectEqMock }));
 
-  // The update chain is `update().eq()` then optionally `.or()`, terminated by
-  // `.select()`. `or` returns the same shape so the terminal call is identical
-  // whether or not the cooldown clause was applied.
+  // The update chain is `update().eq('id', ...)` then the compare-and-swap
+  // filter — `.eq('access_token_valid_until', prev)` or `.is(..., null)` —
+  // terminated by `.select()`. Every link returns the same chainable shape.
   const updateSelectMock = vi.fn();
-  const updateOrMock = vi.fn((_filter: string) => ({ select: updateSelectMock }));
-  const updateEqMock = vi.fn(() => ({ or: updateOrMock, select: updateSelectMock }));
+  const updateChain: Record<string, unknown> = {};
+  const updateEqMock = vi.fn((_column: string, _value: unknown) => updateChain);
+  const updateIsMock = vi.fn((_column: string, _value: null) => updateChain);
+  Object.assign(updateChain, {
+    eq: updateEqMock,
+    is: updateIsMock,
+    select: updateSelectMock,
+  });
   const updateMock = vi.fn(
     (_values: { access_token: string; access_token_valid_until: string }) => ({ eq: updateEqMock })
   );
@@ -30,7 +36,7 @@ const {
     sendClaimLinkEmailMock: vi.fn(),
     maybeSingleMock,
     updateSelectMock,
-    updateOrMock,
+    updateIsMock,
     updateEqMock,
     updateMock,
     fromMock: vi.fn(() => ({ select: selectMock, update: updateMock })),
@@ -73,7 +79,6 @@ const UNCLAIMED_VENDOR = {
 };
 
 const DEFAULT_VALID_SECONDS = 7 * 24 * 60 * 60;
-const DEFAULT_COOLDOWN_SECONDS = 5 * 60;
 
 /** A row was updated — i.e. the listing was not inside its cooldown. */
 const UPDATED = { data: [{ id: UNCLAIMED_VENDOR.id }], error: null };
@@ -211,9 +216,26 @@ describe('requestClaimLink', () => {
 
   describe('per-listing cooldown', () => {
     const NOW = new Date('2026-03-01T00:00:00.000Z');
+    const V = DEFAULT_VALID_SECONDS * 1000;
 
-    /** Parses the `.or()` filter the action built, or null if it never called it. */
-    const orFilter = (): string | null => updateOrMock.mock.calls[0]?.[0] ?? null;
+    /** An expiry consistent with a link requested `agoMs` ago. */
+    const requestedAgo = (agoMs: number) =>
+      new Date(NOW.getTime() - agoMs + V).toISOString();
+
+    const vendorWithExpiry = (validUntil: string | null) =>
+      maybeSingleMock.mockResolvedValue({
+        data: { ...UNCLAIMED_VENDOR, access_token_valid_until: validUntil },
+        error: null,
+      });
+
+    /** The compare-and-swap filter the action applied, as [column, value]. */
+    const casFilter = (): [string, unknown] | null => {
+      const isCall = updateIsMock.mock.calls[0];
+      if (isCall) return [isCall[0], isCall[1]];
+      // calls[0] is always .eq('id', ...); the CAS filter is the second.
+      const eqCall = updateEqMock.mock.calls[1];
+      return eqCall ? [eqCall[0], eqCall[1]] : null;
+    };
 
     beforeEach(() => {
       vi.useFakeTimers();
@@ -227,35 +249,8 @@ describe('requestClaimLink', () => {
       expect(sendClaimLinkEmailMock).toHaveBeenCalled();
     });
 
-    it('constrains the update so a listing inside its cooldown cannot match', async () => {
-      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
-
-      // blocked <=> valid_until > now + validity - cooldown
-      const cutoff = new Date(
-        NOW.getTime() + (DEFAULT_VALID_SECONDS - DEFAULT_COOLDOWN_SECONDS) * 1000
-      ).toISOString();
-      const underivable = new Date(NOW.getTime() + DEFAULT_VALID_SECONDS * 1000).toISOString();
-
-      expect(orFilter()).toBe(
-        `access_token_valid_until.is.null,` +
-        `access_token_valid_until.lte.${cutoff},` +
-        `access_token_valid_until.gt.${underivable}`
-      );
-    });
-
-    it('refuses and reports the remaining wait when the update matches no row', async () => {
-      // Link requested one minute ago → four of the five minutes remain.
-      const requestedAt = NOW.getTime() - 60_000;
-      maybeSingleMock.mockResolvedValue({
-        data: {
-          ...UNCLAIMED_VENDOR,
-          access_token_valid_until: new Date(
-            requestedAt + DEFAULT_VALID_SECONDS * 1000
-          ).toISOString(),
-        },
-        error: null,
-      });
-      updateSelectMock.mockResolvedValue(NOT_UPDATED);
+    it('refuses and reports the remaining wait inside the cooldown', async () => {
+      vendorWithExpiry(requestedAgo(60_000)); // 1 min ago → 4 of 5 min left
 
       const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
@@ -266,74 +261,104 @@ describe('requestClaimLink', () => {
       });
     });
 
-    it('neither emails nor busts the cache when refused', async () => {
-      updateSelectMock.mockResolvedValue(NOT_UPDATED);
+    it('refuses without touching the database or the mailer', async () => {
+      vendorWithExpiry(requestedAgo(60_000));
 
       await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
+      expect(updateMock).not.toHaveBeenCalled();
       expect(sendClaimLinkEmailMock).not.toHaveBeenCalled();
       expect(revalidateVendorMock).not.toHaveBeenCalled();
     });
 
-    it('falls back to the full cooldown when it lost a race rather than hitting the window', async () => {
-      // valid_until is null, so there is no request time to derive from.
-      updateSelectMock.mockResolvedValue(NOT_UPDATED);
-
-      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
-
-      expect(result).toMatchObject({ success: false });
-      expect((result as { error: string }).error).toContain('5 minutes');
-    });
-
-    it('drops the cooldown clause entirely when CLAIM_LINK_REQUEST_COOLDOWN_SECONDS is 0', async () => {
-      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '0');
+    it('sends again once the cooldown has elapsed', async () => {
+      vendorWithExpiry(requestedAgo(6 * 60_000)); // 6 min ago, cooldown is 5
 
       const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
       expect(result).toEqual({ success: true });
-      expect(orFilter()).toBeNull();
+      expect(sendClaimLinkEmailMock).toHaveBeenCalled();
+    });
+
+    it('sends regardless of recency when the cooldown is 0', async () => {
+      vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '0');
+      vendorWithExpiry(requestedAgo(1_000));
+
+      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(result).toEqual({ success: true });
     });
 
     it('honours a shortened cooldown from the env var', async () => {
       vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '60');
+      vendorWithExpiry(requestedAgo(90_000)); // 90s ago clears a 60s cooldown
 
-      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
-
-      const cutoff = new Date(
-        NOW.getTime() + (DEFAULT_VALID_SECONDS - 60) * 1000
-      ).toISOString();
-      expect(orFilter()).toContain(`access_token_valid_until.lte.${cutoff}`);
+      expect(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' })).toEqual({
+        success: true,
+      });
     });
 
     it('clamps a cooldown longer than the token validity window', async () => {
       vi.stubEnv('ACCESS_TOKEN_VALID_DURATION_SECONDS', '600');
       vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '99999');
+      // Requested 11 min ago, so its 10 min token has already lapsed. Clamped
+      // to 600s the cooldown is over; unclamped it would still be blocking.
+      vendorWithExpiry(new Date(NOW.getTime() - 11 * 60_000 + 600_000).toISOString());
 
-      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
-
-      // Clamped to the 600s validity, so the cutoff lands exactly on now —
-      // not somewhere in the past, which would lock the listing out.
-      expect(orFilter()).toContain(
-        `access_token_valid_until.lte.${NOW.toISOString()}`
-      );
+      expect(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' })).toEqual({
+        success: true,
+      });
     });
 
     it('fails open for a token minted under a longer validity duration', async () => {
-      // Stored expiry is further out than the current duration could produce,
-      // so the derived request time would be in the future and meaningless.
+      // Expiry is further out than the current 600s duration could produce, so
+      // the derived request time would be in the future and is not trustworthy.
       vi.stubEnv('ACCESS_TOKEN_VALID_DURATION_SECONDS', '600');
-      const farFuture = new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      maybeSingleMock.mockResolvedValue({
-        data: { ...UNCLAIMED_VENDOR, access_token_valid_until: farFuture },
-        error: null,
+      vendorWithExpiry(new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString());
+
+      expect(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' })).toEqual({
+        success: true,
+      });
+    });
+
+    describe('compare-and-swap', () => {
+      it('matches on null when the listing had no expiry', async () => {
+        vendorWithExpiry(null);
+
+        await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+        expect(casFilter()).toEqual(['access_token_valid_until', null]);
+        expect(updateIsMock).toHaveBeenCalled();
       });
 
-      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+      it('matches on the exact expiry it read', async () => {
+        const previous = requestedAgo(6 * 60_000);
+        vendorWithExpiry(previous);
 
-      // The escape hatch that lets such a row through.
-      const underivable = new Date(NOW.getTime() + 600 * 1000).toISOString();
-      expect(orFilter()).toContain(`access_token_valid_until.gt.${underivable}`);
-      expect(new Date(farFuture).getTime()).toBeGreaterThan(new Date(underivable).getTime());
+        await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+        expect(casFilter()).toEqual(['access_token_valid_until', previous]);
+      });
+
+      it('reports the cooldown when a concurrent request won the race', async () => {
+        vendorWithExpiry(null);
+        updateSelectMock.mockResolvedValue(NOT_UPDATED);
+
+        const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+        expect(result).toMatchObject({ success: false });
+        expect(sendClaimLinkEmailMock).not.toHaveBeenCalled();
+      });
+
+      it('treats a lost race as success when the cooldown is disabled', async () => {
+        vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '0');
+        vendorWithExpiry(null);
+        updateSelectMock.mockResolvedValue(NOT_UPDATED);
+
+        expect(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' })).toEqual({
+          success: true,
+        });
+      });
     });
   });
 
