@@ -1,5 +1,5 @@
 "use client"
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
