@@ -7,7 +7,7 @@ import TravelFilter from "@/features/directory/components/filters/TravelFilter";
 import { ServiceFilter } from "@/features/directory/components/filters/ServiceFilter";
 import { SortFilter } from "@/features/directory/components/filters/SortFilter";
 import { FilterTags } from "@/lib/directory/filterTags";
-import { SortOption } from "@/types/sort";
+import { SORT_OPTIONS, SortOption } from "@/types/sort";
 
 interface MobileFilterDrawerProps {
   open: boolean;
@@ -27,70 +27,77 @@ export const MobileFilterDrawer = ({
   filterMinWidth,
   sortOption,
   onSortChange,
-}: MobileFilterDrawerProps) => (
-  <Drawer
-    anchor="bottom"
-    open={open}
-    onClose={onClose}
-    slotProps={{
-      paper: {
-        sx: {
-          maxHeight: '80vh',
-          display: 'flex',
-          flexDirection: 'column',
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-        }
-      }
-    }}
-  >
-    <Box sx={{ overflowY: 'auto', p: 2, display: 'flex', flexDirection: 'column'}}>
-      <SortFilter
-        sortOption={sortOption}
-        onChange={onSortChange}
-        filterMinWidth={filterMinWidth}
-      />
-      <ServiceFilter tags={tags.services} filterMinWidth={filterMinWidth} />
-      <SkillFilter tags={tags.skills} filterMinWidth={filterMinWidth} />
-      <TravelFilter filterMinWidth={filterMinWidth} />
-    </Box>
+}: MobileFilterDrawerProps) => {
+  const handleClearAll = () => {
+    onClearFilters();
+    onSortChange(SORT_OPTIONS.DEFAULT);
+  };
 
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        p: 2,
-        pb: 'calc(16px + env(safe-area-inset-bottom))',
-        bgcolor: 'background.paper',
-        boxShadow: '0px -4px 12px rgba(0, 0, 0, 0.08)',
-        position: 'relative',
-        zIndex: 1,
+  return (
+    <Drawer
+      anchor="bottom"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: {
+            maxHeight: '80vh',
+            display: 'flex',
+            flexDirection: 'column',
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+          }
+        }
       }}
     >
-      <Button
-        onClick={onClearFilters}
-        sx={{
-          textDecoration: 'underline',
-          color: 'text.secondary',
-          fontWeight: 600,
-          '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' },
-        }}
-      >
-        Clear all
-      </Button>
+      <Box sx={{ overflowY: 'auto', p: 2, display: 'flex', flexDirection: 'column' }}>
+        <SortFilter
+          sortOption={sortOption}
+          onChange={onSortChange}
+          filterMinWidth={filterMinWidth}
+        />
+        <ServiceFilter tags={tags.services} filterMinWidth={filterMinWidth} />
+        <SkillFilter tags={tags.skills} filterMinWidth={filterMinWidth} />
+        <TravelFilter filterMinWidth={filterMinWidth} />
+      </Box>
 
-      <Button
-        variant="contained"
-        onClick={onClose}
+      <Box
         sx={{
-          bgcolor: 'primary.main',
-          color: 'common.white',
-          px: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          p: 2,
+          pb: 'calc(16px + env(safe-area-inset-bottom))',
+          bgcolor: 'background.paper',
+          boxShadow: '0px -4px 12px rgba(0, 0, 0, 0.08)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
-        Done
-      </Button>
-    </Box>
-  </Drawer>
-);
+        <Button
+          onClick={handleClearAll}
+          sx={{
+            textDecoration: 'underline',
+            color: 'text.secondary',
+            fontWeight: 600,
+            '&:hover': { textDecoration: 'underline', bgcolor: 'transparent' },
+          }}
+        >
+          Clear all
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={onClose}
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'common.white',
+            px: 4,
+          }}
+        >
+          Done
+        </Button>
+      </Box>
+    </Drawer>
+  )
+}
