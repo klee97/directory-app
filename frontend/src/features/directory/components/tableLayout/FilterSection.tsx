@@ -17,7 +17,6 @@ export const FilterSection = ({ tags, onClearFilters, filterMinWidth }:
     sx={{
       display: 'flex',
       flexDirection: 'column',
-      gap: 2,
       alignItems: 'stretch',
       flexWrap: 'wrap',
     }}
@@ -30,7 +29,7 @@ export const FilterSection = ({ tags, onClearFilters, filterMinWidth }:
       variant="contained"
       onClick={onClearFilters}
       size="small"
-      sx={{ width: { xs: '100%', sm: 'auto' } }}
+      sx={{ width: { xs: '100%', sm: 'auto' }, mt: 2 }}
     >
       Clear Filters
     </Button>

@@ -2,15 +2,12 @@
 
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import { useState } from "react";
 import { TRAVEL_PARAM } from "@/lib/constants";
 import { trackFilterEvent, TRAVEL_FILTER_NAME } from "@/utils/analytics/trackFilterEvents";
-import { Typography } from "@mui/material";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useState } from "react";
 import { useURLFiltersContext } from "@/contexts/URLFiltersContext";
+import { FilterAccordion } from "./FilterAccordian";
+import { useScrollToTopOnMobile } from "../../hooks/useScrollToTopOnMobile";
 
 export default function TravelFilter({
   filterMinWidth
@@ -21,6 +18,7 @@ export default function TravelFilter({
 
   // Get the current value from URL (default to false if not set)
   const travelsWorldwideDefault = getBooleanParam(TRAVEL_PARAM);
+  const scrollToTopOnMobile = useScrollToTopOnMobile();
   const [prevDefault, setPrevDefault] = useState(travelsWorldwideDefault);
   const [travelsWorldwide, setTravelsWorldwide] = useState<boolean>(travelsWorldwideDefault);
 
@@ -29,35 +27,21 @@ export default function TravelFilter({
     setTravelsWorldwide(travelsWorldwideDefault);
   }
 
-  // Function to update the URL param
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newTravelsWorldwide = event.target.checked;
     setTravelsWorldwide(newTravelsWorldwide);
 
-    setParams({
-      [TRAVEL_PARAM]: newTravelsWorldwide ? "true" : null
-    });
-
+    setParams({ [TRAVEL_PARAM]: newTravelsWorldwide ? "true" : null });
     trackFilterEvent(TRAVEL_FILTER_NAME, newTravelsWorldwide.toString());
+    scrollToTopOnMobile();
   };
 
   return (
-    <Accordion disableGutters={true} sx={{ minWidth: filterMinWidth }}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon />}
-        aria-controls="panel1-content"
-        id="panel1-header"
-      >
-        <Typography component="span">Travel</Typography>
-      </AccordionSummary>
-      <AccordionDetails >
-        <FormControlLabel
-          control={
-            <Checkbox checked={travelsWorldwide} onChange={handleToggle} color="primary" />
-          }
-          label="Travels worldwide"
-        />
-      </AccordionDetails>
-    </Accordion>
+    <FilterAccordion title="Travel" filterMinWidth={filterMinWidth}>
+      <FormControlLabel
+        control={<Checkbox checked={travelsWorldwide} onChange={handleToggle} color="primary" />}
+        label="Travels worldwide"
+      />
+    </FilterAccordion>
   );
 }
