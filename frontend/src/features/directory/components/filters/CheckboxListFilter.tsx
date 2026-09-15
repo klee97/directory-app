@@ -35,7 +35,10 @@ export function CheckboxListFilter({
       : selected.filter((s) => s !== tag);
 
     setArrayParam(paramKey, newSelected.length > 0 ? newSelected : null);
-    trackFilterEvent(analyticsFilterName, tag);
+    trackFilterEvent(
+      analyticsFilterName,
+      newSelected.length > 0 ? newSelected : null,
+    );
     scrollToTopOnMobile();
   };
 

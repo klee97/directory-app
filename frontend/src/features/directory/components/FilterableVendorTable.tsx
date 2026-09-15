@@ -1,5 +1,5 @@
 "use client"
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -29,6 +29,7 @@ import { Fab, useTheme } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { MobileFilterDrawer } from './tableLayout/MobileFilterDrawer';
 import { FilterSection } from './tableLayout/FilterSection';
+import useMediaQuery from '@mui/system/useMediaQuery';
 
 const PAGE_SIZE = 12;
 const FILTER_MIN_WIDTH = 240;
@@ -52,7 +53,11 @@ export function FilterableVendorTableContent({
   const router = useRouter();
   const pathname = usePathname() || '/vendors';
   const theme = useTheme();
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [userOpenedFilters, setUserOpenedFilters] = useState(false);
+
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+  // the drawer is open if the user asked for it AND we're not on desktop.
+  const isFiltersDrawerOpen = userOpenedFilters && !isDesktop;
 
   // Extract search parameters
   const searchQuery = searchParams?.get(SEARCH_PARAM) || "";
@@ -159,16 +164,16 @@ export function FilterableVendorTableContent({
           />
         </Box>
       </Box>
-      <Divider />
+      <Divider sx={{ display: { xs: 'none', md: 'block' } }} />
       <Box sx={{
-        display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2
+        display: 'flex', flexDirection: { xs: 'column', md: 'row' },
       }}>
         {/* Mobile: FAB + Drawer */}
         <Box sx={{ display: { xs: 'block', md: 'none' } }}>
           <Fab
             variant="extended"
             color="primary"
-            onClick={() => setFiltersOpen(true)}
+            onClick={() => setUserOpenedFilters(true)}
             sx={{
               position: 'fixed',
               bottom: 'max(16px, env(safe-area-inset-bottom))',
@@ -183,20 +188,18 @@ export function FilterableVendorTableContent({
           </Fab>
 
           <MobileFilterDrawer
-            open={filtersOpen}
-            onClose={() => setFiltersOpen(false)}
+            open={isFiltersDrawerOpen}
+            onClose={() => setUserOpenedFilters(false)}
             tags={tags}
             onClearFilters={handleClearFilters}
             filterMinWidth={FILTER_MIN_WIDTH}
             sortOption={vendorFiltering.sortOption}
             onSortChange={vendorFiltering.setSortOption}
-            selectedSkills={selectedSkills}
-            selectedServices={selectedServices}
           />
         </Box>
 
         {/* Desktop: inline filter section */}
-        <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'row', gap: 2, width: '100%' }}>
+        <Box sx={{ display: { xs: 'none', md: 'flex' }, flexDirection: 'row', gap: 2 }}>
           <FilterSection
             tags={tags}
             onClearFilters={handleClearFilters}
@@ -205,8 +208,9 @@ export function FilterableVendorTableContent({
           <Divider />
         </Box>
 
-        {/* Results Count and Sorting */}
         <Box sx={{ display: 'flex', flex: 1, flexDirection: 'column', gap: 2 }}>
+
+          {/* Results Count and Sorting */}
           <ResultsHeader
             loading={vendorFiltering.loading}
             resultCount={vendorFiltering.searchedAndSortedVendors.length}

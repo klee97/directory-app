@@ -17,8 +17,6 @@ interface MobileFilterDrawerProps {
   filterMinWidth: number;
   sortOption: SortOption;
   onSortChange: (sortOption: SortOption) => void;
-  selectedSkills: string[];
-  selectedServices: string[];
 }
 
 export const MobileFilterDrawer = ({
@@ -29,8 +27,6 @@ export const MobileFilterDrawer = ({
   filterMinWidth,
   sortOption,
   onSortChange,
-  selectedSkills,
-  selectedServices,
 }: MobileFilterDrawerProps) => (
   <Drawer
     anchor="bottom"

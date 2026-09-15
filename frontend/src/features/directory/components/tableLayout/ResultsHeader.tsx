@@ -31,7 +31,7 @@ export const ResultsHeader = ({
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 2,
+        gap: 0,
       }}
     >
       {/* Results Header Row */}
@@ -41,7 +41,7 @@ export const ResultsHeader = ({
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: { xs: 'flex-start', md: 'center' },
-          gap: 2,
+          gap: 1,
         }}
       >
         <ResultsCount count={resultCount} loading={loading} location={selectedLocation} />
