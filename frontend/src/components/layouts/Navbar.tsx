@@ -62,7 +62,10 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   const router = useRouter();
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  // Breakpoint moved to 'lg': this is the smallest width where logo + full
+  // title + full nav buttons all fit without crowding. Below this, the
+  // hamburger menu takes over so the title never has to shrink or truncate.
+  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
 
   // Determine home URL based on navbar type and authentication status
   const homeUrl = isVendorNavbar ? (isLoggedIn ? '/partner/dashboard' : '/partner') : '/';
@@ -156,7 +159,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
           onClick={(e) => handleMenuLinkClick(e, isVendorNavbar ? '/partner/login' : '/login')}
           sx={{
             mx: 1,
-            display: { xs: 'none', md: 'block' }
+            display: { xs: 'none', lg: 'block' }
           }}
         >
           Log in
@@ -172,7 +175,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
     }
     if (isLoggedIn) {
       return (
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+        <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
           <IconButton
             size="large"
             aria-label="profile menu"
@@ -228,7 +231,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               maxHeight: { xs: 56, sm: 64 }, // Constrain the height
             }}
           >
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+            <Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
               <IconButton
                 size="large"
                 aria-label="open navigation menu"
@@ -255,7 +258,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={{ display: { xs: 'block', md: 'none' } }}
+                sx={{ display: { xs: 'block', lg: 'none' } }}
               >
                 {isVendorNavbar ? vendorPages.map((page) => (
                   <MenuItem
@@ -332,7 +335,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 )}
                 {/* Dev tools — mobile only, hidden on desktop where they render inline */}
                 {isDevelopment() && (
-                  <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+                  <Box sx={{ display: { xs: 'block', lg: 'none' }, width: '100%' }}>
                     <Divider />
                     <MenuItem disableRipple>
                       <DevTools />
@@ -340,7 +343,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                   </Box>
                 )}
                 {isDevOrPreview() && (
-                  <Box sx={{ display: { xs: 'block', md: 'none' }, width: '100%' }}>
+                  <Box sx={{ display: { xs: 'block', lg: 'none' }, width: '100%' }}>
                     <Divider />
                     <MenuItem disableRipple>
                       <ThemeSelector />
@@ -349,21 +352,37 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 )}
               </Menu>
             </Box>
-            <Link href={homeUrl} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-              <Image src={Logo} width={40} height={40} alt={"logo"} style={{ marginRight: '16px' }} />
-              <Box style={{ alignItems: 'end' }} >
+            <Link
+              href={homeUrl}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                marginLeft: 8,
+              }}
+            >
+              <Box
+                sx={{
+                  width: { xs: 28, lg: 40 },
+                  height: { xs: 28, lg: 40 },
+                  mr: { xs: 1, lg: 2 },
+                  flexShrink: 0,
+                  position: 'relative',
+                }}
+              >
+                <Image src={Logo} fill alt={"logo"} style={{ objectFit: 'contain' }} />
+              </Box>
+              <Box sx={{ alignItems: 'end' }}>
                 <Typography
                   variant="h1"
-                  noWrap
                   sx={{
-                    fontSize: { xs: '1.2rem', md: '1.5rem' },
+                    fontSize: { xs: '1.2rem', lg: '1.5rem' },
                     mr: 2,
                     fontWeight: 550,
-                    letterSpacing: '.3rem',
+                    letterSpacing: { xs: '.05rem', lg: '.3rem' },
                     color: 'white',
                     textDecoration: 'none',
-                    display: { xs: 'flex', md: 'flex' },
-                    flexGrow: { xs: 1, md: 0 },
+                    whiteSpace: 'nowrap', // never wraps or truncates — full title always shown
                   }}
                 >
                   {Title}
@@ -373,12 +392,11 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     variant="h3"
                     noWrap
                     sx={{
-                      fontSize: { xs: '0.8rem', md: '1rem' },
+                      fontSize: { xs: '0.8rem', lg: '1rem' },
                       fontWeight: 300,
                       letterSpacing: '.1rem',
                       color: 'white',
                       textDecoration: 'none',
-                      display: { xs: 'flex', md: 'flex' },
                     }}
                   >
                     {VendorsSubtitle}
@@ -386,8 +404,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 )}
               </Box>
             </Link>
-
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', lg: 'flex' }, ml: 2 }}>
               {isVendorNavbar ? vendorPages.map((page) => (
                 <Button
                   key={page}
@@ -442,15 +459,17 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </Menu>
             </Box>
 
+            {/* Mobile: push everything after the title (hamburger's Menu, nothing here) to the right.
+                Desktop: nav buttons already have flexGrow: 1 above and fill this role instead. */}
+            <Box sx={{ display: { xs: 'flex', lg: 'none' }, flexGrow: 1 }} />
 
             {isDevelopment() && (
-              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-
+              <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
                 <DevTools />
               </Box>
             )}
             {isDevOrPreview() && (
-              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <Box sx={{ display: { xs: 'none', lg: 'flex' } }}>
                 <ThemeSelector />
               </Box>
             )}
