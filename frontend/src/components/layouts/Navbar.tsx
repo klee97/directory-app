@@ -233,12 +233,13 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
           >
             <Box sx={{ display: { xs: 'flex', lg: 'none' } }}>
               <IconButton
-                size="large"
+                size="medium"
                 aria-label="open navigation menu"
                 aria-controls="menu-appbar"
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
                 color="inherit"
+                sx={{ p: 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -377,10 +378,10 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 <Typography
                   variant="h1"
                   sx={{
-                    fontSize: { xs: '1.2rem', lg: '1.5rem' },
+                    fontSize: { xs: '1rem', sm: '1.2rem', lg: '1.5rem' },
                     mr: 2,
                     fontWeight: 550,
-                    letterSpacing: { xs: '.05rem', lg: '.3rem' },
+                    letterSpacing: { xs: '0rem', sm: '.05rem', lg: '.3rem' },
                     color: 'white',
                     textDecoration: 'none',
                     overflow: 'hidden',
