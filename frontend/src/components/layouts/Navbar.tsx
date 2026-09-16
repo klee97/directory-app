@@ -359,6 +359,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 alignItems: 'center',
                 textDecoration: 'none',
                 marginLeft: 8,
+                minWidth: 0,
               }}
             >
               <Box
@@ -372,7 +373,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               >
                 <Image src={Logo} fill alt={"logo"} style={{ objectFit: 'contain' }} />
               </Box>
-              <Box sx={{ alignItems: 'end' }}>
+              <Box sx={{ alignItems: 'end', minWidth: 0 }}>
                 <Typography
                   variant="h1"
                   sx={{
@@ -382,7 +383,9 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     letterSpacing: { xs: '.05rem', lg: '.3rem' },
                     color: 'white',
                     textDecoration: 'none',
-                    whiteSpace: 'nowrap', // never wraps or truncates — full title always shown
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {Title}
