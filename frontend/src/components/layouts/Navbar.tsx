@@ -65,20 +65,21 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
   // Breakpoint moved to 'lg': this is the smallest width where logo + full
   // title + full nav buttons all fit without crowding. Below this, the
   // hamburger menu takes over so the title never has to shrink or truncate.
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const useHamburgerMenu = useMediaQuery(theme.breakpoints.down('lg'));
 
   // Determine home URL based on navbar type and authentication status
   const homeUrl = isVendorNavbar ? (isLoggedIn ? '/partner/dashboard' : '/partner') : '/';
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (isMobile) {
+    if (useHamburgerMenu) {
       setAnchorElResources(null);
       setResourcesExpanded(false);
+      setAnchorElProfile(null); // profile trigger is hidden on small screen
     } else {
       setAnchorElNav(null);
     }
-  }, [isMobile]);
+  }, [useHamburgerMenu]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
 
@@ -189,7 +190,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
           </IconButton>
           <Menu
             id="menu-profile"
-            key={isMobile ? 'mobile' : 'desktop'}
+            key={useHamburgerMenu ? 'mobile' : 'desktop'}
             anchorEl={anchorElProfile}
             anchorOrigin={{
               vertical: 'bottom',
@@ -245,7 +246,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </IconButton>
               <Menu
                 id="menu-appbar"
-                key={isMobile ? 'mobile' : 'desktop'}
+                key={useHamburgerMenu ? 'mobile' : 'desktop'}
                 color="inherit"
                 anchorEl={anchorElNav}
                 anchorOrigin={{
@@ -334,7 +335,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                     )}
                   </Box>
                 )}
-                {/* Dev tools — mobile only, hidden on desktop where they render inline */}
+                {/* Dev tools — small screen only, hidden on desktop where they render inline */}
                 {isDevelopment() && (
                   <Box sx={{ display: { xs: 'block', lg: 'none' }, width: '100%' }}>
                     <Divider />
@@ -463,7 +464,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
               </Menu>
             </Box>
 
-            {/* Mobile: push everything after the title (hamburger's Menu, nothing here) to the right.
+            {/* Small screen: push everything after the title (hamburger's Menu, nothing here) to the right.
                 Desktop: nav buttons already have flexGrow: 1 above and fill this role instead. */}
             <Box sx={{ display: { xs: 'flex', lg: 'none' }, flexGrow: 1 }} />
 
