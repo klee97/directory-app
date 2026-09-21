@@ -54,7 +54,7 @@ export const leadFormSchema = z.object({
     .min(1, 'At least one service is required'),
 
   makeupStyles: z.array(z.string().trim().max(50)).default([]),
-  airtable_record_id: z.string().trim().min(1).max(50).nullable().optional(),
+  airtableRecordId: z.string().trim().min(1).max(50).nullable().optional(),
 });
 
 export type LeadFormWireInput = z.infer<typeof leadFormSchema>;

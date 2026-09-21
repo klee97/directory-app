@@ -55,7 +55,7 @@ export async function POST(
 
       // inquiry_status intentionally omitted -> table default 'pending_review'
       submitted_at: new Date().toISOString(),
-      airtable_record_id: input.airtable_record_id ?? null,
+      airtable_record_id: input.airtableRecordId ?? null,
     })
     .select("id")
     .single();

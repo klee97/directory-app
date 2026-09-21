@@ -1,5 +1,5 @@
-import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { test, expect } from '@playwright/test';
+import { supabaseTestClient } from '../utils/supabaseTestClient';
 
 /**
  * Runs against the local Supabase instance, which the 'supabase-setup'
@@ -28,7 +28,7 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
         flexibleCount: false,
         services: ['Hair', 'Makeup'],
         makeupStyles: ['Natural'],
-        airtable_record_id: 'rec_e2e_test',
+        airtableRecordId: 'rec_e2e_test',
       },
     });
 
@@ -53,13 +53,13 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
         budget: '500',
         peopleCount: '4',
         services: ['Hair'],
-        airtable_record_id: 'rec_e2e_readback',
+        airtableRecordId: 'rec_e2e_readback',
       },
     });
     expect(response.status()).toBe(201);
     const { data } = await response.json();
 
-    const { data: inquiry, error } = await supabaseAdminClient
+    const { data: inquiry, error } = await supabaseTestClient
       .from('inquiries')
       .select('services, airtable_record_id')
       .eq('id', data.id)
