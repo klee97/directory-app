@@ -9,7 +9,7 @@ import { InquiryState } from '@/features/profile/common/utils/getInquiryState';
 
 vi.mock('@/features/contact/api/airtable', () => ({
   savePartialLeadToAirtable: vi.fn().mockResolvedValue(true),
-  submitToAirtable: vi.fn().mockResolvedValue(true),
+  submitToAirtable: vi.fn().mockResolvedValue({ success: true, recordId: 'rec_default' }),
 }));
 
 vi.mock('@/utils/analytics/trackFormEvents', () => ({
@@ -27,8 +27,15 @@ vi.mock('@/lib/env/env', () => ({
   isDevOrPreview: vi.fn().mockReturnValue(false),
 }));
 
+vi.mock('@/features/contact/api/submitInquiry', () => ({
+  submitInquiryToSupabase: vi.fn().mockResolvedValue(true),
+}));
+
 const mockedSubmitToAirtable = vi.mocked(submitToAirtable);
 const mockedSavePartialLead = vi.mocked(savePartialLeadToAirtable);
+
+import { submitInquiryToSupabase } from '@/features/contact/api/submitInquiry';
+const mockedSubmitInquiryToSupabase = vi.mocked(submitInquiryToSupabase);
 
 beforeAll(() => {
   // jsdom doesn't implement matchMedia; MUI's useMediaQuery needs it.
@@ -49,8 +56,9 @@ beforeAll(() => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockedSubmitToAirtable.mockResolvedValue(true);
+  mockedSubmitToAirtable.mockResolvedValue({ success: true, recordId: 'rec_default' });
   mockedSavePartialLead.mockResolvedValue(true);
+  mockedSubmitInquiryToSupabase.mockResolvedValue(true);
 });
 
 const baseVendor = {
@@ -224,5 +232,102 @@ describe('LeadCaptureForm — service tag translation', () => {
     expect(submittedFormData.services).toEqual([]);
     expect(submittedFormData.services.every((label: string) => typeof label === 'string')).toBe(true);
     expect(submittedFormData.services).not.toContain(undefined);
+  });
+});
+
+describe('LeadCaptureForm — Supabase dual-write', () => {
+  it('sends translated display names, not tag ids, to Supabase on submit', async () => {
+    render(
+      <LeadCaptureForm
+        vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
+        inquiryState={'not_verified' as unknown as InquiryState}
+      />
+    );
+
+    await fillStep1AndContinue(['Hair', 'Makeup']);
+    await fillStep2();
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() => expect(mockedSubmitInquiryToSupabase).toHaveBeenCalledTimes(1));
+
+    const [submittedFormData] = mockedSubmitInquiryToSupabase.mock.calls[0];
+
+    expect(new Set(submittedFormData.services)).toEqual(new Set(['Hair', 'Makeup']));
+    expect(submittedFormData.services).not.toEqual(
+      expect.arrayContaining(['tag-abc', 'tag-xyz'])
+    );
+  });
+
+  it('passes the Airtable record id and vendor id through to the Supabase call', async () => {
+    mockedSubmitToAirtable.mockResolvedValueOnce({
+      success: true,
+      recordId: 'rec_abc123',
+    });
+
+    render(
+      <LeadCaptureForm
+        vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
+        inquiryState={'not_verified' as unknown as InquiryState}
+      />
+    );
+
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() => expect(mockedSubmitInquiryToSupabase).toHaveBeenCalledTimes(1));
+
+    const [, vendorId, airtableRecordId] = mockedSubmitInquiryToSupabase.mock.calls[0];
+    expect(vendorId).toBe(baseVendor.id);
+    expect(airtableRecordId).toBe('rec_abc123');
+  });
+
+  it('still shows the bride a success state when the Supabase dual-write fails', async () => {
+    // This is the behavior the whole fire-and-forget design depends on:
+    // a Supabase failure must never surface to the bride or block success.
+    mockedSubmitInquiryToSupabase.mockRejectedValueOnce(new Error('network error'));
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+
+    render(
+      <LeadCaptureForm
+        vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
+        inquiryState={'not_verified' as unknown as InquiryState}
+      />
+    );
+
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/request sent successfully/i)).toBeInTheDocument()
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('does not call Supabase at all when the Airtable submission itself fails', async () => {
+    mockedSubmitToAirtable.mockResolvedValueOnce({ success: false, recordId: null });
+
+    render(
+      <LeadCaptureForm
+        vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
+        inquiryState={'not_verified' as unknown as InquiryState}
+      />
+    );
+
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() =>
+      expect(screen.getByText(/something went wrong/i)).toBeInTheDocument()
+    );
+
+    expect(mockedSubmitInquiryToSupabase).not.toHaveBeenCalled();
   });
 });

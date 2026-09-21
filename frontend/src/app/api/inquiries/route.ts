@@ -47,7 +47,7 @@ export async function POST(
       budget: input.budget,
       is_budget_flexible: false, // no flexibleBudget field in current form
 
-      service_tag_ids: input.services,
+      services: input.services,
       makeup_styles: input.makeupStyles.length > 0 ? input.makeupStyles : null,
 
       people_count: input.peopleCount,
@@ -55,6 +55,7 @@ export async function POST(
 
       // inquiry_status intentionally omitted -> table default 'pending_review'
       submitted_at: new Date().toISOString(),
+      airtable_record_id: input.airtable_record_id ?? null,
     })
     .select("id")
     .single();

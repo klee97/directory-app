@@ -32,6 +32,7 @@ import { InquiryState } from '@/features/profile/common/utils/getInquiryState';
 import { isDevOrPreview } from '@/lib/env/env';
 import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/leads';
 import { getSelectedServiceLabels } from '@/lib/directory/getServiceTagNames';
+import { submitInquiryToSupabase } from '../api/submitInquiry';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -407,27 +408,34 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      const airtableFormData: LeadFormData = {
+      const formDataWithServices: LeadFormData = {
         ...formData,
         services: selectedServiceLabels,
       };
-      const success = await submitToAirtable(airtableFormData, vendor);
+      const { success, recordId } = await submitToAirtable(formDataWithServices, vendor);
 
       if (success) {
         setSubmitted(true);
         const timeSpent = getTimeSpentSeconds(formStartTime);
 
-        // Track successful conversion
         trackVendorContactFormSubmission({
           form_type: 'vendor_contact',
           vendor_slug: vendor.slug,
-          services: airtableFormData.services.join(', '),
+          services: formDataWithServices.services.join(', '),
           location: formData.location,
           people_count: formData.peopleCount,
           budget: formData.budget,
           wedding_date: formData.flexibleDate ? 'Date not set yet' : formData.weddingDate,
           time_to_complete: timeSpent
         });
+
+        // Best-effort dual-write into Supabase. Airtable remains the source of
+        // truth — this must never affect the bride-facing success state, so
+        // it's unawaited and only console.error'd on failure, same pattern as
+        // savePartialLeadToAirtable above.
+        submitInquiryToSupabase(formDataWithServices, vendor.id, recordId).catch((err) =>
+          console.error('Supabase inquiry dual-write threw:', err)
+        );
       } else {
         throw new Error('Submission failed');
       }

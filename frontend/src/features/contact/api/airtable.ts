@@ -4,10 +4,15 @@ import { VendorInfo } from '@/types/leads';
 
 export type AirtableRecordResponse = { recordId: string };
 
+export interface SubmitToAirtableResult {
+  success: boolean;
+  recordId: string | null;
+}
+
 export const submitToAirtable = async (
   data: LeadFormData,
   vendor: VendorInfo
-): Promise<boolean> => {
+): Promise<SubmitToAirtableResult> => {
   const result = await fetchApi<AirtableRecordResponse>('/api/airtable/leads', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -16,10 +21,10 @@ export const submitToAirtable = async (
 
   if (!result.ok) {
     console.error('Failed to save lead:', result.error);
-    return false;
+    return { success: false, recordId: null };
   }
 
-  return true;
+  return { success: true, recordId: result.data.recordId };
 };
 
 export const savePartialLeadToAirtable = async (
