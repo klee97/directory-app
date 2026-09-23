@@ -1,11 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { maybeSingleMock, fromMock } = vi.hoisted(() => {
+const { maybeSingleMock, fromMock, verifyRecaptchaTokenMock } = vi.hoisted(() => {
   const maybeSingleMock = vi.fn();
   const eqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
   const selectMock = vi.fn(() => ({ eq: eqMock }));
-  return { maybeSingleMock, fromMock: vi.fn(() => ({ select: selectMock })) };
+  return {
+    maybeSingleMock,
+    fromMock: vi.fn(() => ({ select: selectMock })),
+    verifyRecaptchaTokenMock: vi.fn(),
+  };
 });
+
+vi.mock('@/lib/security/recaptchaVerification', () => ({
+  verifyRecaptchaToken: verifyRecaptchaTokenMock,
+}));
 
 vi.mock('@/lib/supabase/clients/adminClient', () => ({
   supabaseAdminClient: { from: fromMock },
@@ -16,6 +24,7 @@ import { verifyVendorMagicLink } from './magicLink';
 const SLUG = 'test-claim-vendor';
 const EMAIL = 'claim-vendor@example.com';
 const TOKEN = '11111111-1111-1111-1111-111111111111';
+const CAPTCHA = 'recaptcha-token';
 
 const IN_A_WEEK = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 const YESTERDAY = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -47,11 +56,12 @@ describe('verifyVendorMagicLink', () => {
     vi.spyOn(console, 'debug').mockImplementation(() => { });
     vi.spyOn(console, 'error').mockImplementation(() => { });
     vi.stubEnv('NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED', 'true');
+    verifyRecaptchaTokenMock.mockResolvedValue({ success: true });
     maybeSingleMock.mockResolvedValue(vendorRow());
   });
 
   it('accepts a matching, unexpired link', async () => {
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result.success).toBe(true);
     expect(result.vendorEmail).toBe(EMAIL);
@@ -59,7 +69,7 @@ describe('verifyVendorMagicLink', () => {
   });
 
   it('matches email and token case-insensitively', async () => {
-    const result = await verifyVendorMagicLink(SLUG, EMAIL.toUpperCase(), TOKEN.toUpperCase());
+    const result = await verifyVendorMagicLink(SLUG, EMAIL.toUpperCase(), TOKEN.toUpperCase(), CAPTCHA);
 
     expect(result.success).toBe(true);
   });
@@ -67,7 +77,7 @@ describe('verifyVendorMagicLink', () => {
   it('rejects a link whose expiry has passed', async () => {
     maybeSingleMock.mockResolvedValue(vendorRow({ access_token_valid_until: YESTERDAY }));
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result.success).toBe(false);
   });
@@ -75,7 +85,7 @@ describe('verifyVendorMagicLink', () => {
   it('treats a missing expiry as expired while the flag is on', async () => {
     maybeSingleMock.mockResolvedValue(vendorRow({ access_token_valid_until: null }));
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result.success).toBe(false);
   });
@@ -84,19 +94,19 @@ describe('verifyVendorMagicLink', () => {
     vi.stubEnv('NEXT_PUBLIC_FEATURE_CLAIM_PROFILE_ENABLED', 'false');
     maybeSingleMock.mockResolvedValue(vendorRow({ access_token_valid_until: YESTERDAY }));
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result.success).toBe(true);
   });
 
   it('rejects a mismatched token', async () => {
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, 'not-the-token');
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, 'not-the-token', CAPTCHA);
 
     expect(result.success).toBe(false);
   });
 
   it('rejects a mismatched email', async () => {
-    const result = await verifyVendorMagicLink(SLUG, 'someone-else@example.com', TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, 'someone-else@example.com', TOKEN, CAPTCHA);
 
     expect(result.success).toBe(false);
   });
@@ -107,13 +117,13 @@ describe('verifyVendorMagicLink', () => {
     );
 
     // `token.toLowerCase()` would throw or spuriously match without the guard.
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, '');
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, '', CAPTCHA);
 
     expect(result.success).toBe(false);
   });
 
   it('withholds vendor details when verification fails', async () => {
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, 'not-the-token');
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, 'not-the-token', CAPTCHA);
 
     expect(result.vendorEmail).toBeNull();
     expect(result.vendorBusinessName).toBeNull();
@@ -122,7 +132,7 @@ describe('verifyVendorMagicLink', () => {
   it('still reports the context the error page needs to offer a new link', async () => {
     maybeSingleMock.mockResolvedValue(vendorRow({ access_token_valid_until: YESTERDAY }));
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result).toMatchObject({ success: false, hasEmailOnFile: true, isClaimed: false });
   });
@@ -132,7 +142,7 @@ describe('verifyVendorMagicLink', () => {
       vendorRow({ access_token: null, verified_at: '2026-01-01T00:00:00Z' })
     );
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result).toMatchObject({ success: false, isClaimed: true });
   });
@@ -140,21 +150,48 @@ describe('verifyVendorMagicLink', () => {
   it('reveals nothing when there is no vendor for the slug', async () => {
     maybeSingleMock.mockResolvedValue({ data: null, error: null });
 
-    const result = await verifyVendorMagicLink('nope', EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink('nope', EMAIL, TOKEN, CAPTCHA);
 
     expect(result).toEqual({
       success: false,
       hasEmailOnFile: false,
       isClaimed: false,
+      recaptchaFailed: false,
       vendorEmail: null,
       vendorBusinessName: null,
+    });
+  });
+
+  it('accepts an email whose "+" lost its encoding in transit', async () => {
+    // `?email=a+b@x.com` parses to "a b@x.com" — the link is still ours.
+    maybeSingleMock.mockResolvedValue(vendorRow({ email: 'vendor+TEST1@example.com' }));
+
+    const result = await verifyVendorMagicLink(SLUG, 'vendor TEST1@example.com', TOKEN, CAPTCHA);
+
+    expect(result.success).toBe(true);
+  });
+
+  describe('reCAPTCHA gate', () => {
+    it('refuses before touching the database when the bot check fails', async () => {
+      verifyRecaptchaTokenMock.mockResolvedValue({ success: false });
+
+      const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
+
+      expect(result).toMatchObject({ success: false, recaptchaFailed: true });
+      expect(fromMock).not.toHaveBeenCalled();
+    });
+
+    it('does not flag the bot check on an ordinary bad link', async () => {
+      const result = await verifyVendorMagicLink(SLUG, EMAIL, 'not-the-token', CAPTCHA);
+
+      expect(result).toMatchObject({ success: false, recaptchaFailed: false });
     });
   });
 
   it('fails closed on a lookup error', async () => {
     maybeSingleMock.mockResolvedValue({ data: null, error: { message: 'boom' } });
 
-    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN);
+    const result = await verifyVendorMagicLink(SLUG, EMAIL, TOKEN, CAPTCHA);
 
     expect(result.success).toBe(false);
   });
