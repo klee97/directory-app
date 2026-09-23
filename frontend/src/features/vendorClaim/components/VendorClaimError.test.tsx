@@ -54,6 +54,14 @@ describe("VendorClaimError", () => {
       expect(mockPush).toHaveBeenCalledWith("/partner/login");
     });
 
+    it("says the listing is claimed rather than offering a new link", () => {
+      render(<VendorClaimError errorType="invalid_link" slug={SLUG} hasEmailOnFile isClaimed />);
+
+      expect(screen.getByText("This listing is already claimed")).toBeInTheDocument();
+      expect(screen.getByText(/already been claimed/)).toBeInTheDocument();
+      expect(screen.queryByText(/request a new claim link/)).toBeNull();
+    });
+
     it("falls back to login when the link carried no slug", async () => {
       render(<VendorClaimError errorType="invalid_link" hasEmailOnFile />);
 
