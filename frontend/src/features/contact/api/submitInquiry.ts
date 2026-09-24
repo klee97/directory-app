@@ -1,11 +1,5 @@
 import { LeadFormData } from '@/types/leads';
-import { VendorTag } from '@/types/vendor';
 import { fetchApi } from '@/lib/api/client';
-
-interface VendorInfo {
-  id: string;
-  serviceTags: VendorTag[];
-}
 
 export interface SubmitInquiryResponse {
   id: string;
@@ -13,13 +7,14 @@ export interface SubmitInquiryResponse {
 
 export async function submitInquiryToSupabase(
   formData: LeadFormData,
-  vendor: VendorInfo
+  vendorId: string,
+  airtableRecordId: string | null
 ): Promise<boolean> {
   const response = await fetchApi<SubmitInquiryResponse>('/api/inquiries', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      vendor_id: vendor.id,
+      vendor_id: vendorId,
       isTestRecord: formData.isTestRecord,
       services: formData.services,
       peopleCount: formData.peopleCount,
@@ -33,6 +28,7 @@ export async function submitInquiryToSupabase(
       flexibleDate: formData.flexibleDate,
       budget: formData.budget,
       additionalDetails: formData.additionalDetails,
+      airtableRecordId: airtableRecordId,
     }),
   });
 

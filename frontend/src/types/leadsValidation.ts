@@ -49,12 +49,12 @@ export const leadFormSchema = z.object({
     .max(100),
   flexibleCount: z.boolean().default(false),
 
-  // Expected to be an array of tag ids, not tag names
   services: z
-    .array(z.guid('Each service must be a valid tag id'))
+    .array(z.string().trim().min(1).max(50))
     .min(1, 'At least one service is required'),
 
-  makeupStyles: z.array(z.string().trim().max(10)).default([]),
+  makeupStyles: z.array(z.string().trim().max(50)).default([]),
+  airtableRecordId: z.string().trim().min(1).max(50).nullable().optional(),
 });
 
 export type LeadFormWireInput = z.infer<typeof leadFormSchema>;

@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
       return apiError('Failed to submit lead.', 502);
     }
 
-    return apiSuccess({});
+    return apiSuccess({ recordId: record[0].id });
   } catch (error) {
     console.error('Airtable submission error:', error);
     return apiError('Failed to submit lead.', 502);
