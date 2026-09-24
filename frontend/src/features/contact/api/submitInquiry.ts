@@ -33,7 +33,7 @@ export async function submitInquiryToSupabase(
   });
 
   if (!response.ok) {
-    console.error('Supabase inquiry dual-write failed:', response.error);
+    console.error('Supabase inquiry submission failed:', response.code, response.error);
     return false;
   }
 
