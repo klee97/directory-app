@@ -26,7 +26,7 @@ Follow this section to run these tests locally.
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running
-- Node.js 20+
+- Node.js 24+
 
 ### First-time setup
 
