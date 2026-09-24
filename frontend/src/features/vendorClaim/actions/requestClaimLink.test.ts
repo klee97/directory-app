@@ -258,6 +258,8 @@ describe('requestClaimLink', () => {
         success: false,
         error:
           "Check your inbox and spam folder for the link. Still don't see it? Request a new link in 4 minutes.",
+        // Drives the dialog's live countdown.
+        retryAfterSeconds: 4 * 60,
       });
     });
 
@@ -346,7 +348,9 @@ describe('requestClaimLink', () => {
 
         const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
-        expect(result).toMatchObject({ success: false });
+        // Nothing to derive a request time from, so it falls back to the full
+        // cooldown rather than under-reporting the wait.
+        expect(result).toMatchObject({ success: false, retryAfterSeconds: 5 * 60 });
         expect(sendClaimLinkEmailMock).not.toHaveBeenCalled();
       });
 

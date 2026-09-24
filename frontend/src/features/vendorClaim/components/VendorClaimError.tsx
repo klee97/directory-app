@@ -53,6 +53,17 @@ const EXPIRABLE_INVALID_LINK = {
     "This link is invalid, has expired, or has already been used. Log in or request a new claim link to continue.",
 };
 
+/**
+ * A claimed listing already has an account, so "request a new link" is not the
+ * next step — logging in is. Saying so leaks nothing: the public listing
+ * already shows a verified badge once it's claimed.
+ */
+const ALREADY_CLAIMED_LINK = {
+  title: "This listing is already claimed",
+  message:
+    "This profile has already been claimed, so this link no longer works. Log in to manage it — or contact us if you think this is a mistake.",
+};
+
 interface VendorClaimErrorProps {
   errorType: ErrorType;
   /** Vendor slug from the link, used to route back to the listing's claim CTA. */
@@ -74,7 +85,13 @@ export default function VendorClaimError({
   const base = ERROR_CONTENT[errorType];
   const isExpirableInvalidLink = isClaimProfileEnabled() && errorType === ErrorTypes.InvalidLink;
 
-  const { title, message } = isExpirableInvalidLink ? EXPIRABLE_INVALID_LINK : base;
+  const isAlreadyClaimed = isExpirableInvalidLink && !!isClaimed;
+
+  const { title, message } = isAlreadyClaimed
+    ? ALREADY_CLAIMED_LINK
+    : isExpirableInvalidLink
+      ? EXPIRABLE_INVALID_LINK
+      : base;
 
   // Send the vendor back to the listing's "Manage this profile" CTA so they can
   // mint a fresh link. Claimed listings already have an account, and a listing

@@ -1,6 +1,7 @@
 "use server";
 import { supabaseAdminClient } from "@/lib/supabase/clients/adminClient";
 import { isClaimProfileEnabled } from "@/lib/env/env";
+import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
 
 export type VerifyVendorMagicLinkResult = {
   success: boolean;
@@ -8,6 +9,8 @@ export type VerifyVendorMagicLinkResult = {
   hasEmailOnFile: boolean;
   /** Whether the listing is already claimed — a new link won't help. */
   isClaimed: boolean;
+  /** The request failed the bot check, not the link check. */
+  recaptchaFailed: boolean;
   vendorEmail: string | null;
   vendorBusinessName: string | null;
 };
@@ -17,9 +20,22 @@ const FAILURE: VerifyVendorMagicLinkResult = {
   success: false,
   hasEmailOnFile: false,
   isClaimed: false,
+  recaptchaFailed: false,
   vendorEmail: null,
   vendorBusinessName: null,
 };
+
+/**
+ * Addresses can't contain spaces, so a space here is always a `+` that lost its
+ * encoding: `?email=a+b@x.com` parses to "a b@x.com" under the
+ * application/x-www-form-urlencoded rules `URLSearchParams` follows. We mint
+ * links with `encodeURIComponent`, but anything that re-serializes the query in
+ * between — a mail client, a tracking redirect, a hand-edited URL — can drop
+ * the `%2B`, which would otherwise reject every plus-addressed vendor.
+ */
+function normalizeEmail(email: string | null | undefined): string {
+  return (email ?? "").trim().toLowerCase().replaceAll(" ", "+");
+}
 
 /**
  * Validates a claim magic link (slug + email + token) against the vendor row.
@@ -36,8 +52,16 @@ const FAILURE: VerifyVendorMagicLinkResult = {
 export async function verifyVendorMagicLink(
   slug: string,
   email: string,
-  token: string
+  token: string,
+  recaptchaToken: string
 ): Promise<VerifyVendorMagicLinkResult> {
+  // Gate before any database work, as requestClaimLink does — otherwise this
+  // endpoint is a free oracle for brute-forcing tokens.
+  const { success: isHuman } = await verifyRecaptchaToken(recaptchaToken);
+  if (!isHuman) {
+    return { ...FAILURE, recaptchaFailed: true };
+  }
+
   const { data: vendor, error } = await supabaseAdminClient
     .from("vendors")
     .select("email, business_name, access_token, access_token_valid_until, verified_at")
@@ -62,7 +86,8 @@ export async function verifyVendorMagicLink(
 
   const doEmailAndTokenMatch =
     !!vendor.access_token &&
-    email.toLowerCase() === vendor.email?.toLowerCase() &&
+    !!vendor.email &&
+    normalizeEmail(email) === normalizeEmail(vendor.email) &&
     token.toLowerCase() === vendor.access_token.toLowerCase();
 
   const isExpired =

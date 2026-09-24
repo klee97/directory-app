@@ -167,7 +167,28 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
   ].filter((price): price is number => price !== null && price !== undefined && price > 0);
 
   const hasPricing = prices.length > 0;
+
   const resolvedLowestPrice = hasPricing ? Math.min(...prices) : 0;
+
+  /* Claim/Edit Profile CTA. The owner goes straight to their edit page;
+     claimed listings send other viewers to login; unclaimed listings with an
+     email on file open the claim-link flow; unclaimed listings with no email
+     on file go to the contact form instead, since there's nowhere to send a
+     link. Suspense keeps the rest of this statically generated page static:
+     ManageProfilePrompt reads ?claim=1 via useSearchParams, so only this
+     subtree defers to the client. */
+  const claimProfileCta = isClaimProfileEnabled() && vendor.business_name && (
+    <Suspense fallback={null}>
+      <ManageProfilePrompt
+        slug={vendor.slug ?? ''}
+        vendorId={vendor.id}
+        businessName={vendor.business_name}
+        isClaimed={!!vendor.verified_at}
+        hasEmail={!!vendor.email}
+        emailHint={vendor.email ? maskEmail(vendor.email) : ''}
+      />
+    </Suspense>
+  );
 
   useEffect(() => {
     startTime.current = performance.now();
@@ -533,7 +554,10 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                 gridArea: { md: 'right' },
               }}
             >
-              {/* Cover Image */}
+              {/* Cover Image, with the claim/edit CTA tucked under it. On
+                  mobile the two share the "image" grid area so the CTA stays
+                  with the photo; with no sidebar image there is no such area,
+                  so the CTA rides along with the contact card instead. */}
               {hasSidebarImage && (
                 <Box sx={{ gridArea: { xs: 'image', md: 'auto' } }}>
                   <VendorCoverImage
@@ -541,10 +565,12 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                     businessName={vendor.business_name}
                     placeholderImage={placeholderImage}
                   />
+                  {claimProfileCta}
                 </Box>
               )}
               {/* Contact */}
               <Box sx={{ gridArea: { xs: 'contact', md: 'auto' }, flexGrow: { md: 1 } }}>
+                {!hasSidebarImage && claimProfileCta}
                 <Divider
                   sx={{
                     mt: 4,
@@ -556,25 +582,6 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
               </Box>
             </Box>
           </Box>
-          {/* Claim/Edit Profile CTA. Claimed listings send the owner
-              straight to login; unclaimed listings with an email on file open
-              the claim-link flow; unclaimed listings with no email on file
-              go to the contact form instead, since there's nowhere to send a
-              link. */}
-          {isClaimProfileEnabled() && vendor.business_name && (
-            // Suspense keeps the rest of this statically generated page static:
-            // ManageProfilePrompt reads ?claim=1 via useSearchParams, so only
-            // this subtree defers to the client.
-            <Suspense fallback={null}>
-              <ManageProfilePrompt
-                slug={vendor.slug ?? ''}
-                businessName={vendor.business_name}
-                isClaimed={!!vendor.verified_at}
-                hasEmail={!!vendor.email}
-                emailHint={vendor.email ? maskEmail(vendor.email) : ''}
-              />
-            </Suspense>
-          )}
           {children}
         </Container >
       </Box >
