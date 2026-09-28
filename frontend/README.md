@@ -9,7 +9,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running
 - Node.js 24+
 
-### First-time setup
+### First-time setup for local development
 
 1. Install dependencies (Supabase CLI is included):
 
@@ -17,7 +17,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
    npm install
 ```
 
-1. Start the local Supabase stack:
+2. Start the local Supabase stack:
 
 ```bash
    npm run supabase:start
@@ -25,18 +25,14 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
    This starts a local Supabase instance at `http://127.0.0.1:54321` and Supabase Studio at `http://localhost:54323`.
 
-1. Set up your environment file:
-
-```bash
-   cp .env.example .env
-```
+3. Set up your environment file in `.env.local`
 
    `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` should
    point at local defaults — confirm the anon key with `npx supabase status`.
    See [Environment Files](#environment-files) below for the full picture,
    including the remote option.
 
-1. Seed the database:
+4. Seed the database:
 
 ```bash
    npm run supabase:reset
@@ -56,16 +52,24 @@ This will refuse to start if local Supabase isn't running (step 2 above) — sta
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+### Running the development server against real data
+
+You may also wish to use the local server with the hosted Supabase database. In this case, you need set the proper remote credentials
+in `.env.remote`. You do NOT need Docker or Supabase running locally.
+
+Keep in mind this is production data, so any data writes will affect the live application.
+
 ## Environment Files
 
 This project uses two local env files:
 
 | File | Points Supabase at | Used for | Command
 | --- | --- | --- | --- |
-| `.env` | Local Supabase (`http://127.0.0.1:54321`) | Runs against local dev using seeded test data | `npm run dev` |
+| `.env.local` | Local Supabase (`http://127.0.0.1:54321`) | Runs against local dev using seeded test data | `npm run dev` |
+| `.env.test` | Local Supabase (`http://127.0.0.1:54321`) | Playwright E2E test runs using seeded test data and test variables | `npm run test:e2e` |
 | `.env.remote` | Real hosted Supabase project | Quick runs against remote data | `npm run dev:remote` |
 
-Both files share the same Cloudflare R2 and Contentful credentials — there's no
+Remove and local envs share the same Cloudflare R2 and Contentful credentials — there's no
 local emulator for those, so local dev talks to them directly. R2 image
 deletes/uploads route to a separate test bucket for any vendor with a
 `TEST-` ID prefix, so this is safe even outside a fully local setup.
@@ -76,11 +80,18 @@ For the remote option, copy your real credentials into `.env.remote`
 
 ### E2E Testing with Playwright
 
-E2E and integration tests use the same local Supabase instance as dev, with a
+E2E and integration tests use the same local Supabase instance as dev, but there's a
 dedicated `.env.test` file. These tests are triggered as GitHub Actions for PRs.
 
 If you've already completed the setup above, you're most of the way there —
 this section covers the test-specific pieces.
+
+#### Set up the .env.test file
+
+```bash
+   cp .env.test.example .env.test
+```
+
 
 #### Running the tests
 
