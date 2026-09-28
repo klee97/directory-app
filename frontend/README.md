@@ -61,19 +61,19 @@ Keep in mind this is production data, so any data writes will affect the live ap
 
 ## Environment Files
 
-This project uses two local env files:
+This project uses three local env files:
 
 | File | Points Supabase at | Used for | Command
-| --- | --- | --- | --- |
-| `.env.local` | Local Supabase (`http://127.0.0.1:54321`) | Runs against local dev using seeded test data | `npm run dev` |
-| `.env.test` | Local Supabase (`http://127.0.0.1:54321`) | Playwright E2E test runs using seeded test data and test variables | `npm run test:e2e` |
-| `.env.remote` | Real hosted Supabase project | Quick runs against remote data | `npm run dev:remote` |
+| --- | --- | --- | ---
+| `.env.local` | Local Supabase (`http://127.0.0.1:54321`) | Runs against local dev using seeded test data | `npm run dev`
+| `.env.test` | Local Supabase (`http://127.0.0.1:54321`) | Playwright E2E test runs using seeded test data and test variables | `npm run test:e2e`
+| `.env.remote` | Real hosted Supabase project | Quick runs against remote data | `npm run dev:remote`
 
-Remove and local envs share the same Cloudflare R2 and Contentful credentials — there's no
+Remote and local envs share the same Cloudflare R2 and Contentful credentials — there's no
 local emulator for those, so local dev talks to them directly. R2 image
 deletes/uploads route to a separate test bucket for any vendor with a
 `TEST-` ID prefix, so this is safe even outside a fully local setup.
-**Only the Supabase URL/key differ between the two files.**
+**Only the Supabase URL/keys differ between the .env.local and .env.remote.**
 
 For the remote option, copy your real credentials into `.env.remote`
 (ask a teammate or check your password manager — not committed to git).
