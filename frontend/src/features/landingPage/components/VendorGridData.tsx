@@ -8,7 +8,7 @@ export async function VendorGrid() {
 
   // Only show verified vendors with photos on the landing page
   const verifiedVendors = shuffleVendorsWithSeed(
-    vendors.filter((v) => v.verified_at != null && v.cover_image != null),
+    vendors.filter((v) => v.verified_at != null),
     getTodaySeed()
   ).slice(0, VENDOR_PREVIEW_COUNT);
 
