@@ -61,7 +61,7 @@ const EXPIRABLE_INVALID_LINK = {
 const ALREADY_CLAIMED_LINK = {
   title: "This listing is already claimed",
   message:
-    "This profile has already been claimed, so this link no longer works. Log in to manage it — or contact us if you think this is a mistake.",
+    "This profile has already been claimed. Contact us if you have questions.",
 };
 
 interface VendorClaimErrorProps {

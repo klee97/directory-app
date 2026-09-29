@@ -181,10 +181,12 @@ export async function requestClaimLink({
   }
 
   // Lost the race — another request rotated the token first, so a link is
-  // already on its way. With the cooldown disabled that is simply a success.
+  // already on its way. `previousValidUntil` describes the link the winner
+  // replaced, not the winner's, so the winner's cooldown has only just started:
+  // report the full length. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
     return cooldownMs > 0
-      ? cooldownResult(previousValidUntil, nowMs, validMs, cooldownMs)
+      ? cooldownResult(null, nowMs, validMs, cooldownMs)
       : genericSuccess;
   }
 

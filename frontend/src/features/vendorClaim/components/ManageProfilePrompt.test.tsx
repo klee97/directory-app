@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { UserRole } from "@/lib/auth/userRole";
 import ManageProfilePrompt from "./ManageProfilePrompt";
 
@@ -100,12 +100,24 @@ describe("ManageProfilePrompt", () => {
   });
 
   describe("rate limiting", () => {
+    // The countdown is wall-clock driven, so pin the clock: a slow CI run must
+    // not be able to tick it before the assertions look. Only the clock and the
+    // interval are faked — userEvent and MUI transitions still need setTimeout.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date", "setInterval", "clearInterval"] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     const openDialogAndSend = async () => {
+      const user = userEvent.setup();
       render(<ManageProfilePrompt {...PROPS} />);
-      await userEvent.click(
+      await user.click(
         screen.getByRole("button", { name: "Is this your business? Manage this profile." })
       );
-      await userEvent.click(screen.getByRole("button", { name: "Send me a link" }));
+      await user.click(screen.getByRole("button", { name: "Send me a link" }));
     };
 
     it("shows the countdown inline and disables sending instead of toasting", async () => {
@@ -120,6 +132,23 @@ describe("ManageProfilePrompt", () => {
       expect(screen.getByText(/Request a\s+new link in 4:00\./)).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /Send me a link \(4:00\)/ })).toBeDisabled();
       expect(mockAddNotification).not.toHaveBeenCalled();
+    });
+
+    it("ticks the countdown down and re-enables sending once it runs out", async () => {
+      mockRequestClaimLink.mockResolvedValue({
+        success: false,
+        error: "Request a new link in 2 seconds.",
+        retryAfterSeconds: 2,
+      });
+
+      await openDialogAndSend();
+      expect(screen.getByRole("button", { name: /Send me a link \(0:02\)/ })).toBeDisabled();
+
+      await act(() => vi.advanceTimersByTimeAsync(1000));
+      expect(screen.getByRole("button", { name: /Send me a link \(0:01\)/ })).toBeDisabled();
+
+      await act(() => vi.advanceTimersByTimeAsync(1000));
+      expect(screen.getByRole("button", { name: "Send me a link" })).toBeEnabled();
     });
 
     it("still toasts errors that carry no cooldown", async () => {

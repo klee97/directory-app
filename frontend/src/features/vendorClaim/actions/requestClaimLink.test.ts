@@ -354,6 +354,18 @@ describe('requestClaimLink', () => {
         expect(sendClaimLinkEmailMock).not.toHaveBeenCalled();
       });
 
+      it('reports the full cooldown when the race was lost after an earlier link expired its cooldown', async () => {
+        // The earlier link is well past its cooldown, so the read passes the
+        // check — but the winner's link was just minted.
+        vendorWithExpiry(requestedAgo(60 * 60_000));
+        updateSelectMock.mockResolvedValue(NOT_UPDATED);
+
+        const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+        expect(result).toMatchObject({ success: false, retryAfterSeconds: 5 * 60 });
+        expect(sendClaimLinkEmailMock).not.toHaveBeenCalled();
+      });
+
       it('treats a lost race as success when the cooldown is disabled', async () => {
         vi.stubEnv('CLAIM_LINK_REQUEST_COOLDOWN_SECONDS', '0');
         vendorWithExpiry(null);

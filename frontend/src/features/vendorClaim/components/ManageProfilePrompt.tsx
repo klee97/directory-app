@@ -67,17 +67,28 @@ export default function ManageProfilePrompt({
   );
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
-  // Remaining seconds on the per-listing cooldown, shown inline and ticked down
-  // locally. A toast disappears long before the wait does.
+  // When the per-listing cooldown ends (epoch ms), and the seconds left on it,
+  // shown inline. A toast disappears long before the wait does. The remaining
+  // time is recomputed from the deadline rather than decremented per tick, so
+  // throttled timers in a background tab can't leave the button disabled late.
+  const [cooldownEndsAt, setCooldownEndsAt] = useState<number | null>(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
   useEffect(() => {
-    if (cooldownRemaining <= 0) return;
-    const timer = setInterval(() => {
-      setCooldownRemaining((remaining) => Math.max(0, remaining - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldownRemaining]);
+    if (cooldownEndsAt === null) return;
+    const update = () => {
+      const remaining = Math.max(0, Math.ceil((cooldownEndsAt - Date.now()) / 1000));
+      setCooldownRemaining(remaining);
+      if (remaining === 0) setCooldownEndsAt(null);
+    };
+    update();
+    const timer = setInterval(update, 1000);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, [cooldownEndsAt]);
 
   const handleClick = () => {
     // The owner already has an account and a dashboard — skip the claim flow.
@@ -105,6 +116,7 @@ export default function ManageProfilePrompt({
     setOpen(false);
     // Reset back to the initial state for a future open.
     setIsSent(false);
+    setCooldownEndsAt(null);
     setCooldownRemaining(0);
   };
 
@@ -123,7 +135,7 @@ export default function ManageProfilePrompt({
       } else if (result.retryAfterSeconds) {
         // Rate limited — keep the wait on screen and disable the button until
         // it runs out, rather than flashing it in a toast.
-        setCooldownRemaining(result.retryAfterSeconds);
+        setCooldownEndsAt(Date.now() + result.retryAfterSeconds * 1000);
       } else {
         addNotification(result.error, "error");
       }

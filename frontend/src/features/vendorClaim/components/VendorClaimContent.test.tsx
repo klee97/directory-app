@@ -111,6 +111,16 @@ describe("VendorClaimContent", () => {
     expect(await screen.findByText("Security verification failed")).toBeInTheDocument();
   });
 
+  it("offers a retry instead of spinning forever when verification throws", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockVerify.mockRejectedValue(new Error("network down"));
+
+    render(<VendorClaimContent {...PARAMS} />);
+
+    expect(await screen.findByText("Security verification failed")).toBeInTheDocument();
+    consoleError.mockRestore();
+  });
+
   it("clears an earlier error once a later run succeeds", async () => {
     const { rerender } = render(<VendorClaimContent {...PARAMS} token="" />);
     expect(await screen.findByText("Incomplete claim link")).toBeInTheDocument();

@@ -25,10 +25,8 @@ const supabaseBrowserClient = createBrowserClient();
 /**
  * The page's whole verdict, replaced wholesale by each verification run.
  *
- * Previously these were four independent useStates, and a run that ended in
- * success left an earlier run's `errorType` behind — the render checks the
- * error first, so the stale failure won. Making the states mutually exclusive
- * removes that possibility rather than papering over it with resets.
+ * The states are mutually exclusive, so a run can never leave behind fields
+ * from an earlier one (e.g. a stale `errorType` shadowing a later success).
  */
 type ClaimState =
   | { status: "loading" }
@@ -89,7 +87,21 @@ export default function VendorClaimContent({ slug, email, token }: VendorClaimCo
       recaptchaRef.current?.reset();
 
       // Verify the magic link by comparing params to database record
-      const verification = await verifyVendorMagicLink(slug, email, token, recaptchaToken);
+      let verification;
+      try {
+        verification = await verifyVendorMagicLink(slug, email, token, recaptchaToken);
+      } catch (error) {
+        // A network or server failure says nothing about the link itself, so
+        // offer a retry rather than leaving the spinner up forever.
+        console.error("VendorClaimContent: failed to verify claim link:", error);
+        settle({
+          status: "error",
+          errorType: ErrorTypes.RecaptchaFailed,
+          hasEmailOnFile: false,
+          isClaimed: false,
+        });
+        return;
+      }
 
       if (verification.success) {
         settle({
