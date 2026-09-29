@@ -3,10 +3,18 @@
  * Fails fast unless `.env.local` is actually pointed at the local Supabase instance.
  * Wired up as "predev" so `npm run dev` refuses to start against the wrong DB —
  * whether that's because local Supabase isn't running, or because .env.local
- * still has stale/remote credentials even though local Supabase is up. 
+ * still has stale/remote credentials even though local Supabase is up.
  */
 import { execSync } from "child_process";
 import { config } from "dotenv";
+
+// CI already starts and seeds local Supabase itself (see .github/workflows/ci.yml)
+// and sets env vars directly rather than via .env.local, so this check is redundant
+// there and would just be re-verifying something the workflow already guarantees.
+// GitHub Actions sets CI=true on every step automatically.
+if (process.env.CI) {
+  process.exit(0);
+}
 
 // Load .env.local the same way Next.js would, so we're checking the values
 // that will actually be used once `next dev` starts.
