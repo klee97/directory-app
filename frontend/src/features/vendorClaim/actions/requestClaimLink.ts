@@ -13,7 +13,7 @@ import { sendClaimLinkEmail } from "@/lib/resend/resend";
 
 export type RequestClaimLinkResult =
   | { success: true }
-  | { success: false; error: string };
+  | { success: false; error: string; retryAfterSeconds?: number };
 
 /** "30 seconds" / "1 minute" / "4 minutes" — no dependency for one sentence. */
 function formatWait(seconds: number): string {
@@ -56,23 +56,30 @@ function isWithinCooldown(
 }
 
 /**
- * Message for a request refused by the cooldown. `validUntil` is the value read
+ * Result for a request refused by the cooldown. `validUntil` is the value read
  * before the update; when it is missing or not derivable we lost a race rather
  * than hitting the cooldown, so fall back to the full cooldown length.
+ *
+ * `retryAfterSeconds` lets the dialog run a live countdown instead of showing a
+ * wait that goes stale the moment it renders.
  */
-function cooldownError(
+function cooldownResult(
   validUntil: string | null,
   nowMs: number,
   validMs: number,
   cooldownMs: number
-): string {
+): RequestClaimLinkResult {
   const requestedAtMs = validUntil ? new Date(validUntil).getTime() - validMs : NaN;
   const remainingMs = Number.isFinite(requestedAtMs)
     ? requestedAtMs + cooldownMs - nowMs
     : cooldownMs;
-  const wait = formatWait(Math.ceil(Math.min(Math.max(remainingMs, 0), cooldownMs) / 1000));
+  const retryAfterSeconds = Math.ceil(Math.min(Math.max(remainingMs, 0), cooldownMs) / 1000);
 
-  return `Check your inbox and spam folder for the link. Still don't see it? Request a new link in ${wait}.`;
+  return {
+    success: false,
+    error: `Check your inbox and spam folder for the link. Still don't see it? Request a new link in ${formatWait(retryAfterSeconds)}.`,
+    retryAfterSeconds,
+  };
 }
 
 /**
@@ -141,10 +148,7 @@ export async function requestClaimLink({
   // exists, is unclaimed and has an email on file, all of which the public
   // profile page already discloses by opening this dialog with a masked hint.
   if (cooldownMs > 0 && isWithinCooldown(previousValidUntil, nowMs, validMs, cooldownMs)) {
-    return {
-      success: false,
-      error: cooldownError(previousValidUntil, nowMs, validMs, cooldownMs),
-    };
+    return cooldownResult(previousValidUntil, nowMs, validMs, cooldownMs);
   }
 
   // Compare-and-swap on the value we just read, so the decision above and this
@@ -177,10 +181,12 @@ export async function requestClaimLink({
   }
 
   // Lost the race — another request rotated the token first, so a link is
-  // already on its way. With the cooldown disabled that is simply a success.
+  // already on its way. `previousValidUntil` describes the link the winner
+  // replaced, not the winner's, so the winner's cooldown has only just started:
+  // report the full length. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
     return cooldownMs > 0
-      ? { success: false, error: cooldownError(previousValidUntil, nowMs, validMs, cooldownMs) }
+      ? cooldownResult(null, nowMs, validMs, cooldownMs)
       : genericSuccess;
   }
 
