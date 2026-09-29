@@ -373,7 +373,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                   position: 'relative',
                 }}
               >
-                <Image src={Logo} fill alt={"logo"} style={{ objectFit: 'contain' }} />
+                <Image src={Logo} fill alt="logo" sizes="(min-width: 1200px) 40px, 28px" priority style={{ objectFit: 'contain' }} />
               </Box>
               <Box sx={{ alignItems: 'end', minWidth: 0 }}>
                 <Typography

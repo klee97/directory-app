@@ -1,68 +1,108 @@
+# Directory App
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Local Testing with Supabase
-
-E2E and integration tests use a local instance of Supabase. These tests will be triggered as Github Actions for PRs.
-Follow this section to run these tests locally.
 
 ### Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) installed and running
 - Node.js 24+
 
-### First-time setup
+### First-time setup for local development
 
 1. Install dependencies (Supabase CLI is included):
+
 ```bash
    npm install
 ```
 
 2. Start the local Supabase stack:
+
 ```bash
    npm run supabase:start
 ```
+
    This starts a local Supabase instance at `http://127.0.0.1:54321` and Supabase Studio at `http://localhost:54323`.
 
-3. Copy the environment file and fill in the local credentials:
-```bash
-   cp .env.test.example .env.test
-```
-   The `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` are already set to local defaults. You can confirm the anon key by running `npx supabase status`.
+3. Set up your environment file in `.env.local`
+
+   `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` should
+   point at local defaults — confirm the anon key with `npx supabase status`.
+   See [Environment Files](#environment-files) below for the full picture,
+   including the remote option.
 
 4. Seed the database:
+
 ```bash
    npm run supabase:reset
 ```
-   This runs all migrations and seeds the database with a test user.
 
-### E2E tests
+   This runs all migrations and seeds the database with test data from `supabase/seed.sql`.
+
+### Running the development server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+This will refuse to start if local Supabase isn't running (step 2 above) — start it with `npm run supabase:start`.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+### Running the development server against real data
+
+You may also wish to use the local server with the hosted Supabase database. In this case, you need set the proper remote credentials
+in `.env.remote`. You do NOT need Docker or Supabase running locally.
+
+Keep in mind this is production data, so any data writes will affect the live application.
+
+## Environment Files
+
+This project uses three local env files:
+
+| File | Points Supabase at | Used for | Command
+| --- | --- | --- | ---
+| `.env.local` | Local Supabase (`http://127.0.0.1:54321`) | Runs against local dev using seeded test data | `npm run dev`
+| `.env.test` | Local Supabase (`http://127.0.0.1:54321`) | Playwright E2E test runs using seeded test data and test variables | `npm run test:e2e`
+| `.env.remote` | Real hosted Supabase project | Quick runs against remote data | `npm run dev:remote`
+
+Remote and local envs share the same Cloudflare R2 and Contentful credentials — there's no
+local emulator for those, so local dev talks to them directly. R2 image
+deletes/uploads route to a separate test bucket for any vendor with a
+`TEST-` ID prefix, so this is safe even outside a fully local setup.
+**Only the Supabase URL/keys differ between the .env.local and .env.remote.**
+
+For the remote option, copy your real credentials into `.env.remote`
+(ask a teammate or check your password manager — not committed to git).
+
+### E2E Testing with Playwright
+
+E2E and integration tests use the same local Supabase instance as dev, but there's a
+dedicated `.env.test` file. These tests are triggered as GitHub Actions for PRs.
+
+If you've already completed the setup above, you're most of the way there —
+this section covers the test-specific pieces.
+
+#### Set up the .env.test file
+
+```bash
+   cp .env.test.example .env.test
+```
+
 
 #### Running the tests
 
 Make sure Docker Desktop is running and the local Supabase stack is started, then:
+
 ```bash
 npm run test:e2e
 ```
 
 ### Authentication in Playwright
+
 Authentication is handled via Playwright's worker-scoped fixtures. Each parallel
 worker authenticates once at the start of the run and reuses that session for all
 tests it runs. This avoids repeating the login flow on every test while ensuring
@@ -172,13 +212,14 @@ test('logging out resets favorites', async ({ browser, isMobile }, workerInfo) =
 ### Useful commands
 
 | Command | Description |
-|---|---|
+| --- | --- |
 | `npm run supabase:start` | Start local Supabase stack |
 | `npm run supabase:stop` | Stop local Supabase stack |
 | `npm run supabase:reset` | Reset DB — re-runs migrations + seed |
 | `npx supabase status` | View local URLs and credentials |
 
 ### Stopping the local stack
+
 ```bash
 npm run supabase:stop
 ```
