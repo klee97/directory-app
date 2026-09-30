@@ -225,6 +225,7 @@ export const VendorSettings = ({
               fullWidth
               type={showEmailPassword ? "text" : "password"}
               label="Current Password"
+              autoComplete="current-password"
               value={emailChangePassword}
               onChange={(e) => setEmailChangePassword(e.target.value)}
               margin="normal"
@@ -247,6 +248,7 @@ export const VendorSettings = ({
               fullWidth
               type="email"
               label="New Email Address"
+              autoComplete="email"
               value={email}
               onChange={(e) => setNewEmail(e.target.value)}
               margin="normal"
