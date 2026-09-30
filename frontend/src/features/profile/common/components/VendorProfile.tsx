@@ -323,14 +323,14 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                   <Typography variant="body1" component="p" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
                     {vendorDescription}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                     {vendor.website && (
                       <Button
                         href={vendor.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Link />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Website
@@ -342,7 +342,7 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Instagram />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Instagram
@@ -354,7 +354,7 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Place />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Google Maps

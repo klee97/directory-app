@@ -74,6 +74,8 @@ export function FilterableVendorTableContent({
     [searchParams, tags.services]
   );
 
+  const activeFilterCount = selectedSkills.length + selectedServices.length + (travelsWorldwide ? 1 : 0);
+
   // State management
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null);
   const { setParams } = useURLFilters();
@@ -181,10 +183,32 @@ export function FilterableVendorTableContent({
               px: 3,
               textTransform: 'none'
             }}
-            aria-label="Open filters"
+            aria-label={activeFilterCount > 0 ? `Open filters, ${activeFilterCount} active` : 'Open filters'}
           >
             <FilterListIcon sx={{ mr: 1 }} />
             Filter
+            {activeFilterCount > 0 && (
+              <Box
+                component="span"
+                aria-hidden
+                sx={{
+                  ml: 1,
+                  minWidth: 22,
+                  height: 22,
+                  px: 0.75,
+                  borderRadius: 11,
+                  bgcolor: 'common.white',
+                  color: 'primary.dark',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {activeFilterCount}
+              </Box>
+            )}
           </Fab>
 
           <MobileFilterDrawer
@@ -195,6 +219,7 @@ export function FilterableVendorTableContent({
             filterMinWidth={FILTER_MIN_WIDTH}
             sortOption={vendorFiltering.sortOption}
             onSortChange={vendorFiltering.setSortOption}
+            resultCount={vendorFiltering.searchedAndSortedVendors.length}
           />
         </Box>
 

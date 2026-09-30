@@ -17,6 +17,7 @@ interface MobileFilterDrawerProps {
   filterMinWidth: number;
   sortOption: SortOption;
   onSortChange: (sortOption: SortOption) => void;
+  resultCount: number;
 }
 
 export const MobileFilterDrawer = ({
@@ -27,6 +28,7 @@ export const MobileFilterDrawer = ({
   filterMinWidth,
   sortOption,
   onSortChange,
+  resultCount,
 }: MobileFilterDrawerProps) => {
   const handleClearAll = () => {
     onClearFilters();
@@ -95,7 +97,7 @@ export const MobileFilterDrawer = ({
             px: 4,
           }}
         >
-          Done
+          Show {resultCount} {resultCount === 1 ? 'artist' : 'artists'}
         </Button>
       </Box>
     </Drawer>
