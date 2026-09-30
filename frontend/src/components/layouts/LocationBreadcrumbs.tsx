@@ -19,6 +19,7 @@ export function LocationBreadcrumbs({
             variant="body1"
             color="secondary"
             underline="hover"
+            sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 44 }}
           >
             {crumb.label}
           </Link>

@@ -127,7 +127,7 @@ export const VendorCard = ({
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
-          maxWidth: { xs: 300, sm: 400, md: 600 },
+          maxWidth: { xs: '100%', sm: 400, md: 600 },
           marginX: 'auto',
           position: 'relative',
           transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
