@@ -1,18 +1,9 @@
-'use client'
-
 import EnvDebugPanel from '@/components/env/EnvDebugPanel';
-import AdminLoadingSpinner from '@/features/profile/admin/components/LoadingSpinner';
-import { useRequireAdmin } from '@/hooks/useRequireAdmin';
+import { requireAdminForPage } from '@/lib/auth/requireAdminForPage';
 
 
-export default function EnvDebugPage() {
-  const { isLoading } = useRequireAdmin();
-  
-  if (isLoading) {
-    return (
-      <AdminLoadingSpinner />
-    );
-  }
+export default async function EnvDebugPage() {
+  await requireAdminForPage('/admin/debug');
 
   return <EnvDebugPanel />
 }

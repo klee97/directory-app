@@ -1,26 +1,17 @@
-"use client";
-
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { AdminAddVendorManagement } from '@/features/profile/admin/components/CreateVendor';
-import AdminLoadingSpinner from '@/features/profile/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
-import { useRequireAdmin } from '@/hooks/useRequireAdmin';
+import { requireAdminForPage } from '@/lib/auth/requireAdminForPage';
 
-export default function AddVendor() {
-  const { isLoading } = useRequireAdmin();
-
-  if (isLoading) {
-    return (
-      <AdminLoadingSpinner />
-    );
-  }
+export default async function AddVendor() {
+  await requireAdminForPage('/admin/create');
 
   return (
     <Container maxWidth="lg">
       <br />
-      <Button variant="text" href="/admin" color='secondary'>
+      <Button variant="text" href="/admin" color="secondary">
         Back to Admin Dashboard
       </Button>
       <Box
