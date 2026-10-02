@@ -12,6 +12,13 @@ export const vendorWorkerAccounts = [
   { email: 'test-vendor4@example.com', password: 'Testvendorpassword123!' },
 ];
 
+export const adminWorkerAccounts = [
+  { email: 'test-admin1@example.com', password: 'Testadminpassword123!' },
+  { email: 'test-admin2@example.com', password: 'Testadminpassword123!' },
+  { email: 'test-admin3@example.com', password: 'Testadminpassword123!' },
+  { email: 'test-admin4@example.com', password: 'Testadminpassword123!' },
+];
+
 export const throwawayAccount = {
   email: 'delete-test@example.com',
   password: 'Testpassword123!',

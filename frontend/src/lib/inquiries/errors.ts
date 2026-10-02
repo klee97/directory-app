@@ -6,6 +6,7 @@ export const API_ERRORS = {
   already_reviewed: { status: 409, message: "Inquiry has already been reviewed" },
   update_failed: { status: 500, message: "Failed to update inquiry" },
   queue_fetch_failed: { status: 500, message: "Failed to fetch queue" },
+  invalid_query: { status: 400, message: "Invalid query parameters" },
 } as const satisfies Record<string, { status: number; message: string }>;
 
 export type ApiErrorCode = keyof typeof API_ERRORS;

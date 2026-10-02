@@ -22,6 +22,7 @@ import ArrowForward from "@mui/icons-material/ArrowForward";
 import Divider from "@mui/material/Divider";
 import CircularProgress from "@mui/material/CircularProgress";
 import { createBrowserClient } from "@/lib/supabase/clients/browserClient";
+import { safeRedirectPath } from "@/lib/auth/safeRedirect";
 
 
 const supabaseBrowserClient = createBrowserClient();
@@ -51,14 +52,14 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
         setIsSubmitting(false);
         return;
       }
-
       const isVendorAccount = result?.isVendorAccount ?? false;
-      const isValidRedirect = redirectTo && (
-        isVendorAccount ? redirectTo.startsWith('/partner') : !redirectTo.startsWith('/partner')
-      );
+      const candidate = safeRedirectPath(redirectTo);
+      const isValidRedirect =
+        candidate !== null &&
+        (isVendorAccount ? (candidate === '/partner' || candidate.startsWith('/partner/')) : !candidate.startsWith('/partner'));
 
       const redirectPath = isValidRedirect
-        ? redirectTo
+        ? candidate
         : (isVendorAccount ? '/partner/dashboard' : '/');
 
       if (!result.accessToken || !result.refreshToken) {
@@ -73,6 +74,7 @@ export const LoginForm = ({ isVendorLogin, redirectTo }: { isVendorLogin: boolea
       router.push(redirectPath);
 
     } catch (error) {
+      setIsSubmitting(false);
       console.error("An unexpected error occurred: " + error);
       addNotification('An unexpected error occurred. Please try again.', 'error');
     }
