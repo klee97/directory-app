@@ -1,0 +1,1 @@
+export const INQUIRY_UNLOCK_WINDOW_DAYS = 14;

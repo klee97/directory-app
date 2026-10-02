@@ -347,3 +347,92 @@ ON CONFLICT (id) DO UPDATE SET
   is_admin = EXCLUDED.is_admin,
   is_test = EXCLUDED.is_test
 ;
+
+-- Dedicated vendor for the admin inquiry-review Playwright tests
+-- (inquiry-review-api.spec.ts). Kept separate from TEST-E2E-001..006 so
+-- creating/deleting inquiries against it can't interfere with the
+-- location/radius-search fixtures those vendors back. include_in_directory
+-- is false since this vendor should never surface in a search result.
+INSERT INTO public.vendors (id, business_name, slug, include_in_directory, city, state, country, verified_at, approved_inquiries_at, website_interest_submitted, premium_interest_submitted)
+VALUES
+  ('TEST-E2E-INQUIRY', 'Test Inquiry Review Vendor', 'test-inquiry-review-vendor', false, 'Austin', 'Texas', 'United States', timezone('utc'::text, now()), timezone('utc'::text, now()), false, false);
+
+
+-- Admin-related test fixtures (admin user, admin profile, admin vendor)
+INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, invited_at, confirmation_token, confirmation_sent_at, recovery_token, recovery_sent_at, email_change_token_new, email_change, email_change_sent_at, last_sign_in_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, created_at, updated_at, phone, phone_confirmed_at, phone_change, phone_change_token, phone_change_sent_at, email_change_token_current, email_change_confirm_status, banned_until, reauthentication_token, reauthentication_sent_at)
+VALUES (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000c',
+  'authenticated', 'authenticated', 'test-admin1@example.com',
+  extensions.crypt('Testadminpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}', '{}', NULL,
+  timezone('utc'::text, now()), timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000d',
+  'authenticated', 'authenticated', 'test-admin2@example.com',
+  extensions.crypt('Testadminpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}', '{}', NULL,
+  timezone('utc'::text, now()), timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000e',
+  'authenticated', 'authenticated', 'test-admin3@example.com',
+  extensions.crypt('Testadminpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}', '{}', NULL,
+  timezone('utc'::text, now()), timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+), (
+  '00000000-0000-0000-0000-000000000000',
+  '00000000-0000-0000-0000-00000000000f',
+  'authenticated', 'authenticated', 'test-admin4@example.com',
+  extensions.crypt('Testadminpassword123!', extensions.gen_salt('bf')),
+  timezone('utc'::text, now()), NULL, '', NULL, '', NULL, '', '', NULL, NULL,
+  '{"provider": "email", "providers": ["email"]}', '{}', NULL,
+  timezone('utc'::text, now()), timezone('utc'::text, now()),
+  NULL, NULL, '', '', NULL, '', 0, NULL, '', NULL
+);
+
+INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
+VALUES (
+  '00000000-0000-0000-0000-00000000000c',
+  '00000000-0000-0000-0000-00000000000c',
+  '{"sub": "00000000-0000-0000-0000-00000000000c"}',
+  'email', '00000000-0000-0000-0000-00000000000c',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+), (
+  '00000000-0000-0000-0000-00000000000d',
+  '00000000-0000-0000-0000-00000000000d',
+  '{"sub": "00000000-0000-0000-0000-00000000000d"}',
+  'email', '00000000-0000-0000-0000-00000000000d',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+), (
+  '00000000-0000-0000-0000-00000000000e',
+  '00000000-0000-0000-0000-00000000000e',
+  '{"sub": "00000000-0000-0000-0000-00000000000e"}',
+  'email', '00000000-0000-0000-0000-00000000000e',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+), (
+  '00000000-0000-0000-0000-00000000000f',
+  '00000000-0000-0000-0000-00000000000f',
+  '{"sub": "00000000-0000-0000-0000-00000000000f"}',
+  'email', '00000000-0000-0000-0000-00000000000f',
+  timezone('utc'::text, now()), timezone('utc'::text, now()), timezone('utc'::text, now())
+);
+
+INSERT INTO public.profiles (id, role, created_at, updated_at, is_admin, vendor_id, is_test)
+VALUES
+  ('00000000-0000-0000-0000-00000000000c', 'admin', now(), now(), true, null, true),
+  ('00000000-0000-0000-0000-00000000000d', 'admin', now(), now(), true, null, true),
+  ('00000000-0000-0000-0000-00000000000e', 'admin', now(), now(), true, null, true),
+  ('00000000-0000-0000-0000-00000000000f', 'admin', now(), now(), true, null, true)
+ON CONFLICT (id) DO UPDATE SET
+  role = EXCLUDED.role,
+  is_admin = EXCLUDED.is_admin,
+  is_test = EXCLUDED.is_test
+;
