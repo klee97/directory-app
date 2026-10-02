@@ -80,7 +80,8 @@
     "schema-dts": "^2.0.0",
     "sharp": "^0.35.4",
     "supabase": "^2.6.8",
-    "swiper": "^12.1.2"
+    "swiper": "^12.1.2",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
