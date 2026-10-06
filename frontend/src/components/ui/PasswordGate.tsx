@@ -81,7 +81,6 @@ export default function PasswordGate({ redirectTo = '/blog' }: PasswordGateProps
           <InputBase
             placeholder="Password"
             type="password"
-            autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSubmit()}
