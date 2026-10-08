@@ -66,7 +66,7 @@ export default function FavoriteButton({
     <>
       <IconButton
         aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-        sx={{ display: 'inline-flex', fontSize: 24, cursor: 'pointer', visibility: 'visible', ...sx }}
+        sx={{ display: 'inline-flex', fontSize: 24, cursor: 'pointer', visibility: 'visible', minWidth: 44, minHeight: 44, ...sx }}
         color='primary'
         onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => handleFavoriteClick(event)}
       >
