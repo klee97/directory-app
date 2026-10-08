@@ -346,11 +346,13 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 {vendor.verified_at && <VerifiedBadge size={24} />}
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, flexWrap: 'wrap' }}>
                   {/* Location */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
                     <LocationOn fontSize="small" />
-                    <Typography variant="subtitle1">{resolvedLocation}</Typography>
+                    <Typography variant="subtitle1" sx={{ overflowWrap: 'anywhere' }}>
+                      {resolvedLocation}
+                    </Typography>
                   </Box>
                   {vendor.travels_world_wide && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <PublicIcon fontSize="small" />
