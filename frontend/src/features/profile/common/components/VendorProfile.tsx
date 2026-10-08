@@ -14,6 +14,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import LocationOn from '@mui/icons-material/LocationOn';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
+import Slide from '@mui/material/Slide';
 import Link from '@mui/icons-material/Link';
 import Instagram from '@mui/icons-material/Instagram';
 import Place from '@mui/icons-material/Place';
@@ -47,84 +48,150 @@ const StickyCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const ContactCard = ({ vendor, isFavorite }: { vendor: Vendor, isFavorite: boolean }) => {
+interface ContactCardProps {
+  vendor: Vendor;
+  isFavorite: boolean;
+  onFavoriteChange: (isFavorited: boolean) => void;
+  showMobileContactBar: boolean;
+}
+
+const ContactCard = ({ vendor, isFavorite, onFavoriteChange, showMobileContactBar }: ContactCardProps) => {
   const [formOpen, setFormOpen] = useState(false);
   const dialogContentRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isCardBelowViewport, setIsCardBelowViewport] = useState(false);
 
   const serviceTags = vendor.tags.filter(tag => tag.type === 'SERVICE');
   const defaultLocation = getDisplayNameWithoutType(vendor.city, vendor.state, vendor.country);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isStacked = useMediaQuery(theme.breakpoints.down('md'));
   const inquiryState = getInquiryState(vendor.inquiries_opted_out_at, vendor.verified_at);
+  const ctaLabel = inquiryState === 'verified' ? 'Get a Quote' : 'Contact';
+  const hasMobileContactBar = showMobileContactBar && isStacked && inquiryState !== 'opted_out';
+
+  // On stacked layouts the contact card sits far below the fold, so show a fixed
+  // bar until the user scrolls down to the card itself. Once the card has been
+  // reached (or passed) the bar hides, so it never covers the footer.
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!hasMobileContactBar || !card) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setIsCardBelowViewport(!entry.isIntersecting && entry.boundingClientRect.top > 0);
+    });
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [hasMobileContactBar]);
 
   return (
-    <StickyCard elevation={0}>
-      <CardContent>
-        <Typography variant="h5" component="h2" sx={{
-          mt: 2,
-          mb: 2,
-          textAlign: 'center'
-        }}>
-          Love their work?
-        </Typography>
-        <Box sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: 2,
-          mb: 2,
-          alignContent: 'center',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          {inquiryState !== 'opted_out' && (
-            <>
-              <Button
-                variant="contained"
-                sx={{ borderRadius: 6, paddingY: 1 }}
-                onClick={() => setFormOpen(true)}
-              >
-                {inquiryState === 'verified' ? 'Get a Quote' : 'Contact'}
-              </Button>
+    <>
+      <StickyCard elevation={0} ref={cardRef}>
+        <CardContent>
+          <Typography variant="h5" component="h2" sx={{
+            mt: 2,
+            mb: 2,
+            textAlign: 'center'
+          }}>
+            Love their work?
+          </Typography>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 2,
+            mb: 2,
+            alignContent: 'center',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {inquiryState !== 'opted_out' && (
+              <>
+                <Button
+                  variant="contained"
+                  sx={{ borderRadius: 6, paddingY: 1 }}
+                  onClick={() => setFormOpen(true)}
+                >
+                  {ctaLabel}
+                </Button>
 
-              <Dialog
-                open={formOpen}
-                onClose={(event, reason) => {
-                  if (reason !== 'backdropClick') {
-                    setFormOpen(false);
-                  }
-                }}
-                maxWidth="sm"
-                fullWidth
-                fullScreen={isMobile}
-              >
-                <DialogContent ref={dialogContentRef} sx={{ p: 0 }}>
+                <Dialog
+                  open={formOpen}
+                  onClose={(event, reason) => {
+                    if (reason !== 'backdropClick') {
+                      setFormOpen(false);
+                    }
+                  }}
+                  maxWidth="sm"
+                  fullWidth
+                  fullScreen={isMobile}
+                >
+                  <DialogContent ref={dialogContentRef} sx={{ p: 0 }}>
 
-                  <LeadCaptureForm
-                    onClose={() => setFormOpen(false)}
-                    onScrollToTop={() => dialogContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-                    vendor={{
-                      businessName: vendor.business_name ?? '',
-                      slug: vendor.slug ?? '',
-                      id: vendor.id,
-                      serviceTags: serviceTags,
-                      location: defaultLocation ?? '',
-                    }}
-                    isModal={true}
-                    inquiryState={inquiryState}
-                  />
-                </DialogContent>
-              </Dialog>
-            </>
-          )}
+                    <LeadCaptureForm
+                      onClose={() => setFormOpen(false)}
+                      onScrollToTop={() => dialogContentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+                      vendor={{
+                        businessName: vendor.business_name ?? '',
+                        slug: vendor.slug ?? '',
+                        id: vendor.id,
+                        serviceTags: serviceTags,
+                        location: defaultLocation ?? '',
+                      }}
+                      isModal={true}
+                      inquiryState={inquiryState}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
 
-          <FavoriteButton
-            vendorId={vendor.id}
-            initialIsFavorited={isFavorite}
-            sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid' }}
-          />
-        </Box>
-      </CardContent>
-    </StickyCard>
+            <FavoriteButton
+              vendorId={vendor.id}
+              initialIsFavorited={isFavorite}
+              onFavoriteChange={onFavoriteChange}
+              sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid' }}
+            />
+          </Box>
+        </CardContent>
+      </StickyCard>
+      {hasMobileContactBar && (
+        <Slide direction="up" in={isCardBelowViewport} appear={false}>
+          <Box
+            data-testid="mobile-contact-bar"
+            sx={{
+              position: 'fixed',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: theme.zIndex.appBar,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              px: 2,
+              pt: 1.5,
+              pb: 'calc(12px + env(safe-area-inset-bottom))',
+              bgcolor: 'background.paper',
+              boxShadow: '0px -4px 12px rgba(0, 0, 0, 0.08)',
+            }}
+          >
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ borderRadius: 6, paddingY: 1.25 }}
+              onClick={() => setFormOpen(true)}
+            >
+              {ctaLabel}
+            </Button>
+            <FavoriteButton
+              vendorId={vendor.id}
+              initialIsFavorited={isFavorite}
+              onFavoriteChange={onFavoriteChange}
+              sx={{ borderColor: 'primary.main', borderWidth: 1, borderStyle: 'solid', flexShrink: 0 }}
+            />
+          </Box>
+        </Slide>
+      )}
+    </>
   )
 }
 
@@ -132,9 +199,11 @@ interface VendorDetailsProps {
   vendor: Vendor;
   vendorDescription: string;
   children?: React.ReactNode;
+  /** Fixed bottom contact bar on stacked layouts; disable for embedded previews. */
+  showMobileContactBar?: boolean;
 }
 
-export default function VendorDetails({ vendor, vendorDescription, children }: VendorDetailsProps) {
+export default function VendorDetails({ vendor, vendorDescription, children, showMobileContactBar = true }: VendorDetailsProps) {
   const startTime = useRef<number | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -585,7 +654,12 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                     display: { xs: 'block', md: 'none' }, // show only when stacked
                   }}
                 />
-                <ContactCard vendor={vendor} isFavorite={isFavorite} />
+                <ContactCard
+                  vendor={vendor}
+                  isFavorite={isFavorite}
+                  onFavoriteChange={setIsFavorite}
+                  showMobileContactBar={showMobileContactBar}
+                />
               </Box>
             </Box>
           </Box>
