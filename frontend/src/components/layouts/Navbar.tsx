@@ -240,7 +240,7 @@ export const Navbar = ({ isVendorNavbar }: { isVendorNavbar: boolean }) => {
                 aria-haspopup="true"
                 onClick={handleOpenNavMenu}
                 color="inherit"
-                sx={{ p: 1 }}
+                sx={{ p: 1, minWidth: 44, minHeight: 44 }}
               >
                 <MenuIcon />
               </IconButton>
