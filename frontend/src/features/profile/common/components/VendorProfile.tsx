@@ -323,7 +323,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' },
+              gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 2fr) minmax(0, 1fr)' },
               columnGap: { md: 4 },
               gridTemplateAreas: hasSidebarImage
                 ? {
@@ -337,7 +337,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
             }}
           >
             {/* Details */}
-            <Box sx={{ gridArea: 'details' }}>
+            <Box sx={{ gridArea: 'details', minWidth: 0 }}>
               {/* Vendor Info */}
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <Typography variant="h2" component="h1">
@@ -346,11 +346,13 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 {vendor.verified_at && <VerifiedBadge size={24} />}
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, flexWrap: 'wrap' }}>
                   {/* Location */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
                     <LocationOn fontSize="small" />
-                    <Typography variant="subtitle1">{resolvedLocation}</Typography>
+                    <Typography variant="subtitle1" sx={{ overflowWrap: 'anywhere' }}>
+                      {resolvedLocation}
+                    </Typography>
                   </Box>
                   {vendor.travels_world_wide && <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <PublicIcon fontSize="small" />
@@ -364,7 +366,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                   </Typography>
                 )}
                 {/* Specialty Tags */}
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, flexWrap: 'wrap' }}>
                   {tags.length > 0 &&
                     tags
                       .filter((tag) => tag.is_visible && tag.display_name !== null)
@@ -385,22 +387,28 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
               <Box flexDirection={{ xs: 'column', sm: 'row' }} display='flex' gap={4}>
                 {/* Profile Image */}
                 {showProfileImage && (
-                  <Card elevation={0}
+                  <Card
+                    elevation={0}
                     sx={{
-                      // center the image in the card
                       display: 'flex',
                       justifyContent: 'center',
-                      borderRadius: 2, overflow: 'hidden', minWidth: 200, marginX: 'auto'
-                    }}>
-                    {/* Vendor Image */}
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      width: { xs: '100%', sm: 'auto' },
+                      minWidth: { sm: 200 },
+                      maxWidth: '100%',
+                      marginX: 'auto',
+                    }}
+                  >
                     <Box
                       component="img"
                       src={vendor.profile_image ?? ''}
                       alt={vendor.business_name ?? ''}
-                      maxHeight={{ xs: 400, sm: 300 }}
                       sx={{
                         display: 'block',
                         objectFit: 'cover',
+                        maxWidth: '100%',
+                        maxHeight: { xs: 400, sm: 300 },
                       }}
                     />
                   </Card>
@@ -413,7 +421,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                   <Typography variant="body1" component="p" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
                     {vendorDescription}
                   </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
                     {vendor.website && (
                       <Button
                         href={vendor.website}
@@ -621,6 +629,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 display: { xs: 'contents', md: 'flex' },
                 flexDirection: { md: 'column' },
                 gridArea: { md: 'right' },
+                minWidth: 0,
               }}
             >
               {/* Cover Image, with the claim/edit CTA tucked under it. On
@@ -631,6 +640,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 <Box
                   sx={{
                     gridArea: { xs: 'image', md: 'auto' },
+                    minWidth: 0,
                     // Tighten the image's bottom margin only when the CTA actually renders
                     // (it returns null while auth loads or for non-owner vendors).
                     '& > :first-child:not(:last-child)': { mb: 2 },
@@ -645,7 +655,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 </Box>
               )}
               {/* Contact */}
-              <Box sx={{ gridArea: { xs: 'contact', md: 'auto' }, flexGrow: { md: 1 } }}>
+              <Box sx={{ gridArea: { xs: 'contact', md: 'auto' }, flexGrow: { md: 1 }, minWidth: 0 }}>
                 {!hasSidebarImage && claimProfileCta}
                 <Divider
                   sx={{
@@ -662,7 +672,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                 />
               </Box>
             </Box>
-          </Box>
+          </Box >
           {children}
         </Container >
       </Box >
