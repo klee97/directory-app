@@ -155,7 +155,7 @@ export default function ManageProfilePrompt({
 
   return (
     <>
-      <Box sx={{ textAlign: "center", mt: 2, mb: 1 }}>
+      <Box sx={{ textAlign: "center", mb: 1 }}>
         <Link
           component="button"
           type="button"

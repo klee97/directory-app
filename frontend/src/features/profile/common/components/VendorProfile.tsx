@@ -559,7 +559,14 @@ export default function VendorDetails({ vendor, vendorDescription, children }: V
                   with the photo; with no sidebar image there is no such area,
                   so the CTA rides along with the contact card instead. */}
               {hasSidebarImage && (
-                <Box sx={{ gridArea: { xs: 'image', md: 'auto' } }}>
+                <Box
+                  sx={{
+                    gridArea: { xs: 'image', md: 'auto' },
+                    // Tighten the image's bottom margin only when the CTA actually renders
+                    // (it returns null while auth loads or for non-owner vendors).
+                    '& > :first-child:not(:last-child)': { mb: 2 },
+                  }}
+                >
                   <VendorCoverImage
                     coverImage={vendor.cover_image!}
                     businessName={vendor.business_name}
