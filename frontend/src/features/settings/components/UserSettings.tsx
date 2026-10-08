@@ -147,6 +147,7 @@ export const UserSettings = ({ userEmail, userId }: UserSettingsProps) => {
             fullWidth
             type={showDeletePassword ? "text" : "password"}
             label="Current Password"
+            autoComplete="current-password"
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
             margin="normal"

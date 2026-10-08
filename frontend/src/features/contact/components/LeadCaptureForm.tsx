@@ -569,6 +569,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   variant="outlined"
                   fullWidth
                   placeholder="City and state, or metro area"
+                  autoComplete="address-level2"
                   sx={{ maxWidth: 300 }}
                 />
               </Grid>
@@ -585,7 +586,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                     onChange={handleInputChange}
                     error={!!errors.peopleCount}
                     helperText={errors.peopleCount}
-                    slotProps={{ htmlInput: { min: 1 } }}
+                    slotProps={{ htmlInput: { min: 1, inputMode: 'numeric' } }}
                     sx={{ width: 100 }}
                   />
                   <FormControlLabel
@@ -659,6 +660,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                       error={!!errors.firstName}
                       helperText={errors.firstName}
                       placeholder="First"
+                      autoComplete="given-name"
                     />
                   </Grid>
                   <Grid size={{ xs: 12, sm: 6 }}>
@@ -671,6 +673,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                       error={!!errors.lastName}
                       helperText={errors.lastName}
                       placeholder="Last"
+                      autoComplete="family-name"
                     />
                   </Grid>
                 </Grid>
@@ -689,6 +692,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   error={!!errors.email}
                   helperText={errors.email}
                   placeholder="Email"
+                  autoComplete="email"
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -740,7 +744,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                     helperText={errors.budget}
                     slotProps={{
                       input: { startAdornment: <Typography sx={{ color: 'text.secondary', mr: 0.5 }}>$</Typography> },
-                      htmlInput: { min: 0 }
+                      htmlInput: { min: 0, inputMode: 'numeric' }
                     }}
                     sx={{ maxWidth: 200 }}
                   />
