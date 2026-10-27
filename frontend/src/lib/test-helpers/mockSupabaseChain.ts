@@ -8,6 +8,8 @@ export interface MockChain<T = unknown> extends PromiseLike<QueryResult<T>> {
   update: Mock<() => MockChain<T>>;
   eq: Mock<() => MockChain<T>>;
   order: Mock<() => MockChain<T>>;
+  limit: Mock<(count: number) => MockChain<T>>;
+  or: Mock<(filters: string) => MockChain<T>>;
   single: Mock<() => MockChain<T>>;
   maybeSingle: Mock<() => MockChain<T>>;
 }
@@ -30,6 +32,8 @@ export function createChainable<T>(result: QueryResult<T>): MockChain<T> {
     update: vi.fn(() => chain),
     eq: vi.fn(() => chain),
     order: vi.fn(() => chain),
+    limit: vi.fn((_count: number) => chain),
+    or: vi.fn((_filters: string) => chain),
     single: vi.fn(() => chain),
     maybeSingle: vi.fn(() => chain),
     then: <R1 = QueryResult<T>, R2 = never>(

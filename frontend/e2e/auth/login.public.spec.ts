@@ -74,16 +74,23 @@ test.describe('login redirectTo handling', () => {
     test(`ignores external redirectTo (${label}) and lands on home`, async ({ page, baseURL }, workerInfo) => {
       const { email, password } = userWorkerAccounts[workerInfo.parallelIndex];
 
-      // Don't depend on real network access if the app does misbehave
-      await page.route(/evil\.com/, (route) => route.abort());
+      const evilRequests: string[] = [];
+      await page.route(
+        (url) => url.hostname === 'evil.com' || url.hostname.endsWith('.evil.com'),
+        (route) => {
+          evilRequests.push(route.request().url());
+          return route.abort();
+        },
+      );
 
       await page.goto(`/login?redirectTo=${encodeURIComponent(target)}`);
       await page.getByLabel('Email Address').fill(email);
       await page.getByLabel('Password').fill(password);
       await page.getByTestId('login-submit').click();
 
-      await page.waitForURL('/', { timeout: 15_000 });
+      await page.waitForURL('/');
       expect(new URL(page.url()).origin).toBe(new URL(baseURL!).origin);
+      expect(evilRequests).toEqual([]);
       await expect(page.getByTestId('profile-button')).toBeVisible();
     });
   }

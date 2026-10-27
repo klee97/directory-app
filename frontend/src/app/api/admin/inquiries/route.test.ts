@@ -23,7 +23,7 @@ beforeEach(() => {
 describe("GET /api/admin/inquiries", () => {
   it("returns the real 401 mapping when requireAdmin rejects", async () => {
     mockRequireAdmin.mockRejectedValue(new UnauthorizedError());
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/inquiries"));
     expect(res.status).toBe(401);
     expect((await res.json()).code).toBe("unauthorized");
   });
@@ -33,7 +33,7 @@ describe("GET /api/admin/inquiries", () => {
     const supabase = { from: vi.fn(() => chain) };
     mockRequireAdmin.mockResolvedValue({ user: { id: "admin1" }, supabase });
 
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/inquiries"));
     const body = await res.json();
     expect(res.status).toBe(500);
     expect(body.code).toBe("queue_fetch_failed");
@@ -45,10 +45,13 @@ describe("GET /api/admin/inquiries", () => {
     const supabase = { from: vi.fn(() => chain) };
     mockRequireAdmin.mockResolvedValue({ user: { id: "admin1" }, supabase });
 
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/inquiries"));
     const body = await res.json();
 
-    expect(body).toEqual({ ok: true, data: { inquiries: rows } });
+    expect(body).toEqual({
+      ok: true,
+      data: { inquiries: rows, has_more: false, next_cursor: null },
+    });
     expect(supabase.from).toHaveBeenCalledWith("inquiries");
     expect(chain.eq).toHaveBeenCalledWith("inquiry_status", "pending_review");
     expect(chain.order).toHaveBeenCalledWith("submitted_at", { ascending: true });

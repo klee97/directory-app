@@ -24,8 +24,9 @@ language plpgsql
 set search_path = public
 as $$
 begin
-  if new.role is distinct from old.role
-     and current_user in ('authenticated', 'anon') then
+  if (new.role is distinct from old.role
+      or new.is_admin is distinct from old.is_admin)
+    and current_user in ('authenticated', 'anon') then
     raise exception
       'Changing profiles.role requires direct database access; it cannot be set via a client session (attempted by Postgres role "%").',
       current_user;
