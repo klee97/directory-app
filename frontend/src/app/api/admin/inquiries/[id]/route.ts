@@ -17,9 +17,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  console.log("PATCH /api/admin/inquiries/[id] called with id:", id);
   const idParsed = z.uuid().safeParse(id);
-  console.log("UUID parse result:", idParsed);
   if (!idParsed.success) return apiFail("not_found");
 
   let admin, supabase;
