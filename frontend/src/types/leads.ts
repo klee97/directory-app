@@ -11,6 +11,7 @@ export interface LeadFormData {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   location: string;
   weddingDate: string;
   flexibleDate: boolean;

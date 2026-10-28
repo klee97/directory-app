@@ -16,7 +16,8 @@ export const leadFormSchema = z.object({
 
   firstName: z.string().trim().min(1, 'First name is required').max(100),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
-  email: z.string().trim().email('Enter a valid email address').max(255),
+  email: z.string().trim().max(255).pipe(z.email('Enter a valid email address')),
+  phone: z.string().trim().max(20),
   additionalDetails: z.string().trim().min(1, 'Message is required').max(5000),
 
   weddingDate: z.iso.date().optional(),

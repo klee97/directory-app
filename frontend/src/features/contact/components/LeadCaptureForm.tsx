@@ -145,6 +145,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     weddingDate: '',
     flexibleDate: false,
     budget: '',
@@ -279,6 +280,12 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           newErrors.email = 'Enter your email';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
           newErrors.email = 'Enter a valid email address';
+        }
+        if (formData.phone.trim()) {
+          const digits = formData.phone.replace(/\D/g, '');
+          if (!/^[\d\s()+.\-]+$/.test(formData.phone) || digits.length < 7 || digits.length > 15) {
+            newErrors.phone = 'Enter a valid phone number';
+          }
         }
         if (!formData.budget.trim()) {
           newErrors.budget = "Enter an estimated budget";
@@ -689,6 +696,22 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   error={!!errors.email}
                   helperText={errors.email}
                   placeholder="Email"
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Phone Number <Typography component="span" variant="body1" color="text.secondary">(optional)</Typography>
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  error={!!errors.phone}
+                  helperText={errors.phone}
+                  placeholder="Phone"
+                  slotProps={{ htmlInput: { autoComplete: 'tel', inputMode: 'tel' } }}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>

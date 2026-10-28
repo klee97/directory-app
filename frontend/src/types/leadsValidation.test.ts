@@ -6,6 +6,7 @@ const validBase = {
   firstName: 'Jane',
   lastName: 'Doe',
   email: 'jane@example.com',
+  phone: '123-456-7890',
   additionalDetails: 'Looking for a natural look.',
   location: 'Los Angeles, CA',
   budget: '500',

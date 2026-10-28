@@ -19,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'), // matches tsconfig paths
+      '@': path.resolve(import.meta.dirname, './src'),// matches tsconfig paths
     },
   },
 })
