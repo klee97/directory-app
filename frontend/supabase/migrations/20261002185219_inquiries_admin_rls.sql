@@ -11,7 +11,7 @@ as $$
   select exists (
     select 1 from public.profiles
     where id = (select auth.uid())
-      and role = 'admin'   -- match whatever isAdminRole() checks
+      and role = 'admin'   -- match what isAdminRole() checks
   );
 $$;
 
