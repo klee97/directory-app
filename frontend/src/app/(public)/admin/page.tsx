@@ -1,20 +1,11 @@
-"use client";
-
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import AdminLoadingSpinner from '@/features/profile/admin/components/LoadingSpinner';
 import Button from '@mui/material/Button';
-import { useRequireAdmin } from '@/hooks/useRequireAdmin';
+import { requireAdminForPage } from '@/lib/auth/requireAdminForPage';
 
-export default function Admin() {
-  const { isLoading } = useRequireAdmin();
-
-  if (isLoading) {
-    return (
-      <AdminLoadingSpinner />
-    );
-  }
+export default async function Admin() {
+  await requireAdminForPage('/admin');
 
   return (
     <Container maxWidth="lg">
