@@ -33,6 +33,7 @@ import { isDevOrPreview } from '@/lib/env/env';
 import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/leads';
 import { getSelectedServiceLabels } from '@/lib/directory/getServiceTagNames';
 import { submitInquiryToSupabase } from '../api/submitInquiry';
+import { isValidPhone, PHONE_ERROR_MESSAGE } from '@/utils/phoneValidation';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -281,11 +282,9 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
           newErrors.email = 'Enter a valid email address';
         }
-        if (formData.phone.trim()) {
-          const digits = formData.phone.replace(/\D/g, '');
-          if (!/^[\d\s()+.\-]+$/.test(formData.phone) || digits.length < 7 || digits.length > 15) {
-            newErrors.phone = 'Enter a valid phone number';
-          }
+        const phone = formData.phone.trim();
+        if (phone !== '' && !isValidPhone(phone)) {
+          newErrors.phone = PHONE_ERROR_MESSAGE;
         }
         if (!formData.budget.trim()) {
           newErrors.budget = "Enter an estimated budget";
