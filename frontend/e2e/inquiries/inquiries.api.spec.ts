@@ -225,3 +225,27 @@ test('returns 422 for an obviously invalid phone', async ({ request }) => {
   expect(response.status()).toBe(422);
   expect((await response.json()).code).toBe('VALIDATION_ERROR');
 });
+
+test('returns 422 for short and alphabetic phones within the length limit', async ({
+  request,
+}) => {
+  for (const phone of ['123456', 'abcdefg']) {
+    const response = await request.post('/api/inquiries', {
+      data: {
+        vendor_id: 'TEST-E2E-002',
+        isTestRecord: true,
+        firstName: 'Playwright',
+        lastName: 'Test',
+        email: 'playwright-test@example.com',
+        phone,
+        additionalDetails: 'Bad phone e2e check.',
+        location: 'Boston, MA',
+        budget: '500',
+        peopleCount: '4',
+        services: ['Hair'],
+      },
+    });
+    expect(response.status()).toBe(422);
+    expect((await response.json()).code).toBe('VALIDATION_ERROR');
+  }
+});
