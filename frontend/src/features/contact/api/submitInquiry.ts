@@ -23,6 +23,7 @@ export async function submitInquiryToSupabase(
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
+      phone: formData.phone,
       location: formData.location,
       weddingDate: formData.weddingDate,
       flexibleDate: formData.flexibleDate,

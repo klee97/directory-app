@@ -37,6 +37,7 @@ export async function POST(
       bride_first_name: input.firstName,
       bride_last_name: input.lastName,
       bride_email: input.email,
+      phone: input.phone ?? null,
       message: input.additionalDetails,
 
       location: input.location,

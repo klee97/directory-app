@@ -33,6 +33,7 @@ import { isDevOrPreview } from '@/lib/env/env';
 import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/leads';
 import { getSelectedServiceLabels } from '@/lib/directory/getServiceTagNames';
 import { submitInquiryToSupabase } from '../api/submitInquiry';
+import { isValidPhone, PHONE_ERROR_MESSAGE } from '@/utils/phoneValidation';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -145,6 +146,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     firstName: '',
     lastName: '',
     email: '',
+    phone: '',
     weddingDate: '',
     flexibleDate: false,
     budget: '',
@@ -279,6 +281,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           newErrors.email = 'Enter your email';
         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
           newErrors.email = 'Enter a valid email address';
+        }
+        const phone = formData.phone.trim();
+        if (phone !== '' && !isValidPhone(phone)) {
+          newErrors.phone = PHONE_ERROR_MESSAGE;
         }
         if (!formData.budget.trim()) {
           newErrors.budget = "Enter an estimated budget";
@@ -689,6 +695,22 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   error={!!errors.email}
                   helperText={errors.email}
                   placeholder="Email"
+                />
+              </Grid>
+              <Grid size={{ xs: 12 }}>
+                <Typography variant="h5" gutterBottom sx={{ fontWeight: 500 }}>
+                  Phone Number <Typography component="span" variant="body1" color="text.secondary">(optional)</Typography>
+                </Typography>
+                <TextField
+                  fullWidth
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  error={!!errors.phone}
+                  helperText={errors.phone}
+                  placeholder="Phone"
+                  slotProps={{ htmlInput: { autoComplete: 'tel', inputMode: 'tel' } }}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>

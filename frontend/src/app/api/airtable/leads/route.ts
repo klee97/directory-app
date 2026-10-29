@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
 
     const fields: Record<string, string | number | boolean | string[]> = {
       'Email': formData.email,
+      'Phone': formData.phone,
       'First Name': formData.firstName,
       'Last Name': formData.lastName,
       'Wedding Date': formData.weddingDate,

@@ -95,6 +95,22 @@ async function fillStep1AndContinue(services: string[] = ['Hair']) {
   await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 }
 
+async function typePhone(value: string) {
+  await userEvent.type(
+    document.body.querySelector('input[name="phone"]') as HTMLInputElement,
+    value
+  );
+}
+
+function renderForm() {
+  return render(
+    <LeadCaptureForm
+      vendor={{ ...baseVendor, serviceTags: serviceTagsWithPrimaryOptions }}
+      inquiryState={'not_verified' as unknown as InquiryState}
+    />
+  );
+}
+
 async function fillStep2() {
   await userEvent.type(
     document.body.querySelector('input[name="firstName"]') as HTMLInputElement,
@@ -329,5 +345,76 @@ describe('LeadCaptureForm — Supabase dual-write', () => {
     );
 
     expect(mockedSubmitInquiryToSupabase).not.toHaveBeenCalled();
+  });
+});
+describe('LeadCaptureForm — optional phone number', () => {
+  it('renders an optional phone field on step 2', async () => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+
+    expect(document.body.querySelector('input[name="phone"]')).toBeInTheDocument();
+    expect(screen.getByText(/\(optional\)/i)).toBeInTheDocument();
+  });
+
+  it('submits successfully with no phone and sends an empty string', async () => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() => expect(mockedSubmitToAirtable).toHaveBeenCalledTimes(1));
+    const [submittedFormData] = mockedSubmitToAirtable.mock.calls[0];
+    expect(submittedFormData.phone).toBe('');
+    expect(screen.getByText(/request sent successfully/i)).toBeInTheDocument();
+  });
+
+  it.each([
+    ['letters', 'abc'],
+    ['too few digits', '12345'],
+    ['too many digits', '1234567890123456'],
+    ['extension text', '(555) 123-4567 ext 12'],
+  ])('blocks submit and shows an error for invalid phone (%s)', async (_label, value) => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+    await typePhone(value);
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    expect(await screen.findByText(/enter a valid phone number/i)).toBeInTheDocument();
+    expect(mockedSubmitToAirtable).not.toHaveBeenCalled();
+  });
+
+  it('clears the phone error once the user edits the field', async () => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+    await typePhone('abc');
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+    expect(await screen.findByText(/enter a valid phone number/i)).toBeInTheDocument();
+
+    await userEvent.type(
+      document.body.querySelector('input[name="phone"]') as HTMLInputElement,
+      '1'
+    );
+
+    expect(screen.queryByText(/enter a valid phone number/i)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    '555.123.4567',
+    '+44 20 7946 0958',
+    '415-555-4320',
+  ])('accepts common phone formats (%s)', async (value) => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+    await typePhone(value);
+
+    await userEvent.click(screen.getByRole('button', { name: /send inquiry|get my quote/i }));
+
+    await waitFor(() => expect(mockedSubmitToAirtable).toHaveBeenCalledTimes(1));
+    expect(mockedSubmitToAirtable.mock.calls[0][0].phone).toBe(value);
   });
 });

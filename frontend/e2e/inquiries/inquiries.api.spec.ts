@@ -117,3 +117,135 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
     expect(body.code).toBe('VALIDATION_ERROR');
   });
 });
+
+test('persists phone when provided', async ({ request }) => {
+  const response = await request.post('/api/inquiries', {
+    data: {
+      vendor_id: 'TEST-E2E-002',
+      isTestRecord: true,
+      firstName: 'Playwright',
+      lastName: 'Test',
+      email: 'playwright-test@example.com',
+      phone: '(415) 555-4320',
+      additionalDetails: 'Phone e2e check.',
+      location: 'Boston, MA',
+      budget: '500',
+      peopleCount: '4',
+      services: ['Hair'],
+      airtableRecordId: 'rec_e2e_phone',
+    },
+  });
+  expect(response.status()).toBe(201);
+  const { data } = await response.json();
+
+  const { data: inquiry, error } = await supabaseTestClient
+    .from('inquiries')
+    .select('phone')
+    .eq('id', data.id)
+    .single();
+
+  expect(error).toBeNull();
+  expect(inquiry?.phone).toBe('(415) 555-4320');
+});
+
+test('stores null when phone is explicitly null', async ({ request }) => {
+  const response = await request.post('/api/inquiries', {
+    data: {
+      vendor_id: 'TEST-E2E-002',
+      isTestRecord: true,
+      firstName: 'Playwright',
+      lastName: 'Test',
+      email: 'playwright-test@example.com',
+      phone: null,
+      additionalDetails: 'Null phone e2e check.',
+      location: 'Boston, MA',
+      budget: '500',
+      peopleCount: '4',
+      services: ['Hair'],
+    },
+  });
+  expect(response.status()).toBe(201);
+  const { data } = await response.json();
+
+  const { data: inquiry, error } = await supabaseTestClient
+    .from('inquiries')
+    .select('phone')
+    .eq('id', data.id)
+    .single();
+
+  expect(error).toBeNull();
+  expect(inquiry?.phone).toBeNull();
+});
+
+test('stores null when phone is blank', async ({ request }) => {
+  const response = await request.post('/api/inquiries', {
+    data: {
+      vendor_id: 'TEST-E2E-002',
+      isTestRecord: true,
+      firstName: 'Playwright',
+      lastName: 'Test',
+      email: 'playwright-test@example.com',
+      phone: '',
+      additionalDetails: 'Blank phone e2e check.',
+      location: 'Boston, MA',
+      budget: '500',
+      peopleCount: '4',
+      services: ['Hair'],
+    },
+  });
+  expect(response.status()).toBe(201);
+  const { data } = await response.json();
+
+  const { data: inquiry, error } = await supabaseTestClient
+    .from('inquiries')
+    .select('phone')
+    .eq('id', data.id)
+    .single();
+
+  expect(error).toBeNull();
+  expect(inquiry?.phone).toBeNull();
+});
+
+test('returns 422 for an obviously invalid phone', async ({ request }) => {
+  const response = await request.post('/api/inquiries', {
+    data: {
+      vendor_id: 'TEST-E2E-002',
+      isTestRecord: true,
+      firstName: 'Playwright',
+      lastName: 'Test',
+      email: 'playwright-test@example.com',
+      phone: 'x'.repeat(200),
+      additionalDetails: 'Bad phone e2e check.',
+      location: 'Boston, MA',
+      budget: '500',
+      peopleCount: '4',
+      services: ['Hair'],
+    },
+  });
+  expect(response.status()).toBe(422);
+  expect((await response.json()).code).toBe('VALIDATION_ERROR');
+});
+
+test('returns 422 for short and alphabetic phones within the length limit', async ({
+  request,
+}) => {
+  for (const phone of ['123456', 'abcdefg']) {
+    const response = await request.post('/api/inquiries', {
+      data: {
+        vendor_id: 'TEST-E2E-002',
+        isTestRecord: true,
+        firstName: 'Playwright',
+        lastName: 'Test',
+        email: 'playwright-test@example.com',
+        phone,
+        additionalDetails: 'Bad phone e2e check.',
+        location: 'Boston, MA',
+        budget: '500',
+        peopleCount: '4',
+        services: ['Hair'],
+      },
+    });
+    expect(response.status()).toBe(422);
+    expect((await response.json()).code).toBe('VALIDATION_ERROR');
+  }
+});
