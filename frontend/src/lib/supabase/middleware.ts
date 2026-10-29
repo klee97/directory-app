@@ -1,5 +1,4 @@
 import { createServerClient } from '@supabase/ssr';
-import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin', '/favorites', '/settings'];
@@ -33,9 +32,9 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: ResponseCookie }[]) {
+        setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
