@@ -96,6 +96,7 @@ export function NewsletterForm() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <TextField
                 label="Your Email"
+                autoComplete="email"
                 name="email"
                 type="email"
                 value={formData.email}

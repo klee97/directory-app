@@ -90,6 +90,7 @@ export function EmailForm({ reason }: { reason?: string }) {
           <TextField
             fullWidth
             label="First Name"
+            autoComplete="given-name"
             name="firstname"
             value={formData.firstname}
             onChange={handleChange}
@@ -99,6 +100,7 @@ export function EmailForm({ reason }: { reason?: string }) {
           <TextField
             fullWidth
             label="Last Name"
+            autoComplete="family-name"
             name="lastname"
             value={formData.lastname}
             onChange={handleChange}
@@ -108,6 +110,7 @@ export function EmailForm({ reason }: { reason?: string }) {
           <TextField
             fullWidth
             label="Your Email"
+            autoComplete="email"
             name="email"
             type="email"
             value={formData.email}

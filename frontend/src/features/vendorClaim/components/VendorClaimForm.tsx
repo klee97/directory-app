@@ -112,6 +112,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
       {/* Password */}
       <TextField
         label="Password"
+        autoComplete="new-password"
         type={showPassword ? "text" : "password"}
         fullWidth
         size="small"
@@ -146,6 +147,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
       {/* Confirm password */}
       <TextField
         label="Confirm password"
+        autoComplete="new-password"
         type={showPassword ? "text" : "password"}
         fullWidth
         size="small"

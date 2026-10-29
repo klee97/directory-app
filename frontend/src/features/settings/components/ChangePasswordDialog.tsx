@@ -67,6 +67,7 @@ export default function ChangePasswordDialog({
               fullWidth
               type={showCurrentPassword ? "text" : "password"}
               label="Current Password"
+              autoComplete="current-password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               margin="normal"
@@ -88,6 +89,7 @@ export default function ChangePasswordDialog({
               fullWidth
               type={showNewPassword ? "text" : "password"}
               label="New Password"
+              autoComplete="new-password"
               value={newPassword}
               onChange={(e) => {
                 setNewPassword(e.target.value);
@@ -114,6 +116,7 @@ export default function ChangePasswordDialog({
               fullWidth
               type={showConfirmPassword ? "text" : "password"}
               label="Confirm New Password"
+              autoComplete="new-password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               margin="normal"
