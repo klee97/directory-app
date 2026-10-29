@@ -84,6 +84,7 @@ export type Database = {
           message: string | null
           outcome_status: Database["public"]["Enums"]["outcome_status"] | null
           people_count: number | null
+          phone: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           services: string[] | null
@@ -119,6 +120,7 @@ export type Database = {
           message?: string | null
           outcome_status?: Database["public"]["Enums"]["outcome_status"] | null
           people_count?: number | null
+          phone?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           services?: string[] | null
@@ -154,6 +156,7 @@ export type Database = {
           message?: string | null
           outcome_status?: Database["public"]["Enums"]["outcome_status"] | null
           people_count?: number | null
+          phone?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           services?: string[] | null
