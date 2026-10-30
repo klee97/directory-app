@@ -1,6 +1,11 @@
-"use server";
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import 'server-only';
+
+type Options = {
+  /** Receives the cache headers @supabase/ssr wants applied to the response. */
+  onHeaders?: (headers: Record<string, string>) => void;
+};
 
 /**
  * Creates a Supabase client configured for server-side use with Next.js App Router.
@@ -19,7 +24,7 @@ import { cookies } from 'next/headers';
  *
  * @returns {Promise<ReturnType<typeof createSupabaseServerClient>>} A configured Supabase server client.
  */
-export async function createServerClient() {
+export async function createServerClient(options: Options = {}) {
   const cookieStore = await cookies();
 
   return createSupabaseServerClient(
@@ -30,14 +35,15 @@ export async function createServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              cookieStore.set(name, value, options),
             );
           } catch {
-            // Called from a Server Component; safe to ignore if middleware refreshes sessions.
+            // Server Component: safe to ignore if middleware refreshes sessions.
           }
+          if (headers) options.onHeaders?.(headers);
         },
       },
     },

@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),// matches tsconfig paths
+      'server-only': path.resolve(import.meta.dirname, 'vitest.server-only-stub.ts'),
     },
   },
 })
