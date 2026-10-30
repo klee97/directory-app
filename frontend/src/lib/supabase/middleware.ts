@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
-import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const PROTECTED_PATHS = ['/partner/dashboard', '/partner/settings', '/admin', '/favorites', '/settings'];
+const PARTNER_LOGIN_PATH = '/partner/login';
 
 /**
  * Refreshes the Supabase session on every request and enforces route-level auth protection. It handles two things:
@@ -26,6 +26,7 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+  let authHeaders: Record<string, string> = {};            // 1. add this
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,15 +34,19 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: ResponseCookie }[]) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
-          })
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
+          );
+          authHeaders = { ...headers };
+          Object.entries(headers).forEach(([key, value]) =>
+            supabaseResponse.headers.set(key, value)
           )
         },
       },
@@ -55,34 +60,49 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const isLoggedIn = !!data?.claims;
 
+
+  const redirectWithSessionCookies = (url: URL) => {
+    const response = NextResponse.redirect(url);
+
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      response.cookies.set(cookie);
+    }
+
+    for (const [key, value] of Object.entries(authHeaders)) {
+      response.headers.set(key, value);
+    }
+    return response;
+  };
+
+  /** Matches the path itself or anything beneath it, but not look-alikes like /settings-public. */
+  const isProtectedPath = (pathname: string) =>
+    PROTECTED_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+
+  const { pathname, search } = request.nextUrl;
+
   // Redirect unauthenticated users away from protected paths
-  if (!isLoggedIn
-    && PROTECTED_PATHS.some(path => request.nextUrl.pathname.startsWith(path))
-    && !request.nextUrl.pathname.startsWith('/partner/login')
-  ) {
+  if (!isLoggedIn && isProtectedPath(pathname) && pathname !== PARTNER_LOGIN_PATH) {
     const url = request.nextUrl.clone();
-    const redirectTo = request.nextUrl.pathname + request.nextUrl.search;
-    url.pathname = request.nextUrl.pathname.startsWith('/partner/') ? '/partner/login' : '/login';
-    url.searchParams.set('redirectTo', redirectTo);
-    return NextResponse.redirect(url);
+    url.pathname = pathname.startsWith('/partner/') ? PARTNER_LOGIN_PATH : '/login';
+    url.searchParams.set('redirectTo', pathname + search);
+    return redirectWithSessionCookies(url);
   }
 
   // Redirect authenticated users away from login pages
   if (isLoggedIn) {
-    if (request.nextUrl.pathname === '/partner/login') {
+    if (pathname === PARTNER_LOGIN_PATH) {
       const url = request.nextUrl.clone();
       url.pathname = '/partner/dashboard';
       url.searchParams.delete('redirectTo');
-      return NextResponse.redirect(url);
+      return redirectWithSessionCookies(url);
     }
-    if (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup') {
+    if (pathname === '/login' || pathname === '/signup') {
       const url = request.nextUrl.clone();
       url.pathname = '/';
       url.searchParams.delete('redirectTo');
-      return NextResponse.redirect(url);
+      return redirectWithSessionCookies(url);
     }
   }
-
   // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
   // creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:

@@ -1,8 +1,8 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
 import { createServerClient } from '@/lib/supabase/clients/serverClient'
-import { redirect } from 'next/navigation'
+import { getBaseUrl } from '@/lib/env/env'
 
 enum EmailType {
   EMAIL = 'email',
@@ -18,6 +18,17 @@ const successMessage = {
   [EmailType.UNKNOWN]: 'Verification successful!',
 };
 
+/** Resolve redirectTo against our own origin; fall back to '/' if it points elsewhere. */
+function resolveSafeRedirect(redirectTo: string): URL {
+  const base = new URL(getBaseUrl())
+  try {
+    const url = new URL(redirectTo, base)
+    if (url.origin === base.origin) return url
+  } catch { }
+  return new URL('/', base)
+}
+
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
@@ -25,31 +36,39 @@ export async function GET(request: NextRequest) {
   const redirectTo = searchParams.get('redirectTo') ?? '/'
   const isVendor = redirectTo.includes('partner')
   const emailType = type ? (type as EmailType) : EmailType.UNKNOWN
+  const base = getBaseUrl()
 
   if (emailType === EmailType.UNKNOWN) {
-    console.error('Unknown email OTP type received:', type);
+    console.error('Unknown email OTP type received:', type)
+  }
+
+  // Collect the cache headers supabase wants applied, then attach them to whichever response we return.
+  const authHeaders: Record<string, string> = {}
+  const redirectTo_ = (url: URL | string) => {
+    const response = NextResponse.redirect(url)
+    Object.entries(authHeaders).forEach(([k, v]) => response.headers.set(k, v))
+    return response
   }
 
   if (token_hash && type) {
-    const supabaseServerClient = await createServerClient()
-
-    const { error } = await supabaseServerClient.auth.verifyOtp({
-      type,
-      token_hash,
+    const supabaseServerClient = await createServerClient({
+      onHeaders: (headers) => Object.assign(authHeaders, headers),
     })
+
+    const { error } = await supabaseServerClient.auth.verifyOtp({ type, token_hash })
+
     if (!error) {
-      // redirect user to specified redirect URL or root of app
-      const successRedirectUrl = new URL(redirectTo)
-      successRedirectUrl.searchParams.set('message', successMessage[emailType])
-      redirect(successRedirectUrl.toString())
-    } else {
-      console.error('Error verifying email verification code:', error.message);
+      const successUrl = resolveSafeRedirect(redirectTo)
+      successUrl.searchParams.set('message', successMessage[emailType])
+      return redirectTo_(successUrl)
     }
+    console.error('Error verifying email verification code:', error.message)
   }
 
-  // redirect the user to an error page with some instructions
-  if (type === EmailType.RECOVERY) {
-    redirect(isVendor ? '/partner/auth/recovery-code-error' : '/auth/recovery-code-error')
-  }
-  redirect(isVendor ? '/partner/auth/auth-code-error' : '/auth/auth-code-error')
+  const errorPath =
+    type === EmailType.RECOVERY
+      ? (isVendor ? '/partner/auth/recovery-code-error' : '/auth/recovery-code-error')
+      : (isVendor ? '/partner/auth/auth-code-error' : '/auth/auth-code-error')
+
+  return redirectTo_(new URL(errorPath, base))
 }

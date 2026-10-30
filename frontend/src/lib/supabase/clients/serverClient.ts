@@ -1,7 +1,11 @@
-"use server";
 import { createServerClient as createSupabaseServerClient } from '@supabase/ssr';
-import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { cookies } from 'next/headers';
+import 'server-only';
+
+type Options = {
+  /** Receives the cache headers @supabase/ssr wants applied to the response. */
+  onHeaders?: (headers: Record<string, string>) => void;
+};
 
 /**
  * Creates a Supabase client configured for server-side use with Next.js App Router.
@@ -20,7 +24,7 @@ import { cookies } from 'next/headers';
  *
  * @returns {Promise<ReturnType<typeof createSupabaseServerClient>>} A configured Supabase server client.
  */
-export async function createServerClient() {
+export async function createServerClient(options: Options = {}) {
   const cookieStore = await cookies();
 
   return createSupabaseServerClient(
@@ -31,18 +35,17 @@ export async function createServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: ResponseCookie }[]) {
+        setAll(cookiesToSet, headers) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
+              cookieStore.set(name, value, options),
+            );
           } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
+            // Server Component: safe to ignore if middleware refreshes sessions.
           }
+          if (headers) options.onHeaders?.(headers);
         },
       },
-    }
+    },
   );
 }
