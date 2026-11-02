@@ -13,7 +13,7 @@ jobs:
   # -------------------------------------------------------------------
   unit:
     name: Lint + unit tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     defaults:
       run:
         working-directory: frontend
@@ -37,7 +37,7 @@ jobs:
   # -------------------------------------------------------------------
   e2e:
     name: E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: github.event_name == 'pull_request'
     # Cancel any in-progress E2E run for this PR when a new commit is pushed
     concurrency:
