@@ -38,14 +38,17 @@ export async function updateSession(request: NextRequest) {
         },
         setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          const existingCookies = supabaseResponse.cookies.getAll();
+          supabaseResponse = NextResponse.next({ request });
+          // Re-apply the existing cookies to the new response object
+          existingCookies.forEach((cookie) => supabaseResponse.cookies.set(cookie))
+
+          // Apply the new ones; same-name cookies override the earlier ones
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
-          );
-          authHeaders = { ...headers };
-          Object.entries(headers).forEach(([key, value]) =>
+          )
+          authHeaders = { ...authHeaders, ...headers };
+          Object.entries(authHeaders).forEach(([key, value]) =>
             supabaseResponse.headers.set(key, value)
           )
         },

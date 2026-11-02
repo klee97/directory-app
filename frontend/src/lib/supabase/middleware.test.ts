@@ -40,6 +40,21 @@ const loggedInWithRefresh = () =>
     return { data: { claims: { sub: 'u1' } } };
   });
 
+
+/** Simulates getClaims() clearing an invalid session: one setAll call per removed cookie. */
+const loggedOutWithMultipleSetAll = () =>
+  getClaims.mockImplementation(async () => {
+    state.opts?.cookies.setAll(
+      [{ name: 'sb-a-code-verifier', value: '', options: { path: '/', maxAge: 0 } }],
+      { 'Cache-Control': 'private, no-store' },
+    );
+    state.opts?.cookies.setAll(
+      [{ name: 'sb-b-code-verifier', value: '', options: { path: '/', maxAge: 0 } }],
+      { Pragma: 'no-cache', Expires: '0' },
+    );
+    return { data: null };
+  });
+
 const loc = (res: Response) => new URL(res.headers.get('location')!);
 
 beforeEach(() => vi.clearAllMocks());
@@ -66,6 +81,45 @@ describe('session refresh', () => {
     expect(res.cookies.get('sb-test-auth-token')?.value).toBe('new');
     expect(res.headers.get('cache-control')).toBe('private, no-store');
     expect(res.headers.get('pragma')).toBe('no-cache');
+  });
+});
+
+describe('multiple setAll calls in one request', () => {
+  it('keeps cookies and headers from every call on the pass-through response', async () => {
+    loggedOutWithMultipleSetAll();
+    const res = await updateSession(req('/'));
+    expect(res.cookies.get('sb-a-code-verifier')).toBeDefined();
+    expect(res.cookies.get('sb-b-code-verifier')).toBeDefined();
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(res.headers.get('pragma')).toBe('no-cache');
+    expect(res.headers.get('expires')).toBe('0');
+  });
+
+  it('keeps cookies and headers from every call on a redirect response', async () => {
+    loggedOutWithMultipleSetAll();
+    const res = await updateSession(req('/favorites'));
+    expect(res.status).toBe(307);
+    expect(loc(res).pathname).toBe('/login');
+    expect(res.cookies.get('sb-a-code-verifier')).toBeDefined();
+    expect(res.cookies.get('sb-b-code-verifier')).toBeDefined();
+    expect(res.headers.get('cache-control')).toBe('private, no-store');
+    expect(res.headers.get('pragma')).toBe('no-cache');
+  });
+
+  it('lets a later call override a same-named cookie from an earlier call', async () => {
+    getClaims.mockImplementation(async () => {
+      state.opts?.cookies.setAll(
+        [{ name: 'sb-test-auth-token', value: 'old', options: { path: '/' } }],
+        {},
+      );
+      state.opts?.cookies.setAll(
+        [{ name: 'sb-test-auth-token', value: 'new', options: { path: '/' } }],
+        {},
+      );
+      return { data: null };
+    });
+    const res = await updateSession(req('/'));
+    expect(res.cookies.get('sb-test-auth-token')?.value).toBe('new');
   });
 });
 
@@ -123,7 +177,6 @@ describe('redirects carry the refreshed session', () => {
     expect(res.cookies.get('sb-test-auth-token')?.value).toBe('new');
   });
 
-  // Fails until redirectWithSessionCookies applies authHeaders (issue 1 above).
   it('copies cache headers onto the redirect', async () => {
     loggedInWithRefresh();
     const res = await updateSession(req('/login'));

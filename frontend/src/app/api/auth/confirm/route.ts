@@ -4,6 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@/lib/supabase/clients/serverClient'
 import { getBaseUrl } from '@/lib/env/env'
 
+const ALLOWED_ORIGINS = new Set(
+  [getBaseUrl()].map((u) => new URL(u).origin)
+)
+
 enum EmailType {
   EMAIL = 'email',
   RECOVERY = 'recovery',
@@ -18,9 +22,13 @@ const successMessage = {
   [EmailType.UNKNOWN]: 'Verification successful!',
 };
 
-/** Resolve redirectTo against our own origin; fall back to '/' if it points elsewhere. */
-function resolveSafeRedirect(redirectTo: string): URL {
-  const base = new URL(getBaseUrl())
+/**
+ * Resolve redirectTo against the validated incoming request origin so the
+ * redirect stays on the hostname that receives the session cookie.
+ * Falls back to '/' if the destination points to a different origin.
+ */
+function resolveSafeRedirect(redirectTo: string, requestOrigin: string): URL {
+  const base = new URL(requestOrigin)
   try {
     const url = new URL(redirectTo, base)
     if (url.origin === base.origin) return url
@@ -28,15 +36,23 @@ function resolveSafeRedirect(redirectTo: string): URL {
   return new URL('/', base)
 }
 
+/**
+ * Only trust the incoming request origin if it matches our configured base
+ * origin; otherwise fall back to the configured base URL.
+ */
+function getValidatedRequestOrigin(request: NextRequest): string {
+  const incoming = request.nextUrl.origin
+  return ALLOWED_ORIGINS.has(incoming) ? incoming : new URL(getBaseUrl()).origin
+}
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url)
+  const { searchParams } = request.nextUrl
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
   const redirectTo = searchParams.get('redirectTo') ?? '/'
   const isVendor = redirectTo.includes('partner')
   const emailType = type ? (type as EmailType) : EmailType.UNKNOWN
-  const base = getBaseUrl()
+  const origin = getValidatedRequestOrigin(request)
 
   if (emailType === EmailType.UNKNOWN) {
     console.error('Unknown email OTP type received:', type)
@@ -58,7 +74,7 @@ export async function GET(request: NextRequest) {
     const { error } = await supabaseServerClient.auth.verifyOtp({ type, token_hash })
 
     if (!error) {
-      const successUrl = resolveSafeRedirect(redirectTo)
+      const successUrl = resolveSafeRedirect(redirectTo, origin)
       successUrl.searchParams.set('message', successMessage[emailType])
       return redirectTo_(successUrl)
     }
@@ -70,5 +86,5 @@ export async function GET(request: NextRequest) {
       ? (isVendor ? '/partner/auth/recovery-code-error' : '/auth/recovery-code-error')
       : (isVendor ? '/partner/auth/auth-code-error' : '/auth/auth-code-error')
 
-  return redirectTo_(new URL(errorPath, base))
+  return redirectTo_(new URL(errorPath, origin))
 }
