@@ -569,7 +569,6 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                   variant="outlined"
                   fullWidth
                   placeholder="City and state, or metro area"
-                  autoComplete="address-level2"
                   sx={{ maxWidth: 300 }}
                 />
               </Grid>
