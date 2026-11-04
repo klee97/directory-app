@@ -4,6 +4,7 @@ import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
 import { revalidateVendor } from '@/lib/actions/revalidate';
 import { isClaimProfileEnabled } from '@/lib/env/env';
+import { ClaimLinkOutcome, recordClaimLinkOutcome } from '@/lib/monitoring/claimLinkEvents';
 
 /**
  * Verification happens when the claim page loads, but the form posts the token
@@ -16,7 +17,16 @@ function isAccessTokenExpired(validUntil: string | null): boolean {
   return !validUntil || new Date(validUntil).getTime() <= Date.now();
 }
 
-export async function claimVendor(accessToken: string, userId: string) {
+class ClaimError extends Error {
+  constructor(message: string, readonly outcome: ClaimLinkOutcome) {
+    super(message);
+  }
+}
+
+const record = (outcome: ClaimLinkOutcome, slug: string | null) =>
+  recordClaimLinkOutcome(outcome, slug, "claim");
+
+async function claimVendor(accessToken: string, userId: string) {
 
   const user = { id: userId };
 
@@ -87,20 +97,18 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .single();
 
   if (vendorError || !vendor) {
-    return {
-      success: false,
-      error: 'Invalid access token or vendor not found',
-      type: 'invalid_token'
-    };
+    await record("invalid_token", null); // no slug available, and never log the token
+    return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
 
   // Reuses the invalid_token branch so the caller needs no new case; the claim
   // page already renders "invalid or expired" for it.
   if (isAccessTokenExpired(vendor.access_token_valid_until)) {
+    await record("expired_claim_link", vendor.slug);
     return {
       success: false,
       error: 'This claim link has expired',
-      type: 'invalid_token'
+      type: 'expired_claim_link'
     };
   }
 
@@ -112,6 +120,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .maybeSingle();
 
   if (existingClaim) {
+    await record("already_claimed", vendor.slug);
     return {
       success: false,
       error: 'Vendor already claimed',
@@ -126,14 +135,17 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     email_confirm: true,        // confirming email is legitimate and verified since we are using existing vendor email
   });
   if (createError) {
+
     if (createError.message?.toLowerCase().includes("already registered")) {
+      await record("email_exists", vendor.slug);
+
       return {
         success: false,
         type: "email_exists",
         error: "Email already registered"
       };
     }
-
+    await record("create_failed", vendor.slug);
     return {
       success: false,
       type: "create_failed",
@@ -144,6 +156,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   const newUserId = newUser?.user?.id;
 
   if (!newUserId) {
+    await record("create_failed", vendor.slug);
     return {
       success: false,
       type: "create_failed",
@@ -157,11 +170,12 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
+    const reason = error instanceof ClaimError ? error.outcome : "claim_failed";
     const { error: deleteError } = await supabaseAdminClient.auth.admin.deleteUser(newUserId);
     if (deleteError) {
       console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
-      // todo: create an alert or slack message for this
     }
+    await record(deleteError ? "rollback_failed" : reason, vendor.slug);
 
     return {
       success: false,
@@ -183,6 +197,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .eq('id', vendor.id);
 
   if (vendorUpdateError) {
+    await record("vendor_update_failed", vendor.slug);
     return {
       success: false,
       type: 'vendor_update_failed',
@@ -190,7 +205,14 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     };
   }
 
-  await revalidateVendor(vendor.slug);
+  let revalidateFailed = false;
+  try {
+    await revalidateVendor(vendor.slug);
+  } catch (e) {
+    revalidateFailed = true;
+    console.error(`signUpAndClaimVendor: revalidateVendor failed for "${vendor.slug}":`, e);
+  }
+  await record(revalidateFailed ? "revalidate_failed" : "claimed", vendor.slug);
 
   return {
     success: true,

@@ -10,6 +10,7 @@ import {
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import { sendClaimLinkEmail } from "@/lib/resend/resend";
+import { recordClaimLinkOutcome } from "@/lib/monitoring/claimLinkEvents";
 
 export type RequestClaimLinkResult =
   | { success: true }
@@ -96,6 +97,10 @@ function cooldownResult(
  *   vendor is already trying to use.
  * - The email itself is sent via a Resend template (see `sendClaimLinkEmail`),
  *   populated with the vendor's business name and the generated claim URL.
+ * 
+ * Monitoring: every exit records one outcome via `recordClaimLinkOutcome`
+ * (Slack notification for the broken ones). The calls are awaited because
+ * serverless work can be frozen once the response returns.
  */
 export async function requestClaimLink({
   slug,
@@ -110,6 +115,7 @@ export async function requestClaimLink({
 
   const { success: isHuman } = await verifyRecaptchaToken(recaptchaToken);
   if (!isHuman) {
+    await recordClaimLinkOutcome("recaptcha_failed", slug);
     return { success: false, error: "Could not verify the request. Please try again." };
   }
 
@@ -125,11 +131,22 @@ export async function requestClaimLink({
 
   if (error) {
     console.error(`requestClaimLink: failed to look up vendor "${slug}":`, error.message);
+    await recordClaimLinkOutcome("db_lookup_error", slug);
     return genericSuccess;
   }
 
-  // No such vendor, already claimed, or no email to send to → say nothing.
-  if (!vendor || vendor.verified_at || !vendor.email) {
+  // No such vendor, already claimed, or no email to send to → say nothing to
+  // the client, but record which one it was.
+  if (!vendor) {
+    await recordClaimLinkOutcome("vendor_not_found", slug);
+    return genericSuccess;
+  }
+  if (vendor.verified_at) {
+    await recordClaimLinkOutcome("already_claimed", slug);
+    return genericSuccess;
+  }
+  if (!vendor.email) {
+    await recordClaimLinkOutcome("no_email", slug);
     return genericSuccess;
   }
 
@@ -141,6 +158,7 @@ export async function requestClaimLink({
   const accessToken = crypto.randomUUID();
   const accessTokenValidUntil = new Date(nowMs + validMs).toISOString();
 
+  const previousToken = vendor.access_token;
   const previousValidUntil = vendor.access_token_valid_until;
 
   // Refusing here reports a real error rather than the generic success used by
@@ -148,6 +166,7 @@ export async function requestClaimLink({
   // exists, is unclaimed and has an email on file, all of which the public
   // profile page already discloses by opening this dialog with a masked hint.
   if (cooldownMs > 0 && isWithinCooldown(previousValidUntil, nowMs, validMs, cooldownMs)) {
+    await recordClaimLinkOutcome("cooldown", slug);
     return cooldownResult(previousValidUntil, nowMs, validMs, cooldownMs);
   }
 
@@ -177,6 +196,7 @@ export async function requestClaimLink({
 
   if (tokenError) {
     console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
+    await recordClaimLinkOutcome("token_update_error", slug);
     return genericSuccess;
   }
 
@@ -185,18 +205,17 @@ export async function requestClaimLink({
   // replaced, not the winner's, so the winner's cooldown has only just started:
   // report the full length. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
+    await recordClaimLinkOutcome("race_lost", slug);
     return cooldownMs > 0
       ? cooldownResult(null, nowMs, validMs, cooldownMs)
       : genericSuccess;
   }
 
-  // The vendor detail page reads this vendor via getCachedVendor (for the
-  // claim CTA's isClaimed/emailHint), so bust it now or the freshly minted
-  // token won't be reflected there for up to 24h.
-  await revalidateVendor(slug);
-
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
 
+  // Send BEFORE anything else that can fail: the token has already been
+  // rotated, so every step between here and the email is a way to strand the
+  // vendor with a dead link and a running cooldown.
   const emailSent = await sendClaimLinkEmail({
     email: vendor.email,
     businessName: vendor.business_name,
@@ -205,7 +224,48 @@ export async function requestClaimLink({
 
   if (!emailSent) {
     console.error(`requestClaimLink: failed to send claim link email for "${slug}"`);
+
+    // Put the previous token and expiry back so the vendor can retry right
+    // away instead of waiting out a cooldown for an email that never left.
+    // Compare-and-swap on the token we just wrote, so we never clobber a
+    // newer rotation by a concurrent request.
+    const { data: restored, error: rollbackError } = await supabaseAdminClient
+      .from("vendors")
+      .update({
+        access_token: previousToken,
+        access_token_valid_until: previousValidUntil,
+      })
+      .eq("id", vendor.id)
+      .eq("access_token", accessToken)
+      .select("id");
+
+    if (rollbackError) {
+      console.error(`requestClaimLink: rollback failed for "${slug}":`, rollbackError.message);
+    }
+    const rolledBack = !rollbackError && !!restored?.length;
+    await recordClaimLinkOutcome(rolledBack ? "email_failed" : "rollback_failed", slug);
+
+    // Unlike the "can't send" branches above, this is a real error the vendor
+    // can act on: the listing exists, is unclaimed and has an email (the same
+    // facts the dialog already discloses), so nothing new is leaked.
+    return {
+      success: false,
+      error: "We couldn't send the email right now. Please try again in a few minutes.",
+    };
   }
 
+  // The vendor detail page reads this vendor via getCachedVendor (for the
+  // claim CTA's isClaimed/emailHint), so bust it or the freshly minted token
+  // won't be reflected there for up to 24h. This runs after the email on
+  // purpose, and a failure here must not turn a delivered link into an error.
+  let revalidateFailed = false;
+  try {
+    await revalidateVendor(slug);
+  } catch (e) {
+    revalidateFailed = true;
+    console.error(`requestClaimLink: revalidateVendor failed for "${slug}":`, e);
+  }
+
+  await recordClaimLinkOutcome(revalidateFailed ? "revalidate_failed" : "sent", slug);
   return genericSuccess;
 }

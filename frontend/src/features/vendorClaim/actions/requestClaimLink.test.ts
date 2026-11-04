@@ -10,6 +10,7 @@ const {
   updateEqMock,
   updateMock,
   fromMock,
+  recordOutcomeMock,
 } = vi.hoisted(() => {
   const maybeSingleMock = vi.fn();
   const selectEqMock = vi.fn(() => ({ maybeSingle: maybeSingleMock }));
@@ -40,6 +41,7 @@ const {
     updateEqMock,
     updateMock,
     fromMock: vi.fn(() => ({ select: selectMock, update: updateMock })),
+    recordOutcomeMock: vi.fn(),
   };
 });
 
@@ -62,6 +64,10 @@ vi.mock('@/lib/resend/resend', () => ({
 vi.mock('@/lib/env/env', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/lib/env/env')>()),
   getBaseUrl: () => 'https://example.com',
+}));
+
+vi.mock('@/lib/monitoring/claimLinkEvents', () => ({
+  recordClaimLinkOutcome: recordOutcomeMock,
 }));
 
 import { requestClaimLink } from './requestClaimLink';
@@ -214,6 +220,72 @@ describe('requestClaimLink', () => {
     expectSilentSuccess(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' }));
   });
 
+  it('still reports success when revalidation throws, since the link already went out', async () => {
+    revalidateVendorMock.mockRejectedValueOnce(new Error('boom'));
+
+    const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+    expect(result).toEqual({ success: true });
+    expect(recordOutcomeMock).toHaveBeenCalledWith('revalidate_failed', SLUG);
+  });
+
+  it('sends the email before revalidating', async () => {
+    await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+    expect(sendClaimLinkEmailMock.mock.invocationCallOrder[0]).toBeLessThan(
+      revalidateVendorMock.mock.invocationCallOrder[0]
+    );
+  });
+
+  describe('outcome recording', () => {
+    it('records "sent" on the happy path', async () => {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('sent', SLUG);
+    });
+
+    it('records recaptcha_failed', async () => {
+      verifyRecaptchaTokenMock.mockResolvedValue({ success: false });
+
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-fail' });
+
+      expect(recordOutcomeMock).toHaveBeenCalledWith('recaptcha_failed', SLUG);
+    });
+
+    it.each([
+      ['vendor_not_found', () => maybeSingleMock.mockResolvedValue({ data: null, error: null })],
+      [
+        'already_claimed',
+        () =>
+          maybeSingleMock.mockResolvedValue({
+            data: { ...UNCLAIMED_VENDOR, verified_at: '2026-01-01T00:00:00Z' },
+            error: null,
+          }),
+      ],
+      [
+        'no_email',
+        () => maybeSingleMock.mockResolvedValue({ data: { ...UNCLAIMED_VENDOR, email: null }, error: null }),
+      ],
+      [
+        'db_lookup_error',
+        () => maybeSingleMock.mockResolvedValue({ data: null, error: { message: 'boom' } }),
+      ],
+      [
+        'token_update_error',
+        () => updateSelectMock.mockResolvedValue({ data: null, error: { message: 'boom' } }),
+      ],
+      ['race_lost', () => updateSelectMock.mockResolvedValue(NOT_UPDATED)],
+    ] as const)('records %s', async (outcome, arrange) => {
+      arrange();
+
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
+      expect(recordOutcomeMock).toHaveBeenCalledWith(outcome, SLUG);
+    });
+  });
+
   describe('per-listing cooldown', () => {
     const NOW = new Date('2026-03-01T00:00:00.000Z');
     const V = DEFAULT_VALID_SECONDS * 1000;
@@ -323,6 +395,15 @@ describe('requestClaimLink', () => {
       });
     });
 
+    it('records cooldown, once, and nothing else', async () => {
+      vendorWithExpiry(requestedAgo(60_000));
+
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('cooldown', SLUG);
+    });
+
     describe('compare-and-swap', () => {
       it('matches on null when the listing had no expiry', async () => {
         vendorWithExpiry(null);
@@ -378,12 +459,60 @@ describe('requestClaimLink', () => {
     });
   });
 
-  it('still reports success when the email fails to send', async () => {
-    sendClaimLinkEmailMock.mockResolvedValue(false);
 
-    const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+  describe('when the email fails to send', () => {
+    beforeEach(() => {
+      sendClaimLinkEmailMock.mockResolvedValue(false);
+    });
 
-    expect(result).toEqual({ success: true });
-    expect(sendClaimLinkEmailMock).toHaveBeenCalled();
+    it('reports a real error instead of telling the vendor to check their inbox', async () => {
+      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(result).toEqual({
+        success: false,
+        error: "We couldn't send the email right now. Please try again in a few minutes.",
+      });
+    });
+
+    it('restores the previous token and expiry so the vendor can retry immediately', async () => {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      const [{ access_token: newToken }] = updateMock.mock.calls[0];
+      expect(updateMock).toHaveBeenCalledTimes(2);
+      expect(updateMock.mock.calls[1][0]).toEqual({
+        access_token: UNCLAIMED_VENDOR.access_token,
+        access_token_valid_until: UNCLAIMED_VENDOR.access_token_valid_until,
+      });
+      // Guarded on the token we wrote, so a newer rotation isn't clobbered.
+      expect(updateEqMock).toHaveBeenCalledWith('access_token', newToken);
+      expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('email_failed', SLUG);
+    });
+
+    it('does not revalidate the cached vendor', async () => {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(revalidateVendorMock).not.toHaveBeenCalled();
+    });
+
+    it('flags rollback_failed when the restore matches no row', async () => {
+      updateSelectMock.mockResolvedValueOnce(UPDATED).mockResolvedValueOnce(NOT_UPDATED);
+
+      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(result).toMatchObject({ success: false });
+      expect(recordOutcomeMock).toHaveBeenCalledWith('rollback_failed', SLUG);
+      expect(recordOutcomeMock).not.toHaveBeenCalledWith('email_failed', SLUG);
+    });
+    it('flags rollback_failed when the restore errors', async () => {
+      updateSelectMock
+        .mockResolvedValueOnce(UPDATED)
+        .mockResolvedValueOnce({ data: null, error: { message: 'boom' } });
+
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('rollback_failed', SLUG);
+    });
   });
 });
