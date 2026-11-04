@@ -110,6 +110,7 @@ export async function requestClaimLink({
   recaptchaToken: string;
 }): Promise<RequestClaimLinkResult> {
   if (!slug) {
+    await recordClaimLinkOutcome("vendor_not_found", null);
     return { success: false, error: "Missing vendor." };
   }
 
@@ -229,7 +230,7 @@ export async function requestClaimLink({
     // away instead of waiting out a cooldown for an email that never left.
     // Compare-and-swap on the token we just wrote, so we never clobber a
     // newer rotation by a concurrent request.
-    const { data: restored, error: rollbackError } = await supabaseAdminClient
+    const { error: rollbackError } = await supabaseAdminClient
       .from("vendors")
       .update({
         access_token: previousToken,
@@ -242,8 +243,8 @@ export async function requestClaimLink({
     if (rollbackError) {
       console.error(`requestClaimLink: rollback failed for "${slug}":`, rollbackError.message);
     }
-    const rolledBack = !rollbackError && !!restored?.length;
-    await recordClaimLinkOutcome(rolledBack ? "email_failed" : "rollback_failed", slug);
+    // A no-match restore means a newer rotation replaced this token. No rollback is needed.
+    await recordClaimLinkOutcome(rollbackError ? "rollback_failed" : "email_failed", slug);
 
     // Unlike the "can't send" branches above, this is a real error the vendor
     // can act on: the listing exists, is unclaimed and has an email (the same

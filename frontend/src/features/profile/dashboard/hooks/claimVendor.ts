@@ -4,7 +4,7 @@ import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
 import { revalidateVendor } from '@/lib/actions/revalidate';
 import { isClaimProfileEnabled } from '@/lib/env/env';
-import { ClaimLinkOutcome, recordClaimLinkOutcome } from '@/lib/monitoring/claimLinkEvents';
+import { type ClaimLinkOutcome, recordClaimLinkOutcome } from '@/lib/monitoring/claimLinkEvents';
 
 /**
  * Verification happens when the claim page loads, but the form posts the token
@@ -17,32 +17,52 @@ function isAccessTokenExpired(validUntil: string | null): boolean {
   return !validUntil || new Date(validUntil).getTime() <= Date.now();
 }
 
+/** Carries the outcome to record, so the single catch in signUpAndClaimVendor
+ *  can log the real reason instead of a generic failure.
+ */
 class ClaimError extends Error {
   constructor(message: string, readonly outcome: ClaimLinkOutcome) {
     super(message);
   }
 }
 
+/**
+ * Response `type` the caller sees for a failure inside `claimVendor`, so a race
+ * looks the same as the equivalent pre-check. Anything unmapped is `claim_failed`.
+ */
+const CLAIM_RESPONSE_TYPE: Partial<Record<ClaimLinkOutcome, string>> = {
+  already_claimed: 'already_claimed',
+  invalid_token: 'invalid_token',
+  expired_claim_link: 'invalid_token', // the claim page renders "invalid or expired"
+};
+
 const record = (outcome: ClaimLinkOutcome, slug: string | null) =>
   recordClaimLinkOutcome(outcome, slug, "claim");
 
+// Not exported: exported functions in a "use server" file are public endpoints,
+// and this one trusts the userId it is given. Records nothing itself; throws a
+// ClaimError and the catch in signUpAndClaimVendor records exactly once.
 async function claimVendor(accessToken: string, userId: string) {
 
   const user = { id: userId };
 
-  // Verify the vendor exists with this access token
+  // Verify the vendor exists with this access token. maybeSingle so that "no
+  // match" (data null) is distinguishable from a real database error.
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
     .select('id, slug, email, access_token_valid_until')
     .eq('access_token', accessToken)
-    .single();
+    .maybeSingle();
 
-  if (vendorError || !vendor) {
-    throw new Error('Invalid access token or vendor not found');
+  if (vendorError) {
+    throw new ClaimError('Failed to look up vendor: ' + vendorError.message, 'db_lookup_error');
+  }
+  if (!vendor) {
+    throw new ClaimError('Invalid access token or vendor not found', 'invalid_token');
   }
 
   if (isAccessTokenExpired(vendor.access_token_valid_until)) {
-    throw new Error('This claim link has expired');
+    throw new ClaimError('This claim link has expired', 'expired_claim_link');
   }
 
   // Check if vendor is already claimed by someone
@@ -53,7 +73,7 @@ async function claimVendor(accessToken: string, userId: string) {
     .maybeSingle();
 
   if (existingClaim && existingClaim.id !== user.id) {
-    throw new Error('This vendor is already claimed by another account');
+    throw new ClaimError('This vendor is already claimed by another account', 'already_claimed');
   }
 
   // Check if this user already has this vendor (idempotent)
@@ -69,7 +89,7 @@ async function claimVendor(accessToken: string, userId: string) {
 
   // If user has a different vendor, prevent claiming
   if (existingProfile?.vendor_id && existingProfile.vendor_id !== vendor.id) {
-    throw new Error('User is already associated with a different vendor');
+    throw new ClaimError('User is already associated with a different vendor', 'claim_failed');
   }
 
   // Update the user's profile to link to this vendor
@@ -82,21 +102,29 @@ async function claimVendor(accessToken: string, userId: string) {
     .eq('id', user.id);
 
   if (profileError) {
-    throw new Error('Failed to update profile: ' + profileError.message);
+    throw new ClaimError('Failed to update profile: ' + profileError.message, 'claim_failed');
   }
 
   return vendor;
 }
 
 export async function signUpAndClaimVendor(email: string, accessToken: string, password: string) {
-  // Verify the vendor exists with this access token FIRST
+  // Verify the vendor exists with this access token FIRST. maybeSingle so an
+  // unknown token (data null) is not confused with an operational DB error.
   const { data: vendor, error: vendorError } = await supabaseAdminClient
     .from('vendors')
     .select('id, slug, email, access_token_valid_until')
     .eq('access_token', accessToken)
-    .single();
+    .maybeSingle();
 
-  if (vendorError || !vendor) {
+  if (vendorError) {
+    console.error(`signUpAndClaimVendor: vendor lookup failed: ${vendorError.message}`);
+    await record("db_lookup_error", null); // no slug available, and never log the token
+    // Not invalid_token: the link may be fine, and the vendor shouldn't be told otherwise.
+    return { success: false, error: 'Something went wrong. Please try again.', type: 'claim_failed' };
+  }
+
+  if (!vendor) {
     await record("invalid_token", null); // no slug available, and never log the token
     return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
@@ -108,8 +136,19 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     return {
       success: false,
       error: 'This claim link has expired',
-      type: 'expired_claim_link'
+      type: 'invalid_token'
     };
+  }
+
+  // The client controls `email`, and the account is created pre-confirmed on
+  // the strength of it being the address we already hold, so enforce that.
+  // Same response as an invalid token so it reveals nothing about the listing.
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // The claimant must use the email on file for the vendor.
+  if (!vendor.email || normalizedEmail !== (vendor.email ?? '').trim().toLowerCase()) {
+    await record("email_mismatch", vendor.slug);
+    return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
 
   // Check if vendor is already claimed
@@ -130,13 +169,18 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
 
   // create user silently with NO confirmation email
   const { data: newUser, error: createError } = await supabaseAdminClient.auth.admin.createUser({
-    email,
+    email: normalizedEmail,
     password,
     email_confirm: true,        // confirming email is legitimate and verified since we are using existing vendor email
   });
   if (createError) {
 
-    if (createError.message?.toLowerCase().includes("already registered")) {
+    // Supabase words this differently across versions ("User already registered"
+    // vs "...has already been registered"), so check the code as well.
+    if (
+      createError.code === "email_exists" ||
+      createError.message?.toLowerCase().includes("already registered")
+    ) {
       await record("email_exists", vendor.slug);
 
       return {
@@ -170,17 +214,18 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     await claimVendor(accessToken, newUserId);
   } catch (error) {
     // Rollback: delete the user we just created
-    const reason = error instanceof ClaimError ? error.outcome : "claim_failed";
+    const reason: ClaimLinkOutcome = error instanceof ClaimError ? error.outcome : "claim_failed";
     const { error: deleteError } = await supabaseAdminClient.auth.admin.deleteUser(newUserId);
     if (deleteError) {
       console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
     }
+    // One outcome per exit: the underlying reason, or rollback_failed if we left an orphan user.
     await record(deleteError ? "rollback_failed" : reason, vendor.slug);
 
     return {
       success: false,
       error: 'Failed to claim vendor: ' + (error as Error).message,
-      type: 'claim_failed'
+      type: CLAIM_RESPONSE_TYPE[reason] ?? 'claim_failed'
     };
   }
 

@@ -495,14 +495,14 @@ describe('requestClaimLink', () => {
       expect(revalidateVendorMock).not.toHaveBeenCalled();
     });
 
-    it('flags rollback_failed when the restore matches no row', async () => {
+    it('flags email_failed when the restore matches no row', async () => {
       updateSelectMock.mockResolvedValueOnce(UPDATED).mockResolvedValueOnce(NOT_UPDATED);
 
       const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
       expect(result).toMatchObject({ success: false });
-      expect(recordOutcomeMock).toHaveBeenCalledWith('rollback_failed', SLUG);
-      expect(recordOutcomeMock).not.toHaveBeenCalledWith('email_failed', SLUG);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('email_failed', SLUG);
+      expect(recordOutcomeMock).not.toHaveBeenCalledWith('rollback_failed', SLUG);
     });
     it('flags rollback_failed when the restore errors', async () => {
       updateSelectMock

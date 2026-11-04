@@ -8,7 +8,6 @@ export type ClaimLinkOutcome =
   | "cooldown" | "race_lost" | "vendor_not_found"
   | "already_claimed" | "no_email" | "recaptcha_failed" | "revalidate_failed"
   | "email_failed" | "rollback_failed" | "db_lookup_error" | "token_update_error"
-  // new, for the claim flow
   | "email_exists" | "create_failed" | "claim_failed" | "email_mismatch";
 
 export type ClaimLinkFlow = "request" | "claim";

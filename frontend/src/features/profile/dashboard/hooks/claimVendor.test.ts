@@ -100,10 +100,24 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
   const cases: Case[] = [
     {
       name: "unknown token",
-      arrange: () => queueFlow({ lookup: fail("no rows") }),
+      arrange: () => queueFlow({ lookup: ok(null) }),
       expected: { success: false, type: "invalid_token" },
       outcome: "invalid_token",
       slug: null, // no vendor, so no slug (and the token must never be logged)
+    },
+    {
+      name: "vendor lookup hits a DB error (not the same as an unknown token)",
+      arrange: () => queueFlow({ lookup: fail("connection reset") }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: null,
+    },
+    {
+      name: "claimVendor's re-lookup hits a DB error, rollback ok",
+      arrange: () => queueFlow({ claimLookup: fail("connection reset") }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
     },
     {
       name: "expired token",
@@ -168,7 +182,7 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
       arrange: () =>
         queueFlow({ claimExistingClaim: ok({ id: "someone-else", vendor_id: "v1" }) }),
       expected: { success: false, type: "already_claimed" },
-      outcome: "already_claimed", // the ClaimError's own outcome, not a generic one
+      outcome: "already_claimed",
       slug: "acme",
     },
     {
@@ -324,7 +338,7 @@ describe("signUpAndClaimVendor: expiry rule", () => {
 
     const result = await signUpAndClaimVendor(EMAIL, "tok", "pw");
 
-    expect(result).toMatchObject({ success: false, type: "claim_failed" });
+    expect(result).toMatchObject({ success: false, type: "invalid_token" });
     expect(mocks.deleteUser).toHaveBeenCalledWith("u1");
     expect(mocks.record).toHaveBeenCalledTimes(1);
     expect(mocks.record).toHaveBeenCalledWith("expired_claim_link", "acme", "claim");
