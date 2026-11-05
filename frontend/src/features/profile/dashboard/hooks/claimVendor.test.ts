@@ -136,7 +136,7 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
     {
       name: "already claimed",
       arrange: () =>
-        queueFlow({ existingClaim: ok({ id: "p9", user_id: "u9", vendor_id: "v1" }) }),
+        queueFlow({ existingClaim: ok({ id: "p9", vendor_id: "v1" }) }),
       expected: { success: false, type: "already_claimed" },
       outcome: "already_claimed",
       slug: "acme",
@@ -296,7 +296,7 @@ describe("signUpAndClaimVendor: side effects", () => {
   });
 
   it("does not create a user when the vendor is already claimed", async () => {
-    queueFlow({ existingClaim: ok({ id: "p9", user_id: "u9", vendor_id: "v1" }) });
+    queueFlow({ existingClaim: ok({ id: "p9", vendor_id: "v1" }) });
     await signUpAndClaimVendor(EMAIL, "tok", "pw");
     expect(mocks.createUser).not.toHaveBeenCalled();
   });

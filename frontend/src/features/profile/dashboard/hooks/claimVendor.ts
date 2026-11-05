@@ -92,7 +92,7 @@ async function claimVendor(accessToken: string, userId: string) {
     .from('profiles')
     .select('vendor_id')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (existingProfileError) {
     throw new ClaimError('Failed to look up profile: ' + existingProfileError.message, 'db_lookup_error');
@@ -178,7 +178,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   // Check if vendor is already claimed
   const { data: existingClaim, error: existingClaimError } = await supabaseAdminClient
     .from('profiles')
-    .select('id, user_id, vendor_id')
+    .select('id, vendor_id')
     .eq('vendor_id', vendor.id)
     .maybeSingle();
 
