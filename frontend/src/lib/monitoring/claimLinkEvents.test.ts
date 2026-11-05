@@ -3,7 +3,6 @@ import { recordClaimLinkOutcome, type ClaimLinkOutcome } from "./claimLinkEvents
 
 const SHOULD_ALERT = {
   // log-only
-  claimed: false,
   sent: false,
   invalid_token: false,
   expired_claim_link: false,
@@ -14,6 +13,7 @@ const SHOULD_ALERT = {
   no_email: false,
   recaptcha_failed: false,
   // alert
+  claimed: true,
   claimed_with_error: true,
   vendor_update_failed: true,
   rollback_failed: true,

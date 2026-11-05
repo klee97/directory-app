@@ -26,6 +26,13 @@ class ClaimError extends Error {
   }
 }
 
+const CLAIM_RESPONSE_MESSAGE: Partial<Record<ClaimLinkOutcome, string>> = {
+  already_claimed: 'This business has already been claimed.',
+  invalid_token: 'Invalid access token or vendor not found',
+  expired_claim_link: 'This claim link has expired',
+};
+const GENERIC_CLAIM_ERROR = 'Something went wrong. Please try again.';
+
 /**
  * Response `type` the caller sees for a failure inside `claimVendor`, so a race
  * looks the same as the equivalent pre-check. Anything unmapped is `claim_failed`.
@@ -66,22 +73,35 @@ async function claimVendor(accessToken: string, userId: string) {
   }
 
   // Check if vendor is already claimed by someone
-  const { data: existingClaim } = await supabaseAdminClient
+  const { data: existingClaim, error: existingClaimError } = await supabaseAdminClient
     .from('profiles')
     .select('id, vendor_id')
     .eq('vendor_id', vendor.id)
     .maybeSingle();
 
+  if (existingClaimError) {
+    throw new ClaimError('Failed to check existing claim: ' + existingClaimError.message, 'db_lookup_error');
+  }
+
   if (existingClaim && existingClaim.id !== user.id) {
-    throw new ClaimError('This vendor is already claimed by another account', 'already_claimed');
+    throw new ClaimError('This business has already been claimed.', 'already_claimed');
   }
 
   // Check if this user already has this vendor (idempotent)
-  const { data: existingProfile } = await supabaseAdminClient
+  const { data: existingProfile, error: existingProfileError } = await supabaseAdminClient
     .from('profiles')
     .select('vendor_id')
     .eq('id', user.id)
     .single();
+
+  if (existingProfileError) {
+    throw new ClaimError('Failed to look up profile: ' + existingProfileError.message, 'db_lookup_error');
+  }
+
+  if (!existingProfile) {
+    // No profile row for a user we just created, e.g. the signup trigger didn't run.
+    throw new ClaimError('No profile found for user ' + user.id, 'claim_failed');
+  }
 
   if (existingProfile?.vendor_id === vendor.id) {
     return vendor; // Already claimed by this user
@@ -93,16 +113,20 @@ async function claimVendor(accessToken: string, userId: string) {
   }
 
   // Update the user's profile to link to this vendor
-  const { error: profileError } = await supabaseAdminClient
+  const { data: linked, error: profileError } = await supabaseAdminClient
     .from('profiles')
     .update({
       vendor_id: vendor.id,
       role: UserRole.VENDOR
     })
-    .eq('id', user.id);
+    .eq('id', user.id)
+    .select('id');
 
   if (profileError) {
     throw new ClaimError('Failed to update profile: ' + profileError.message, 'claim_failed');
+  }
+  if (!linked?.length) {
+    throw new ClaimError('Profile not found for user ' + user.id, 'claim_failed');
   }
 
   return vendor;
@@ -152,11 +176,17 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   }
 
   // Check if vendor is already claimed
-  const { data: existingClaim } = await supabaseAdminClient
+  const { data: existingClaim, error: existingClaimError } = await supabaseAdminClient
     .from('profiles')
     .select('id, user_id, vendor_id')
     .eq('vendor_id', vendor.id)
     .maybeSingle();
+
+  if (existingClaimError) {
+    console.error(`signUpAndClaimVendor: claim check failed for "${vendor.slug}": ${existingClaimError.message}`);
+    await record("db_lookup_error", vendor.slug);
+    return { success: false, error: GENERIC_CLAIM_ERROR, type: 'claim_failed' };
+  }
 
   if (existingClaim) {
     await record("already_claimed", vendor.slug);
@@ -166,6 +196,8 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
       type: 'already_claimed'
     };
   }
+
+
 
   // create user silently with NO confirmation email
   const { data: newUser, error: createError } = await supabaseAdminClient.auth.admin.createUser({
@@ -189,11 +221,12 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
         error: "Email already registered"
       };
     }
+    console.error(`signUpAndClaimVendor: createUser failed for "${vendor.slug}":`, createError.message);
     await record("create_failed", vendor.slug);
     return {
       success: false,
       type: "create_failed",
-      error: "Failed to create user: " + createError.message
+      error: GENERIC_CLAIM_ERROR
     };
   }
 
@@ -213,19 +246,21 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   try {
     await claimVendor(accessToken, newUserId);
   } catch (error) {
-    // Rollback: delete the user we just created
     const reason: ClaimLinkOutcome = error instanceof ClaimError ? error.outcome : "claim_failed";
+    // The real cause goes to the logs only. Without this, nothing keeps it
+    // once it's no longer in the response.
+    console.error(`signUpAndClaimVendor: claimVendor failed for "${vendor.slug}" (${reason}):`, error);
+
     const { error: deleteError } = await supabaseAdminClient.auth.admin.deleteUser(newUserId);
     if (deleteError) {
       console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
     }
-    // One outcome per exit: the underlying reason, or rollback_failed if we left an orphan user.
     await record(deleteError ? "rollback_failed" : reason, vendor.slug);
 
     return {
       success: false,
-      error: 'Failed to claim vendor: ' + (error as Error).message,
-      type: CLAIM_RESPONSE_TYPE[reason] ?? 'claim_failed'
+      error: CLAIM_RESPONSE_MESSAGE[reason] ?? GENERIC_CLAIM_ERROR,
+      type: CLAIM_RESPONSE_TYPE[reason] ?? 'claim_failed',
     };
   }
 
@@ -242,11 +277,13 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     .eq('id', vendor.id);
 
   if (vendorUpdateError) {
+    console.error(`signUpAndClaimVendor: vendor finalize failed for "${vendor.slug}":`, vendorUpdateError.message);
+
     await record("vendor_update_failed", vendor.slug);
     return {
       success: false,
       type: 'vendor_update_failed',
-      error: 'Failed to finalize vendor claim: ' + vendorUpdateError.message
+      error: "Your account was created, but we couldn't finish setting up your profile. Please try logging in, or contact us.",
     };
   }
 

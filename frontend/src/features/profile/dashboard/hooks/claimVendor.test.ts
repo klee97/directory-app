@@ -59,7 +59,7 @@ function queueFlow(overrides: Partial<Flow> = {}): Flow {
     claimLookup: ok(vendorRow()),
     claimExistingClaim: ok(null),
     claimExistingProfile: ok({ vendor_id: null }),
-    claimProfileUpdate: ok(null),
+    claimProfileUpdate: ok([{ id: "u1" }]),
     finalUpdate: ok(null),
     ...overrides,
   };
@@ -240,6 +240,41 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
       outcome: "claimed",
       slug: "acme",
     },
+    {
+      name: "profile update matches zero rows (profile missing), rollback ok",
+      arrange: () => queueFlow({ claimProfileUpdate: ok([]) }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
+    },
+    {
+      name: "pre-check claim lookup hits a DB error",
+      arrange: () => queueFlow({ existingClaim: fail("connection reset") }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
+    },
+    {
+      name: "claimVendor's claim re-check hits a DB error, rollback ok",
+      arrange: () => queueFlow({ claimExistingClaim: fail("connection reset") }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
+    },
+    {
+      name: "claimVendor's profile lookup hits a DB error, rollback ok",
+      arrange: () => queueFlow({ claimExistingProfile: fail("connection reset") }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
+    },
+    {
+      name: "profile row is missing, rollback ok",
+      arrange: () => queueFlow({ claimExistingProfile: ok(null) }),
+      expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
+    },
   ];
 
   it.each(cases)("$name → records $outcome exactly once", async (c) => {
@@ -254,13 +289,13 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
 });
 
 describe("signUpAndClaimVendor: side effects", () => {
-  it("does not create a user for early exits", async () => {
+  it("does not create a user when the vendor lookup fails", async () => {
     queueFlow({ lookup: fail("no rows") });
     await signUpAndClaimVendor(EMAIL, "tok", "pw");
     expect(mocks.createUser).not.toHaveBeenCalled();
+  });
 
-    vi.clearAllMocks();
-    mocks.record.mockResolvedValue(undefined);
+  it("does not create a user when the vendor is already claimed", async () => {
     queueFlow({ existingClaim: ok({ id: "p9", user_id: "u9", vendor_id: "v1" }) });
     await signUpAndClaimVendor(EMAIL, "tok", "pw");
     expect(mocks.createUser).not.toHaveBeenCalled();
@@ -292,6 +327,7 @@ describe("signUpAndClaimVendor: side effects", () => {
     expect(flow.claimProfileUpdate.update).toHaveBeenCalledWith(
       expect.objectContaining({ vendor_id: "v1", role: expect.anything() })
     );
+    expect(flow.claimProfileUpdate.select).toHaveBeenCalledWith("id");
     expect(flow.claimProfileUpdate.eq).toHaveBeenCalledWith("id", "u1");
   });
 
@@ -315,6 +351,12 @@ describe("signUpAndClaimVendor: side effects", () => {
     await signUpAndClaimVendor(EMAIL, "tok", "pw");
 
     expect(flow.finalUpdate.update).not.toHaveBeenCalled();
+  });
+
+  it("does not create a user when the claim pre-check fails", async () => {
+    queueFlow({ existingClaim: fail("connection reset") });
+    await signUpAndClaimVendor(EMAIL, "tok", "pw");
+    expect(mocks.createUser).not.toHaveBeenCalled();
   });
 });
 
@@ -345,9 +387,6 @@ describe("signUpAndClaimVendor: expiry rule", () => {
   });
 });
 
-// These need the email guard from the earlier review (compare `email` to
-// `vendor.email`, case-insensitive, right after the expiry check). Delete the
-// block if you decide not to add it.
 describe("signUpAndClaimVendor: email must match the vendor on file", () => {
   it("rejects a different email before creating any user", async () => {
     queueFlow();
