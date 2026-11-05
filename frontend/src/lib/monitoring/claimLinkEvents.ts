@@ -12,9 +12,8 @@ export type ClaimLinkOutcome =
 
 export type ClaimLinkFlow = "request" | "claim";
 
-// Needs a human. Everything else is expected/user-driven and is log-only.
 const ALERT_OUTCOMES: ReadonlySet<ClaimLinkOutcome> = new Set([
-  "claimed_with_error", "vendor_update_failed", "rollback_failed",
+  "claimed", "claimed_with_error", "vendor_update_failed", "rollback_failed",
   "email_failed", "db_lookup_error", "token_update_error", "revalidate_failed",
   "create_failed", "claim_failed", "email_exists", "email_mismatch",
 ]);
