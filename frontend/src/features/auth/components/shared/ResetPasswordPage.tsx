@@ -108,6 +108,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                     fullWidth
                     type={showPassword ? "text" : "password"}
                     label="New Password"
+                    autoComplete="new-password"
                     id="newPassword"
                     value={newPassword}
                     onChange={(e) => {
@@ -136,6 +137,7 @@ export function ResetPasswordPage({ loginUrl, isVendorSite }: ResetPasswordPageP
                     fullWidth
                     type={showConfirmPassword ? "text" : "password"}
                     label="Confirm New Password"
+                    autoComplete="new-password"
                     id="confirmPassword"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}

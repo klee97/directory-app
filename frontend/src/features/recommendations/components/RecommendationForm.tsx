@@ -118,6 +118,7 @@ const RecommendationForm = () => {
           <TextField
             fullWidth
             label="Website"
+            slotProps={{ htmlInput: { inputMode: 'url' } }}
             variant="outlined"
             value={recommendation.website ?? ""}
             onChange={(e) => setRecommendation({ ...recommendation, website: e.target.value })}
@@ -148,6 +149,8 @@ const RecommendationForm = () => {
           <TextField
             fullWidth
             label="Your email (optional)"
+            autoComplete="email"
+            slotProps={{ htmlInput: { inputMode: 'email' } }}
             variant="outlined"
             value={recommendation.recommended_by ?? ""}
             onChange={(e) => setRecommendation({ ...recommendation, recommended_by: e.target.value })}
