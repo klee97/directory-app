@@ -10,6 +10,7 @@ import {
 import { EMAIL_PARAM, SLUG_PARAM, TOKEN_PARAM } from "@/lib/constants";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import { sendClaimLinkEmail } from "@/lib/resend/resend";
+import { recordClaimLinkOutcome } from "@/lib/monitoring/claimLinkEvents";
 
 export type RequestClaimLinkResult =
   | { success: true }
@@ -97,6 +98,9 @@ function cooldownResult(
  * - The email itself is sent via a Resend template (see `sendClaimLinkEmail`),
  *   populated with the vendor's business name and the generated claim URL.
  * 
+ * Monitoring: every exit records one outcome via `recordClaimLinkOutcome`
+ * (Slack notification for the broken ones). The calls are awaited because
+ * serverless work can be frozen once the response returns.
  */
 export async function requestClaimLink({
   slug,
@@ -106,11 +110,13 @@ export async function requestClaimLink({
   recaptchaToken: string;
 }): Promise<RequestClaimLinkResult> {
   if (!slug) {
+    await recordClaimLinkOutcome("vendor_not_found", null);
     return { success: false, error: "Missing vendor." };
   }
 
   const { success: isHuman } = await verifyRecaptchaToken(recaptchaToken);
   if (!isHuman) {
+    await recordClaimLinkOutcome("recaptcha_failed", slug);
     return { success: false, error: "Could not verify the request. Please try again." };
   }
 
@@ -126,18 +132,22 @@ export async function requestClaimLink({
 
   if (error) {
     console.error(`requestClaimLink: failed to look up vendor "${slug}":`, error.message);
+    await recordClaimLinkOutcome("db_lookup_error", slug);
     return genericSuccess;
   }
 
   // No such vendor, already claimed, or no email to send to → say nothing to
   // the client, but record which one it was.
   if (!vendor) {
+    await recordClaimLinkOutcome("vendor_not_found", slug);
     return genericSuccess;
   }
   if (vendor.verified_at) {
+    await recordClaimLinkOutcome("already_claimed", slug);
     return genericSuccess;
   }
   if (!vendor.email) {
+    await recordClaimLinkOutcome("no_email", slug);
     return genericSuccess;
   }
 
@@ -157,6 +167,7 @@ export async function requestClaimLink({
   // exists, is unclaimed and has an email on file, all of which the public
   // profile page already discloses by opening this dialog with a masked hint.
   if (cooldownMs > 0 && isWithinCooldown(previousValidUntil, nowMs, validMs, cooldownMs)) {
+    await recordClaimLinkOutcome("cooldown", slug);
     return cooldownResult(previousValidUntil, nowMs, validMs, cooldownMs);
   }
 
@@ -186,6 +197,7 @@ export async function requestClaimLink({
 
   if (tokenError) {
     console.error(`requestClaimLink: failed to set access token for "${slug}":`, tokenError.message);
+    await recordClaimLinkOutcome("token_update_error", slug);
     return genericSuccess;
   }
 
@@ -194,7 +206,7 @@ export async function requestClaimLink({
   // replaced, not the winner's, so the winner's cooldown has only just started:
   // report the full length. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
-    console.warn(`requestClaimLink: lost race to rotate token for "${slug}"`);
+    await recordClaimLinkOutcome("race_lost", slug);
     return cooldownMs > 0
       ? cooldownResult(null, nowMs, validMs, cooldownMs)
       : genericSuccess;
@@ -235,6 +247,8 @@ export async function requestClaimLink({
     } else if (!restored?.length) {
       console.warn(`requestClaimLink: rollback skipped for "${slug}" (token rotated, consumed, or vendor verified)`);
     }
+    // A no-match restore means a newer rotation replaced this token. No rollback is needed.
+    await recordClaimLinkOutcome(rollbackError ? "rollback_failed" : "email_failed", slug);
 
     // Unlike the "can't send" branches above, this is a real error the vendor
     // can act on: the listing exists, is unclaimed and has an email (the same
@@ -249,11 +263,14 @@ export async function requestClaimLink({
   // claim CTA's isClaimed/emailHint), so bust it or the freshly minted token
   // won't be reflected there for up to 24h. This runs after the email on
   // purpose, and a failure here must not turn a delivered link into an error.
+  let revalidateFailed = false;
   try {
     await revalidateVendor(slug);
   } catch (e) {
+    revalidateFailed = true;
     console.error(`requestClaimLink: revalidateVendor failed for "${slug}":`, e);
   }
 
+  await recordClaimLinkOutcome(revalidateFailed ? "revalidate_failed" : "sent", slug);
   return genericSuccess;
 }
