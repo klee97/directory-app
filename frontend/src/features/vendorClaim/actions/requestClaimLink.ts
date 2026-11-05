@@ -96,6 +96,7 @@ function cooldownResult(
  *   vendor is already trying to use.
  * - The email itself is sent via a Resend template (see `sendClaimLinkEmail`),
  *   populated with the vendor's business name and the generated claim URL.
+ * 
  */
 export async function requestClaimLink({
   slug,
@@ -128,8 +129,15 @@ export async function requestClaimLink({
     return genericSuccess;
   }
 
-  // No such vendor, already claimed, or no email to send to → say nothing.
-  if (!vendor || vendor.verified_at || !vendor.email) {
+  // No such vendor, already claimed, or no email to send to → say nothing to
+  // the client, but record which one it was.
+  if (!vendor) {
+    return genericSuccess;
+  }
+  if (vendor.verified_at) {
+    return genericSuccess;
+  }
+  if (!vendor.email) {
     return genericSuccess;
   }
 
@@ -141,6 +149,7 @@ export async function requestClaimLink({
   const accessToken = crypto.randomUUID();
   const accessTokenValidUntil = new Date(nowMs + validMs).toISOString();
 
+  const previousToken = vendor.access_token;
   const previousValidUntil = vendor.access_token_valid_until;
 
   // Refusing here reports a real error rather than the generic success used by
@@ -185,18 +194,17 @@ export async function requestClaimLink({
   // replaced, not the winner's, so the winner's cooldown has only just started:
   // report the full length. With the cooldown disabled that is simply a success.
   if (!updated?.length) {
+    console.warn(`requestClaimLink: lost race to rotate token for "${slug}"`);
     return cooldownMs > 0
       ? cooldownResult(null, nowMs, validMs, cooldownMs)
       : genericSuccess;
   }
 
-  // The vendor detail page reads this vendor via getCachedVendor (for the
-  // claim CTA's isClaimed/emailHint), so bust it now or the freshly minted
-  // token won't be reflected there for up to 24h.
-  await revalidateVendor(slug);
-
   const claimUrl = `${getBaseUrl()}/partner/claim?${SLUG_PARAM}=${encodeURIComponent(slug)}&${EMAIL_PARAM}=${encodeURIComponent(vendor.email)}&${TOKEN_PARAM}=${encodeURIComponent(accessToken)}`;
 
+  // Send BEFORE anything else that can fail: the token has already been
+  // rotated, so every step between here and the email is a way to strand the
+  // vendor with a dead link and a running cooldown.
   const emailSent = await sendClaimLinkEmail({
     email: vendor.email,
     businessName: vendor.business_name,
@@ -205,6 +213,42 @@ export async function requestClaimLink({
 
   if (!emailSent) {
     console.error(`requestClaimLink: failed to send claim link email for "${slug}"`);
+
+    // Put the previous token and expiry back so the vendor can retry right
+    // away instead of waiting out a cooldown for an email that never left.
+    // Compare-and-swap on the token we just wrote, so we never clobber a
+    // newer rotation by a concurrent request.
+    const { error: rollbackError } = await supabaseAdminClient
+      .from("vendors")
+      .update({
+        access_token: previousToken,
+        access_token_valid_until: previousValidUntil,
+      })
+      .eq("id", vendor.id)
+      .eq("access_token", accessToken)
+      .select("id");
+
+    if (rollbackError) {
+      console.error(`requestClaimLink: rollback failed for "${slug}":`, rollbackError.message);
+    }
+
+    // Unlike the "can't send" branches above, this is a real error the vendor
+    // can act on: the listing exists, is unclaimed and has an email (the same
+    // facts the dialog already discloses), so nothing new is leaked.
+    return {
+      success: false,
+      error: "We couldn't send the email right now. Please try again in a few minutes.",
+    };
+  }
+
+  // The vendor detail page reads this vendor via getCachedVendor (for the
+  // claim CTA's isClaimed/emailHint), so bust it or the freshly minted token
+  // won't be reflected there for up to 24h. This runs after the email on
+  // purpose, and a failure here must not turn a delivered link into an error.
+  try {
+    await revalidateVendor(slug);
+  } catch (e) {
+    console.error(`requestClaimLink: revalidateVendor failed for "${slug}":`, e);
   }
 
   return genericSuccess;

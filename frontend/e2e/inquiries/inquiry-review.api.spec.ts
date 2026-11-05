@@ -127,6 +127,10 @@ test.describe('Admin inquiry review API', () => {
 
 
 test.describe('Admin inquiry queue pagination', () => {
+  // These tests assert exact positions in one global queue, so they can't
+  // share the front of it with each other.
+  test.describe.configure({ mode: 'serial' });
+
   test('queue respects the default page size', async ({ request, adminCookie }) => {
     const res = await request.get(`${BASE_URL}/api/admin/inquiries`, {
       headers: { Cookie: adminCookie },

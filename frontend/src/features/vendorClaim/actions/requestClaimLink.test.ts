@@ -214,6 +214,23 @@ describe('requestClaimLink', () => {
     expectSilentSuccess(await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' }));
   });
 
+  it('still reports success when revalidation throws, since the link already went out', async () => {
+    revalidateVendorMock.mockRejectedValueOnce(new Error('boom'));
+
+    const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+    expect(result).toEqual({ success: true });
+  });
+
+  it('sends the email before revalidating', async () => {
+    await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+    expect(sendClaimLinkEmailMock.mock.invocationCallOrder[0]).toBeLessThan(
+      revalidateVendorMock.mock.invocationCallOrder[0]
+    );
+  });
+
+
   describe('per-listing cooldown', () => {
     const NOW = new Date('2026-03-01T00:00:00.000Z');
     const V = DEFAULT_VALID_SECONDS * 1000;
@@ -378,12 +395,46 @@ describe('requestClaimLink', () => {
     });
   });
 
-  it('still reports success when the email fails to send', async () => {
-    sendClaimLinkEmailMock.mockResolvedValue(false);
 
-    const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+  describe('when the email fails to send', () => {
+    beforeEach(() => {
+      sendClaimLinkEmailMock.mockResolvedValue(false);
+    });
 
-    expect(result).toEqual({ success: true });
-    expect(sendClaimLinkEmailMock).toHaveBeenCalled();
+    it('reports a real error instead of telling the vendor to check their inbox', async () => {
+      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(result).toEqual({
+        success: false,
+        error: "We couldn't send the email right now. Please try again in a few minutes.",
+      });
+    });
+
+    it('restores the previous token and expiry so the vendor can retry immediately', async () => {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      const [{ access_token: newToken }] = updateMock.mock.calls[0];
+      expect(updateMock).toHaveBeenCalledTimes(2);
+      expect(updateMock.mock.calls[1][0]).toEqual({
+        access_token: UNCLAIMED_VENDOR.access_token,
+        access_token_valid_until: UNCLAIMED_VENDOR.access_token_valid_until,
+      });
+      // Guarded on the token we wrote, so a newer rotation isn't clobbered.
+      expect(updateEqMock).toHaveBeenCalledWith('access_token', newToken);
+    });
+
+    it('does not revalidate the cached vendor', async () => {
+      await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(revalidateVendorMock).not.toHaveBeenCalled();
+    });
+
+    it('flags email_failed when the restore matches no row', async () => {
+      updateSelectMock.mockResolvedValueOnce(UPDATED).mockResolvedValueOnce(NOT_UPDATED);
+
+      const result = await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
+
+      expect(result).toMatchObject({ success: false });
+    });
   });
 });
