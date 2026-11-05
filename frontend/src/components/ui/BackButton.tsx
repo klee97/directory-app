@@ -44,7 +44,7 @@ export default function BackButton({
   };
 
   return (
-    <Button variant="text" onClick={handleBack} color="secondary">
+    <Button variant="text" onClick={handleBack} color="secondary" sx={{ minHeight: 44 }}>
       ← Back
     </Button>
   );

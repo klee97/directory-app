@@ -165,7 +165,7 @@ export default async function VendorPage({ params }: PageProps) {
       </section>
       <Suspense fallback={<LocationBreadcrumbsSkeleton />}>
         <BackButton fallbackHref="/vendors" />
-        <Container sx={{ py: 4 }}>
+        <Container sx={{ py: 4, display: { xs: 'none', sm: 'block' } }}>
           <LocationBreadcrumbs breadcrumbs={breadcrumbs} />
         </Container>
       </Suspense>

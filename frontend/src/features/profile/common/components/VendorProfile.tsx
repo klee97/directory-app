@@ -428,7 +428,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Link />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Website
@@ -440,7 +440,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Instagram />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Instagram
@@ -452,7 +452,7 @@ export default function VendorDetails({ vendor, vendorDescription, children, sho
                         target="_blank"
                         rel="noopener noreferrer"
                         startIcon={<Place />}
-                        sx={{ textTransform: 'none' }}
+                        sx={{ textTransform: 'none', minHeight: 44 }}
                         color='secondary'
                       >
                         Google Maps

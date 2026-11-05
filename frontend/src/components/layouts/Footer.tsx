@@ -53,7 +53,17 @@ export const Footer = ({ isVendorFooter }: { isVendorFooter: boolean }) => {
         </Box>
 
 
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 4, flexWrap: "wrap", mb: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            columnGap: 4,
+            flexWrap: "wrap",
+            mb: 4,
+            // 44px-tall links give comfortable tap targets; row spacing comes from the height itself
+            "& a": { display: "inline-flex", alignItems: "center", minHeight: 44 },
+          }}
+        >
           <Link href="/" style={{ color: "inherit", textDecoration: "none" }}>
             Home
           </Link>
