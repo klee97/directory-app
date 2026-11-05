@@ -4,6 +4,7 @@ import { supabaseAdminClient } from '@/lib/supabase/clients/adminClient';
 import { UserRole } from '@/lib/auth/userRole';
 import { revalidateVendor } from '@/lib/actions/revalidate';
 import { isClaimProfileEnabled } from '@/lib/env/env';
+import { type ClaimLinkOutcome, recordClaimLinkOutcome } from '@/lib/monitoring/claimLinkEvents';
 
 /**
  * Verification happens when the claim page loads, but the form posts the token
@@ -16,31 +17,37 @@ function isAccessTokenExpired(validUntil: string | null): boolean {
   return !validUntil || new Date(validUntil).getTime() <= Date.now();
 }
 
-type ClaimFailure =
-  | 'invalid_token' | 'expired_claim_link' | 'already_claimed'
-  | 'db_lookup_error' | 'claim_failed';
-
 /** Carries the outcome to record, so the single catch in signUpAndClaimVendor
-*  can log the real reason instead of a generic failure.
-*/
+ *  can log the real reason instead of a generic failure.
+ */
 class ClaimError extends Error {
-  constructor(message: string, readonly outcome: ClaimFailure) { super(message); }
+  constructor(message: string, readonly outcome: ClaimLinkOutcome) {
+    super(message);
+  }
 }
 
-const CLAIM_RESPONSE_MESSAGE: Partial<Record<ClaimFailure, string>> = {
+const CLAIM_RESPONSE_MESSAGE: Partial<Record<ClaimLinkOutcome, string>> = {
   already_claimed: 'This business has already been claimed.',
   invalid_token: 'Invalid access token or vendor not found',
   expired_claim_link: 'This claim link has expired',
 };
 const GENERIC_CLAIM_ERROR = 'Something went wrong. Please try again.';
 
-const CLAIM_RESPONSE_TYPE: Partial<Record<ClaimFailure, string>> = {
+/**
+ * Response `type` the caller sees for a failure inside `claimVendor`, so a race
+ * looks the same as the equivalent pre-check. Anything unmapped is `claim_failed`.
+ */
+const CLAIM_RESPONSE_TYPE: Partial<Record<ClaimLinkOutcome, string>> = {
   already_claimed: 'already_claimed',
   invalid_token: 'invalid_token',
-  expired_claim_link: 'invalid_token',
+  expired_claim_link: 'invalid_token', // the claim page renders "invalid or expired"
 };
 
-// Records nothing itself; throws a
+const record = (outcome: ClaimLinkOutcome, slug: string | null) =>
+  recordClaimLinkOutcome(outcome, slug, "claim");
+
+// Not exported: exported functions in a "use server" file are public endpoints,
+// and this one trusts the userId it is given. Records nothing itself; throws a
 // ClaimError and the catch in signUpAndClaimVendor records exactly once.
 async function claimVendor(accessToken: string, userId: string) {
 
@@ -136,17 +143,20 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
 
   if (vendorError) {
     console.error(`signUpAndClaimVendor: vendor lookup failed: ${vendorError.message}`);
+    await record("db_lookup_error", null); // no slug available, and never log the token
     // Not invalid_token: the link may be fine, and the vendor shouldn't be told otherwise.
     return { success: false, error: 'Something went wrong. Please try again.', type: 'claim_failed' };
   }
 
   if (!vendor) {
+    await record("invalid_token", null); // no slug available, and never log the token
     return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
 
   // Reuses the invalid_token branch so the caller needs no new case; the claim
   // page already renders "invalid or expired" for it.
   if (isAccessTokenExpired(vendor.access_token_valid_until)) {
+    await record("expired_claim_link", vendor.slug);
     return {
       success: false,
       error: 'This claim link has expired',
@@ -161,6 +171,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
 
   // The claimant must use the email on file for the vendor.
   if (!vendor.email || normalizedEmail !== (vendor.email ?? '').trim().toLowerCase()) {
+    await record("email_mismatch", vendor.slug);
     return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
 
@@ -173,10 +184,12 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
 
   if (existingClaimError) {
     console.error(`signUpAndClaimVendor: claim check failed for "${vendor.slug}": ${existingClaimError.message}`);
+    await record("db_lookup_error", vendor.slug);
     return { success: false, error: GENERIC_CLAIM_ERROR, type: 'claim_failed' };
   }
 
   if (existingClaim) {
+    await record("already_claimed", vendor.slug);
     return {
       success: false,
       error: 'Vendor already claimed',
@@ -200,6 +213,8 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
       createError.code === "email_exists" ||
       createError.message?.toLowerCase().includes("already registered")
     ) {
+      await record("email_exists", vendor.slug);
+
       return {
         success: false,
         type: "email_exists",
@@ -207,6 +222,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
       };
     }
     console.error(`signUpAndClaimVendor: createUser failed for "${vendor.slug}":`, createError.message);
+    await record("create_failed", vendor.slug);
     return {
       success: false,
       type: "create_failed",
@@ -217,6 +233,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   const newUserId = newUser?.user?.id;
 
   if (!newUserId) {
+    await record("create_failed", vendor.slug);
     return {
       success: false,
       type: "create_failed",
@@ -229,7 +246,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   try {
     await claimVendor(accessToken, newUserId);
   } catch (error) {
-    const reason: ClaimFailure = error instanceof ClaimError ? error.outcome : "claim_failed";
+    const reason: ClaimLinkOutcome = error instanceof ClaimError ? error.outcome : "claim_failed";
     // The real cause goes to the logs only. Without this, nothing keeps it
     // once it's no longer in the response.
     console.error(`signUpAndClaimVendor: claimVendor failed for "${vendor.slug}" (${reason}):`, error);
@@ -238,6 +255,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     if (deleteError) {
       console.error(`Failed to rollback user creation (${newUserId}): ${deleteError.message}`);
     }
+    await record(deleteError ? "rollback_failed" : reason, vendor.slug);
 
     return {
       success: false,
@@ -261,6 +279,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   if (vendorUpdateError) {
     console.error(`signUpAndClaimVendor: vendor finalize failed for "${vendor.slug}":`, vendorUpdateError.message);
 
+    await record("vendor_update_failed", vendor.slug);
     return {
       success: false,
       type: 'vendor_update_failed',
@@ -275,6 +294,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
     revalidateFailed = true;
     console.error(`signUpAndClaimVendor: revalidateVendor failed for "${vendor.slug}":`, e);
   }
+  await record(revalidateFailed ? "revalidate_failed" : "claimed", vendor.slug);
 
   return {
     success: true,
