@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   createUser: vi.fn(),
   deleteUser: vi.fn(),
   revalidateVendor: vi.fn(),
+  record: vi.fn(),
   isClaimProfileEnabled: vi.fn(),
 }));
 
@@ -16,6 +17,7 @@ vi.mock("@/lib/supabase/clients/adminClient", () => ({
   },
 }));
 vi.mock("@/lib/actions/revalidate", () => ({ revalidateVendor: mocks.revalidateVendor }));
+vi.mock("@/lib/monitoring/claimLinkEvents", () => ({ recordClaimLinkOutcome: mocks.record }));
 vi.mock("@/lib/env/env", () => ({ isClaimProfileEnabled: mocks.isClaimProfileEnabled }));
 
 import { signUpAndClaimVendor } from "./claimVendor";
@@ -83,6 +85,7 @@ beforeEach(() => {
   mocks.createUser.mockResolvedValue({ data: { user: { id: "u1" } }, error: null });
   mocks.deleteUser.mockResolvedValue({ error: null });
   mocks.revalidateVendor.mockResolvedValue(undefined);
+  mocks.record.mockResolvedValue(undefined);
 });
 
 describe("signUpAndClaimVendor: one outcome per exit", () => {
@@ -90,6 +93,8 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
     name: string;
     arrange: () => void;
     expected: Record<string, unknown>;
+    outcome: string;
+    slug: string | null;
   }
 
   const cases: Case[] = [
@@ -97,32 +102,44 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
       name: "unknown token",
       arrange: () => queueFlow({ lookup: ok(null) }),
       expected: { success: false, type: "invalid_token" },
+      outcome: "invalid_token",
+      slug: null, // no vendor, so no slug (and the token must never be logged)
     },
     {
       name: "vendor lookup hits a DB error (not the same as an unknown token)",
       arrange: () => queueFlow({ lookup: fail("connection reset") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: null,
     },
     {
       name: "claimVendor's re-lookup hits a DB error, rollback ok",
       arrange: () => queueFlow({ claimLookup: fail("connection reset") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
     },
     {
       name: "expired token",
       arrange: () => queueFlow({ lookup: ok(vendorRow(iso(-1_000))) }),
       expected: { success: false, type: "invalid_token" },
+      outcome: "expired_claim_link",
+      slug: "acme",
     },
     {
       name: "NULL expiry counts as expired",
       arrange: () => queueFlow({ lookup: ok(vendorRow(null)) }),
       expected: { success: false, type: "invalid_token" },
+      outcome: "expired_claim_link",
+      slug: "acme",
     },
     {
       name: "already claimed",
       arrange: () =>
         queueFlow({ existingClaim: ok({ id: "p9", vendor_id: "v1" }) }),
       expected: { success: false, type: "already_claimed" },
+      outcome: "already_claimed",
+      slug: "acme",
     },
     {
       name: "email already registered",
@@ -134,6 +151,8 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
         });
       },
       expected: { success: false, type: "email_exists" },
+      outcome: "email_exists",
+      slug: "acme",
     },
     {
       name: "createUser fails for another reason",
@@ -145,6 +164,8 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
         });
       },
       expected: { success: false, type: "create_failed" },
+      outcome: "create_failed",
+      slug: "acme",
     },
     {
       name: "createUser returns no user",
@@ -153,17 +174,23 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
         mocks.createUser.mockResolvedValue({ data: { user: null }, error: null });
       },
       expected: { success: false, type: "create_failed" },
+      outcome: "create_failed",
+      slug: "acme",
     },
     {
       name: "claim fails on a race (someone claimed it in between), rollback ok",
       arrange: () =>
         queueFlow({ claimExistingClaim: ok({ id: "someone-else", vendor_id: "v1" }) }),
       expected: { success: false, type: "already_claimed" },
+      outcome: "already_claimed",
+      slug: "acme",
     },
     {
       name: "claim fails on the profile update, rollback ok",
       arrange: () => queueFlow({ claimProfileUpdate: fail("db down") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
     },
     {
       name: "claim throws something that isn't a ClaimError",
@@ -176,6 +203,8 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
           }); // claimVendor blows up
       },
       expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
     },
     {
       name: "claim fails AND orphan-user rollback fails",
@@ -184,11 +213,15 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
         mocks.deleteUser.mockResolvedValue({ error: { message: "nope" } });
       },
       expected: { success: false, type: "claim_failed" },
+      outcome: "rollback_failed", // not claim_failed: an orphan user exists
+      slug: "acme",
     },
     {
       name: "final vendor update fails",
       arrange: () => queueFlow({ finalUpdate: fail("db down") }),
       expected: { success: false, type: "vendor_update_failed" },
+      outcome: "vendor_update_failed",
+      slug: "acme",
     },
     {
       name: "revalidate throws after a successful claim",
@@ -197,36 +230,50 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
         mocks.revalidateVendor.mockRejectedValue(new Error("cache down"));
       },
       expected: { success: true, type: "created", userId: "u1" },
+      outcome: "revalidate_failed",
+      slug: "acme",
     },
     {
       name: "happy path",
       arrange: () => queueFlow(),
       expected: { success: true, type: "created", userId: "u1" },
+      outcome: "claimed",
+      slug: "acme",
     },
     {
       name: "profile update matches zero rows (profile missing), rollback ok",
       arrange: () => queueFlow({ claimProfileUpdate: ok([]) }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
     },
     {
       name: "pre-check claim lookup hits a DB error",
       arrange: () => queueFlow({ existingClaim: fail("connection reset") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
     },
     {
       name: "claimVendor's claim re-check hits a DB error, rollback ok",
       arrange: () => queueFlow({ claimExistingClaim: fail("connection reset") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
     },
     {
       name: "claimVendor's profile lookup hits a DB error, rollback ok",
       arrange: () => queueFlow({ claimExistingProfile: fail("connection reset") }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "db_lookup_error",
+      slug: "acme",
     },
     {
       name: "profile row is missing, rollback ok",
       arrange: () => queueFlow({ claimExistingProfile: ok(null) }),
       expected: { success: false, type: "claim_failed" },
+      outcome: "claim_failed",
+      slug: "acme",
     },
   ];
 
@@ -236,6 +283,8 @@ describe("signUpAndClaimVendor: one outcome per exit", () => {
     const result = await signUpAndClaimVendor(EMAIL, "tok", "pw");
 
     expect(result).toMatchObject(c.expected);
+    expect(mocks.record).toHaveBeenCalledTimes(1);
+    expect(mocks.record).toHaveBeenCalledWith(c.outcome, c.slug, "claim");
   });
 });
 
@@ -322,6 +371,7 @@ describe("signUpAndClaimVendor: expiry rule", () => {
     const result = await signUpAndClaimVendor(EMAIL, "tok", "pw");
 
     expect(result).toMatchObject({ success: true });
+    expect(mocks.record).toHaveBeenCalledWith("claimed", "acme", "claim");
   });
 
   it("rejects a token that expires between page load and submit (claimVendor re-checks)", async () => {
@@ -332,6 +382,8 @@ describe("signUpAndClaimVendor: expiry rule", () => {
 
     expect(result).toMatchObject({ success: false, type: "invalid_token" });
     expect(mocks.deleteUser).toHaveBeenCalledWith("u1");
+    expect(mocks.record).toHaveBeenCalledTimes(1);
+    expect(mocks.record).toHaveBeenCalledWith("expired_claim_link", "acme", "claim");
   });
 });
 
@@ -343,6 +395,8 @@ describe("signUpAndClaimVendor: email must match the vendor on file", () => {
 
     expect(result).toMatchObject({ success: false, type: "invalid_token" });
     expect(mocks.createUser).not.toHaveBeenCalled();
+    expect(mocks.record).toHaveBeenCalledTimes(1);
+    expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
   });
 
   it("accepts the same email regardless of case or surrounding whitespace", async () => {
