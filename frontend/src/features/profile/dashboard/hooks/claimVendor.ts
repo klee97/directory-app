@@ -29,7 +29,7 @@ class ClaimError extends Error {
 
 const CLAIM_RESPONSE_MESSAGE: Partial<Record<ClaimFailure, string>> = {
   already_claimed: 'This business has already been claimed.',
-  invalid_token: 'Invalid access token or vendor not found',
+  invalid_token: 'The token is invalid or the vendor could not be found.',
   expired_claim_link: 'This claim link has expired',
 };
 const GENERIC_CLAIM_ERROR = 'Something went wrong. Please try again.';
@@ -279,6 +279,7 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   return {
     success: true,
     type: 'created',
-    userId: newUserId
+    userId: newUserId,
+    email: normalizedEmail,
   };
 }

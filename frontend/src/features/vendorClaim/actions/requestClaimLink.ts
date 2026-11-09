@@ -217,8 +217,9 @@ export async function requestClaimLink({
     // Put the previous token and expiry back so the vendor can retry right
     // away instead of waiting out a cooldown for an email that never left.
     // Compare-and-swap on the token we just wrote, so we never clobber a
-    // newer rotation by a concurrent request.
-    const { error: rollbackError } = await supabaseAdminClient
+    // newer rotation by a concurrent request, and only while the vendor is
+    // still unverified.
+    const { data: restored, error: rollbackError } = await supabaseAdminClient
       .from("vendors")
       .update({
         access_token: previousToken,
@@ -226,10 +227,13 @@ export async function requestClaimLink({
       })
       .eq("id", vendor.id)
       .eq("access_token", accessToken)
+      .is("verified_at", null)
       .select("id");
 
     if (rollbackError) {
       console.error(`requestClaimLink: rollback failed for "${slug}":`, rollbackError.message);
+    } else if (!restored?.length) {
+      console.warn(`requestClaimLink: rollback skipped for "${slug}" (token rotated, consumed, or vendor verified)`);
     }
 
     // Unlike the "can't send" branches above, this is a real error the vendor

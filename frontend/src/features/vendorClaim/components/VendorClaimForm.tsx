@@ -79,7 +79,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
       }
 
       const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
-        email: vendorInfo.email,
+        email: result.email ?? vendorInfo.email.trim().toLowerCase(),
         password,
       });
 
