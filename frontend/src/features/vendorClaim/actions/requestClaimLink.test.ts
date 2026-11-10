@@ -238,11 +238,11 @@ describe('requestClaimLink', () => {
   });
 
   describe('outcome recording', () => {
-    it('records "sent" on the happy path', async () => {
+    it('records "sent_claim_email" on the happy path', async () => {
       await requestClaimLink({ slug: SLUG, recaptchaToken: 'test-bypass' });
 
       expect(recordOutcomeMock).toHaveBeenCalledTimes(1);
-      expect(recordOutcomeMock).toHaveBeenCalledWith('sent', SLUG);
+      expect(recordOutcomeMock).toHaveBeenCalledWith('sent_claim_email', SLUG);
     });
 
     it('records recaptcha_failed', async () => {

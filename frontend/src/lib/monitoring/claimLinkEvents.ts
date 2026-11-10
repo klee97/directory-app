@@ -8,7 +8,7 @@ type Severity = "success" | "warning" | "error";
 const OUTCOMES = {
   // success
   claimed: { severity: "success", alert: true },
-  sent: { severity: "success", alert: false },
+  sent_claim_email: { severity: "success", alert: false },
 
   // expected / user-caused / degraded-but-delivered
   cooldown: { severity: "warning", alert: false },

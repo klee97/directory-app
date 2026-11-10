@@ -18,7 +18,7 @@ type Severity = "success" | "warning" | "error";
 // Reclassifying an outcome should force a conscious test edit.
 const EXPECTED = {
   // success
-  sent: { severity: "success", alert: false },
+  sent_claim_email: { severity: "success", alert: false },
   claimed: { severity: "success", alert: true },
   // warning, log-only
   invalid_token: { severity: "warning", alert: false },
@@ -82,7 +82,7 @@ describe("recordClaimLinkOutcome", () => {
 
   describe("logging", () => {
     it("logs one structured JSON line, with flow defaulting to 'request'", async () => {
-      await recordClaimLinkOutcome("sent", "acme");
+      await recordClaimLinkOutcome("sent_claim_email", "acme");
 
       const entries = outcomeEntries();
       expect(entries).toHaveLength(1);
@@ -90,7 +90,7 @@ describe("recordClaimLinkOutcome", () => {
         event: "claim_link_outcome",
         severity: "success",
         flow: "request",
-        outcome: "sent",
+        outcome: "sent_claim_email",
         slug: "acme",
       });
       expect(Number.isNaN(Date.parse(entries[0].at))).toBe(false);

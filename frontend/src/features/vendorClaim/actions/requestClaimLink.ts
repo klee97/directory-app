@@ -271,6 +271,6 @@ export async function requestClaimLink({
     console.error(`requestClaimLink: revalidateVendor failed for "${slug}":`, e);
   }
 
-  await recordClaimLinkOutcome(revalidateFailed ? "revalidate_failed" : "sent", slug);
+  await recordClaimLinkOutcome(revalidateFailed ? "revalidate_failed" : "sent_claim_email", slug);
   return genericSuccess;
 }
