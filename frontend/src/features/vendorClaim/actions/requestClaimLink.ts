@@ -217,11 +217,19 @@ export async function requestClaimLink({
   // Send BEFORE anything else that can fail: the token has already been
   // rotated, so every step between here and the email is a way to strand the
   // vendor with a dead link and a running cooldown.
-  const emailSent = await sendClaimLinkEmail({
-    email: vendor.email,
-    businessName: vendor.business_name,
-    claimUrl,
-  });
+  let emailSent: boolean;
+  try {
+    emailSent = await sendClaimLinkEmail({
+      email: vendor.email,
+      businessName: vendor.business_name,
+      claimUrl,
+    });
+  } catch (e) {
+    // A throw is a failed send too: record it, then rethrow so callers see
+    // the same behavior as before.
+    await recordClaimLinkOutcome("email_failed", slug);
+    throw e;
+  }
 
   if (!emailSent) {
     console.error(`requestClaimLink: failed to send claim link email for "${slug}"`);
