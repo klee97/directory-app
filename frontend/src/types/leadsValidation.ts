@@ -10,7 +10,7 @@ import { z } from 'zod';
 //   id, inquiry_status, outcome_status, submitted_at, airtable_record_id,
 //   contacted_at, expires_at, unlocked_at, declined_at, booked_trial_at,
 //   booked_wedding_at, stripe_payment_id, unlock_method, unlock_price,
-//   created_at, updated_at, is_budget_flexible (no UI control for this yet)
+//   created_at, updated_at
 export const leadFormSchema = z.object({
   vendor_id: z.string().min(1, 'vendor_id is required'),
   isTestRecord: z.boolean().default(false),
@@ -47,6 +47,7 @@ export const leadFormSchema = z.object({
       .nonnegative()
       .max(1_000_000)
   ),
+  flexibleBudget: z.boolean().default(false),
 
   peopleCount: z.coerce
     .number({

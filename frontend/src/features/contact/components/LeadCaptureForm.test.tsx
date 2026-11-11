@@ -347,6 +347,58 @@ describe('LeadCaptureForm — Supabase dual-write', () => {
     expect(mockedSubmitInquiryToSupabase).not.toHaveBeenCalled();
   });
 });
+describe('LeadCaptureForm — flexible checkboxes', () => {
+  const submitButton = () => screen.getByRole('button', { name: /send inquiry|get my quote/i });
+
+  it('submits all flexible flags as false when left unchecked', async () => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2();
+    await userEvent.click(submitButton());
+
+    await waitFor(() => expect(mockedSubmitInquiryToSupabase).toHaveBeenCalledTimes(1));
+    const [airtableData] = mockedSubmitToAirtable.mock.calls[0];
+    const [supabaseData] = mockedSubmitInquiryToSupabase.mock.calls[0];
+
+    for (const data of [airtableData, supabaseData]) {
+      expect(data.flexibleDate).toBe(false);
+      expect(data.flexibleBudget).toBe(false);
+      expect(data.flexibleCount).toBe(false);
+    }
+  });
+
+  it('submits flexibleDate, flexibleBudget, flexibleCount as true when checked', async () => {
+    renderForm();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Hair' }));
+    await userEvent.type(
+      document.body.querySelector('input[name="location"]') as HTMLInputElement,
+      'Los Angeles, CA'
+    );
+    await userEvent.type(
+      document.body.querySelector('input[name="peopleCount"]') as HTMLInputElement,
+      '4'
+    );
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Number is flexible' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+
+    await fillStep2();
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Date is flexible' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Budget is flexible' }));
+    await userEvent.click(submitButton());
+
+    await waitFor(() => expect(mockedSubmitInquiryToSupabase).toHaveBeenCalledTimes(1));
+    const [airtableData] = mockedSubmitToAirtable.mock.calls[0];
+    const [supabaseData] = mockedSubmitInquiryToSupabase.mock.calls[0];
+
+    for (const data of [airtableData, supabaseData]) {
+      expect(data.flexibleDate).toBe(true);
+      expect(data.flexibleBudget).toBe(true);
+      expect(data.flexibleCount).toBe(true);
+    }
+  });
+});
+
 describe('LeadCaptureForm — optional phone number', () => {
   it('renders an optional phone field on step 2', async () => {
     renderForm();

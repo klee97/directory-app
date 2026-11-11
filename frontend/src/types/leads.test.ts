@@ -16,6 +16,7 @@ const validPayload = {
   flexibleDate: false,
   location: 'Boston, MA',
   budget: '500',
+  flexibleBudget: false,
   peopleCount: '4',
   flexibleCount: false,
   services: [HAIR_TAG_ID, MAKEUP_TAG_ID],
@@ -37,15 +38,37 @@ describe('leadFormSchema', () => {
     expect(typeof result.peopleCount).toBe('number');
   });
 
-  it('defaults isTestRecord, flexibleDate, flexibleCount, makeupStyles', () => {
-    const { isTestRecord, flexibleDate, flexibleCount, makeupStyles, ...rest } =
+  it('defaults isTestRecord, flexibleDate, flexibleBudget, flexibleCount, makeupStyles', () => {
+    const { isTestRecord, flexibleDate, flexibleBudget, flexibleCount, makeupStyles, ...rest } =
       validPayload;
     const result = leadFormSchema.parse(rest);
     expect(result.isTestRecord).toBe(false);
     expect(result.flexibleDate).toBe(false);
+    expect(result.flexibleBudget).toBe(false);
     expect(result.flexibleCount).toBe(false);
     expect(result.makeupStyles).toEqual([]);
   });
+
+  it('preserves flexibleDate, flexibleBudget, flexibleCount when true', () => {
+    const result = leadFormSchema.parse({
+      ...validPayload,
+      flexibleDate: true,
+      flexibleBudget: true,
+      flexibleCount: true,
+    });
+    expect(result.flexibleDate).toBe(true);
+    expect(result.flexibleBudget).toBe(true);
+    expect(result.flexibleCount).toBe(true);
+  });
+
+  it.each(['flexibleDate', 'flexibleBudget', 'flexibleCount'])(
+    'rejects a non-boolean %s',
+    (field) => {
+      expect(() =>
+        leadFormSchema.parse({ ...validPayload, [field]: 'yes' })
+      ).toThrow();
+    }
+  );
 
   it.each([
     ['vendor_id', ''],
