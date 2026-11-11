@@ -4,8 +4,6 @@ import { useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid2';
 import { BackendVendorRecommendationInsert } from '@/types/vendor';
 import { createRecommendation } from '@/features/recommendations/api/createRecommendation';
 import { useNotification } from '@/contexts/NotificationContext';
@@ -81,102 +79,77 @@ const RecommendationForm = () => {
   };
 
   return (
-    <Box sx={{ my: 4 }}>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Is there an artist we&apos;re missing that should be listed here? Let us know below!
-      </Typography>
-      <br />
-
-      <Grid container spacing={3}>
-        <Grid size={{ xs: 12, md: 6 }}>
-
-          <TextField
-            required
-            fullWidth
-            label="Artist or Business Name"
-            variant="outlined"
-            value={recommendation.business_name ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, business_name: e.target.value })}
-            error={errors.business_name}
-            helperText={errors.business_name ? "Business name is required" : ""}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <TextField
-            required
-            fullWidth
-            label="Location"
-            variant="outlined"
-            value={recommendation.region ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, region: e.target.value })}
-            error={errors.region}
-            helperText={errors.region ? "Location is required" : ""}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-
-          <TextField
-            fullWidth
-            label="Website"
-            slotProps={{ htmlInput: { inputMode: 'url' } }}
-            variant="outlined"
-            value={recommendation.website ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, website: e.target.value })}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 6 }}>
-
-          <TextField
-            fullWidth
-            label="Instagram"
-            variant="outlined"
-            value={recommendation.ig_handle ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, ig_handle: e.target.value })}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 8 }}>
-
-          <TextField
-            fullWidth
-            label="Why do you recommend this artist?"
-            variant="outlined"
-            value={recommendation.notes ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, notes: e.target.value })}
-          />
-        </Grid>
-        <Grid size={{ xs: 12, md: 4 }}>
-          <TextField
-            fullWidth
-            label="Your email (optional)"
-            autoComplete="email"
-            slotProps={{ htmlInput: { inputMode: 'email' } }}
-            variant="outlined"
-            value={recommendation.recommended_by ?? ""}
-            onChange={(e) => setRecommendation({ ...recommendation, recommended_by: e.target.value })}
-          />
-        </Grid>
-        <Grid>
-          <ReCaptcha
-            ref={recaptchaRef}
-            size="invisible"
-            onExpired={() => console.log('reCAPTCHA expired')}
-            onErrored={() => console.log('reCAPTCHA errored')}
-          />
-        </Grid>
-        <Grid>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSubmit}
-            sx={{ width: 'auto' }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? 'Submitting...' : 'Submit Recommendation'}
-          </Button>
-        </Grid>
-      </Grid>
-    </Box >
+    <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2 }}>
+      <TextField
+        required
+        fullWidth
+        label="Artist or Business Name"
+        value={recommendation.business_name ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, business_name: e.target.value })}
+        error={errors.business_name}
+        helperText={errors.business_name ? "Business name is required" : ""}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        required
+        fullWidth
+        label="Location"
+        value={recommendation.region ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, region: e.target.value })}
+        error={errors.region}
+        helperText={errors.region ? "Location is required" : ""}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        fullWidth
+        label="Website"
+        slotProps={{ htmlInput: { inputMode: 'url' } }}
+        value={recommendation.website ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, website: e.target.value })}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        fullWidth
+        label="Instagram"
+        value={recommendation.ig_handle ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, ig_handle: e.target.value })}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        fullWidth
+        label="Your email (optional)"
+        autoComplete="email"
+        type="email"
+        slotProps={{ htmlInput: { inputMode: 'email' } }}
+        value={recommendation.recommended_by ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, recommended_by: e.target.value })}
+        sx={{ mb: 2 }}
+      />
+      <TextField
+        fullWidth
+        multiline
+        rows={4}
+        label="Why do you recommend this artist?"
+        value={recommendation.notes ?? ""}
+        onChange={(e) => setRecommendation({ ...recommendation, notes: e.target.value })}
+        sx={{ mb: 2 }}
+      />
+      <ReCaptcha
+        ref={recaptchaRef}
+        size="invisible"
+        onExpired={() => console.warn('reCAPTCHA expired')}
+        onErrored={() => console.warn('reCAPTCHA errored')}
+      />
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        fullWidth
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? 'Submitting...' : 'Submit Recommendation'}
+      </Button>
+    </Box>
   );
 };
 
