@@ -109,15 +109,16 @@ export async function requestClaimLink({
   slug: string;
   recaptchaToken: string;
 }): Promise<RequestClaimLinkResult> {
-  if (!slug) {
-    await recordClaimLinkOutcome("vendor_not_found", null);
-    return { success: false, error: "Missing vendor." };
-  }
 
   const { success: isHuman } = await verifyRecaptchaToken(recaptchaToken);
   if (!isHuman) {
     await recordClaimLinkOutcome("recaptcha_failed", slug);
     return { success: false, error: "Could not verify the request. Please try again." };
+  }
+
+  if (!slug) {
+    await recordClaimLinkOutcome("vendor_not_found", null);
+    return { success: false, error: "Missing vendor." };
   }
 
   // Generic success is returned for every "can't send" branch below to avoid
