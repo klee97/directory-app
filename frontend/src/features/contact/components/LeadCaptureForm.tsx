@@ -150,6 +150,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     weddingDate: '',
     flexibleDate: false,
     budget: '',
+    flexibleBudget: false,
     additionalDetails: '',
 
     // Step 3: Style
@@ -768,6 +769,21 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
                       htmlInput: { min: 0, inputMode: 'numeric' }
                     }}
                     sx={{ maxWidth: 200 }}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.flexibleBudget}
+                        onChange={(e) => {
+                          setFormData(prev => ({
+                            ...prev,
+                            flexibleBudget: e.target.checked
+                          }));
+                        }}
+                      />
+                    }
+                    label="Budget is flexible"
+                    sx={{ mt: isMobile ? 0 : 1 }}
                   />
                 </Stack>
               </Grid>

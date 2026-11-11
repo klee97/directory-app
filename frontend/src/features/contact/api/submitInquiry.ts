@@ -28,6 +28,7 @@ export async function submitInquiryToSupabase(
       weddingDate: formData.weddingDate,
       flexibleDate: formData.flexibleDate,
       budget: formData.budget,
+      flexibleBudget: formData.flexibleBudget,
       additionalDetails: formData.additionalDetails,
       airtableRecordId: airtableRecordId,
     }),

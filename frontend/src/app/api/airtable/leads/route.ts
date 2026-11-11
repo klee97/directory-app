@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       'Is Flexible Count?': formData.flexibleCount,
       'Services Requested': formData.services,
       'Budget': parseInt(formData.budget),
+      'Is Flexible Budget?': formData.flexibleBudget,
       'Additional Details': formData.additionalDetails,
       'Business Name': vendor.businessName,
       'Vendor Slug': vendor.slug,

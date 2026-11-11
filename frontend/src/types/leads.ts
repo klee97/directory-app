@@ -16,6 +16,7 @@ export interface LeadFormData {
   weddingDate: string;
   flexibleDate: boolean;
   budget: string;
+  flexibleBudget: boolean;
   additionalDetails: string;
 
   // Step 3: Style & Preferences

@@ -24,6 +24,7 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
         flexibleDate: false,
         location: 'Boston, MA',
         budget: '500',
+        flexibleBudget: false,
         peopleCount: '4',
         flexibleCount: false,
         services: ['Hair', 'Makeup'],
@@ -51,6 +52,7 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
         additionalDetails: 'Automated Phase 0 e2e check.',
         location: 'Boston, MA',
         budget: '500',
+        flexibleBudget: false,
         peopleCount: '4',
         services: ['Hair'],
         airtableRecordId: 'rec_e2e_readback',
@@ -70,6 +72,46 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
     expect(inquiry?.airtable_record_id).toBe('rec_e2e_readback');
   });
 
+  test.describe('persists flexible flags', () => {
+    for (const flag of [true, false]) {
+      test(`stores is_*_flexible = ${flag}`, async ({ request }) => {
+        const response = await request.post('/api/inquiries', {
+          data: {
+            vendor_id: 'TEST-E2E-002',
+            isTestRecord: true,
+            firstName: 'Playwright',
+            lastName: 'Test',
+            email: 'playwright-test@example.com',
+            additionalDetails: 'Automated flexible-flags check.',
+            weddingDate: '2027-06-12',
+            flexibleDate: flag,
+            location: 'Boston, MA',
+            budget: '500',
+            flexibleBudget: flag,
+            peopleCount: '4',
+            flexibleCount: flag,
+            services: ['Hair'],
+          },
+        });
+        expect(response.status()).toBe(201);
+        const { data } = await response.json();
+
+        const { data: inquiry, error } = await supabaseTestClient
+          .from('inquiries')
+          .select('is_wedding_date_flexible, is_budget_flexible, is_people_count_flexible')
+          .eq('id', data.id)
+          .single();
+
+        expect(error).toBeNull();
+        expect(inquiry).toEqual({
+          is_wedding_date_flexible: flag,
+          is_budget_flexible: flag,
+          is_people_count_flexible: flag,
+        });
+      });
+    }
+  });
+
   test('returns 422 for an unknown vendor_id', async ({ request }) => {
     const response = await request.post('/api/inquiries', {
       data: {
@@ -81,6 +123,7 @@ test.describe('POST /api/inquiries (local Supabase)', () => {
         additionalDetails: 'Automated Phase 0 e2e check.',
         location: 'Boston, MA',
         budget: '500',
+        flexibleBudget: false,
         peopleCount: '4',
         services: ['Hair'],
       },
@@ -241,6 +284,7 @@ test('returns 422 for short and alphabetic phones within the length limit', asyn
         additionalDetails: 'Bad phone e2e check.',
         location: 'Boston, MA',
         budget: '500',
+        flexibleBudget: false,
         peopleCount: '4',
         services: ['Hair'],
       },

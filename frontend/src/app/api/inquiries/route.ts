@@ -46,7 +46,7 @@ export async function POST(
       is_wedding_date_flexible: input.flexibleDate,
 
       budget: input.budget,
-      is_budget_flexible: false, // no flexibleBudget field in current form
+      is_budget_flexible: input.flexibleBudget,
 
       services: input.services,
       makeup_styles: input.makeupStyles.length > 0 ? input.makeupStyles : null,
