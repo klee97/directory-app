@@ -18,22 +18,25 @@ type Severity = "success" | "warning" | "error";
 // Reclassifying an outcome should force a conscious test edit.
 const EXPECTED = {
   // success
-  sent_claim_email: { severity: "success", alert: false },
   claimed: { severity: "success", alert: true },
+  sent_claim_email: { severity: "success", alert: false },
+
   // warning, log-only
-  invalid_token: { severity: "warning", alert: false },
-  expired_claim_link: { severity: "warning", alert: false },
   cooldown: { severity: "warning", alert: false },
   race_lost: { severity: "warning", alert: false },
-  vendor_not_found: { severity: "warning", alert: false },
-  already_claimed: { severity: "warning", alert: false },
-  no_email: { severity: "warning", alert: false },
   recaptcha_failed: { severity: "warning", alert: false },
+  expired_claim_link: { severity: "warning", alert: false },
+
   // warning, alert
+  vendor_not_found: { severity: "warning", alert: true },
+  already_claimed: { severity: "warning", alert: true },
+  no_email: { severity: "warning", alert: true },
+  invalid_token: { severity: "warning", alert: true },
   revalidate_failed: { severity: "warning", alert: true },
   email_exists: { severity: "warning", alert: true },
   email_mismatch: { severity: "warning", alert: true },
-  // error (always alert)
+
+  // error (always alert)  
   claimed_with_error: { severity: "error", alert: true },
   vendor_update_failed: { severity: "error", alert: true },
   rollback_failed: { severity: "error", alert: true },
