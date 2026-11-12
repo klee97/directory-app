@@ -1,9 +1,11 @@
 import { NextRequest } from 'next/server';
 import { getPartialLeadsTable } from '@/lib/airtable/constants';
 import { apiError, apiSuccess } from '@/lib/api/respond';
+import { normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 export async function POST(req: NextRequest) {
   const partialLead = await req.json();
+  const email = normalizeEmail(partialLead.body.email);
 
   try {
     const record = await getPartialLeadsTable().create([
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
           'Fields Completed': partialLead.fieldsCompleted?.join(', '),
           'Time Spent (seconds)': partialLead.timeSpent,
           'Timestamp': partialLead.timestamp,
-          'Email': partialLead.formData.email,
+          'Email': email ? email : undefined,
           'First Name': partialLead.formData.firstName,
           'Last Name': partialLead.formData.lastName,
           'Wedding Date': partialLead.formData.weddingDate ? partialLead.formData.weddingDate : undefined,

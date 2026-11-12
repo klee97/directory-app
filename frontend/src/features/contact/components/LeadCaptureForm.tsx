@@ -34,6 +34,7 @@ import { LeadFormData, LeadFormErrors, LeadStatus, PartialLead } from '@/types/l
 import { getSelectedServiceLabels } from '@/lib/directory/getServiceTagNames';
 import { submitInquiryToSupabase } from '../api/submitInquiry';
 import { isValidPhone, PHONE_ERROR_MESSAGE } from '@/utils/phoneValidation';
+import { isValidEmail, normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 interface LeadCaptureFormProps {
   onClose?: () => void;
@@ -163,8 +164,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   const steps = ['Artist fit', 'Personal details'];
 
   // tag ids and display names of the services offered (makeup or hair)
-  const serviceOptions: VendorTag[] = vendor.serviceTags
-    .filter((t: VendorTag) => t.id && t.display_name && t.type === 'SERVICE');
+  const serviceOptions = useMemo(
+    () => vendor.serviceTags.filter((t) => t.id && t.display_name && t.type === 'SERVICE'),
+    [vendor.serviceTags]
+  );
 
   const selectedServiceLabels = useMemo(
     () => getSelectedServiceLabels(formData.services, serviceOptions),
@@ -278,9 +281,10 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         }
         if (!formData.firstName.trim()) newErrors.firstName = 'Enter your first name';
         if (!formData.lastName.trim()) newErrors.lastName = 'Enter your last name';
-        if (!formData.email.trim()) {
+        const email = normalizeEmail(formData.email);
+        if (!email) {
           newErrors.email = 'Enter your email';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        } else if (!isValidEmail(email)) {
           newErrors.email = 'Enter a valid email address';
         }
         const phone = formData.phone.trim();
@@ -321,6 +325,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
         const partialLead: PartialLead = {
           formData: {
             ...formData,
+            email: normalizeEmail(formData.email),
             services: selectedServiceLabels,
           },
           vendor: {
@@ -363,12 +368,14 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
   };
   const handleClose = async () => {
     const timeSpent = getTimeSpentSeconds(formStartTime);
+    const email = normalizeEmail(formData.email);
 
     // Save partial lead if they have email or completed step 1
-    if ((activeStep === 1 && formData.email) || (activeStep >= 0 && completedFields.length >= 3)) {
+    if ((activeStep === 1 && email) || (activeStep >= 0 && completedFields.length >= 3)) {
       const partialLead: PartialLead = {
         formData: {
           ...formData,
+          email: email,
           services: selectedServiceLabels,
         },
         vendor: {
@@ -376,7 +383,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
           slug: vendor.slug,
           id: vendor.id
         },
-        status: formData.email ? LeadStatus.STEP_2_WITH_EMAIL : LeadStatus.STEP_1_COMPLETED,
+        status: email ? LeadStatus.STEP_2_WITH_EMAIL : LeadStatus.STEP_1_COMPLETED,
         stepNumber: activeStep + 1,
         fieldsCompleted: completedFields,
         timeSpent,
@@ -417,6 +424,7 @@ const LeadCaptureForm: React.FC<LeadCaptureFormProps> = ({
     try {
       const formDataWithServices: LeadFormData = {
         ...formData,
+        email: normalizeEmail(formData.email),
         services: selectedServiceLabels,
       };
       const { success, recordId } = await submitToAirtable(formDataWithServices, vendor);

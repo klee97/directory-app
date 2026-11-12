@@ -5,6 +5,7 @@ import { UserRole } from '@/lib/auth/userRole';
 import { revalidateVendor } from '@/lib/actions/revalidate';
 import { isClaimProfileEnabled } from '@/lib/env/env';
 import { type ClaimLinkOutcome, recordClaimLinkOutcome } from '@/lib/monitoring/claimLinkEvents';
+import { normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 /**
  * Verification happens when the claim page loads, but the form posts the token
@@ -167,10 +168,10 @@ export async function signUpAndClaimVendor(email: string, accessToken: string, p
   // The client controls `email`, and the account is created pre-confirmed on
   // the strength of it being the address we already hold, so enforce that.
   // Same response as an invalid token so it reveals nothing about the listing.
-  const normalizedEmail = email.trim().toLowerCase();
-
+  const normalizedEmail = normalizeEmail(email);
+  const vendorEmail = normalizeEmail(vendor.email);
   // The claimant must use the email on file for the vendor.
-  if (!vendor.email || normalizedEmail !== (vendor.email ?? '').trim().toLowerCase()) {
+  if (!vendorEmail || normalizedEmail !== vendorEmail) {
     await record("email_mismatch", vendor.slug);
     return { success: false, error: 'Invalid access token or vendor not found', type: 'invalid_token' };
   }
