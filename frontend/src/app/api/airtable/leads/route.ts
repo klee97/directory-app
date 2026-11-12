@@ -1,12 +1,18 @@
 import { NextRequest } from 'next/server';
 import { getLeadsTable, getVendorsTable } from '@/lib/airtable/constants';
 import { apiError, apiSuccess } from '@/lib/api/respond';
+import { isValidEmail, normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 export async function POST(req: NextRequest) {
   const { formData, vendor } = await req.json();
 
   if (!formData.email || !formData.firstName || !formData.lastName) {
     return apiError('Required fields are missing.', 400);
+  }
+
+  const email = normalizeEmail(formData.email);
+  if (!isValidEmail(email)) {
+    return apiError('Invalid email address.', 400);
   }
 
   try {
@@ -28,7 +34,7 @@ export async function POST(req: NextRequest) {
     }
 
     const fields: Record<string, string | number | boolean | string[]> = {
-      'Email': formData.email,
+      'Email': email,
       'Phone': formData.phone,
       'First Name': formData.firstName,
       'Last Name': formData.lastName,

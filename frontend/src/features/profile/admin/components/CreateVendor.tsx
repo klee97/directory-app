@@ -27,6 +27,7 @@ import { shouldIncludeTestVendors } from '@/lib/env/env';
 import { normalizeUrl } from '@/lib/profile/normalizeUrl';
 import { normalizeInstagramHandle } from '@/lib/profile/normalizeInstagram';
 import InputAdornment from '@mui/material/InputAdornment';
+import { normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 // Define types directly in the file
 export interface CreateVendorInput {
@@ -99,6 +100,7 @@ export const AdminAddVendorManagement = () => {
 
       const newVendorData = {
         ...newVendor,
+        email: normalizeEmail(newVendor.email) || null,
         ...(id && { id }),
       };
 
@@ -208,7 +210,7 @@ export const AdminAddVendorManagement = () => {
         )}
 
         {/* Show warning if trying to create test vendor in production */}
-        {!shouldIncludeTestVendors && isTestVendor && (
+        {!shouldIncludeTestVendors() && isTestVendor && (
           <Alert severity="error" sx={{ mb: 2 }}>
             Test vendors can only be created in development environment.
           </Alert>
@@ -235,7 +237,7 @@ export const AdminAddVendorManagement = () => {
               label="Email"
               variant="outlined"
               value={newVendor.email ?? ""}
-              onChange={(e) => setNewVendor({ ...newVendor, email: e.target.value })}
+              onChange={(e) => setNewVendor({ ...newVendor, email: normalizeEmail(e.target.value) })}
             />
             <TextField
               required
