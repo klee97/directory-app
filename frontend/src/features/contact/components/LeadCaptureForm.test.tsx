@@ -111,7 +111,7 @@ function renderForm() {
   );
 }
 
-async function fillStep2() {
+async function fillStep2({ email = 'jane.doe@example.com' }: { email?: string } = {}) {
   await userEvent.type(
     document.body.querySelector('input[name="firstName"]') as HTMLInputElement,
     'Jane'
@@ -122,7 +122,7 @@ async function fillStep2() {
   );
   await userEvent.type(
     document.body.querySelector('input[name="email"]') as HTMLInputElement,
-    'jane.doe@example.com'
+    email
   );
   await userEvent.type(
     document.body.querySelector('input[name="weddingDate"]') as HTMLInputElement,
@@ -468,5 +468,37 @@ describe('LeadCaptureForm — optional phone number', () => {
 
     await waitFor(() => expect(mockedSubmitToAirtable).toHaveBeenCalledTimes(1));
     expect(mockedSubmitToAirtable.mock.calls[0][0].phone).toBe(value);
+  });
+});
+
+describe('LeadCaptureForm — email validation', () => {
+  const submitButton = () => screen.getByRole('button', { name: /send inquiry|get my quote/i });
+
+  it.each([
+    ['consecutive dots in domain', 'jane@example..com'],
+    ['consecutive dots in local part', 'ja..ne@example.com'],
+    ['no TLD', 'jane@example'],
+  ])('blocks submit and shows an error for invalid email (%s)', async (_label, email) => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2({ email });
+
+    await userEvent.click(submitButton());
+
+    expect(await screen.findByText(/enter a valid email address/i)).toBeInTheDocument();
+    expect(mockedSubmitToAirtable).not.toHaveBeenCalled();
+    expect(mockedSubmitInquiryToSupabase).not.toHaveBeenCalled();
+  });
+
+  it('lowercases the email before sending it to Airtable and Supabase', async () => {
+    renderForm();
+    await fillStep1AndContinue(['Hair']);
+    await fillStep2({ email: 'Jane.Doe@Example.COM' });
+
+    await userEvent.click(submitButton());
+
+    await waitFor(() => expect(mockedSubmitInquiryToSupabase).toHaveBeenCalledTimes(1));
+    expect(mockedSubmitToAirtable.mock.calls[0][0].email).toBe('jane.doe@example.com');
+    expect(mockedSubmitInquiryToSupabase.mock.calls[0][0].email).toBe('jane.doe@example.com');
   });
 });

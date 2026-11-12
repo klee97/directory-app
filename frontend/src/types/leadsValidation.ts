@@ -1,4 +1,4 @@
-import { normalizeEmail } from '@/lib/profile/normalizeEmail';
+import { emailSchema, normalizeEmail } from '@/lib/profile/normalizeEmail';
 import { isValidPhone, PHONE_ERROR_MESSAGE, PHONE_MAX_LENGTH } from '@/utils/phoneValidation';
 import { z } from 'zod';
 
@@ -22,7 +22,7 @@ export const leadFormSchema = z.object({
     .string()
     .max(255)
     .transform((v) => normalizeEmail(v))
-    .pipe(z.email('Enter a valid email address')),
+    .pipe(emailSchema),
   phone: z
     .string()
     .trim()

@@ -5,7 +5,7 @@ import { normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 export async function POST(req: NextRequest) {
   const partialLead = await req.json();
-  const email = normalizeEmail(partialLead.body.email);
+  const email = normalizeEmail(partialLead.formData.email);
 
   try {
     const record = await getPartialLeadsTable().create([
