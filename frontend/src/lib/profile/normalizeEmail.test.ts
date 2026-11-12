@@ -12,6 +12,8 @@ describe('isValidEmail', () => {
     'ja..ne@example.com',  // consecutive dots in the local part
     '.jane@example.com',   // leading dot
     'jane@example',        // no TLD
+    'jane @gmail.com',     // internal whitespace
+    'jane\u200B@gmail.com', // zero-width space
   ])('rejects %s', (address) => {
     expect(isValidEmail(address)).toBe(false);
   });

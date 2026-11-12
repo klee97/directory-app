@@ -432,16 +432,27 @@ describe("signUpAndClaimVendor: email must match the vendor on file", () => {
     );
   });
 
-  it("folds look-alike characters, but still creates the account under the on-file address", async () => {
+  it("does not fold look-alike characters, so a full-width email can't claim", async () => {
     queueFlow();
 
-    // Full-width "ｖ" folds to "v" under NFKC.
+    // Full-width "ｖ" is a different character from "v". It is no longer
+    // folded, so it doesn't match the on-file address.
     const result = await signUpAndClaimVendor("ｖendor@acme.com", "tok", "pw");
 
-    expect(result).toMatchObject({ success: true });
-    expect(mocks.createUser).toHaveBeenCalledWith(
-      expect.objectContaining({ email: EMAIL })
-    );
+    expect(result).toMatchObject({ success: false, type: "invalid_token" });
+    expect(mocks.createUser).not.toHaveBeenCalled();
+    expect(mocks.record).toHaveBeenCalledTimes(1);
+    expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
+  });
+
+  it("does not repair internal whitespace", async () => {
+    queueFlow();
+
+    const result = await signUpAndClaimVendor("vendor @acme.com", "tok", "pw");
+
+    expect(result).toMatchObject({ success: false, type: "invalid_token" });
+    expect(mocks.createUser).not.toHaveBeenCalled();
+    expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
   });
 
   it.each([
