@@ -1,4 +1,5 @@
 "use server";
+import { isValidEmail, normalizeEmail } from "@/lib/profile/normalizeEmail";
 import { verifyRecaptchaToken } from "@/lib/security/recaptchaVerification";
 import { createServerClient } from "@/lib/supabase/clients/serverClient";
 import { BackendVendorRecommendationInsert } from "@/types/vendor";
@@ -14,14 +15,17 @@ export const createRecommendation = async (rec: BackendVendorRecommendationInser
       throw new Error("Security verification failed. Please try again.");
     }
 
-    // Create the recommendation in database
+    const email = normalizeEmail(cleanRec.recommended_by);
+    if (email && !isValidEmail(email)) {
+      throw new Error("Please enter a valid email address.");
+    }
+
     const supabaseServerClient = await createServerClient();
     const { data, error } = await supabaseServerClient
       .from("vendor_recommendations")
-      .insert(cleanRec)
+      .insert({ ...cleanRec, recommended_by: email || null })
       .select("id")
       .single();
-
     if (error) {
       console.error("Error creating recommendation:", error);
       throw error;

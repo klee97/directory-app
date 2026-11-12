@@ -16,6 +16,7 @@ import { signUpAndClaimVendor } from "@/features/profile/dashboard/hooks/claimVe
 import { useNotification } from "@/contexts/NotificationContext";
 import { validatePassword } from "@/utils/passwordValidation";
 import TermsCheckbox from "@/components/layouts/TermsCheckbox";
+import { normalizeEmail } from "@/lib/profile/normalizeEmail";
 
 interface VendorClaimFormProps {
   vendorInfo: { name: string; email: string };
@@ -64,10 +65,11 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
     }
 
     setIsClaiming(true);
+    const email = normalizeEmail(vendorInfo.email);
 
     try {
       const result = await signUpAndClaimVendor(
-        vendorInfo.email,
+        email,
         token,
         password,
       );
@@ -79,7 +81,7 @@ export default function VendorClaimForm({ vendorInfo, token }: VendorClaimFormPr
       }
 
       const { error: signInError } = await supabaseBrowserClient.auth.signInWithPassword({
-        email: result.email ?? vendorInfo.email.trim().toLowerCase(),
+        email: result.email ?? email,
         password,
       });
 

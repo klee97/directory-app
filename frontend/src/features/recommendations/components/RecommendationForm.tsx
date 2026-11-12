@@ -9,6 +9,7 @@ import { createRecommendation } from '@/features/recommendations/api/createRecom
 import { useNotification } from '@/contexts/NotificationContext';
 import ReCaptcha, { ReCaptchaRef } from '@/components/security/ReCaptcha';
 import { isDevOrPreview } from '@/lib/env/env';
+import { normalizeEmail, isValidEmail } from '@/lib/profile/normalizeEmail';
 
 export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationInsert = {
   business_name: "",
@@ -23,21 +24,23 @@ export const VENDOR_RECOMMENDATION_INPUT_DEFAULT: BackendVendorRecommendationIns
 const RecommendationForm = () => {
   const { addNotification } = useNotification();
   const [recommendation, setRecommendation] = useState<BackendVendorRecommendationInsert>(VENDOR_RECOMMENDATION_INPUT_DEFAULT);
-  const [errors, setErrors] = useState({ business_name: false, region: false });
+  const [errors, setErrors] = useState({ business_name: false, region: false, email: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const recaptchaRef = useRef<ReCaptchaRef>(null);
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    const email = normalizeEmail(recommendation.recommended_by);
 
     // Validate required fields
     const newErrors = {
       business_name: !recommendation.business_name.trim(),
       region: !recommendation.region.trim(),
+      email: email !== '' && !isValidEmail(email),
     };
 
     setErrors(newErrors);
-    if (newErrors.business_name || newErrors.region) {
+    if (Object.values(newErrors).some(Boolean)) {
       return;
     }
 
@@ -60,6 +63,7 @@ const RecommendationForm = () => {
       // Add token to submission data
       const submissionData = {
         ...recommendation,
+        recommended_by: email,
         recaptchaToken
       };
       const res = await createRecommendation(submissionData);
@@ -122,7 +126,9 @@ const RecommendationForm = () => {
         type="email"
         slotProps={{ htmlInput: { inputMode: 'email' } }}
         value={recommendation.recommended_by ?? ""}
-        onChange={(e) => setRecommendation({ ...recommendation, recommended_by: e.target.value })}
+        onChange={(e) => setRecommendation({ ...recommendation, recommended_by: normalizeEmail(e.target.value) })}
+        error={errors.email}
+        helperText={errors.email ? "Enter a valid email address" : ""}
         sx={{ mb: 2 }}
       />
       <TextField

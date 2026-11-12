@@ -5,6 +5,7 @@ import { prepareVendorData } from "@/features/profile/admin/util/vendorHelper";
 import { createHubSpotContact } from "@/lib/hubspot/hubspot";
 import { isTestVendor, shouldIncludeTestVendors } from "@/lib/env/env";
 import { CurrentUser, getCurrentUser } from "@/lib/auth/getUser";
+import { isValidEmail, normalizeEmail } from "@/lib/profile/normalizeEmail";
 
 export const createVendor = async (
   vendor: BackendVendorInsert,
@@ -42,19 +43,19 @@ export const createVendor = async (
     throw new Error("You do not have permission to create vendors");
   }
 
-  console.debug("Vendor insert data:", vendor);
-  const vendorData = await prepareVendorData(vendor, { mode: 'create' });
-
-  console.debug("Updated vendor insert data:", vendorData);
+  const email = normalizeEmail(vendor.email);
+  if (email && !isValidEmail(email)) {
+    throw new Error("Please enter a valid email address.");
+  }
+  const normalizedVendor: BackendVendorInsert = { ...vendor, email: email || null };
+  const vendorData = await prepareVendorData(normalizedVendor, { mode: 'create' });
 
   // Proceed with vendor creation
   const { data, error } = await supabaseServerClient.from("vendors").insert(vendorData).select("id, slug").single();
 
   if (data && data.id && data.slug) {
-    console.log("Vendor created successfully!", data);
 
     await supabaseServerClient.rpc("update_vendor_location", { vendor_id: data.id });
-    console.log("Vendor region updated successfully!", data);
 
     // Add tags to the vendor
     const tagsToAdd = tags ?? [];
@@ -70,11 +71,11 @@ export const createVendor = async (
 
     // ✅ Skip HubSpot for test vendors
     if (isTestVendor(data.id)) {
-      console.log("⚠️  Skipping HubSpot contact creation for test vendor:", data.id);
-    } else if (vendor.email) {
+      console.debug("⚠️  Skipping HubSpot contact creation for test vendor:", data.id);
+    } else if (email) {
       // Create a contact in HubSpot if email is provided
       const hubspotContactId = await createHubSpotContact({
-        email: vendor.email,
+        email: email,
         firstname: firstname,
         lastname: lastname,
         slug: data.slug,
@@ -84,10 +85,10 @@ export const createVendor = async (
       if (!hubspotContactId) {
         console.error("Failed to create HubSpot contact for vendor:", data.slug);
       } else {
-        console.log("HubSpot contact created successfully!", hubspotContactId);
+        console.debug("HubSpot contact created successfully!", hubspotContactId);
       }
     } else {
-      console.log("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
+      console.debug("No email provided, skipping HubSpot contact creation for vendor:", data?.slug);
     }
   }
 
@@ -96,7 +97,7 @@ export const createVendor = async (
     throw error;
   }
 
-  console.log("Vendor created successfully!", data);
+  console.debug("Vendor created successfully!", data);
 
   return data;
 };
