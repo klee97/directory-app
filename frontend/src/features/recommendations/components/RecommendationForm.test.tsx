@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import RecommendationForm from './RecommendationForm';
+import RecommendationForm from '@/features/recommendations/components/RecommendationForm';
 
 const mocks = vi.hoisted(() => ({
   createRecommendation: vi.fn(),
@@ -21,7 +21,7 @@ vi.mock('@/lib/env/env', () => ({ isDevOrPreview: mocks.isDevOrPreview }));
 vi.mock('@/components/security/ReCaptcha', async () => {
   const React = await import('react');
   return {
-    default: React.forwardRef<unknown>((_props, ref) => {
+    default: React.forwardRef<unknown>(function MockReCaptcha(_props, ref) {
       React.useImperativeHandle(ref, () => ({
         executeAsync: mocks.executeAsync,
         reset: mocks.reset,
@@ -44,7 +44,7 @@ beforeEach(() => {
   mocks.createRecommendation.mockResolvedValue({ id: 'rec_1' });
   mocks.executeAsync.mockResolvedValue('token-123');
   mocks.isDevOrPreview.mockReturnValue(false);
-  vi.spyOn(console, 'error').mockImplementation(() => {});
+  vi.spyOn(console, 'error').mockImplementation(() => { });
 });
 
 describe('RecommendationForm: required fields', () => {
