@@ -34,6 +34,7 @@ import { updateEmail } from "@/features/settings/api/updateEmail";
 import { updateInquiryAvailability } from "@/features/settings/api/updateInquiryAvailability";
 import { revalidateVendor } from "@/lib/actions/revalidate";
 import ChangePasswordDialog from "./ChangePasswordDialog";
+import { isValidEmail, normalizeEmail } from "@/lib/profile/normalizeEmail";
 
 type VendorSettingsProps = {
   userEmail: string;
@@ -62,6 +63,9 @@ export const VendorSettings = ({
   const { isLoggedIn, isLoading } = useAuth();
 
   const isUserEmailVerified = userEmail.trim() !== '';
+  const normalizedNewEmail = normalizeEmail(email);
+  const isSameEmail = normalizedNewEmail !== '' && normalizedNewEmail === normalizeEmail(userEmail);
+  const isInvalidEmail = normalizedNewEmail !== '' && !isValidEmail(normalizedNewEmail);
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -87,17 +91,21 @@ export const VendorSettings = ({
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim() === '' || email.toLowerCase() === userEmail.toLowerCase()) {
+    if (!isValidEmail(normalizedNewEmail)) {
+      addNotification('Enter a valid email address', 'error');
+      return;
+    }
+    if (isSameEmail) {
       addNotification('New email address must be different from current email', 'error');
       return;
     }
     setIsSubmitting(true);
-    const result = await updateEmail(userEmail, emailChangePassword, email, true);
+    const result = await updateEmail(userEmail, emailChangePassword, normalizedNewEmail, true);
     if (result?.error) {
       addNotification(result.error || 'Failed to update email address', 'error');
     } else {
       addNotification(
-        'Check your inbox to verify your new vendor account email address: ' + email,
+        'Check your inbox to verify your new vendor account email address: ' + normalizedNewEmail,
         'success'
       );
       setNewEmail('');
@@ -254,11 +262,11 @@ export const VendorSettings = ({
               margin="normal"
               required
               disabled={isSubmitting}
-              error={email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()}
+              error={isSameEmail || isInvalidEmail}
               helperText={
-                email.trim() !== '' && email.toLowerCase() === userEmail.toLowerCase()
-                  ? "New email address must be different from current email"
-                  : ""
+                isSameEmail ? "New email address must be different from current email"
+                  : isInvalidEmail ? "Enter a valid email address"
+                    : ""
               }
             />
           </form>
@@ -278,8 +286,7 @@ export const VendorSettings = ({
             onClick={handleEmailChange}
             color="primary"
             variant="contained"
-            disabled={isSubmitting || email.trim() === '' || email.toLowerCase() === userEmail?.toLowerCase()}
-          >
+            disabled={isSubmitting || !normalizedNewEmail || isSameEmail || isInvalidEmail}          >
             {isSubmitting ? 'Updating...' : 'Update Email'}
           </Button>
         </DialogActions>
