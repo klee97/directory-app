@@ -198,7 +198,7 @@ export default function ManageProfilePrompt({
                 )}
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                   Claim this profile to update your photo, bio, and pricing.
-                  We'll send a claim link to the email associated with this business ({emailHint}).
+                  We&apos;ll send a claim link to the email associated with this business ({emailHint}).
                 </Typography>
                 <Box
                   sx={{
