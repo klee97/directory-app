@@ -24,7 +24,7 @@ const CLAIM_LINK_VENDOR = {
   slug: 'test-claim-link-vendor',
   businessName: 'Test Claim Link Vendor',
   // maskEmail('claim-link-vendor@example.com')
-  emailHint: 'cl•••@•••.com',
+  emailHint: 'cl•••@example.com',
 };
 
 const MANAGE_LINK = 'Is this your business? Manage this profile.';
@@ -70,12 +70,12 @@ test.describe('Vendor profile — Manage this profile CTA', () => {
     test('opens a dialog showing only a masked hint of the email on file', async ({ page }) => {
       const dialog = page.getByRole('dialog');
 
-      await expect(dialog.getByText('Manage this profile')).toBeVisible();
+      await expect(dialog.getByText('Claim this profile')).toBeVisible();
       await expect(dialog.getByText(CLAIM_LINK_VENDOR.businessName)).toBeVisible();
       await expect(dialog.getByText(CLAIM_LINK_VENDOR.emailHint)).toBeVisible();
       // The full address is never sent to the client.
       await expect(dialog).not.toContainText('claim-link-vendor@example.com');
-      await expect(dialog.getByRole('button', { name: 'Send me a link' })).toBeVisible();
+      await expect(dialog.getByRole('button', { name: 'Send claim link' })).toBeVisible();
     });
 
     test('cancelling closes the dialog without sending', async ({ page }) => {
@@ -88,7 +88,7 @@ test.describe('Vendor profile — Manage this profile CTA', () => {
     test('sending a link shows the check-your-inbox confirmation', async ({ page }) => {
       const dialog = page.getByRole('dialog');
 
-      await dialog.getByRole('button', { name: 'Send me a link' }).click();
+      await dialog.getByRole('button', { name: 'Send claim link' }).click();
 
       // The action always reports success — the outbound Resend call is not
       // exercised locally, and failures are deliberately indistinguishable.
@@ -101,14 +101,14 @@ test.describe('Vendor profile — Manage this profile CTA', () => {
 
     test('reopening after a send returns to the initial state', async ({ page }) => {
       const dialog = page.getByRole('dialog');
-      await dialog.getByRole('button', { name: 'Send me a link' }).click();
+      await dialog.getByRole('button', { name: 'Send claim link' }).click();
       await expect(dialog.getByText('Check your inbox')).toBeVisible({ timeout: 15_000 });
       await dialog.getByRole('button', { name: 'Done' }).click();
       await expect(page.getByRole('dialog')).toBeHidden();
 
       await page.getByRole('button', { name: MANAGE_LINK }).click();
 
-      await expect(page.getByRole('dialog').getByRole('button', { name: 'Send me a link' })).toBeVisible();
+      await expect(page.getByRole('dialog').getByRole('button', { name: 'Send claim link' })).toBeVisible();
     });
   });
 });
