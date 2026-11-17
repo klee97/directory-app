@@ -91,7 +91,7 @@ export const VendorSettings = ({
 
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidEmail(normalizedNewEmail)) {
+    if (isInvalidEmail) {
       addNotification('Enter a valid email address', 'error');
       return;
     }
