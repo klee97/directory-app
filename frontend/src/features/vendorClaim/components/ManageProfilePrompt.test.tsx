@@ -117,7 +117,7 @@ describe("ManageProfilePrompt", () => {
       await user.click(
         screen.getByRole("button", { name: "Is this your business? Manage this profile." })
       );
-      await user.click(screen.getByRole("button", { name: "Send me a link" }));
+      await user.click(screen.getByRole("button", { name: "Send claim link" }));
     };
 
     it("shows the countdown inline and disables sending instead of toasting", async () => {
@@ -130,7 +130,7 @@ describe("ManageProfilePrompt", () => {
       await openDialogAndSend();
 
       expect(screen.getByText(/Request a\s+new link in 4:00\./)).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Send me a link \(4:00\)/ })).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Send claim link \(4:00\)/ })).toBeDisabled();
       expect(mockAddNotification).not.toHaveBeenCalled();
     });
 
@@ -142,13 +142,13 @@ describe("ManageProfilePrompt", () => {
       });
 
       await openDialogAndSend();
-      expect(screen.getByRole("button", { name: /Send me a link \(0:02\)/ })).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Send claim link \(0:02\)/ })).toBeDisabled();
 
       await act(() => vi.advanceTimersByTimeAsync(1000));
-      expect(screen.getByRole("button", { name: /Send me a link \(0:01\)/ })).toBeDisabled();
+      expect(screen.getByRole("button", { name: /Send claim link \(0:01\)/ })).toBeDisabled();
 
       await act(() => vi.advanceTimersByTimeAsync(1000));
-      expect(screen.getByRole("button", { name: "Send me a link" })).toBeEnabled();
+      expect(screen.getByRole("button", { name: "Send claim link" })).toBeEnabled();
     });
 
     it("still toasts errors that carry no cooldown", async () => {

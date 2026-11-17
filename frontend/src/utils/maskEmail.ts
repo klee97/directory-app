@@ -9,9 +9,5 @@ export function maskEmail(email: string): string {
 
   const maskedLocal = `${local.slice(0, 2)}•••`;
 
-  const dotIndex = domain.lastIndexOf(".");
-  if (dotIndex <= 0) return `${maskedLocal}@•••`;
-
-  const tld = domain.slice(dotIndex); // includes the leading dot
-  return `${maskedLocal}@•••${tld}`;
+  return `${maskedLocal}@${domain}`;
 }

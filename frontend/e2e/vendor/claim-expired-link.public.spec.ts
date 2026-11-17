@@ -23,7 +23,7 @@ const EXPIRED_VENDOR = {
   email: 'claim-expired-vendor@example.com',
   token: '33333333-3333-3333-3333-333333333333',
   // maskEmail('claim-expired-vendor@example.com')
-  emailHint: 'cl•••@•••.com',
+  emailHint: 'cl•••@example.com',
 };
 
 const VALID_VENDOR = {
@@ -72,7 +72,7 @@ test.describe('Vendor claim — expired magic link', () => {
     await expect(page).toHaveURL(`/vendors/${EXPIRED_VENDOR.slug}?claim=1`);
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
-    await expect(dialog.getByText('Manage this profile')).toBeVisible();
+    await expect(dialog.getByText('Claim this profile')).toBeVisible();
     await expect(dialog.getByText(EXPIRED_VENDOR.emailHint)).toBeVisible();
   });
 

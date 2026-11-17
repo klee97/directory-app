@@ -188,7 +188,7 @@ export default function ManageProfilePrompt({
             </DialogContent>
           ) : (
             <>
-              <DialogTitle>Manage this profile</DialogTitle>
+              <DialogTitle>Claim this profile</DialogTitle>
               <DialogContent>
                 {cooldownRemaining > 0 && (
                   <Alert severity="warning" sx={{ mb: 2 }}>
@@ -197,8 +197,8 @@ export default function ManageProfilePrompt({
                   </Alert>
                 )}
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  To keep your listing secure, we&apos;ll send a one-time link to the email listed for{" "}
-                  {businessName}:
+                  Claim this profile to update your photo, bio, and pricing.
+                  We&apos;ll send a claim link to the email associated with {businessName}:
                 </Typography>
                 <Box
                   sx={{
@@ -229,8 +229,8 @@ export default function ManageProfilePrompt({
                     {isSending
                       ? "Sending…"
                       : cooldownRemaining > 0
-                        ? `Send me a link (${formatCountdown(cooldownRemaining)})`
-                        : "Send me a link"}
+                        ? `Send claim link (${formatCountdown(cooldownRemaining)})`
+                        : "Send claim link"}
                   </Button>
                 </Box>
               </DialogContent>
