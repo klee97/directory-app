@@ -27,10 +27,13 @@ type Chain = MockChain<unknown>;
 const EMAIL = "vendor@acme.com";
 const iso = (offsetMs: number) => new Date(Date.now() + offsetMs).toISOString();
 
-const vendorRow = (validUntil: string | null = iso(60_000)) => ({
+const vendorRow = (
+  validUntil: string | null = iso(60_000),
+  email: string | null = EMAIL
+) => ({
   id: "v1",
   slug: "acme",
-  email: EMAIL,
+  email,
   access_token_valid_until: validUntil,
 });
 
@@ -406,4 +409,68 @@ describe("signUpAndClaimVendor: email must match the vendor on file", () => {
 
     expect(result).toMatchObject({ success: true });
   });
+
+  it("creates the user with the normalized email and returns it", async () => {
+    queueFlow();
+
+    const result = await signUpAndClaimVendor("  Vendor@ACME.com ", "tok", "pw");
+
+    expect(mocks.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({ email: EMAIL })
+    );
+    expect(result).toMatchObject({ success: true, email: EMAIL });
+  });
+
+  it("normalizes the vendor's stored email too", async () => {
+    queueFlow({ lookup: ok(vendorRow(iso(60_000), "  Vendor@Acme.COM ")) });
+
+    const result = await signUpAndClaimVendor(EMAIL, "tok", "pw");
+
+    expect(result).toMatchObject({ success: true });
+    expect(mocks.createUser).toHaveBeenCalledWith(
+      expect.objectContaining({ email: EMAIL })
+    );
+  });
+
+  it("does not fold look-alike characters, so a full-width email can't claim", async () => {
+    queueFlow();
+
+    // Full-width "ｖ" is a different character from "v". It is no longer
+    // folded, so it doesn't match the on-file address.
+    const result = await signUpAndClaimVendor("ｖendor@acme.com", "tok", "pw");
+
+    expect(result).toMatchObject({ success: false, type: "invalid_token" });
+    expect(mocks.createUser).not.toHaveBeenCalled();
+    expect(mocks.record).toHaveBeenCalledTimes(1);
+    expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
+  });
+
+  it("does not repair internal whitespace", async () => {
+    queueFlow();
+
+    const result = await signUpAndClaimVendor("vendor @acme.com", "tok", "pw");
+
+    expect(result).toMatchObject({ success: false, type: "invalid_token" });
+    expect(mocks.createUser).not.toHaveBeenCalled();
+    expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
+  });
+
+  it.each([
+    ["null", null],
+    ["empty", ""],
+    ["whitespace only", "   "],
+  ])(
+    "rejects every claim when the vendor has no usable email on file (%s)",
+    async (_label, vendorEmail) => {
+      queueFlow({ lookup: ok(vendorRow(iso(60_000), vendorEmail)) });
+
+      // Empty input too, so '' === '' can't slip through.
+      const result = await signUpAndClaimVendor("", "tok", "pw");
+
+      expect(result).toMatchObject({ success: false, type: "invalid_token" });
+      expect(mocks.createUser).not.toHaveBeenCalled();
+      expect(mocks.record).toHaveBeenCalledTimes(1);
+      expect(mocks.record).toHaveBeenCalledWith("email_mismatch", "acme", "claim");
+    }
+  );
 });

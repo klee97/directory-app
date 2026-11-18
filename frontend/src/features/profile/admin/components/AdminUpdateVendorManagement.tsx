@@ -36,6 +36,7 @@ import LocationAutocomplete from '@/features/directory/components/filters/Locati
 import { useLocationForm } from '@/features/profile/dashboard/hooks/useLocationForm';
 import { getDisplayNameWithoutType } from '@/lib/location/locationNames';
 import { getVendorByIdOrSlug } from '@/lib/vendor/fetchVendors';
+import { normalizeEmail } from '@/lib/profile/normalizeEmail';
 
 export const AdminUpdateVendorManagement = () => {
   const { addNotification } = useNotification();
@@ -357,7 +358,7 @@ export const AdminUpdateVendorManagement = () => {
                   label="Email"
                   variant="outlined"
                   value={newFormData!.email ?? ''}
-                  onChange={(e) => handleTextFieldChange(e.target.value, 'email')}
+                  onChange={(e) => handleTextFieldChange(normalizeEmail(e.target.value), 'email')}
                 />
               </Grid>
               <Grid size={4}>

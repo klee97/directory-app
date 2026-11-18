@@ -10,6 +10,7 @@ import { deriveMediaMutations } from "@/lib/images/vendorMediaHelper";
 import { applyVendorMediaMutation } from "@/lib/images/applyVendorMediaMutation";
 import { deleteImageServer } from "./deleteImageServer";
 import { CurrentUser, getCurrentUser } from "@/lib/auth/getUser";
+import { isValidEmail, normalizeEmail } from "@/lib/profile/normalizeEmail";
 
 interface VendorLookup {
   id?: string;
@@ -100,10 +101,21 @@ export const updateVendor = async (
     }
   }
 
+  // Normalize email only if the caller actually sent it.
+  // undefined = "not touching it"; null/empty = "clear it".
+  let normalizedVendor: VendorDataInput = vendor;
+  if (vendor.email !== undefined) {
+    const email = normalizeEmail(vendor.email);
+    if (email && !isValidEmail(email)) {
+      return { success: false, error: "Please enter a valid email address." };
+    }
+    normalizedVendor = { ...vendor, email: email || null };
+  }
+
   // Prepare vendor data
   let vendorData: BackendVendorInsert;
   try {
-    vendorData = await prepareVendorData(vendor, {
+    vendorData = await prepareVendorData(normalizedVendor, {
       mode: 'update',
       existingData: existingVendorData
     });

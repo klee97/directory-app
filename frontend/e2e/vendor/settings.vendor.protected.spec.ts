@@ -1,3 +1,4 @@
+import { Page } from '@playwright/test';
 import { login } from '../fixtures/auth.helpers';
 import { test, expect } from '../fixtures/fixtures';
 import { vendorThrowawayAccount } from '../fixtures/testUsers';
@@ -141,5 +142,83 @@ test.describe.serial('Vendor Settings — change password (throwaway)', () => {
     await page.getByLabel('Confirm New Password').fill(password);
     await page.getByRole('button', { name: 'Update Password' }).click();
     await expect(page.getByRole('dialog')).not.toBeVisible({ timeout: 10_000 });
+  });
+});
+
+test.describe.serial('Vendor Settings — change email (throwaway)', () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  const { email, password } = vendorThrowawayAccount;
+
+  test.beforeEach(async ({ page }) => {
+    await login(page, email, password, '/partner/login', '/partner/dashboard');
+    await page.goto('/partner/settings');
+    await page.getByText('Change Email').click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+  });
+
+  const updateButton = (page: Page) => page.getByRole('button', { name: 'Update Email' });
+
+  test('dialog shows the current account email', async ({ page }) => {
+    await expect(page.getByRole('dialog')).toContainText(`Current email: ${email}`);
+  });
+
+  test('Update Email is disabled until a new email is entered', async ({ page }) => {
+    await expect(updateButton(page)).toBeDisabled();
+  });
+
+  test('the current email is rejected regardless of case or whitespace', async ({ page }) => {
+    await page.getByLabel('New Email Address').fill(`  ${email.toUpperCase()} `);
+
+    await expect(page.getByText('New email address must be different from current email')).toBeVisible();
+    await expect(updateButton(page)).toBeDisabled();
+  });
+
+  test('a malformed email is rejected', async ({ page }) => {
+    await page.getByLabel('New Email Address').fill('not-an-email');
+
+    await expect(page.getByText('Enter a valid email address')).toBeVisible();
+    await expect(updateButton(page)).toBeDisabled();
+  });
+
+  test('wrong current password shows an error and keeps the dialog open', async ({ page }) => {
+    const dialog = page.getByRole('dialog');
+    await page.getByLabel('Current Password').fill('WrongPassword999!');
+    await page.getByLabel('New Email Address').fill('someone-else@example.com');
+    await updateButton(page).click();
+
+    await expect(page.locator('.MuiAlert-filledError')).toBeVisible({ timeout: 10_000 });
+    await expect(dialog).toBeVisible();
+  });
+
+  test('submits the normalized email and confirms with it', async ({ page }) => {
+    // Stub the Supabase "update user" call so no confirmation email is sent and
+    // the account is never actually changed. The password check (signInWithPassword)
+    // still runs against the real throwaway account.
+    let requestBody: { email?: string } | undefined;
+    await page.route(/\/auth\/v1\/user(\?.*)?$/, async (route) => {
+      if (route.request().method() !== 'PUT') return route.continue();
+      requestBody = route.request().postDataJSON();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: '00000000-0000-0000-0000-000000000000',
+          aud: 'authenticated',
+          email, // unchanged: Supabase keeps the old email until confirmation
+          new_email: requestBody?.email,
+        }),
+      });
+    });
+
+    await page.getByLabel('Current Password').fill(password);
+    await page.getByLabel('New Email Address').fill('  E2E.New+Vendor@Example.COM ');
+    await updateButton(page).click();
+
+    await expect(
+      page.getByText('Check your inbox to verify your new vendor account email address: e2e.new+vendor@example.com'),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByRole('dialog')).not.toBeVisible();
+    expect(requestBody?.email).toBe('e2e.new+vendor@example.com');
   });
 });
